@@ -1,0 +1,2 @@
+CRITICAL_DEPENDENCIES = ['numpy', 'MolKit','mglutil']
+NONCRITICAL_DEPENDENCIES = []
