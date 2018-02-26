@@ -53,6 +53,10 @@ fi
 install_directory=`zenity --file-selection --title="Select directory for AMDock installation" --directory`
 
 ## check that AMDock files not exits in destinity
+if [ ! -d "~/.pymol" ]
+    then
+    mkdir ~/.pymol
+fi
 pymol_plugin=~/.pymol/startup
 if [ ! -d "$pymol_plugin" ]
     then
