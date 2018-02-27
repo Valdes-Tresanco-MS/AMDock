@@ -3,14 +3,13 @@
 import Tkinter,Pmw
 from Tkinter import *
 import tkMessageBox
-import Pmw
 from pymol import cmd
 from pymol.cgo import *
 from pymol import stored
 from numpy import *
 import tkColorChooser
 from pymol.vfont import plain
-
+import glob
 
 def __init__(self):
     
@@ -34,6 +33,7 @@ class AMDockPlugin:
         parent = app.root
         self.parent = parent
         self.data = None
+        self.build = False
         try:
             self.file = open('pymol_data.txt')
             for line in self.file:
@@ -42,6 +42,12 @@ class AMDockPlugin:
             self.file.close()
         except:
             pass
+        try:
+            os.remove('pymol_data.txt')
+        except:
+            pass
+        # if len(glob.glob('build_*.txt')) > 1:
+
 
         # box display settings
         self.box_display_mode = BOX_TYPE
@@ -63,16 +69,23 @@ class AMDockPlugin:
         self.size_y = IntVar()
         self.size_z = IntVar()
         if self.data is not None:
-            self.grid_center_selection_mode.set(GRID_CENTER_FROM_COORDINATES)
             self.protein = self.data[0]
-            self.grid_center[0].set(self.data[1])
-            self.grid_center[1].set(self.data[2])
-            self.grid_center[2].set(self.data[3])
-            self.size_x.set(self.data[4])
-            self.size_y.set(self.data[5])
-            self.size_z.set(self.data[6])
+            self.size_x.set(self.data[1])
+            self.size_y.set(self.data[2])
+            self.size_z.set(self.data[3])
+            if len(self.data) > 4:
+                self.grid_center_selection_mode.set(GRID_CENTER_FROM_COORDINATES)
+                self.grid_center[0].set(self.data[4])
+                self.grid_center[1].set(self.data[5])
+                self.grid_center[2].set(self.data[6])
+            else:
+                self.grid_center_selection_mode.set(GRID_CENTER_FROM_SELECTION)
+                self.grid_center[0].set(0)
+                self.grid_center[1].set(0)
+                self.grid_center[2].set(0)
         else:
             self.grid_center_selection_mode.set(GRID_CENTER_FROM_SELECTION)
+            self.protein = None
             self.grid_center[0].set(0)
             self.grid_center[1].set(0)
             self.grid_center[2].set(0)
@@ -164,11 +177,6 @@ class AMDockPlugin:
         self.display_button_box.pack(side=TOP, expand=1, padx=3, pady=3)
 
         self.grid_center_radiogroups = []
-
-        if self.data is not None:
-            self.grid_center_selection_mode.set(GRID_CENTER_FROM_COORDINATES)
-        else:
-            self.grid_center_selection_mode.set(GRID_CENTER_FROM_SELECTION)
 
         self.grid_center_radioframe = Tkinter.Frame(self.main_window.interior())
         # if self.data is not None:
@@ -361,8 +369,6 @@ class AMDockPlugin:
         self.show_box()
         self.grid_center_selection_user.clear()
 
-        print GRID_CENTER_FROM_SELECTION, '1'
-
     def center_x_changed(self, *args):
         self.grid_center_selection_mode.set(GRID_CENTER_FROM_COORDINATES)
         if args[0] == "moveto":
@@ -545,18 +551,3 @@ class AMDockPlugin:
         cmd.set_view(view)
 
 
-
-cmd.set_view((\
-     1.000000000,    0.000000000,    0.000000000,\
-     0.000000000,    1.000000000,    0.000000000,\
-     0.000000000,    0.000000000,    1.000000000,\
-     0.000000000,    0.000000000,  -50.000000000,\
-     0.000000000,    0.000000000,    0.000000000,\
-    40.000000000,  100.000000000,  -20.000000000 ))
-cmd.set_view((\
-     1.000000000,    0.000000000,    0.000000000,\
-     0.000000000,    1.000000000,    0.000000000,\
-     0.000000000,    0.000000000,    1.000000000,\
-     0.000000000,    0.000000000,  -50.000000000,\
-     0.000000000,    0.000000000,    0.000000000,\
-    40.000000000,  100.000000000,  -20.000000000 ))
