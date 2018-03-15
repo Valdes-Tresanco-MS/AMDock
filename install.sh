@@ -77,7 +77,7 @@ fi
 # fi
 
 
-desktop_apps=~/.local/share/applications
+desktop_apps=$HOME/.local/share/applications
 if [ ! -f "$desktop_apps/AMDock.desktop" ]
   then
   echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=AMDock\nIcon='$install_directory'/AMDock/AMDock/images/amdock_icon.png\nExec="'$install_directory'/AMDock/AMDock.sh" %f\nComment=Program for performace a Assited Molecular Docking with AutoDock4 and AutoDock Vina\nCategories=Science\nTerminal=false' >> $desktop_apps/AMDock.desktop
