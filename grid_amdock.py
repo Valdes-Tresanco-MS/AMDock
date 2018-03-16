@@ -1,4 +1,5 @@
-
+# This file is sa modification of AutoDock/AutoDock Vina plugin for pymol
+# Autodock/Vina plugin is Copyright (C) 2009 by Daniel Seeliger
 #================================================================
 import Tkinter,Pmw
 from Tkinter import *
@@ -16,7 +17,7 @@ def __init__(self):
     self.menuBar.addmenu('AMDock', 'Run the AMDock Plugin',tearoff=TRUE)
     self.menuBar.addmenuitem('AMDock', 'command',
    'AMDock Plugin',
-    label='AMDock Box Constructor',
+    label='AMDock Box Builder',
     command = lambda s=self: AMDockPlugin(s))
 #
     cmd.set("retain_order") # keep atom ordering
@@ -97,7 +98,7 @@ class AMDockPlugin:
 
         # build main window
         self.main_window = Pmw.Dialog(parent,
-                                 buttons = ('Save Grid Information',),
+                                 buttons = ('Save Box Information',),
                                  title = 'PyMOL AMDock Plugin',
                                  command = self.button_pressed)
         self.main_window.withdraw()
