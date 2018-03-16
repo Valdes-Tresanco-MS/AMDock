@@ -1,5 +1,5 @@
 from PyQt4 import QtGui, QtCore
-import os
+import os, subprocess
 
 
 class Help(QtGui.QWidget):
@@ -26,7 +26,7 @@ class Help(QtGui.QWidget):
         self.documentation_button = QtGui.QPushButton(self.documentation_box)
         self.documentation_button.setGeometry(QtCore.QRect(420, 15, 100, 25))
         self.documentation_button.setText('Documentation')
-        self.documentation_button.clicked.connect(lambda : os.startfile(self.parent.ws.manual))
+        self.documentation_button.clicked.connect(lambda : subprocess.call(['evince',self.parent.ws.manual]))
 
         self.citing_box = QtGui.QGroupBox(self)
         self.citing_box.setGeometry(QtCore.QRect(5, 115, 890, 70))

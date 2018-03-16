@@ -1,5 +1,5 @@
 # AMDock
-Build 1.0.0
+-Build 1.0.0
 
 INSTALLATION
 descompress the *.zip file
@@ -13,3 +13,6 @@ if not, please select the previous address
 
 UNISTALL
 Search the installation directory and execute ./unistall.sh and follow instructions
+
+
+

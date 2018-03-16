@@ -729,7 +729,7 @@ class Program_body(QtGui.QWidget):
         self.progressBar.setTextDirection(QtGui.QProgressBar.TopToBottom)
         self.progressBar.setObjectName("progressBar")
         self.progressBar.setFormat("%p%")
-        # self.progressBar.setValue(25)
+        #self.progressBar.setValue(50)
 
         self.progressBar_label = QtGui.QLabel(self)
         self.progressBar_label.setGeometry(QtCore.QRect(130, 555, 650, 25))
@@ -737,8 +737,8 @@ class Program_body(QtGui.QWidget):
         self.indic_label = QtGui.QLabel(self)
         self.indic_label.setGeometry(QtCore.QRect(125, 510, 650, 20))
         self.indic_label.setText(
-            '| -- Init Conf -- | --- Prep. Input Files --- | ------ Search Space Definition ------ |'
-            ' -------------------------- Molecular Docking Simulation --------------------------- |')
+            '| -- Init Conf -- | --- Prep. Input Files --- | ----- Search Space Definition ------ |'
+            ' ------------------------- Molecular Docking Simulation ------------------------- |')
         font3 = QtGui.QFont()
         font3.setPointSize(8)
         self.indic_label.setFont(font3)
@@ -4466,8 +4466,7 @@ class Program_body(QtGui.QWidget):
         else:
             shutil.copy(self.ws.zn_ff, os.getcwd())
             scoring_autodockzn_arg = [self.ws.autodock_scorer, '-r', self.parent.v.protein_pdbqt, '-l',
-                                    self.parent.v.ligand_pdbqt, '-o',os.path.join(self.parent.v.result_dir, self.parent.v.ligand_name + '_score.log',
-                                                                                  '-p', 'parameter_file=AD4Zn.dat')]
+                                    self.parent.v.ligand_pdbqt,'-p', 'AD4Zn.dat', '-o',os.path.join(self.parent.v.result_dir, self.parent.v.ligand_name + '_score.log')]
             self.autodockzn_score = {'AutoDock4Zn Scoring': [self.ws.this_python, scoring_autodockzn_arg]}
             self.queue.put(self.autodockzn_score)
 

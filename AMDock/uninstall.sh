@@ -27,10 +27,10 @@ fi
 echo $AMDock_InstallDir
 if [ -d "$AMDock_InstallDir" ];then
     rm -r "$AMDock_InstallDir" -f | zenity --progress --pulsate --title="AMDock Uninstaller" --text="Deleting AMDock files..." --auto-close --no-cancel
-    if [ -f ~/.pymol/startup/grid_amdock.py ];then
-        rm ~/.pymol/startup/grid_amdock.py
-    elif [ -f ~/.pymol/startup/grid_amdock.pyc ];then
-        rm ~/.pymol/startup/grid_amdock.pyc
+    if [ -f $HOME/.pymol/startup/grid_amdock.py ];then
+        rm $HOME/.pymol/startup/grid_amdock.py
+    elif [ -f $HOME/.pymol/startup/grid_amdock.pyc ];then
+        rm $HOME/.pymol/startup/grid_amdock.pyc
     fi
 else    
     zenity --error --title="AMDock Uninstaller" --text="AMDock cann't be deleted.\n Delete all files manually."
@@ -38,7 +38,7 @@ else
 fi 
 
 
-desktop_apps=~/.local/share/applications
+desktop_apps=$HOME/.local/share/applications
 if [ -f "$desktop_apps/AMDock.desktop" ]
   then
   rm $desktop_apps/AMDock.desktop
