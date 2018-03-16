@@ -13,9 +13,3 @@ if not, please select the previous address
 
 UNISTALL
 Search the installation directory and execute ./unistall.sh and follow instructions
-
-
-12312
-
-
-
