@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
-import os, shutil, subprocess
+import os, subprocess
+from distutils.dir_util import copy_tree
 installerdir = os.path.split(__file__)[0]
 try:
     import numpy
@@ -12,7 +13,7 @@ except ImportError:
 try:
     import numpy.oldnumeric
 except:
-    shutil.copytree(os.path.join(installerdir,'oldnumeric'), numpyloc)
+    copy_tree('oldnumeric',numpyloc+'/oldnumeric')
 #check if exist openbabel
 try:
     obabel_exe = subprocess.Popen(['obabel','-V'],stdout=subprocess.PIPE, stdin=subprocess.PIPE)
