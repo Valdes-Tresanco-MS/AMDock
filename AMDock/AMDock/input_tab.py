@@ -4553,7 +4553,7 @@ class Program_body(QtGui.QWidget):
             self.pdb2pqr = {'PDB2PQR': [self.ws.this_python, [self.ws.pdb2pqr_py, '--ph-calc-method=propka',
                                                               '--verbose', '--noopt', '--drop-water', '--chain',
                                                               '--with-ph', str(self.parent.v.pH),
-                                                              '--ff=%s' % self.parent.configuration_tab.forcefield,
+                                                              '--ff=%s' % self.parent.v.forcefield,
                                                               self.parent.v.protein_file,
                                                               self.parent.v.protein_pqr]]}
             if self.parent.v.metals is not None:
@@ -4570,7 +4570,7 @@ class Program_body(QtGui.QWidget):
             self.pdb2pqrB = {'PDB2PQR B': [self.ws.this_python, [self.ws.pdb2pqr_py, '--ph-calc-method=propka',
                                                                  '--verbose', '--noopt', '--drop-water', '--chain',
                                                                  '--with-ph', str(self.parent.v.pH),
-                                                                 '--ff=%s' % self.parent.configuration_tab.forcefield,
+                                                                 '--ff=%s' % self.parent.v.forcefield,
                                                                  self.parent.v.analog_protein_file,
                                                                  self.parent.v.analog_protein_pqr]]}
             if self.parent.v.analog_metals:
@@ -4956,7 +4956,8 @@ class Program_body(QtGui.QWidget):
             autogridzn_arg = ['-p', protein_gpf]
             self.autogrid4 = {'AutoGrid4': [self.ws.autogrid, autogridzn_arg]}
 
-            prepare_dpfzn_arg = [self.ws.prepare_dpf_py, '-l', str(self.parent.v.ligand_pdbqt), '-r',protein_TZ]
+            prepare_dpfzn_arg = [self.ws.prepare_dpf_py, '-l', str(self.parent.v.ligand_pdbqt), '-r',protein_TZ,'-p', 'rmstol=%s' % self.parent.v.rmsd,
+                                    '-p','ga_num_evals=%s' % self.parent.v.eval, '-p', 'ga_run=%s' % self.parent.v.runs]
             self.prepare_dfp4zn = {'Prepare_dpf4': [self.ws.this_python, prepare_dpfzn_arg]}
 
             self.autodock_dlg = str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + protein_dlg)
@@ -4990,7 +4991,8 @@ class Program_body(QtGui.QWidget):
                 autogridzn_argB = ['-p', proteinB_gpf]
                 self.autogrid4B = {'AutoGrid4 B': [self.ws.autogrid, autogridzn_argB]}
 
-                prepare_dpfzn_argB = [self.ws.prepare_dpf_py, '-l', str(self.parent.v.ligand_pdbqt), '-r',proteinB_TZ]
+                prepare_dpfzn_argB = [self.ws.prepare_dpf_py, '-l', str(self.parent.v.ligand_pdbqt), '-r',proteinB_TZ,'-p', 'rmstol=%s' % self.parent.v.rmsd,
+                                    '-p','ga_num_evals=%s' % self.parent.v.eval, '-p', 'ga_run=%s' % self.parent.v.runs]
                 self.prepare_dfp4znB = {'Prepare_dpf4 B': [self.ws.this_python, prepare_dpfzn_argB]}
 
                 self.autodock_dlgB = str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + proteinB_dlg)
