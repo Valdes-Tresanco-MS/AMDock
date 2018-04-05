@@ -12,10 +12,16 @@ class Configuration_tab(QtGui.QWidget):
         font1 = QtGui.QFont()
         font1.setPointSize(9)
 
+        self.log ='False'
+
         path = os.path.split(__file__)[0]
         self.config = os.path.join(path, 'configuration.ini')
 
         self.initial_config()
+
+        self.check_timer = QtCore.QTimer()
+        self.check_timer.timeout.connect(self.check_changes)
+        self.check_timer.start(15)
 
         self.log_view = QtGui.QCheckBox(self)
         self.log_view.setGeometry(QtCore.QRect(380, 10, 140, 20))
@@ -113,8 +119,7 @@ class Configuration_tab(QtGui.QWidget):
         self.horizontalSlider.setGeometry(QtCore.QRect(120, 22, 141, 22))
         self.horizontalSlider.setMinimum(1)
         self.horizontalSlider.setMaximum(self.number_cpu)
-        self.horizontalSlider.setValue(self.cpu)
-
+        self.horizontalSlider.setValue(self.parent.v.ncpu)
         self.horizontalSlider.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalSlider.setTickInterval(5)
         self.horizontalSlider.setObjectName("horizontalSlider")
@@ -125,7 +130,7 @@ class Configuration_tab(QtGui.QWidget):
         font.setPointSize(8)
         self.cpu_label.setFont(font)
         self.cpu_label.setObjectName("cpu_label")
-        self.cpu_label.setText("%s" % self.horizontalSlider.value() + " CPU in use of %s" % self.number_cpu)
+        self.cpu_label.setText("%s" % self.parent.v.ncpu + " CPU in use of %s" % self.number_cpu)
 
         self.low_perf = QtGui.QLabel(self.vina_config_box)
         self.low_perf.setGeometry(QtCore.QRect(120, 35, 31, 22))
@@ -264,15 +269,27 @@ class Configuration_tab(QtGui.QWidget):
         self.rmstol_value.setSingleStep(0.5)
         self.rmstol_value.setObjectName("rmstol_value")
 
-        # self.AD_config_help = QtGui.QPushButton(self.AD4_config_box)
-        # self.AD_config_help.setGeometry(QtCore.QRect(855, 30, 22, 22))
-        # font = QtGui.QFont()
-        # font.setPointSize(10)
-        # self.AD_config_help.setFont(font)
-        # self.AD_config_help.setObjectName("AD4_config_help")
-        # self.AD_config_help.setText("?")
+
+        self.unsaved_config = QtGui.QLabel(self)
+        self.unsaved_config.setGeometry(QtCore.QRect(10, 400, 880, 80))
+        self.unsaved_config.setText('Some parameters were modified!!!\nFor them to take effect, please save the configuration.')
+        font10 = QtGui.QFont()
+        font10.setPointSize(20)
+        font10.setWeight(100)
+        self.unsaved_config.setFont(font10)
+        self.unsaved_config.setStyleSheet('background-color : white; color : red; ')
+        self.unsaved_config.setAlignment(QtCore.Qt.AlignVCenter| QtCore.Qt.AlignCenter)
+        self.unsaved_config.hide()
 
         self.conf_from_file()
+
+        self.cpu = self.horizontalSlider.value()
+        self.NoPoses = self.nposes_value.value()
+        self.exhaustiveness = self.exh_value.value()
+        self.ga_num_eval = self.neval_value.value()
+        self.ga_run = self.nruns_value.value()
+        self.rmstol = self.rmstol_value.value()
+        self.forcefield = self.ff.checkedButton().text()
 
         self.log_wdw = LogWindow(self)
 
@@ -287,32 +304,33 @@ class Configuration_tab(QtGui.QWidget):
 
     def conf_from_file(self):
         for button in self.ff.buttons():
-            if self.forcefield == button.text():
+            if self.parent.v.forcefield == button.text():
                 button.setChecked(True)
 
-        self.exh_value.setProperty('value', self.exhaustiveness)
-        self.nposes_value.setProperty('value', self.NoPoses)
-        self.neval_value.setProperty('value', self.ga_num_eval)
-        self.nruns_value.setProperty('value', self.ga_run)
-        self.rmstol_value.setProperty('value', self.rmstol)
+        self.exh_value.setProperty('value', self.parent.v.exhaustiveness)
+        self.nposes_value.setProperty('value', self.parent.v.poses_vina)
+        self.neval_value.setProperty('value', self.parent.v.eval)
+        self.nruns_value.setProperty('value', self.parent.v.runs)
+        self.rmstol_value.setProperty('value', self.parent.v.rmsd)
+        self.horizontalSlider.setProperty('value', self.parent.v.ncpu)
         if self.log == 'False':
             self.log_view.setChecked(False)
         else:
             self.log_view.setChecked(True)
     def values(self, k):  # ok
         if k.objectName() == 'horizontalSlider':
-            self.parent.v.ncpu = self.horizontalSlider.value()
-            self.cpu_label.setText("%s" % self.parent.v.ncpu + " CPU in use of %s" % self.number_cpu)
+            self.cpu = self.horizontalSlider.value()
+            self.cpu_label.setText("%s" % self.cpu + " CPU in use of %s" % self.number_cpu)
         elif k.objectName() == 'nposes_value':
-            self.parent.v.poses_vina = self.nposes_value.value()
+            self.NoPoses = self.nposes_value.value()
         elif k.objectName() == "exh_value":
-            self.parent.v.exhaustiveness = self.exh_value.value()
+            self.exhaustiveness = self.exh_value.value()
         elif k.objectName() == 'neval':
-            self.parent.v.eval = self.neval_value.value()
+            self.ga_num_eval = self.neval_value.value()
         elif k.objectName() == 'nruns_value':
-            self.parent.v.runs = self.nruns_value.value()
+            self.ga_run = self.nruns_value.value()
         elif k.objectName() == 'rmstol_value':
-            self.parent.v.rmsd = self.rmstol_value.value()
+            self.rmstol = self.rmstol_value.value()
     def ff_sel(self,btn):
         self.forcefield = btn.text()
     def data_view(self, cb):
@@ -331,18 +349,19 @@ class Configuration_tab(QtGui.QWidget):
         config_file.write('[PDB2PQR]\n')
         config_file.write('ff %s\n' % self.forcefield)
         config_file.write('[VINA]\n')
-        config_file.write('cpu %s\n' % self.horizontalSlider.value())
-        config_file.write('exhaustiveness %s\n' % self.exh_value.value())
-        config_file.write('NoPoses %s\n' % self.nposes_value.value())
+        config_file.write('cpu %s\n' % self.cpu)
+        config_file.write('exhaustiveness %s\n' % self.exhaustiveness)
+        config_file.write('NoPoses %s\n' % self.NoPoses)
         config_file.write('[AD4]\n')
-        config_file.write('ga_num_eval %s\n' % self.neval_value.value())
-        config_file.write('ga_run %s\n' % self.nruns_value.value())
-        config_file.write('rmstol %s\n' % self.rmstol_value.value())
+        config_file.write('ga_num_eval %s\n' % self.ga_num_eval)
+        config_file.write('ga_run %s\n' % self.ga_run)
+        config_file.write('rmstol %s\n' % self.rmstol)
         config_file.write('[LOG]\n')
         config_file.write('log %s\n' % self.log_view.isChecked())
         config_file.close()
         time.sleep(3)
         self.parent.statusbar.showMessage(msg)
+        self.initial_config()
     def set_default(self):
         self.default()
         self.initial_config()
@@ -375,27 +394,29 @@ class Configuration_tab(QtGui.QWidget):
                 continue
             else:
                 if re.search('ff', line):
-                    self.forcefield = line.split()[1]
+                    self.parent.v.forcefield = line.split()[1]
                 elif re.search('cpu', line):
-                    self.cpu = int(line.split()[1])
-                    self.parent.v.ncpu = self.cpu
+                    self.parent.v.ncpu = int(line.split()[1])
                 elif re.search('exhaustiveness', line):
-                    self.exhaustiveness = int(line.split()[1])
-                    self.parent.v.exhaustiveness = self.exhaustiveness
+                    self.parent.v.exhaustiveness = int(line.split()[1])
                 elif re.search('NoPoses', line):
-                    self.NoPoses = int(line.split()[1])
-                    self.parent.v.poses_vina = self.NoPoses
-                elif re.search('Vina_Spacing', line):
-                    self.vina_spacing = float(line.split()[1])
+                    self.parent.v.poses_vina = int(line.split()[1])
                 elif re.search('ga_num_eval', line):
-                    self.ga_num_eval = int(line.split()[1])
-                    self.parent.v.eval = self.ga_num_eval
+                    self.parent.v.eval = int(line.split()[1])
                 elif re.search('ga_run', line):
-                    self.ga_run = int(line.split()[1])
-                    self.parent.v.runs = self.ga_run
+                    self.parent.v.runs = int(line.split()[1])
                 elif re.search('rmstol', line):
-                    self.rmstol = float(line.split()[1])
-                    self.parent.v.rmsd = self.rmstol
-                elif re.search('log', line):
+                    self.parent.v.rmsd = float(line.split()[1])
+                if re.search('log', line):
                     self.log = line.split()[1]
+                else:
+                    self.log = 'False'
         cfile.close()
+    def check_changes(self):
+        '''check if you saved the configuration '''
+        if self.cpu != self.parent.v.ncpu or self.exhaustiveness != self.parent.v.exhaustiveness or self.NoPoses != \
+            self.parent.v.poses_vina or self.forcefield != self.parent.v.forcefield or self.ga_run != self.parent.v.runs \
+            or self.ga_num_eval != self.parent.v.eval or self.rmstol != self.parent.v.rmsd:
+            self.unsaved_config.show()
+        else:
+            self.unsaved_config.hide()
