@@ -86,10 +86,10 @@ else
   message "Already exist various version of AMDock application launcher. PLease check this."
   exit 1
 fi
-if [ ! -f "$desktop_apps/AMDock_Uninstaller.desktop" ]
-    then 
-    echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=AMDock Unistaller\nIcon='$install_directory'/AMDock/AMDock/images/amdock_uninstall_icon.png\nExec="'$install_directory'/AMDock/uninstall.sh" %f\nComment=Program for performace a Assited Molecular Docking with AutoDock4 and AutoDock Vina\nCategories=Science\nTerminal=false' >> $desktop_apps/AMDock_Uninstaller.desktop
-fi
+#if [ ! -f "$desktop_apps/AMDock_Uninstaller.desktop" ]
+#    then 
+#    echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=AMDock Unistaller\nIcon='$install_directory'/AMDock/AMDock/images/amdock_uninstall_icon.png\nExec="'$install_directory'/AMDock/uninstall.sh" %f\nComment=Program for performace a Assited Molecular Docking with AutoDock4 and AutoDock Vina\nCategories=Science\nTerminal=false' >> $desktop_apps/AMDock_Uninstaller.desktop
+#fi
 
 # chmod 555 $install_directory/AMDock
 
