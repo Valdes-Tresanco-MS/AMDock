@@ -30,6 +30,9 @@ class Variables():
     runs_AD = 10
     spacing_autoligand = 1.0
     spacing_autodock = 0.375
+    eval = 250000
+    rmsd = 2.0
+    runs = 10
     protein_file = None
     analog_protein_file = None
     ligand_file = None
@@ -42,6 +45,7 @@ class Variables():
     input_ligand = ''
     number_cpu = multiprocessing.cpu_count()
     ncpu = 1
+    forcefield = 'AMBER'
     protein_h = None
     analog_protein_h = None
     ligand_h = None
