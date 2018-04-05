@@ -1,5 +1,4 @@
-from warning import wdir2_warning, prot_warning, lig_warning, stop_warning, error_warning, smallbox_warning, \
-    reset_warning, amdock_file_warning
+from warning import wdir2_warning, prot_warning, lig_warning, stop_warning, error_warning, smallbox_warning, reset_warning, amdock_file_warning
 from PyQt4 import QtGui, QtCore
 import shutil, os, glob,re, Queue
 from result2tab import Result_Analysis, Scoring2table
