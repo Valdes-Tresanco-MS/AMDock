@@ -1,0 +1,8 @@
+#Build 1.0.2
+-fixed some bugs
+-added an option of alieneamiento of the proteins in off-target docking simulations for the improvement of the visualization of the ligand sites
+#Build 1.0.1
+-fixed some bugs
+-added an alert when the settings parameters are modified
+#Build 1.0.0
+-first realese of program
