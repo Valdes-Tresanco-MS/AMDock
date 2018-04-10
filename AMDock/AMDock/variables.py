@@ -103,6 +103,7 @@ class WorkersAndScripts():
     autogrid = os.path.join(extprg_path, 'autogrid4')
     autodock = os.path.join(extprg_path, 'autodock4')
     autoligand_py = os.path.join(extprg_path, 'AutoLigand.py')
+    aln_pymol = os.path.join(extprg_path, 'protein_align_pymol.py')
 
     pymol = 'pymol'
 
