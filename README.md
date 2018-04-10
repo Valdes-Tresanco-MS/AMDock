@@ -14,4 +14,4 @@ if not, please select the previous address<br>
 UNISTALL<br>
 Search the installation directory and execute ./unistall.sh and follow instructions<br>
 
-To view the update history, please check History_Changes file
+To view the update history, please check HChanges_history file
