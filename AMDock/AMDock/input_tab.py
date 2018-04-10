@@ -171,7 +171,7 @@ class Program_body(QtGui.QWidget):
         self.protein_textB.setGeometry(QtCore.QRect(505, 55, 360, 22))
         self.protein_textB.setObjectName("protein_textB")
         self.protein_textB.setReadOnly(True)
-        self.protein_textB.setPlaceholderText('control protein')
+        self.protein_textB.setPlaceholderText('off-target protein')
         self.protein_textB.hide()
 
         self.protein_labelB = QtGui.QLabel(self.input_box)
