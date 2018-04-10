@@ -299,8 +299,7 @@ class Configuration_tab(QtGui.QWidget):
         self.rmstol = self.rmstol_value.value()
         self.forcefield = self.ff.checkedButton().text()
         self.alignment = self.align.isChecked()
-        print self.alignment, 'alignment'
-
+        
         self.log_wdw = LogWindow(self)
 
         self.horizontalSlider.valueChanged.connect(lambda: self.values(self.horizontalSlider))
@@ -325,7 +324,6 @@ class Configuration_tab(QtGui.QWidget):
         self.rmstol_value.setProperty('value', self.parent.v.rmsd)
         self.horizontalSlider.setProperty('value', self.parent.v.ncpu)
         self.log_view.setChecked(self.parent.v.log)
-        print self.parent.v.log, 'log'
         self.align.setChecked(self.parent.v.prot_align)
     def values(self, k):  # ok
         if k.objectName() == 'horizontalSlider':
@@ -344,8 +342,7 @@ class Configuration_tab(QtGui.QWidget):
 
     def _align(self):
         self.alignment = self.align.isChecked()
-        print self.alignment
-
+        
     def ff_sel(self,btn):
         self.forcefield = btn.text()
     def data_view(self, cb):
@@ -431,7 +428,6 @@ class Configuration_tab(QtGui.QWidget):
                         self.parent.v.log = False
                     else:
                         self.parent.v.log = True
-                    print line.split()[1], 'log1'
                 elif re.search('prot_align', line):
                     if line.split()[1] == 'False':
                         self.parent.v.prot_align = False
@@ -448,8 +444,6 @@ class Configuration_tab(QtGui.QWidget):
         if self.cpu != self.parent.v.ncpu or self.exhaustiveness != self.parent.v.exhaustiveness or self.NoPoses != \
             self.parent.v.poses_vina or self.forcefield != self.parent.v.forcefield or self.ga_run != self.parent.v.runs \
             or self.ga_num_eval != self.parent.v.eval or self.rmstol != self.parent.v.rmsd or self.alignment != self.parent.v.prot_align:
-
-            print self.alignment, self.parent.v.prot_align
             self.unsaved_config.show()
         else:
             self.unsaved_config.hide()
