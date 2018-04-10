@@ -80,6 +80,8 @@ class Variables():
     input_target = None
     input_control = None
     scoring_file = None
+    prot_align = True
+    log = False
 
 
 class WorkersAndScripts():
