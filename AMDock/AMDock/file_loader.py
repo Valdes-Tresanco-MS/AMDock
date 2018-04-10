@@ -2,6 +2,7 @@ import os, time, shutil, math,Queue,re
 from PyQt4 import QtGui,QtCore
 from warning import wdir_warning, empty_file_warning, same_protein,not_find_warning
 from tools import Fix_PQR,PDBMap,HeavyAtoms,Gyrate,GridDefinition,Converter, ClearAndFix
+import subprocess
 # from default_variables import default_setting
 from some_slots import progress
 from command_runner import Worker
@@ -45,8 +46,6 @@ class Loader(QtGui.QMainWindow):
                 wdir_warning(self.parent)
                 self.parent.v.loc_project = None
                 self.parent.program_body.project_text.setDisabled(False)
-        # else:
-        #     self.parent.program_body.project_text.setDisabled(False)
         return self.parent.v.WDIR
 
     def load_protein(self):
@@ -61,7 +60,7 @@ class Loader(QtGui.QMainWindow):
 
             self.parent.v.protein_name = self.target_name
             if self.parent.v.analog_protein_name == self.parent.v.protein_name:
-                self.same = same_protein(self, 'Target Protein', self.parent.v.protein_name, 'Control Protein')
+                self.same = same_protein(self, 'Target Protein', self.parent.v.protein_name, 'Off-Target Protein')
                 if self.same == QtGui.QMessageBox.Ok:
                     self.parent.v.protein_file = None
                     self.parent.v.protein_pdbqt = None
@@ -181,6 +180,12 @@ class Loader(QtGui.QMainWindow):
                         self.parent.program_body.prep_rec_lig_button.setEnabled(False)
                         self.parent.program_body.wdir_button.setEnabled(True)
                 # return self.parent.v.protein_file
+            try:
+                if self.parent.v.prot_align and self.target_ext in ['pdb','ent'] and self.control_ext in ['pdb','ent']:
+                    aln = subprocess.Popen([self.parent.ws.pymol, '-c', self.parent.ws.aln_pymol, '--', '-t', self.target_name+'.'+self.target_ext, '-o', self.control_name+'.'+self.control_ext],stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+                    aln.wait()
+            except: pass
+
     def load_proteinB(self):
         data_file = QtGui.QFileDialog()
         data_file.setFileMode(QtGui.QFileDialog.AnyFile)
@@ -194,7 +199,7 @@ class Loader(QtGui.QMainWindow):
 
             self.parent.v.analog_protein_name = self.control_name
             if self.parent.v.analog_protein_name == self.parent.v.protein_name:
-                self.same = same_protein(self, 'Control Protein', self.parent.v.analog_protein_name, 'Target Protein')
+                self.same = same_protein(self, 'Off-Target Protein', self.parent.v.analog_protein_name, 'Target Protein')
                 if self.same == QtGui.QMessageBox.Ok:
                     self.parent.v.analog_protein_file = None
                     self.parent.program_body.protein_textB.clear()
@@ -205,7 +210,7 @@ class Loader(QtGui.QMainWindow):
                     self.parent.program_body.protein_labelB.clear()
                     self.load_proteinB()
             elif self.parent.v.analog_protein_name == self.parent.v.ligand_name:
-                self.same = same_protein(self, 'Control Protein', self.parent.v.protein_name, 'Ligand')
+                self.same = same_protein(self, 'Off-Target Protein', self.parent.v.protein_name, 'Ligand')
                 if self.same == QtGui.QMessageBox.Ok:
                     self.parent.v.analog_protein_file = None
                     self.parent.v.analog_protein_pdbqt =None
@@ -217,7 +222,7 @@ class Loader(QtGui.QMainWindow):
                     self.parent.program_body.protein_labelB.clear()
                     self.load_proteinB()
             else:
-                self.parent.program_body.protein_labelB.setText('Loaded Control from: %s' % self.control_path)
+                self.parent.program_body.protein_labelB.setText('Loaded Off-Target from: %s' % self.control_path)
                 self.parent.program_body.protein_textB.setText(os.path.basename(self.control_path))
 
                 if self.control_ext == 'pdbqt':
@@ -243,7 +248,6 @@ class Loader(QtGui.QMainWindow):
                         if elim_lig == QtGui.QMessageBox.Yes:
                             ClearAndFix(self.parent.v.input_control).write()
                             self.parent.v.analog_ligands = None
-
                 except:
                     pass
                 try:
@@ -288,6 +292,14 @@ class Loader(QtGui.QMainWindow):
                     progress(self.parent.program_body, 0, 0, 10, finish=True, mess='Control Definition...')
                     self.parent.program_body.prep_rec_lig_button.setEnabled(True)
                     self.parent.program_body.wdir_button.setEnabled(False)
+            try:
+                if self.parent.v.prot_align and self.target_ext in ['pdb','ent'] and self.control_ext in ['pdb','ent']:
+                    aln = subprocess.Popen([self.parent.ws.pymol, '-c', self.parent.ws.aln_pymol, '--', '-t', self.target_name+'.'+self.target_ext, '-o', self.control_name+'.'+self.control_ext],stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+                    aln.wait()
+            except:
+                pass
+
+
     def load_ligand(self):
         data_file = QtGui.QFileDialog()
         data_file.setFileMode(QtGui.QFileDialog.AnyFile)
