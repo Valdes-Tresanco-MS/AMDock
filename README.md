@@ -1,5 +1,5 @@
 # AMDock
--Build 1.0.1
+-Build 1.0.2
 
 INSTALLATION<br>
 descompress the *.zip file<br>
