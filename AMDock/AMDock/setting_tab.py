@@ -12,8 +12,6 @@ class Configuration_tab(QtGui.QWidget):
         font1 = QtGui.QFont()
         font1.setPointSize(9)
 
-        self.log ='False'
-
         path = os.path.split(__file__)[0]
         self.config = os.path.join(path, 'configuration.ini')
 
@@ -25,7 +23,7 @@ class Configuration_tab(QtGui.QWidget):
 
         self.log_view = QtGui.QCheckBox(self)
         self.log_view.setGeometry(QtCore.QRect(380, 10, 140, 20))
-        self.log_view.setChecked(False)
+        #self.log_view.setChecked(False)
         self.log_view.setObjectName("log_view")
         self.log_view.setText("View Log Window")
 
@@ -269,6 +267,15 @@ class Configuration_tab(QtGui.QWidget):
         self.rmstol_value.setSingleStep(0.5)
         self.rmstol_value.setObjectName("rmstol_value")
 
+        self.misc_box = QtGui.QGroupBox(self)
+        self.misc_box.setGeometry(QtCore.QRect(10, 270, 880, 50))
+        self.misc_box.setTitle('Miscellaneous Configuration')
+
+        self.align = QtGui.QCheckBox(self.misc_box)
+        self.align.setGeometry(QtCore.QRect(15, 20, 290, 20))
+        self.align.setChecked(True)
+        self.align.setObjectName("align")
+        self.align.setText("Proteins alignment in off-target docking")
 
         self.unsaved_config = QtGui.QLabel(self)
         self.unsaved_config.setGeometry(QtCore.QRect(10, 400, 880, 80))
@@ -281,6 +288,7 @@ class Configuration_tab(QtGui.QWidget):
         self.unsaved_config.setAlignment(QtCore.Qt.AlignVCenter| QtCore.Qt.AlignCenter)
         self.unsaved_config.hide()
 
+
         self.conf_from_file()
 
         self.cpu = self.horizontalSlider.value()
@@ -290,6 +298,8 @@ class Configuration_tab(QtGui.QWidget):
         self.ga_run = self.nruns_value.value()
         self.rmstol = self.rmstol_value.value()
         self.forcefield = self.ff.checkedButton().text()
+        self.alignment = self.align.isChecked()
+        print self.alignment, 'alignment'
 
         self.log_wdw = LogWindow(self)
 
@@ -299,6 +309,7 @@ class Configuration_tab(QtGui.QWidget):
         self.neval_value.valueChanged.connect(lambda: self.values(self.neval_value))
         self.nruns_value.valueChanged.connect(lambda: self.values(self.nruns_value))
         self.rmstol_value.valueChanged.connect(lambda: self.values(self.rmstol_value))
+        self.align.clicked.connect(self._align)
         self.save.clicked.connect(self.configuration)
         self.reset.clicked.connect(self.set_default)
 
@@ -313,10 +324,9 @@ class Configuration_tab(QtGui.QWidget):
         self.nruns_value.setProperty('value', self.parent.v.runs)
         self.rmstol_value.setProperty('value', self.parent.v.rmsd)
         self.horizontalSlider.setProperty('value', self.parent.v.ncpu)
-        if self.log == 'False':
-            self.log_view.setChecked(False)
-        else:
-            self.log_view.setChecked(True)
+        self.log_view.setChecked(self.parent.v.log)
+        print self.parent.v.log, 'log'
+        self.align.setChecked(self.parent.v.prot_align)
     def values(self, k):  # ok
         if k.objectName() == 'horizontalSlider':
             self.cpu = self.horizontalSlider.value()
@@ -331,6 +341,11 @@ class Configuration_tab(QtGui.QWidget):
             self.ga_run = self.nruns_value.value()
         elif k.objectName() == 'rmstol_value':
             self.rmstol = self.rmstol_value.value()
+
+    def _align(self):
+        self.alignment = self.align.isChecked()
+        print self.alignment
+
     def ff_sel(self,btn):
         self.forcefield = btn.text()
     def data_view(self, cb):
@@ -358,6 +373,8 @@ class Configuration_tab(QtGui.QWidget):
         config_file.write('rmstol %s\n' % self.rmstol)
         config_file.write('[LOG]\n')
         config_file.write('log %s\n' % self.log_view.isChecked())
+        config_file.write('[MISC]\n')
+        config_file.write('prot_align %s\n' % self.align.isChecked())
         config_file.close()
         time.sleep(3)
         self.parent.statusbar.showMessage(msg)
@@ -383,6 +400,8 @@ class Configuration_tab(QtGui.QWidget):
         config_file.write('rmstol 2.0\n')
         config_file.write('[LOG]\n')
         config_file.write('log False\n')
+        config_file.write('[MISC]\n')
+        config_file.write('prot_align True')
         config_file.close()
     def initial_config(self):
         if not os.path.exists(self.config):
@@ -407,16 +426,30 @@ class Configuration_tab(QtGui.QWidget):
                     self.parent.v.runs = int(line.split()[1])
                 elif re.search('rmstol', line):
                     self.parent.v.rmsd = float(line.split()[1])
-                if re.search('log', line):
-                    self.log = line.split()[1]
-                else:
-                    self.log = 'False'
+                elif re.search('log', line):
+                    if line.split()[1] == 'False':
+                        self.parent.v.log = False
+                    else:
+                        self.parent.v.log = True
+                    print line.split()[1], 'log1'
+                elif re.search('prot_align', line):
+                    if line.split()[1] == 'False':
+                        self.parent.v.prot_align = False
+                    else:
+                        self.parent.v.prot_align = True
+                try:
+                    self.align.setChecked(self.parent.v.prot_align)
+                except:
+                    pass
+
         cfile.close()
     def check_changes(self):
         '''check if you saved the configuration '''
         if self.cpu != self.parent.v.ncpu or self.exhaustiveness != self.parent.v.exhaustiveness or self.NoPoses != \
             self.parent.v.poses_vina or self.forcefield != self.parent.v.forcefield or self.ga_run != self.parent.v.runs \
-            or self.ga_num_eval != self.parent.v.eval or self.rmstol != self.parent.v.rmsd:
+            or self.ga_num_eval != self.parent.v.eval or self.rmstol != self.parent.v.rmsd or self.alignment != self.parent.v.prot_align:
+
+            print self.alignment, self.parent.v.prot_align
             self.unsaved_config.show()
         else:
             self.unsaved_config.hide()
