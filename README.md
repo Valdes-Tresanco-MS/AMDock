@@ -2,7 +2,7 @@
 -Build 1.0.2
 
 INSTALLATION<br>
-descompress the *.zip file<br>
+unzip the *.zip file<br>
 execute ./install.sh and follow instructions<br>
 Before using the program check that pymol has the AMDock plugin in taskbar.<br>
 If it does not appear please follow the instructions:<br>
