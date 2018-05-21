@@ -12,7 +12,7 @@ class Help(QtGui.QWidget):
         self.version_box.setGeometry(QtCore.QRect(5, 5, 890, 45))
         self.version_box.setTitle("Version")
         self.version_label = QtGui.QLabel(self.version_box)
-        self.version_label.setText('Build 1.0.0')
+        self.version_label.setText('Build 1.0.2')
         self.version_label.setGeometry(QtCore.QRect(10, 15, 300, 25))
 
         self.documentation_box = QtGui.QGroupBox(self)
