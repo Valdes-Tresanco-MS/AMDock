@@ -28,7 +28,7 @@ aa = ['CYS','ILE','SER','VAL','GLN','LYS','ASN','PRO','THR','PHE','ALA','HIS','G
       'MET','HID','HSP','HIE','HIP','CYX','CSS', 'ALA']
 aa1 = ['C','I','S','V','Q','K','N','P','T','F','H','G','D', 'L', 'R', 'W', 'E', 'Y', 'M', 'A']
 na = ['DC','DG','DA','DT','DU']
-glycosides = ['NAG']
+glycosides = ['NAG','BGLN', 'FUC', 'AFUC', 'MAN', 'AMAN', 'BMA', 'BMAN']
 hoh = ['HOH','WAT','TIP3','TIP4']
 metal = ['Zn','CA','MG','FE','CO',]
 
