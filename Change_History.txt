@@ -1,6 +1,7 @@
 #Build 1.0.2
 -fixed some bugs
--In Off-Target Docking module, both the target and control proteins are align, thus improving the visualization of the ligand sites 
+-In Off-Target Docking module, both the target and control proteins are align, thus improving the visualization of the ligand sites
+-Fixed reading and writing problems in the pymol plugin directory in installation process
 #Build 1.0.1
 -fixed some bugs
 -An alert box is shown when default settings parameters are modified
