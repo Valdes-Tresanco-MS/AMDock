@@ -53,12 +53,14 @@ fi
 install_directory=`zenity --file-selection --title="Select directory for AMDock installation" --directory`
 
 ## check that AMDock files not exits in destinity
-pymol_plugin=~/.pymol/startup
+pymol_plugin=$HOME/.pymol/startup
 if [ ! -d "~/.pymol" ]
     then
-    mkdir ~/.pymol
+    mkdir $HOME/.pymol
     mkdir $pymol_plugin
 fi
+# change permissions of directory
+chmod -R ugo+rw $pymol_plugin
 
 if [ ! -d "$install_directory/AMDock" ];then
     cp -p -r "$AMDock_InstallDir/AMDock" $install_directory | zenity --progress --pulsate --title="AMDock Installer" --text="Coping AMDock files..." --auto-close --no-cancel
