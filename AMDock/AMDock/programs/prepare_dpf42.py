@@ -205,6 +205,22 @@ if __name__ == '__main__':
     if epdb_output:
         dm.dpo['epdb_flag']['value'] = 1
         dm.write_dpf(dpf_filename, parm_list=epdb_list4_2)
+        para_list = ['autodock_parameter_version', 'outlev','intelec','ligand_types','fld','map', 'elecmap',
+                     'desolvmap', 'move', 'about','epdb']
+        ligand_stem = ligand_filename.split('.')[0]
+        receptor_stem = receptor_filename.split('.')[0]
+        dpf_filename = "%s%s%s%s" % (ligand_stem, "_",receptor_stem, ".dpf")
+        file = open(str(dpf_filename))
+        oparam_list = []
+        for line in file:
+            for param in para_list:
+                if line.startswith(param):
+                    oparam_list.append(line)
+        file.close()
+        ofile = open(str(dpf_filename), 'w')
+        for param in oparam_list:
+            ofile.write(param)
+        ofile.close()
     else:
         if verbose: print "not epdb_output"
         dm.write_dpf(dpf_filename, parameter_list, pop_seed)
