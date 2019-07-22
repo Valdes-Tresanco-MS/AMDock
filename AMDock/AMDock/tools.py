@@ -190,6 +190,9 @@ class ClearAndFix():
         writer = PdbqtWriter()
         writer.write(self.input_file, self.mol.allAtoms, records=['ATOM','HETATM'])
 
+
+
+
 class Fix_PQR:
     '''
     Add metal atom to PDB2PQR output
@@ -209,6 +212,8 @@ class Fix_PQR:
             self.hetatm_to_pqr()
             self.metal_close_atoms()
         self.save_PDB(self.new_pdb_filename)
+
+        #os.remove('temp.pdb')
 
     def metal_close_atoms(self):
         '''
@@ -374,6 +379,9 @@ def dist(coords1, coords2):
     return sqrt(sum)
 
 
+residues = ['A:LEU:85','A:VAL:83']
+
+
 class GridDefinition(PDBMap):
     """
     define box based on selection
@@ -412,6 +420,7 @@ class GridDefinition(PDBMap):
                 file.write('size_z = %d\n'%self.extent[2])
             file.close()
 
+        # return self.output
     def check_select(self):
         if self.res_sel != None:
             self.errors = None
@@ -565,12 +574,31 @@ class Converter:
         out_file.close()
         os.remove('temp.pdb')
 
+# class AddHLigand:
+#     '''
+#     Add hygrogens to ligand
+#     '''
+#     def __init__(self,obabel,inputformat,ligand_file,outputname,pH):
+#         self.format = inputformat
+#         self.ligand = ligand_file
+#         self.pH_lig = pH
+#         self.output = outputname
+#         self.obabel = obabel
+#         self.protonate()
+#     def protonate(self):
+#         mol = pybel.readfile(self.format,self.ligand).next()
+#         mol.OBMol.AddHydrogens(False,True,self.pH_lig)
+#         mol.write('pdb',self.output)
+
 class Gyrate(PDBMap):
     def __init__(self,pdb_file):
         PDBMap.__init__(self,pdb_file)
+        #self.pdb_file = pdb_file
+        # self.gyrate()
 
     def gyrate(self):
         self.coord = PDBMap.coord(self)
+        # mass = []
         xyz = []
         d = 0
         for atom in self.coord:
@@ -578,6 +606,7 @@ class Gyrate(PDBMap):
             if 'H' in atom[0]:
                 continue
             xyz.append(atom[1:])
+            # mass.append(atom_prop[atom[0]])
         countx = 0
         county = 0
         countz = 0
@@ -592,9 +621,9 @@ class Gyrate(PDBMap):
         '''Aspect ratio = 0.23 [Feinstein and Brylinski. Calculating an optimal box size for ligand docking and virtual 
             screening against experimental and predicted binding pockets. Journal of Cheminformatics (2015)]
             If we use the automatic way of deteminacion of the binding site of the ligand, then the aspect ratio changes 
-            0.215 (this difference results in an additional small margin)
+            0.21 (this difference results in an additional small margin)
         '''
-        return rg/0.215
+        return rg/0.21
 
 
 

@@ -1915,8 +1915,10 @@ class Program_body(QtGui.QWidget):
                 self.stop_button.show()
                 self.run_scoring.hide()
                 self.non_button.hide()
-                
+
+
                 self.progressBar.setValue(2)
+
                 ## Input box
                 self.protein_text.resize(360, 22)
                 self.protein_label.resize(360,22)
@@ -1932,7 +1934,9 @@ class Program_body(QtGui.QWidget):
                 self.grid_pymol_buttonB.show()
                 self.reset_grid_buttonB.show()
 
+
                 ### Grid definition box
+                # self.grid_box.resize(871, 200)
                 self.grid_auto.hide()
                 self.grid_predef.hide()
                 self.grid_by_lig.hide()
@@ -2005,8 +2009,10 @@ class Program_body(QtGui.QWidget):
                 self.grid_user_cr.show()
                 self.grid_predef_text.setGeometry(QtCore.QRect(130, 77, 345, 20))
                 self.grid_predef_label.setGeometry(QtCore.QRect(135, 93, 340, 20))
+
                 self.coor_box.hide()
                 self.size_box.hide()
+                
                 self.lig_list.hide()
                 #### resize
 
@@ -2025,6 +2031,7 @@ class Program_body(QtGui.QWidget):
                 self.size_z_label.setGeometry(QtCore.QRect(115, 15, 10, 22))
                 self.size_z.setGeometry(QtCore.QRect(125, 15, 40, 22))
             elif btn.text() == 'Scoring':
+
                 self.prep_rec_lig_button.setEnabled(False)
                 self.parent.v.scoring = True
                 self.parent.v.cr = False
@@ -2035,6 +2042,11 @@ class Program_body(QtGui.QWidget):
                 self.non_button.show()
                 self.lig_list.setEnabled(False)
                 self.progressBar.setValue(2)
+
+                self.grid_pymol_button.setGeometry(QtCore.QRect(363, 155, 80, 22))
+                self.reset_grid_button.setGeometry(QtCore.QRect(447, 155, 80, 22))
+                self.grid_pymol_buttonB.hide()
+                self.reset_grid_buttonB.hide()
 
                 if os.path.exists(`self.parent.v.input_protein`):
                     try:
@@ -2055,11 +2067,9 @@ class Program_body(QtGui.QWidget):
                     except:
                         pass
                 self.parent.v.input_lig = None
+                self.parent.v.ligand_name = None
                 self.ligand_text.clear()
                 self.ligand_label.clear()
-                self.parent.v.ligand_name = None
-                self.lig_list.clear()
-                self.lig_listB.clear()
 
                 if os.path.exists(`self.parent.v.input_control`):
                     try:
@@ -2074,16 +2084,20 @@ class Program_body(QtGui.QWidget):
                 self.non_ligandB.hide()
                 self.lig_listB.hide()
 
+                self.lig_list.clear()
+                self.lig_listB.clear()
+
                 self.prep_rec_lig_button.setGeometry(QtCore.QRect(775, 65, 105, 45))
                 self.non_ligand.setGeometry(QtCore.QRect(268, 90, 50, 20))
-
+                self.parent.v.cr = False
+                # self.protein_text.setPlaceholderText(self.parent.v.protein_name)
                 self.protein_button.setText('Protein')
                 self.btnA_auto.setChecked(True)
                 self.btnB_auto.setChecked(True)
                 self.grid_box.resize(890, 185)
 
                 self.protein_text.resize(690, 22)
-                self.protein_label.resize(670, 22)
+                self.protein_label.resize(690, 22)
                 self.bind_site_button.setGeometry(QtCore.QRect(775, 90, 105, 45))
                 self.protein_buttonB.hide()
                 self.protein_textB.hide()
@@ -2133,6 +2147,8 @@ class Program_body(QtGui.QWidget):
                 self.size_box.hide()
                 self.size_boxB.hide()
 
+                self.lig_listB.hide()
+                self.lig_list.hide()
 
                 self.coor_box.setGeometry(QtCore.QRect(183, 120, 260, 45))
                 self.coor_x_label.setGeometry(QtCore.QRect(5, 15, 10, 22))
@@ -2149,11 +2165,7 @@ class Program_body(QtGui.QWidget):
                 self.size_z_label.setGeometry(QtCore.QRect(183, 15, 10, 22))
                 self.size_z.setGeometry(QtCore.QRect(195, 15, 60, 22))
 
-                self.grid_pymol_button.setGeometry(QtCore.QRect(363, 155, 80, 22))
-                self.reset_grid_button.setGeometry(QtCore.QRect(447, 155, 80, 22))
-                self.grid_pymol_buttonB.hide()
-                self.reset_grid_buttonB.hide()
-            else:
+        else:
                 self.prep_rec_lig_button.setEnabled(False)
                 self.parent.v.scoring = False
                 self.parent.v.cr = False
@@ -2620,9 +2632,12 @@ class Program_body(QtGui.QWidget):
                 self.reset_grid_button.setEnabled(False)
                 self.reset_grid_buttonB.setEnabled(False)
                 if self.parent.v.scoring:
+                    # if :
                     self.grid_box.setEnabled(False)
                     self.input_box.setEnabled(False)
                     self.run_scoring.setEnabled(True)
+                    # else:
+
                 else:
                     self.grid_box.setEnabled(True)
                     self.input_box.setEnabled(False)
@@ -4432,25 +4447,95 @@ class Program_body(QtGui.QWidget):
         self.queue = Queue.Queue()
         if self.parent.v.docking_program == 'AutoDock Vina':
             scoring_vina_arg = ['--receptor', self.parent.v.protein_pdbqt, '--ligand', self.parent.v.ligand_pdbqt,
-                                '--score_only',
-                                "--log",
-                                os.path.join(self.parent.v.result_dir, self.parent.v.ligand_name + '_score.log')]
+                                '--score_only', "--log", os.path.join(self.parent.v.result_dir,
+                                                                      self.parent.v.ligand_name + '_score.log')]
             self.vina_score = {'AutoDock Vina Scoring': [self.ws.vina_exec, scoring_vina_arg]}
 
             self.queue.put(self.vina_score)
 
         elif self.parent.v.docking_program == 'AutoDock4':
-            scoring_autodock_arg = [self.ws.autodock_scorer, '-r', self.parent.v.protein_pdbqt, '-l',
-                                    self.parent.v.ligand_pdbqt, '-o',
-                                    os.path.join(self.parent.v.result_dir, self.parent.v.ligand_name + '_score.log')]
-            self.autodock_score = {'AutoDock4 Scoring': [self.ws.this_python, scoring_autodock_arg]}
-            self.queue.put(self.autodock_score)
+            #############################################
+            protein_gpf = str(self.parent.v.protein_pdbqt.split('.')[0] + '.gpf')
+            protein_dlg = str(self.parent.v.protein_pdbqt.split('.')[0] + '.dlg')
+            protein_dpf = str(self.parent.v.protein_pdbqt.split('.')[0] + '.dpf')
+
+            prepare_gpf4_arg = [self.ws.prepare_gpf4_py, '-l', str(self.parent.v.ligand_pdbqt), '-r',
+                                str(self.parent.v.protein_pdbqt), '-f', self.parent.v.gd, '-p', 'spacing=%.3f' %
+                                self.parent.v.spacing_autodock, '-p', 'npts=%d,%d,%d' % (
+                                    self._size_x / self.parent.v.spacing_autodock,
+                                    self._size_y / self.parent.v.spacing_autodock,
+                                    self._size_z / self.parent.v.spacing_autodock)]
+
+            self.prepare_gpf4 = {'Prepare_gpf4': [self.ws.this_python, prepare_gpf4_arg]}
+
+            autogrid_arg = ['-p', protein_gpf]
+            self.autogrid4 = {'AutoGrid4': [self.ws.autogrid, autogrid_arg]}
+
+            prepare_dpf_arg = [self.ws.prepare_dpf_py, '-l', str(self.parent.v.ligand_pdbqt), '-r',
+                               str(self.parent.v.protein_pdbqt), '-p', 'rmstol=%s' % self.parent.v.rmsd, '-p',
+                               'ga_num_evals=%s' % self.parent.v.eval, '-p', 'ga_run=%s' % self.parent.v.runs, '-e']
+            self.prepare_dpf4 = {'Prepare_dpf4': [self.ws.this_python, prepare_dpf_arg]}
+
+            self.autodock_dlg = str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + protein_dlg)
+            autodock_arg = ['-p', str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + protein_dpf), '-l',
+                            os.path.join(self.parent.v.result_dir, self.parent.v.ligand_name + '_score.log')]
+            self.autodock = {'AutoDock4': [self.ws.autodock, autodock_arg]}
+
+            self.list_process = [self.prepare_gpf4, self.autogrid4, self.prepare_dpf4, self.autodock]
+            #############################################
+            for process in self.list_process:
+                self.queue.put(process)
+
+            # scoring_autodock_arg = [self.ws.autodock_scorer, '-r', self.parent.v.protein_pdbqt, '-l',
+            #                         self.parent.v.ligand_pdbqt, '-o',
+            #                         os.path.join(self.parent.v.result_dir, self.parent.v.ligand_name + '_score.log')]
+            # self.autodock_score = {'AutoDock4 Scoring': [self.ws.this_python, scoring_autodock_arg]}
+            # self.queue.put(self.autodock_score)
         else:
+            # shutil.copy(self.ws.zn_ff, os.getcwd())
+            # scoring_autodockzn_arg = [self.ws.autodock_scorer, '-r', self.parent.v.protein_pdbqt, '-l',
+            #                         self.parent.v.ligand_pdbqt,'-p', 'AD4Zn.dat', '-o',os.path.join(self.parent.v.result_dir, self.parent.v.ligand_name + '_score.log')]
+            # self.autodockzn_score = {'AutoDock4Zn Scoring': [self.ws.this_python, scoring_autodockzn_arg]}
+            # self.queue.put(self.autodockzn_score)
+            ############################################
             shutil.copy(self.ws.zn_ff, os.getcwd())
-            scoring_autodockzn_arg = [self.ws.autodock_scorer, '-r', self.parent.v.protein_pdbqt, '-l',
-                                    self.parent.v.ligand_pdbqt,'-p', 'AD4Zn.dat', '-o',os.path.join(self.parent.v.result_dir, self.parent.v.ligand_name + '_score.log')]
-            self.autodockzn_score = {'AutoDock4Zn Scoring': [self.ws.this_python, scoring_autodockzn_arg]}
-            self.queue.put(self.autodockzn_score)
+
+            protein_TZ = str(self.parent.v.protein_pdbqt.split('.')[0] + '_TZ.pdbqt')
+            protein_gpf = str(self.parent.v.protein_pdbqt.split('.')[0] + '_TZ.gpf')
+            protein_dlg = str(self.parent.v.protein_pdbqt.split('.')[0] + '_TZ.dlg')
+            protein_dpf = str(self.parent.v.protein_pdbqt.split('.')[0] + '_TZ.dpf')
+
+            pseudozn_arg = [self.ws.zinc_pseudo_py, '-r', str(self.parent.v.protein_pdbqt)]
+            self.pseudozn = {'PseudoZn': [self.ws.this_python, pseudozn_arg]}
+
+            prepare_gpf4zn_arg = [self.ws.prepare_gpf4zn_py, '-l', str(self.parent.v.ligand_pdbqt), '-r',
+                                  protein_TZ, '-f', self.parent.v.gd, '-p',
+                                  'spacing=%.3f' % self.parent.v.spacing_autodock, '-p', 'npts=%d,%d,%d' %
+                                  (self._size_x / self.parent.v.spacing_autodock,
+                                   self._size_y / self.parent.v.spacing_autodock,
+                                   self._size_z / self.parent.v.spacing_autodock), '-p',
+                                  'parameter_file=AD4Zn.dat']
+            self.prepare_gpf4zn = {'Prepare_gpf4zn': [self.ws.this_python, prepare_gpf4zn_arg]}
+
+            autogridzn_arg = ['-p', protein_gpf]
+            self.autogrid4 = {'AutoGrid4': [self.ws.autogrid, autogridzn_arg]}
+
+            prepare_dpfzn_arg = [self.ws.prepare_dpf_py, '-l', str(self.parent.v.ligand_pdbqt), '-r', protein_TZ, '-p',
+                                 'rmstol=%s' % self.parent.v.rmsd, '-p', 'ga_num_evals=%s' % self.parent.v.eval,
+                                 '-p', 'ga_run=%s' % self.parent.v.runs, '-e']
+            self.prepare_dfp4zn = {'Prepare_dpf4': [self.ws.this_python, prepare_dpfzn_arg]}
+
+            self.autodock_dlg = str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + protein_dlg)
+            autodockzn_arg = ['-p', str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + protein_dpf),
+                              '-l', os.path.join(self.parent.v.result_dir, self.autodock_dlg)]
+            self.autodockzn = {'AutoDock4ZN': [self.ws.autodock, autodockzn_arg]}
+
+            self.list_process = [self.pseudozn, self.prepare_gpf4zn, self.autogrid4, self.prepare_dfp4zn,
+                                 self.autodockzn]
+            for process in self.list_process:
+                self.queue.put(process)
+            #############################################
+
 
         self.worker.init(self.queue, 'Scoring Process')
         self.worker.start_process()
@@ -4568,7 +4653,8 @@ class Program_body(QtGui.QWidget):
             self.prepare_receptor4B = {'Prepare_Receptor4 B': [self.ws.this_python, prepare_receptor4_argB]}
 
         if self.parent.v.ligand_prepare:
-            protonate_ligand_arg = ['-i', 'pdb' ,self.parent.v.ligand_pdb ,'-opdb', '-O',self.parent.v.ligand_h ,'-h', '-p', `self.parent.v.pH`]
+            protonate_ligand_arg = ['-i', 'pdb' ,self.parent.v.ligand_pdb ,'-opdb', '-O',self.parent.v.ligand_h ,'-h',
+                                    '-p', `self.parent.v.pH`]
             self.protonate_ligand = {'Protonate Ligand': [self.parent.ws.openbabel, protonate_ligand_arg]}
 
             prepare_ligand4_arg = [self.ws.prepare_ligand4_py, '-l', self.parent.v.ligand_h, '-v', '-o',
@@ -4596,6 +4682,21 @@ class Program_body(QtGui.QWidget):
             if self.parent.v.ligand_prepare:
                 self.list_process.append(self.protonate_ligand)
                 self.list_process.append(self.prepare_ligand4)
+
+        if self.parent.v.scoring and self.parent.v.docking_program != 'AutoDock Vina':
+
+            prev_ligand_arg = [self.parent.v.input_lig, None, None,self.parent.v.gd, False]
+            self.previous_ligand = {'function GridDefinition: Previous Ligand Center': [GridDefinition,
+                                                                                        prev_ligand_arg]}
+            self.queue = Queue.Queue()
+            self.queue.put(self.previous_ligand)
+            self.worker.init(self.queue, 'Binding Site Determination')
+            self.worker.start_process()
+
+            self._size_x = self._size_y = self._size_z = self.parent.v.rg
+
+
+        #################
 
         self.queue = Queue.Queue()
         for process in self.list_process:
@@ -4687,9 +4788,9 @@ class Program_body(QtGui.QWidget):
                 self.siz_z = int(self.size_z.text())
 
                 if self.siz_x < self.parent.v.rg or self.siz_y < self.parent.v.rg or self.siz_z < self.parent.v.rg:
-                    self.grid_opt, self.dim_list = smallbox_warning(self,
-                                                                    {'x': self.siz_x, 'y': self.siz_y, 'z': self.siz_z},
-                                                                    self.parent.v.rg, self.parent.v.protein_name)
+                    self.grid_opt, self.dim_list = smallbox_warning(self, {'x': self.siz_x, 'y': self.siz_y,
+                                                                           'z': self.siz_z}, self.parent.v.rg,
+                                                                    self.parent.v.protein_name)
                     if self.grid_opt == QtGui.QMessageBox.Yes:
                         if 'x' in self.dim_list:
                             self.siz_x = self.parent.v.rg

@@ -135,13 +135,9 @@ class Scoring2table(Result_Analysis):
             line = line.strip('\n')
             if re.search('Affinity:', line):
                 energy = float(line.split()[1])
-            elif re.search(self.lig_name, line):
-                try:
-                    energy = line.split()[1]
-                    energy = float(energy)
-                except:
-                    energy = line.split()[2]
-                    energy = float(energy)
+            elif re.search('Estimated Free Energy of Binding', line):
+                energy = float(line.split()[8])
+
         Ki_value = self.energy2ki(energy)
         Ki, unit = self.converter(Ki_value)
         ligand_efficiency = energy / self.heavy_atoms
