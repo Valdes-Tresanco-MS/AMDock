@@ -1915,10 +1915,8 @@ class Program_body(QtGui.QWidget):
                 self.stop_button.show()
                 self.run_scoring.hide()
                 self.non_button.hide()
-
-
+                
                 self.progressBar.setValue(2)
-
                 ## Input box
                 self.protein_text.resize(360, 22)
                 self.protein_label.resize(360,22)
@@ -1934,9 +1932,7 @@ class Program_body(QtGui.QWidget):
                 self.grid_pymol_buttonB.show()
                 self.reset_grid_buttonB.show()
 
-
                 ### Grid definition box
-                # self.grid_box.resize(871, 200)
                 self.grid_auto.hide()
                 self.grid_predef.hide()
                 self.grid_by_lig.hide()
@@ -2009,15 +2005,8 @@ class Program_body(QtGui.QWidget):
                 self.grid_user_cr.show()
                 self.grid_predef_text.setGeometry(QtCore.QRect(130, 77, 345, 20))
                 self.grid_predef_label.setGeometry(QtCore.QRect(135, 93, 340, 20))
-                # self.checker_icon.setGeometry(QtCore.QRect(477,75,25,25))
-                # self.checker_icon_ok.setGeometry(QtCore.QRect(477,75,25,25))
-                # self.grid_icon.setGeometry(QtCore.QRect(475, 150, 25, 25))
-                # self.grid_icon_ok.setGeometry(QtCore.QRect(475, 150, 25, 25))
-                # self.grid_icon
-                # self.grid_predef_text.show()
                 self.coor_box.hide()
                 self.size_box.hide()
-                
                 self.lig_list.hide()
                 #### resize
 
@@ -2046,11 +2035,6 @@ class Program_body(QtGui.QWidget):
                 self.non_button.show()
                 self.lig_list.setEnabled(False)
                 self.progressBar.setValue(2)
-
-                # self.grid_pymol_button.setGeometry(QtCore.QRect(363, 155, 80, 22))
-                # self.reset_grid_button.setGeometry(QtCore.QRect(447, 155, 80, 22))
-                # self.grid_pymol_buttonB.hide()
-                # self.reset_grid_buttonB.hide()
 
                 if os.path.exists(`self.parent.v.input_protein`):
                     try:
@@ -2093,7 +2077,6 @@ class Program_body(QtGui.QWidget):
                 self.prep_rec_lig_button.setGeometry(QtCore.QRect(775, 65, 105, 45))
                 self.non_ligand.setGeometry(QtCore.QRect(268, 90, 50, 20))
 
-                # self.protein_text.setPlaceholderText(self.parent.v.protein_name)
                 self.protein_button.setText('Protein')
                 self.btnA_auto.setChecked(True)
                 self.btnB_auto.setChecked(True)
