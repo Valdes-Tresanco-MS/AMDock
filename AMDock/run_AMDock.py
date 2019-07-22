@@ -11,7 +11,7 @@ def run():
         app = QtGui.QApplication(sys.argv)
         app.setStyle("cleanlooks")
         app.setWindowIcon(QtGui.QIcon(QtGui.QPixmap(ob.app_icon)))
-        app.setApplicationName('AMDock Automatic Molecular Docking for AutoDock and AutoDock Vina')
+        app.setApplicationName('AMDock: Automatic Molecular Docking for AutoDock and AutoDock Vina')
 
         fapp = QtGui.QFont()
         fapp.setPointSize(11)
