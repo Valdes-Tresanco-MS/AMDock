@@ -1,3 +1,5 @@
+#Build 1.0.3
+-Change the scoring mode. Now using AutoDock4 instead of the evaluation script
 #Build 1.0.2
 -fixed some bugs
 -In Off-Target Docking module, both the target and control proteins are align, thus improving the visualization of the ligand sites
