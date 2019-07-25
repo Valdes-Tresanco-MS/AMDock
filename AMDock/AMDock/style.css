@@ -1,35 +1,35 @@
-QStatusBar {
-    border: 2px solid #222222
-    }
+/*QStatusBar {*/
+/*    border: 2px solid #222222*/
+/*    }*/
  /*.:Exit button:.*/
-QPushButton#exit {
-    border: 2px solid #222222;
-    border-bottom-left-radius: 0px;
-    border-bottom-right-radius: 0px;
-    border-top-left-radius: 0px;
-    border-top-right-radius: 10px;
-    }
+/*QPushButton#exit {*/
+/*    border: 2px solid #222222;*/
+/*    border-bottom-left-radius: 0px;*/
+/*    border-bottom-right-radius: 0px;*/
+/*    border-top-left-radius: 0px;*/
+/*    border-top-right-radius: 10px;*/
+/*    }*/
 
 /* .:Minimize button:.*/
-QPushButton#minimize {
-    border: 2px solid #222222;
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 0px;
-    border-top-left-radius: 0px;
-    border-top-right-radius: 0px;
-    }
+/*QPushButton#minimize {*/
+/*    border: 2px solid #222222;*/
+/*    border-bottom-left-radius: 10px;*/
+/*    border-bottom-right-radius: 0px;*/
+/*    border-top-left-radius: 0px;*/
+/*    border-top-right-radius: 0px;*/
+/*    }*/
 
 /* .:Tabs-Bar (tabWidget):.*/
-QTabWidget#windows::pane { /* The tab widget frame */
-     border-top: 2px solid #05B8CC;
-     }
-QTabWidget#windows:tab-bar {
-     left: 100px; /* move to the right by 100px */
-     }
-QTabWidget {
-    border-left: 2px solid #05B8CC;
-    background-color: #05B8CC;
-    }
+/*QTabWidget#windows::pane { !* The tab widget frame *!*/
+/*     border-top: 2px solid #05B8CC;*/
+/*     }*/
+/*QTabWidget#windows:tab-bar {*/
+/*     left: 100px; !* move to the right by 100px *!*/
+/*     }*/
+/*QTabWidget {*/
+/*    border-left: 2px solid #05B8CC;*/
+/*    background-color: #05B8CC;*/
+/*    }*/
 /* .:End Tabs-Bar performance:. */
 
 /* .:QTabWidget performance:. */
@@ -40,9 +40,9 @@ QTabWidget {
 
     }
 
-#lobby {
-    /*background-color: black;*/
-    /*background-image: url(presentation.png);*/
+#tab_lobby {
+    background-color: black;
+    /*background-image: url(images/presentation.png);*/
     border-left: 3px solid #2F3336;
     border-right: 3px solid #2F3336;
     /*border-bottom: 3px solid #2F3336;*/
