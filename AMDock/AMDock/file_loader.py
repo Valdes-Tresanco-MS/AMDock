@@ -66,7 +66,7 @@ class Loader(QtGui.QMainWindow):
                     self.parent.v.protein_pdbqt = None
                     self.parent.program_body.protein_text.clear()
                     # self.parent.program_body.non_ligand.hide()
-                    self.parent.program_body.btnA_lig.show()
+                    # self.parent.program_body.btnA_lig.show()
                     self.parent.v.metals = None
                     self.parent.v.ligands = None
                     self.parent.program_body.protein_label.clear()
@@ -78,7 +78,7 @@ class Loader(QtGui.QMainWindow):
                     self.parent.v.protein_pdbqt = None
                     self.parent.program_body.protein_text.clear()
                     # self.parent.program_body.non_ligand.hide()
-                    self.parent.program_body.btnA_lig.show()
+                    # self.parent.program_body.btnA_lig.show()
                     self.parent.v.metals = None
                     self.parent.v.ligands = None
                     self.parent.program_body.protein_label.clear()
@@ -131,12 +131,12 @@ class Loader(QtGui.QMainWindow):
                     for x in self.parent.v.ligands:
                         self.parent.program_body.lig_list.addItem('%s:%s:%s' % x)
                     self.parent.selected_ligand = self.parent.program_body.lig_list.currentText()
-                    if self.parent.v.cr:
-                        self.parent.program_body.btnA_lig.show()
-                        self.parent.program_body.grid_by_lig_cr.setEnabled(True)
-                        self.parent.program_body.lig_list.hide()
-                    else:
-                        self.parent.program_body.lig_list.show()
+                    # if self.parent.v.cr:
+                    #     self.parent.program_body.btnA_lig.show()
+                    #     self.parent.program_body.grid_by_lig_cr.setEnabled(True)
+                    #     self.parent.program_body.lig_list.hide()
+                    # else:
+                    #     self.parent.program_body.lig_list.show()
                         # self.parent.program_body.grid_by_lig.setEnabled(True)
                 else:
                     # self.parent.program_body.non_ligand.setText(`self.parent.v.ligands`)
@@ -234,8 +234,9 @@ class Loader(QtGui.QMainWindow):
                 try:
                     shutil.copy('%s' % self.control_path,self.parent.v.input_control)
                 except:
-                    nowdir = QtGui.QMessageBox.critical(self.parent, 'Error',
-                                                        'The working directory was not found or it does not have permission for writing.\nPlease reset the program.',
+                    nowdir = QtGui.QMessageBox.critical(self.parent, 'Error', 'The working directory was not found or '
+                                                                              'it does not have permission for writing.'
+                                                                              '\nPlease reset the program.',
                                                         QtGui.QMessageBox.Ok)
 
                 os.chdir(self.parent.v.input_dir)
@@ -257,24 +258,24 @@ class Loader(QtGui.QMainWindow):
                 os.chdir(self.parent.v.loc_project)
                 ###lista de ligandos
                 if self.parent.v.analog_ligands != None:
-                    self.parent.program_body.non_ligandB.hide()
+                    # self.parent.program_body.non_ligandB.hide()
                     for x in self.parent.v.analog_ligands:
                         self.parent.program_body.lig_listB.addItem('%s:%s:%s' % x)
                     self.parent.analog_selected_ligand = self.parent.program_body.lig_listB.currentText()
-                    self.parent.program_body.btnB_lig.show()
-                    self.parent.program_body.grid_by_lig_cr.setEnabled(True)
-                    self.parent.program_body.lig_listB.hide()
-                else:
-                    self.parent.program_body.non_ligandB.setText(`self.parent.v.analog_ligands`)
-                    if self.parent.v.ligands == None:
-                        self.parent.program_body.btnA_lig.hide()
-                        self.parent.program_body.btnB_lig.hide()
-                        self.parent.program_body.grid_by_lig_cr.setEnabled(False)
-                        self.parent.program_body.non_ligandB.show()
-                    else:
-                        self.parent.program_body.grid_by_lig_cr.setEnabled(True)
-                        self.parent.program_body.btnB_lig.hide()
-                        self.parent.program_body.non_ligandB.show()
+                    # self.parent.program_body.btnB_lig.show()
+                    # self.parent.program_body.grid_by_lig_cr.setEnabled(True)
+                    # self.parent.program_body.lig_listB.hide()
+                # else:
+                #     # self.parent.program_body.non_ligandB.setText(`self.parent.v.analog_ligands`)
+                #     if self.parent.v.ligands == None:
+                #         self.parent.program_body.btnA_lig.hide()
+                #         self.parent.program_body.btnB_lig.hide()
+                #         self.parent.program_body.grid_by_lig_cr.setEnabled(False)
+                #         self.parent.program_body.non_ligandB.show()
+                #     else:
+                #         self.parent.program_body.grid_by_lig_cr.setEnabled(True)
+                #         self.parent.program_body.btnB_lig.hide()
+                #         self.parent.program_body.non_ligandB.show()
 
                 if self.parent.v.input_lig is None and self.parent.v.input_target is None:
                     progress(self.parent.program_body, 0, 0, 5, finish=True, mess='Control Definition...')
