@@ -164,16 +164,16 @@ class Lobby(QtGui.QWidget):
         elif b.objectName() == 'dock_vina_button':
             self.parent.v.docking_program = 'AutoDock Vina'
         self.parent.statusbar.showMessage(self.parent.v.docking_program + " is selected")
-        self.parent.windows.setCurrentIndex(1)
-        self.parent.windows.setTabEnabled(1, True)
-        self.parent.windows.setTabEnabled(0, False)
+        self.parent.main_window.setCurrentIndex(1)
+        self.parent.main_window.setTabEnabled(1, True)
+        self.parent.main_window.setTabEnabled(0, False)
 
     def result_select(self, b):
         if b.objectName() == 'vina_result_button':
             self.parent.statusbar.showMessage(b.text() + " is selected")
         else:
             self.parent.statusbar.showMessage(b.text() + " is selected")
-        self.parent.windows.setCurrentIndex(2)
-        self.parent.windows.setTabEnabled(1, False)
-        self.parent.windows.setTabEnabled(0, False)
-        self.parent.windows.setTabEnabled(2, True)
+        self.parent.main_window.setCurrentIndex(2)
+        self.parent.main_window.setTabEnabled(1, False)
+        self.parent.main_window.setTabEnabled(0, False)
+        self.parent.main_window.setTabEnabled(2, True)

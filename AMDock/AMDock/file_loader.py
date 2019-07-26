@@ -65,7 +65,7 @@ class Loader(QtGui.QMainWindow):
                     self.parent.v.protein_file = None
                     self.parent.v.protein_pdbqt = None
                     self.parent.program_body.protein_text.clear()
-                    self.parent.program_body.non_ligand.hide()
+                    # self.parent.program_body.non_ligand.hide()
                     self.parent.program_body.btnA_lig.show()
                     self.parent.v.metals = None
                     self.parent.v.ligands = None
@@ -77,7 +77,7 @@ class Loader(QtGui.QMainWindow):
                     self.parent.v.protein_file = None
                     self.parent.v.protein_pdbqt = None
                     self.parent.program_body.protein_text.clear()
-                    self.parent.program_body.non_ligand.hide()
+                    # self.parent.program_body.non_ligand.hide()
                     self.parent.program_body.btnA_lig.show()
                     self.parent.v.metals = None
                     self.parent.v.ligands = None
@@ -127,7 +127,7 @@ class Loader(QtGui.QMainWindow):
                 os.chdir(self.parent.v.loc_project)
                 ###lista de ligandos
                 if self.parent.v.ligands != None:
-                    self.parent.program_body.non_ligand.hide()
+                    # self.parent.program_body.non_ligand.hide()
                     for x in self.parent.v.ligands:
                         self.parent.program_body.lig_list.addItem('%s:%s:%s' % x)
                     self.parent.selected_ligand = self.parent.program_body.lig_list.currentText()
@@ -137,21 +137,21 @@ class Loader(QtGui.QMainWindow):
                         self.parent.program_body.lig_list.hide()
                     else:
                         self.parent.program_body.lig_list.show()
-                        self.parent.program_body.grid_by_lig.setEnabled(True)
+                        # self.parent.program_body.grid_by_lig.setEnabled(True)
                 else:
-                    self.parent.program_body.non_ligand.setText(`self.parent.v.ligands`)
+                    # self.parent.program_body.non_ligand.setText(`self.parent.v.ligands`)
                     if self.parent.v.cr:
                         if self.parent.v.analog_ligands == None:
                             self.parent.program_body.btnA_lig.hide()
                             self.parent.program_body.btnB_lig.hide()
                             self.parent.program_body.grid_by_lig_cr.setEnabled(False)
-                            self.parent.program_body.non_ligand.show()
+                            # self.parent.program_body.non_ligand.show()
                         else:
                             self.parent.program_body.grid_by_lig_cr.setEnabled(True)
                             self.parent.program_body.btnA_lig.hide()
-                    else:
-                        self.parent.program_body.grid_by_lig.setEnabled(False)
-                        self.parent.program_body.non_ligand.show()
+                    # else:
+                        # self.parent.program_body.grid_by_lig.setEnabled(False)
+                        # self.parent.program_body.non_ligand.show()
 
                 if self.parent.v.cr:
                     if self.parent.v.input_lig is None and self.parent.v.input_control is None:

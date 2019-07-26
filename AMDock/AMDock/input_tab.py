@@ -813,8 +813,8 @@ class Program_body(QtGui.QWidget):
 
         self.reset_button = QtGui.QPushButton(self)
         # self.reset_button.setGeometry(QtCore.QRect(405, 570, 80, 35))
-        font = QtGui.QFont()
-        font.setPointSize(10)
+        # font = QtGui.QFont()
+        # font.setPointSize(10)
         self.reset_button.setFont(font)
         self.reset_button.setObjectName("reset_button")
         self.reset_button.setText("  Reset")
@@ -844,6 +844,39 @@ class Program_body(QtGui.QWidget):
         font3 = QtGui.QFont()
         font3.setPointSize(8)
         self.indic_label.setFont(font3)
+
+        self.p1 = QtGui.QLabel('|')
+        self.p1.setFont(font3)
+        self.p2 = QtGui.QLabel('|')
+        self.p2.setFont(font3)
+        self.p3 = QtGui.QLabel('|')
+        self.p3.setFont(font3)
+        self.p4 = QtGui.QLabel('|')
+        self.p4.setFont(font3)
+        self.p5 = QtGui.QLabel('|')
+        self.p5.setFont(font3)
+        self.init_conf = QtGui.QLabel('Init Conf')
+        self.init_conf.setFont(font3)
+        self.input_files = QtGui.QLabel('Prep. Input Files')
+        self.input_files.setFont(font3)
+        self.search_space = QtGui.QLabel('Search Space Definition')
+        self.search_space.setFont(font3)
+        self.mol_docking = QtGui.QLabel('Molecular Docking Simulation')
+        self.mol_docking.setFont(font3)
+
+        self.label_prog = QtGui.QHBoxLayout()
+        self.label_prog.setContentsMargins(0,0,0,0)
+        self.label_prog.setMargin(0)
+        # self.label_prog.
+        # self.label_prog.addWidget(self.p1)
+        self.label_prog.addWidget(self.init_conf, 9.8, QtCore.Qt.AlignCenter)
+        self.label_prog.addWidget(self.p2)
+        self.label_prog.addWidget(self.input_files, 14.8, QtCore.Qt.AlignCenter)
+        self.label_prog.addWidget(self.p3)
+        self.label_prog.addWidget(self.search_space, 24.8, QtCore.Qt.AlignCenter)
+        self.label_prog.addWidget(self.p4)
+        self.label_prog.addWidget(self.mol_docking, 50, QtCore.Qt.AlignCenter)
+        # self.label_prog.addWidget(self.p5)
 
         self.checker_icon = QtGui.QLabel(self.grid_box)
         # self.checker_icon.setGeometry(QtCore.QRect(795, 55, 30, 30))
@@ -933,7 +966,9 @@ class Program_body(QtGui.QWidget):
         self.coor_boxB_layout = QtGui.QHBoxLayout()
         self.coor_boxB_layout.addWidget(self.coor_boxB, 1)
         self.coor_boxB_layout.addWidget(self.size_boxB, 1)
+        self.coor_boxB_layout.addWidget(self.grid_iconB)
         self.coor_boxB_layout.addWidget(self.grid_icon_okB)
+
         self.coor_layB = QtGui.QVBoxLayout()
         self.coor_layB.addWidget(self.btnB_user, 0, QtCore.Qt.AlignCenter)
         self.coor_layB.addLayout(self.coor_boxB_layout)
@@ -946,6 +981,7 @@ class Program_body(QtGui.QWidget):
         self.conf_buttonsB.addWidget(self.reset_grid_buttonB)
 
         self.all_options = QtGui.QGridLayout()
+        self.all_options.setSizeConstraint(QtGui.QLayout.SetFixedSize)
 
         self.all_options.setColumnStretch(1, 1) #make column 1 and 2 regular width
         # self.all_options.setColumnStretch(2, 1) # TODO: pasado para la seleccion del procedimiento
@@ -978,6 +1014,7 @@ class Program_body(QtGui.QWidget):
         self.grid_content = QtGui.QHBoxLayout(self.grid_box)
         self.grid_content.addLayout(self.all_options)
         self.grid_content.addWidget(self.bind_site_button)
+        # self.grid_content.setSizeConstraint(QtGui.QLayout.Se)
 
         self.worker = Worker()
         self.worker.readyReadStandardOutput.connect(self.readStdOutput)
@@ -999,10 +1036,15 @@ class Program_body(QtGui.QWidget):
 
         self.pH_value.valueChanged.connect(lambda: self.values(self.pH_value))
 
+        self.reset_button_layout = QtGui.QHBoxLayout()
+        self.reset_button_layout.addStretch(1)
+        self.reset_button_layout.addWidget(self.reset_button)
+        self.reset_button_layout.addStretch(1)
+
         self.progressbar_layout = QtGui.QVBoxLayout()
-        self.progressbar_layout.addWidget(self.indic_label)
+        self.progressbar_layout.addLayout(self.label_prog)
         self.progressbar_layout.addWidget(self.progressBar)
-        self.progressbar_layout.addWidget(self.reset_button)
+        self.progressbar_layout.addLayout(self.reset_button_layout)
 
         self.progress_layout = QtGui.QHBoxLayout()
         self.progress_layout.addWidget(self.stop_button)
@@ -1013,6 +1055,7 @@ class Program_body(QtGui.QWidget):
         self.body_layout.addWidget(self.project_box)
         self.body_layout.addWidget(self.input_box)
         self.body_layout.addWidget(self.grid_box)
+        self.body_layout.addStretch(1)
         self.body_layout.addLayout(self.progress_layout)
 
         # self.protein_column_group_btnA.buttonClicked[QtGui.QAbstractButton].connect(self.grid_protA)
@@ -1023,17 +1066,17 @@ class Program_body(QtGui.QWidget):
     def reset_function(self):
         if self.parent.v.WDIR is None:
             self.parent.statusbar.showMessage("Version: %s" % __version__)
-            self.parent.windows.setTabEnabled(0, True)
-            self.parent.windows.setCurrentIndex(0)
-            self.parent.windows.setTabEnabled(1, False)
+            self.parent.main_window.setTabEnabled(0, True)
+            self.parent.main_window.setCurrentIndex(0)
+            self.parent.main_window.setTabEnabled(1, False)
             self.project_text.clear()
         else:
             reset_opt = reset_warning(self)
             if reset_opt == QtGui.QMessageBox.Yes:
                 self.parent.statusbar.showMessage("Version: %s" % __version__)
-                self.parent.windows.setTabEnabled(0, True)
-                self.parent.windows.setCurrentIndex(0)
-                self.parent.windows.setTabEnabled(1, False)
+                self.parent.main_window.setTabEnabled(0, True)
+                self.parent.main_window.setCurrentIndex(0)
+                self.parent.main_window.setTabEnabled(1, False)
                 self.project_text.setEnabled(True)
                 self.wdir_button.setEnabled(True)
                 self.wdir_button.setEnabled(True)
@@ -1220,10 +1263,10 @@ class Program_body(QtGui.QWidget):
                 self.protein_column_group_btnA.checkedButton()) == 1):
                 self.bind_site_button.setEnabled(True)
                 if self.parent.v.analog_ligands == None:
-                    self.btnB_lig.hide()
+                    self.btnB_lig.setEnabled(False)
                     # self.non_ligandB.setGeometry(QtCore.QRect(658, 90, 30, 20))
                 if self.parent.v.ligands == None:
-                    self.btnA_lig.hide()
+                    self.btnA_lig.setEnabled(False)
                     # self.non_ligand.setGeometry(QtCore.QRect(268, 90, 30, 20))
 
                 self.checker_icon.hide()
@@ -1238,7 +1281,7 @@ class Program_body(QtGui.QWidget):
                 # self.build_pymol_button.hide()
                 # self.build_pymol_buttonB.hide()
                 self.grid_pymol_button.show()
-                self.grid_pymol_buttonB.show()
+                # self.grid_pymol_buttonB.show()
 
                 # self.bind_site_button.setGeometry(QtCore.QRect(775, 90, 105, 50))
                 # self.grid_by_lig_cr.setGeometry(QtCore.QRect(10, 90, 185, 20))
@@ -1271,10 +1314,10 @@ class Program_body(QtGui.QWidget):
                     self.bind_site_button.setEnabled(True)
 
                 if self.parent.v.analog_ligands == None:
-                    self.btnB_lig.hide()
+                    self.btnB_lig.setEnabled(False)
                     # self.non_ligandB.setGeometry(QtCore.QRect(658, 115, 30, 20))
                 if self.parent.v.ligands == None:
-                    self.btnA_lig.hide()
+                    self.btnA_lig.setEnabled(False)
                     # self.non_ligand.setGeometry(QtCore.QRect(268, 115, 30, 20))
 
                 self.checker_icon.hide()
@@ -1289,7 +1332,7 @@ class Program_body(QtGui.QWidget):
                 # self.build_pymol_button.hide()
                 # self.build_pymol_buttonB.hide()
                 self.grid_pymol_button.show()
-                self.grid_pymol_buttonB.show()
+                # self.grid_pymol_buttonB.show()
 
                 # self.bind_site_button.setGeometry(QtCore.QRect(775, 110, 105, 50))
                 # self.checker_iconB.setGeometry(QtCore.QRect(860, 75, 25, 25))
@@ -1317,10 +1360,10 @@ class Program_body(QtGui.QWidget):
                 if self.parent.v.analog_ligands != None:
                     self.lig_listB.show()
                 else:
-                    self.btnB_lig.hide()
+                    self.btnB_lig.setEnabled(False)
                     # self.non_ligandB.setGeometry(QtCore.QRect(658, 90, 30, 20))
                 if self.parent.v.ligands == None:
-                    self.btnA_lig.hide()
+                    self.btnA_lig.setEnabled(False)
                     # self.non_ligand.setGeometry(QtCore.QRect(268, 90, 30, 20))
 
                 self.checker_icon.hide()
@@ -1335,7 +1378,7 @@ class Program_body(QtGui.QWidget):
                 # self.build_pymol_button.hide()
                 # self.build_pymol_buttonB.hide()
                 self.grid_pymol_button.show()
-                self.grid_pymol_buttonB.show()
+                # self.grid_pymol_buttonB.show()
 
                 # self.grid_by_lig_cr.setGeometry(QtCore.QRect(10, 90, 185, 20))
                 # self.btnB_lig.setGeometry(QtCore.QRect(675, 90, 16, 16))
@@ -1377,15 +1420,15 @@ class Program_body(QtGui.QWidget):
                 self.checker_icon_okB.hide()
 
                 # self.build_pymol_buttonB.show()
-                self.grid_pymol_buttonB.show()
+                # self.grid_pymol_buttonB.show()
                 # self.build_pymol_buttonB.setEnabled(True)
 
                 # self.grid_icon_okB.show()
                 if self.parent.v.analog_ligands == None:
-                    self.btnB_lig.hide()
+                    self.btnB_lig.setEnabled(False)
                     # self.non_ligandB.setGeometry(QtCore.QRect(658, 90, 30, 20))
                 if self.parent.v.ligands == None:
-                    self.btnA_lig.hide()
+                    self.btnA_lig.setEnabled(False)
                     # self.non_ligand.setGeometry(QtCore.QRect(268, 90, 30, 20))
 
                 # self.bind_site_button.setGeometry(QtCore.QRect(775, 60, 105, 50))
@@ -1423,10 +1466,10 @@ class Program_body(QtGui.QWidget):
                     self.bind_site_button.setEnabled(True)
 
                 if self.parent.v.analog_ligands == None:
-                    self.btnB_lig.hide()
+                    self.btnB_lig.setEnabled(False)
                     # self.non_ligandB.setGeometry(QtCore.QRect(658, 115, 30, 20))
                 if self.parent.v.ligands == None:
-                    self.btnA_lig.hide()
+                    self.btnA_lig.setEnabled(False)
                     # self.non_ligand.setGeometry(QtCore.QRect(268, 115, 30, 20))
 
                 # self.checker_icon.hide()
@@ -1441,7 +1484,7 @@ class Program_body(QtGui.QWidget):
                 # self.build_pymol_button.hide()
                 # self.build_pymol_buttonB.hide()
                 self.grid_pymol_button.show()
-                self.grid_pymol_buttonB.show()
+                # self.grid_pymol_buttonB.show()
 
                 # self.checker_icon.setGeometry(QtCore.QRect(477, 75, 25, 25))
                 # self.checker_icon_ok.setGeometry(QtCore.QRect(477, 75, 25, 25))
@@ -1481,10 +1524,10 @@ class Program_body(QtGui.QWidget):
                     self.bind_site_button.setEnabled(False)
 
                 if self.parent.v.analog_ligands == None:
-                    self.btnB_lig.hide()
+                    self.btnB_lig.setEnabled(False)
                     # self.non_ligandB.setGeometry(QtCore.QRect(658, 115, 30, 20))
                 if self.parent.v.ligands == None:
-                    self.btnA_lig.hide()
+                    self.btnA_lig.setEnabled(False)
                     # self.non_ligand.setGeometry(QtCore.QRect(268, 115, 30, 20))
 
                 # self.checker_icon.hide()
@@ -1499,7 +1542,7 @@ class Program_body(QtGui.QWidget):
                 # self.build_pymol_button.hide()
                 # self.build_pymol_buttonB.hide()
                 self.grid_pymol_button.show()
-                self.grid_pymol_buttonB.show()
+                # self.grid_pymol_buttonB.show()
 
                 # self.bind_site_button.setGeometry(QtCore.QRect(775, 110, 105, 50))
                 # self.checker_iconB.setGeometry(QtCore.QRect(860, 75, 25, 25))
@@ -1534,10 +1577,10 @@ class Program_body(QtGui.QWidget):
                 if self.parent.v.analog_ligands != None:
                     self.lig_listB.show()
                 else:
-                    self.btnB_lig.hide()
+                    self.btnB_lig.setEnabled(False)
                     # self.non_ligandB.setGeometry(QtCore.QRect(658, 115, 30, 20))  # FIXME
                 if self.parent.v.ligands == None:
-                    self.btnA_lig.hide()
+                    self.btnA_lig.setEnabled(False)
                     # self.non_ligand.setGeometry(QtCore.QRect(268, 115, 30, 20))
 
                 self.grid_predef_text.show()
@@ -1557,7 +1600,7 @@ class Program_body(QtGui.QWidget):
                 # self.build_pymol_button.hide()
                 # self.build_pymol_buttonB.hide()
                 self.grid_pymol_button.show()
-                self.grid_pymol_buttonB.show()
+                # self.grid_pymol_buttonB.show()
 
                 # self.checker_icon.setGeometry(QtCore.QRect(477, 75, 25, 25))
                 # self.checker_icon_ok.setGeometry(QtCore.QRect(477, 75, 25, 25))
@@ -1603,10 +1646,10 @@ class Program_body(QtGui.QWidget):
                     self.bind_site_button.setEnabled(False)
 
                 if self.parent.v.analog_ligands == None:
-                    self.btnB_lig.hide()
+                    self.btnB_lig.setEnabled(False)
                     # self.non_ligandB.setGeometry(QtCore.QRect(658, 115, 30, 20))
                 if self.parent.v.ligands == None:
-                    self.btnA_lig.hide()
+                    self.btnA_lig.setEnabled(False)
                     # self.non_ligand.setGeometry(QtCore.QRect(268, 115, 30, 20))
 
                 # self.checker_icon.hide()
@@ -1617,7 +1660,7 @@ class Program_body(QtGui.QWidget):
                 # self.grid_iconB.hide()
                 # self.grid_icon_okB.hide()
                 self.checker_icon_okB.hide()
-                self.grid_pymol_buttonB.show()
+                # self.grid_pymol_buttonB.show()
                 # self.build_pymol_buttonB.show()
                 # self.build_pymol_buttonB.setEnabled(True)
 
@@ -1654,9 +1697,9 @@ class Program_body(QtGui.QWidget):
                     self.btnB_lig.hide()
                     # self.non_ligandB.setGeometry(QtCore.QRect(658, 90, 30, 20))
                 if self.parent.v.ligands != None:
-                    self.lig_list.show()
+                    self.lig_list.setEnabled(False)
                 else:
-                    self.btnA_lig.hide()
+                    self.btnA_lig.setEnabled(False)
                     # self.non_ligand.setGeometry(QtCore.QRect(268, 90, 30, 20))
 
                 self.checker_icon.hide()
@@ -1671,7 +1714,7 @@ class Program_body(QtGui.QWidget):
                 # self.build_pymol_button.hide()
                 # self.build_pymol_buttonB.hide()
                 self.grid_pymol_button.show()
-                self.grid_pymol_buttonB.show()
+                # self.grid_pymol_buttonB.show()
 
                 # self.lig_list.show()
                 # self.grid_by_lig_cr.setGeometry(QtCore.QRect(10, 90, 185, 20))
@@ -1703,11 +1746,11 @@ class Program_body(QtGui.QWidget):
                 if self.parent.v.ligands != None:
                     self.lig_list.show()
                 else:
-                    self.btnA_lig.hide()
+                    self.btnA_lig.setEnabled(False)
                     # self.non_ligand.setGeometry(QtCore.QRect(268, 115, 30, 20))  # FIXME
 
                 if self.parent.v.analog_ligands == None:
-                    self.btnB_lig.hide()
+                    self.btnB_lig.setEnabled(False)
                     # self.non_ligandB.setGeometry(QtCore.QRect(658, 115, 30, 20))
 
                 self.checker_icon.hide()
@@ -1722,7 +1765,7 @@ class Program_body(QtGui.QWidget):
                 # self.build_pymol_button.hide()
                 # self.build_pymol_buttonB.hide()
                 self.grid_pymol_button.show()
-                self.grid_pymol_buttonB.show()
+                # self.grid_pymol_buttonB.show()
 
                 # self.lig_list.show()
                 self.grid_predef_textB.show()
@@ -1758,9 +1801,9 @@ class Program_body(QtGui.QWidget):
                 elif self.parent.v.ligands != None:
                     self.lig_list.show()
                 else:
-                    self.btnB_lig.hide()
+                    self.btnB_lig.setEnabled(False)
                     # self.non_ligandB.setGeometry(QtCore.QRect(658, 90, 30, 20))
-                    self.btnA_lig.hide()
+                    self.btnA_lig.setEnabled(False)
                     # self.non_ligand.setGeometry(QtCore.QRect(268, 90, 30, 20))
                     self.grid_by_lig_cr.setEnabled(False)
 
@@ -1776,7 +1819,7 @@ class Program_body(QtGui.QWidget):
                 # self.build_pymol_button.hide()
                 # self.build_pymol_buttonB.hide()
                 self.grid_pymol_button.show()
-                self.grid_pymol_buttonB.show()
+                # self.grid_pymol_buttonB.show()
 
                 # self.lig_list.show()
                 # self.lig_listB.show()
@@ -1803,10 +1846,10 @@ class Program_body(QtGui.QWidget):
                 if self.parent.v.ligands != None:
                     self.lig_list.show()
                 else:
-                    self.btnA_lig.hide()
+                    self.btnA_lig.setEnabled(False)
                     # self.non_ligand.setGeometry(QtCore.QRect(268, 90, 30, 20))
                 if self.parent.v.analog_ligands == None:
-                    self.btnB_lig.hide()
+                    self.btnB_lig.setEnabled(False)
                     # self.non_ligandB.setGeometry(QtCore.QRect(658, 90, 30, 20))
 
                 if self.parent.v.gerrorB == 1:
@@ -1825,7 +1868,7 @@ class Program_body(QtGui.QWidget):
                 # self.grid_icon_okB.hide()
                 self.checker_icon_okB.hide()
 
-                self.grid_pymol_buttonB.show()
+                # self.grid_pymol_buttonB.show()
                 # self.build_pymol_buttonB.show()
                 # self.build_pymol_buttonB.setEnabled(True)
 
@@ -1873,10 +1916,10 @@ class Program_body(QtGui.QWidget):
                     self.bind_site_button.setEnabled(True)
 
                 if self.parent.v.analog_ligands == None:
-                    self.btnB_lig.hide()
+                    self.btnB_lig.setEnabled(False)
                     # self.non_ligandB.setGeometry(QtCore.QRect(658, 90, 30, 20))
                 if self.parent.v.ligands == None:
-                    self.btnA_lig.hide()
+                    self.btnA_lig.setEnabled(False)
                     # self.non_ligand.setGeometry(QtCore.QRect(268, 90, 30, 20))
 
                 self.checker_icon.hide()
@@ -1940,10 +1983,10 @@ class Program_body(QtGui.QWidget):
                     self.bind_site_button.setEnabled(False)
 
                 if self.parent.v.analog_ligands == None:
-                    self.btnB_lig.hide()
+                    self.btnB_lig.setEnabled(False)
                     # self.non_ligandB.setGeometry(QtCore.QRect(658, 115, 30, 20))
                 if self.parent.v.ligands == None:
-                    self.btnA_lig.hide()
+                    self.btnA_lig.setEnabled(False)
                     # self.non_ligand.setGeometry(QtCore.QRect(268, 115, 30, 20))
 
                 self.checker_icon.hide()
@@ -1988,10 +2031,10 @@ class Program_body(QtGui.QWidget):
                 if self.parent.v.analog_ligands != None:
                     self.lig_listB.show()
                 else:
-                    self.btnB_lig.hide()
+                    self.btnB_lig.setEnabled(False)
                     # self.non_ligandB.setGeometry(QtCore.QRect(658, 90, 30, 20))
                 if self.parent.v.ligands == None:
-                    self.btnA_lig.hide()
+                    self.btnA_lig.setEnabled(False)
                     # self.non_ligand.setGeometry(QtCore.QRect(268, 90, 30, 20))
 
                 if self.parent.v.gerror == 1:
@@ -2067,10 +2110,10 @@ class Program_body(QtGui.QWidget):
                     self.bind_site_button.setEnabled(False)
 
                 if self.parent.v.analog_ligands == None:
-                    self.btnB_lig.hide()
+                    self.btnB_lig.setEnabled(False)
                     # self.non_ligandB.setGeometry(QtCore.QRect(658, 90, 30, 20))
                 if self.parent.v.ligands == None:
-                    self.btnA_lig.hide()
+                    self.btnA_lig.setEnabled(False)
                     # self.non_ligand.setGeometry(QtCore.QRect(268, 90, 30, 20))
 
                 self.checker_icon.hide()
@@ -2085,7 +2128,7 @@ class Program_body(QtGui.QWidget):
                 # self.grid_pymol_button.hide()
                 # self.build_pymol_button.show()
                 # self.build_pymol_button.setEnabled(True)
-                self.grid_pymol_buttonB.show()
+                # self.grid_pymol_buttonB.show()
                 # self.build_pymol_buttonB.show()
                 # self.build_pymol_buttonB.setEnabled(True)
 
@@ -3125,10 +3168,10 @@ class Program_body(QtGui.QWidget):
                     self.size_x.setReadOnly(False)
                     self.size_y.setReadOnly(False)
                     self.size_z.setReadOnly(False)
-                    if self.parent.v.ligands is not None:
-                        self.grid_by_lig.setEnabled(True)
-                    else:
-                        self.grid_by_lig.setEnabled(False)
+                    # if self.parent.v.ligands is not None:
+                    #     self..setEnabled(True)
+                    # else:
+                    #     self.grid_by_lig.setEnabled(False)
                 if self.parent.v.cr:
                     self.btnA_auto.setEnabled(True)
                     self.btnA_res.setEnabled(True)
@@ -3178,7 +3221,7 @@ class Program_body(QtGui.QWidget):
                     self.size_zB.setReadOnly(True)
 
                     # self.build_pymol_buttonB.hide()
-                    self.grid_pymol_buttonB.show()
+                    # self.grid_pymol_buttonB.show()
 
                 # self.grid_user.setEnabled(False)
                 # self.grid_auto.setEnabled(False)
@@ -3206,10 +3249,10 @@ class Program_body(QtGui.QWidget):
                     'AMDOCK: MDS Molecular Docking Simulation...Done\n')
                 # self.progressBar_label.setText('Molecular Docking Simulation:...DONE.')
 
-                # self.parent.windows.setTabEnabled(2, True)
-                # self.parent.windows.setCurrentIndex(2)
-                # self.parent.windows.setTabEnabled(1, False)
-                # self.parent.windows.setTabEnabled(0, False)
+                # self.parent.main_window.setTabEnabled(2, True)
+                # self.parent.main_window.setCurrentIndex(2)
+                # self.parent.main_window.setTabEnabled(1, False)
+                # self.parent.main_window.setTabEnabled(0, False)
             else:
                 self.grid_box.setEnabled(False)
                 self.progressBar.setValue(100)
@@ -4390,9 +4433,9 @@ class Program_body(QtGui.QWidget):
 
                 elif self.check_opt == QtGui.QMessageBox.Cancel:
                     ###lo puedo sustituir por un funcion que resetee todo el programa
-                    self.parent.windows.setCurrentIndex(0)
-                    self.parent.windows.setTabEnabled(1, False)
-                    self.parent.windows.setTabEnabled(0, True)
+                    self.parent.main_window.setCurrentIndex(0)
+                    self.parent.main_window.setTabEnabled(1, False)
+                    self.parent.main_window.setTabEnabled(0, True)
             else:
                 self.check_opt = self.parent.checker.check_correct_prog('A')
                 if self.check_opt == QtGui.QMessageBox.Yes:
@@ -4462,9 +4505,9 @@ class Program_body(QtGui.QWidget):
 
                 elif self.check_opt == QtGui.QMessageBox.Cancel:
                     ###lo puedo sustituir por un funcion que resetee todo el programa
-                    self.parent.windows.setCurrentIndex(0)
-                    self.parent.windows.setTabEnabled(1, False)
-                    self.parent.windows.setTabEnabled(0, True)
+                    self.parent.main_window.setCurrentIndex(0)
+                    self.parent.main_window.setTabEnabled(1, False)
+                    self.parent.main_window.setTabEnabled(0, True)
             else:
                 self.check_opt = self.parent.checker.check_correct_prog('B')
                 if self.check_opt == QtGui.QMessageBox.Yes:
@@ -4509,69 +4552,69 @@ class Program_body(QtGui.QWidget):
                             progress(self, 0, 0, 6, reverse=True, mess='Ligand Definition...')
                     self.parent.loader.load_ligand()
 
-    def grid_definition(self, g):
-        if g.objectName() == "grid_auto":
-            if g.isChecked() == True:
-                self.parent.v.grid_def = 'auto'
-
-        elif g.objectName() == "grid_predef":
-            if g.isChecked():
-                self.grid_predef_text.show()
-                # self.grid_predef_label.show()
-                self.parent.v.grid_def = "by_residues"
-                self.checker_icon.show()
-                self.bind_site_button.setEnabled(False)
-            else:
-                self.grid_predef_text.clear()
-                self.grid_predef_text.hide()
-                # self.grid_predef_label.hide()
-                self.checker_icon.hide()
-                self.bind_site_button.setEnabled(True)
-        elif g.objectName() == "grid_by_lig":
-            if g.isChecked():
-                self.lig_list.setEnabled(True)
-                self.lig_list.show()
-                self.parent.v.grid_def = 'by_ligand'
-            else:
-                self.lig_list.setEnabled(False)
-        elif g.objectName() == 'grid_user':
-            if g.isChecked():
-                self.parent.v.grid_def = 'by_user'
-                # self.coor_box.setEnabled(True)
-                self.coor_box.show()
-                # self.size_box.setEnabled(True)
-                self.size_box.show()
-                self.grid_icon.show()
-                self.bind_site_button.setEnabled(False)
-                # self.grid_box.resize(890, 210)
-                # self.grid_pymol_button.setGeometry(QtCore.QRect(363, 167, 80, 22))
-                # self.reset_grid_button.setGeometry(QtCore.QRect(447, 167, 80, 22))
-                # self.build_pymol_button.show()
-                # self.build_pymol_button.setEnabled(True)
-                # self.build_pymol_button.setGeometry(QtCore.QRect(363, 167, 80, 22))
-                # self.grid_pymol_button.hide()
-            else:
-                # self.build_pymol_button.hide()
-                # self.build_pymol_button.setEnabled(False)
-                # self.build_pymol_button.setGeometry(QtCore.QRect(363, 155, 80, 22))
-                self.grid_pymol_button.show()
-                # self.coor_box.setEnabled(False)
-                # self.size_box.setEnabled(False)
-                self.grid_icon.hide()
-                self.grid_icon_ok.hide()
-                self.coor_box.hide()
-                self.size_box.hide()
-                self.bind_site_button.setEnabled(True)
-                self.size_x.clear()
-                self.size_y.clear()
-                self.size_z.clear()
-                self.coor_x.clear()
-                self.coor_y.clear()
-                self.coor_z.clear()
-                # self.grid_pymol_button.setGeometry(QtCore.QRect(363, 155, 80, 22))
-                # self.reset_grid_button.setGeometry(QtCore.QRect(447, 155, 80, 22))
-
-                # self.grid_box.resize(890, 180)
+    # def grid_definition(self, g):
+    #     if g.objectName() == "grid_auto":
+    #         if g.isChecked() == True:
+    #             self.parent.v.grid_def = 'auto'
+    #
+    #     elif g.objectName() == "grid_predef":
+    #         if g.isChecked():
+    #             self.grid_predef_text.show()
+    #             # self.grid_predef_label.show()
+    #             self.parent.v.grid_def = "by_residues"
+    #             self.checker_icon.show()
+    #             self.bind_site_button.setEnabled(False)
+    #         else:
+    #             self.grid_predef_text.clear()
+    #             self.grid_predef_text.hide()
+    #             # self.grid_predef_label.hide()
+    #             self.checker_icon.hide()
+    #             self.bind_site_button.setEnabled(True)
+    #     elif g.objectName() == "grid_by_lig":
+    #         if g.isChecked():
+    #             self.lig_list.setEnabled(True)
+    #             self.lig_list.show()
+    #             self.parent.v.grid_def = 'by_ligand'
+    #         else:
+    #             self.lig_list.setEnabled(False)
+    #     elif g.objectName() == 'grid_user':
+    #         if g.isChecked():
+    #             self.parent.v.grid_def = 'by_user'
+    #             # self.coor_box.setEnabled(True)
+    #             self.coor_box.show()
+    #             # self.size_box.setEnabled(True)
+    #             self.size_box.show()
+    #             self.grid_icon.show()
+    #             self.bind_site_button.setEnabled(False)
+    #             # self.grid_box.resize(890, 210)
+    #             # self.grid_pymol_button.setGeometry(QtCore.QRect(363, 167, 80, 22))
+    #             # self.reset_grid_button.setGeometry(QtCore.QRect(447, 167, 80, 22))
+    #             # self.build_pymol_button.show()
+    #             # self.build_pymol_button.setEnabled(True)
+    #             # self.build_pymol_button.setGeometry(QtCore.QRect(363, 167, 80, 22))
+    #             # self.grid_pymol_button.hide()
+    #         else:
+    #             # self.build_pymol_button.hide()
+    #             # self.build_pymol_button.setEnabled(False)
+    #             # self.build_pymol_button.setGeometry(QtCore.QRect(363, 155, 80, 22))
+    #             self.grid_pymol_button.show()
+    #             # self.coor_box.setEnabled(False)
+    #             # self.size_box.setEnabled(False)
+    #             self.grid_icon.hide()
+    #             self.grid_icon_ok.hide()
+    #             self.coor_box.hide()
+    #             self.size_box.hide()
+    #             self.bind_site_button.setEnabled(True)
+    #             self.size_x.clear()
+    #             self.size_y.clear()
+    #             self.size_z.clear()
+    #             self.coor_x.clear()
+    #             self.coor_y.clear()
+    #             self.coor_z.clear()
+    #             # self.grid_pymol_button.setGeometry(QtCore.QRect(363, 155, 80, 22))
+    #             # self.reset_grid_button.setGeometry(QtCore.QRect(447, 155, 80, 22))
+    #
+    #             # self.grid_box.resize(890, 180)
 
     def go_result(self):
         self.parent.v.amdock_file = os.path.normpath(
@@ -4580,10 +4623,10 @@ class Program_body(QtGui.QWidget):
         self.parent.result_tab.import_text.setText(self.parent.v.amdock_file)
         self.parent.output2file.out2file('>> RESULT\n')
         self.parent.statusbar.showMessage(" Go to Results Analysis", 2000)
-        self.parent.windows.setTabEnabled(2, True)
-        self.parent.windows.setCurrentIndex(2)
-        self.parent.windows.setTabEnabled(1, False)
-        self.parent.windows.setTabEnabled(0, False)
+        self.parent.main_window.setTabEnabled(2, True)
+        self.parent.main_window.setCurrentIndex(2)
+        self.parent.main_window.setTabEnabled(1, False)
+        self.parent.main_window.setTabEnabled(0, False)
         self.parent.result_tab.load_button.setEnabled(False)
         os.chdir(self.parent.v.result_dir)
 
@@ -4760,10 +4803,10 @@ class Program_body(QtGui.QWidget):
             os.path.join(self.parent.v.WDIR, self.parent.v.project_name + '.amdock'))
         self.parent.result_tab.import_text.setText(self.parent.v.amdock_file)
         self.parent.output2file.out2file('>> RESULT\n')
-        self.parent.windows.setTabEnabled(2, True)
-        self.parent.windows.setCurrentIndex(2)
-        self.parent.windows.setTabEnabled(1, False)
-        self.parent.windows.setTabEnabled(0, False)
+        self.parent.main_window.setTabEnabled(2, True)
+        self.parent.main_window.setCurrentIndex(2)
+        self.parent.main_window.setTabEnabled(1, False)
+        self.parent.main_window.setTabEnabled(0, False)
         self.parent.result_tab.load_button.setEnabled(False)
         os.chdir(self.parent.v.result_dir)
 
