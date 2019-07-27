@@ -95,14 +95,15 @@ class Loader(QtGui.QMainWindow):
                 else:
                     self.parent.v.protein_file = str(os.path.basename(self.target_path)).replace(' ', '_')
 
-                self.parent.v.input_target = os.path.join(self.parent.v.input_dir,self.target_name.replace(' ','_')+'.'+self.target_ext)
+                self.parent.v.input_offtarget = os.path.join(self.parent.v.input_dir,self.target_name.replace(' ','_')+'.'+self.target_ext)
 
                 try:
-                    shutil.copy('%s' % self.target_path, self.parent.v.input_target)
+                    shutil.copy('%s' % self.target_path, self.parent.v.input_offtarget)
                 except:
-                    nowdir = QtGui.QMessageBox.critical(self.parent, 'Error',
-                                                     'The working directory was not found or it does not have permission for writing.\nPlease reset the program.',
-                                                     QtGui.QMessageBox.Ok)
+                    nowdir = QtGui.QMessageBox.critical(self.parent, 'Error','The working directory was not found or '
+                                                                             'it does not have permission for writing.'
+                                                                             '\nPlease reset the program.',
+                                                        QtGui.QMessageBox.Ok)
 
 
                 # if self.parent.v.protein_pdbqt is None:
@@ -115,7 +116,7 @@ class Loader(QtGui.QMainWindow):
                     if self.target_ext == 'pdbqt':
                         elim_lig = QtGui.QMessageBox.warning(self.parent,'Warning','The pdbqt file selected have a ligand.\n Do you wish to eliminate it?',QtGui.QMessageBox.Yes| QtGui.QMessageBox.No)
                         if elim_lig == QtGui.QMessageBox.Yes:
-                            ClearAndFix(self.parent.v.input_target).write()
+                            ClearAndFix(self.parent.v.input_offtarget).write()
                             self.parent.v.ligands = None
 
                 except:
@@ -142,27 +143,27 @@ class Loader(QtGui.QMainWindow):
                     # self.parent.program_body.non_ligand.setText(`self.parent.v.ligands`)
                     if self.parent.v.cr:
                         if self.parent.v.analog_ligands == None:
-                            self.parent.program_body.btnA_lig.hide()
-                            self.parent.program_body.btnB_lig.hide()
+                            # self.parent.program_body.btnA_lig.hide()
+                            # self.parent.program_body.btnB_lig.hide()
                             self.parent.program_body.grid_by_lig_cr.setEnabled(False)
                             # self.parent.program_body.non_ligand.show()
                         else:
                             self.parent.program_body.grid_by_lig_cr.setEnabled(True)
-                            self.parent.program_body.btnA_lig.hide()
+                            # self.parent.program_body.btnA_lig.hide()
                     # else:
                         # self.parent.program_body.grid_by_lig.setEnabled(False)
                         # self.parent.program_body.non_ligand.show()
 
                 if self.parent.v.cr:
-                    if self.parent.v.input_lig is None and self.parent.v.input_control is None:
+                    if self.parent.v.input_lig is None and self.parent.v.input_target is None:
                         progress(self.parent.program_body, 0, 0, 5, finish=True, mess='Target Definition...')
                         self.parent.program_body.prep_rec_lig_button.setEnabled(False)
                         self.parent.program_body.wdir_button.setEnabled(True)
-                    elif self.parent.v.input_lig is None and self.parent.v.input_control is not None:
+                    elif self.parent.v.input_lig is None and self.parent.v.input_target is not None:
                         progress(self.parent.program_body, 0, 0, 8, finish=True, mess='Target Definition...')
                         self.parent.program_body.prep_rec_lig_button.setEnabled(False)
                         self.parent.program_body.wdir_button.setEnabled(True)
-                    elif self.parent.v.input_lig is not None and self.parent.v.input_control is None:
+                    elif self.parent.v.input_lig is not None and self.parent.v.input_target is None:
                         progress(self.parent.program_body, 0, 0, 7, finish=True, mess='Target Definition...')
                         self.parent.program_body.prep_rec_lig_button.setEnabled(False)
                         self.parent.program_body.wdir_button.setEnabled(True)
@@ -230,9 +231,9 @@ class Loader(QtGui.QMainWindow):
                     self.parent.v.analog_protein_pdbqt = str(os.path.basename(self.control_path)).replace(' ', '_')
                 else:
                     self.parent.v.analog_protein_file = str(os.path.basename(self.control_path)).replace(' ', '_')
-                self.parent.v.input_control = os.path.join(self.parent.v.input_dir,self.control_name.replace(' ','_')+'.'+self.control_ext)
+                self.parent.v.input_target = os.path.join(self.parent.v.input_dir,self.control_name.replace(' ','_')+'.'+self.control_ext)
                 try:
-                    shutil.copy('%s' % self.control_path,self.parent.v.input_control)
+                    shutil.copy('%s' % self.control_path,self.parent.v.input_target)
                 except:
                     nowdir = QtGui.QMessageBox.critical(self.parent, 'Error', 'The working directory was not found or '
                                                                               'it does not have permission for writing.'
@@ -247,7 +248,7 @@ class Loader(QtGui.QMainWindow):
                         elim_lig = QtGui.QMessageBox.warning(self.parent, 'Warning','The pdbqt file selected have a ligand.\n'
                                             ' Do you wish to eliminate it?',QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
                         if elim_lig == QtGui.QMessageBox.Yes:
-                            ClearAndFix(self.parent.v.input_control).write()
+                            ClearAndFix(self.parent.v.input_target).write()
                             self.parent.v.analog_ligands = None
                 except:
                     pass
@@ -277,20 +278,20 @@ class Loader(QtGui.QMainWindow):
                 #         self.parent.program_body.btnB_lig.hide()
                 #         self.parent.program_body.non_ligandB.show()
 
-                if self.parent.v.input_lig is None and self.parent.v.input_target is None:
-                    progress(self.parent.program_body, 0, 0, 5, finish=True, mess='Control Definition...')
+                if self.parent.v.input_lig is None and self.parent.v.input_offtarget is None:
+                    progress(self.parent.program_body, 0, 0, 5, finish=True, mess='Target Definition...')
                     self.parent.program_body.prep_rec_lig_button.setEnabled(False)
                     self.parent.program_body.wdir_button.setEnabled(True)
-                elif self.parent.v.ligand_path == '' and self.parent.v.input_target is not None:
-                    progress(self.parent.program_body, 0, 0, 8, finish=True, mess='Control Definition...')
+                elif self.parent.v.ligand_path == '' and self.parent.v.input_offtarget is not None:
+                    progress(self.parent.program_body, 0, 0, 8, finish=True, mess='Target Definition...')
                     self.parent.program_body.prep_rec_lig_button.setEnabled(False)
                     self.parent.program_body.wdir_button.setEnabled(True)
-                elif self.parent.v.ligand_path != '' and self.parent.v.input_target is None:
-                    progress(self.parent.program_body, 0, 0, 7, finish=True, mess='Control Definition...')
+                elif self.parent.v.ligand_path != '' and self.parent.v.input_offtarget is None:
+                    progress(self.parent.program_body, 0, 0, 7, finish=True, mess='Target Definition...')
                     self.parent.program_body.prep_rec_lig_button.setEnabled(False)
                     self.parent.program_body.wdir_button.setEnabled(True)
                 else:
-                    progress(self.parent.program_body, 0, 0, 10, finish=True, mess='Control Definition...')
+                    progress(self.parent.program_body, 0, 0, 10, finish=True, mess='Target Definition...')
                     self.parent.program_body.prep_rec_lig_button.setEnabled(True)
                     self.parent.program_body.wdir_button.setEnabled(False)
             try:
@@ -299,7 +300,6 @@ class Loader(QtGui.QMainWindow):
                     aln.wait()
             except:
                 pass
-
 
     def load_ligand(self):
         data_file = QtGui.QFileDialog()
@@ -366,15 +366,15 @@ class Loader(QtGui.QMainWindow):
                             os.chdir(self.parent.v.loc_project)
 
                             if self.parent.v.cr:
-                                if self.parent.v.input_target == None and self.parent.v.input_control == None:
+                                if self.parent.v.input_offtarget == None and self.parent.v.input_target == None:
                                     progress(self.parent.program_body, 0, 0, 4, finish=True, mess='Ligand Definition...')
                                     self.parent.program_body.prep_rec_lig_button.setEnabled(False)
                                     self.parent.program_body.wdir_button.setEnabled(True)
-                                elif self.parent.v.input_target == None and self.parent.v.input_control != None:
+                                elif self.parent.v.input_offtarget == None and self.parent.v.input_target != None:
                                     progress(self.parent.program_body, 0, 0, 7, finish=True, mess='Ligand Definition...')
                                     self.parent.program_body.prep_rec_lig_button.setEnabled(False)
                                     self.parent.program_body.wdir_button.setEnabled(True)
-                                elif self.parent.v.input_target != None and self.parent.v.input_control == None:
+                                elif self.parent.v.input_offtarget != None and self.parent.v.input_target == None:
                                     progress(self.parent.program_body, 0, 0, 7, finish=True, mess='Ligand Definition...')
                                     self.parent.program_body.prep_rec_lig_button.setEnabled(False)
                                     self.parent.program_body.wdir_button.setEnabled(True)
@@ -383,7 +383,7 @@ class Loader(QtGui.QMainWindow):
                                     self.parent.program_body.prep_rec_lig_button.setEnabled(True)
                                     self.parent.program_body.wdir_button.setEnabled(False)
                             else:
-                                if self.parent.v.input_target is not None:
+                                if self.parent.v.input_offtarget is not None:
                                     progress(self.parent.program_body, 0, 0, 10, finish=True, mess='Ligand Definition...')
                                     self.parent.program_body.prep_rec_lig_button.setEnabled(True)
                                     self.parent.program_body.wdir_button.setEnabled(False)
@@ -408,18 +408,18 @@ class Loader(QtGui.QMainWindow):
                         os.chdir(self.parent.v.loc_project)
 
                         if self.parent.v.cr:
-                            if self.parent.v.input_target == None and self.parent.v.input_control is None:
+                            if self.parent.v.input_offtarget == None and self.parent.v.input_target is None:
                                 progress(self.parent.program_body, 0, 0, 4, finish=True, mess='Ligand Definition...')
-                            elif self.parent.v.input_target == None and self.parent.v.input_control is not None:
+                            elif self.parent.v.input_offtarget == None and self.parent.v.input_target is not None:
                                 progress(self.parent.program_body, 0, 0, 7, finish=True, mess='Ligand Definition...')
-                            elif self.parent.v.input_target != None and self.parent.v.input_control is None:
+                            elif self.parent.v.input_offtarget != None and self.parent.v.input_target is None:
                                 progress(self.parent.program_body, 0, 0, 7, finish=True, mess='Ligand Definition...')
                             else:
                                 progress(self.parent.program_body, 0, 0, 10, finish=True, mess='Ligand Definition...')
                                 self.parent.program_body.prep_rec_lig_button.setEnabled(True)
                                 self.parent.program_body.wdir_button.setEnabled(False)
                         else:
-                            if self.parent.v.input_target is not None:
+                            if self.parent.v.input_offtarget is not None:
                                 progress(self.parent.program_body, 0, 0, 10, finish=True, mess='Ligand Definition...')
                                 self.parent.program_body.prep_rec_lig_button.setEnabled(True)
                                 self.parent.program_body.wdir_button.setEnabled(False)
@@ -430,15 +430,15 @@ class Loader(QtGui.QMainWindow):
                     self.parent.v.heavy_atoms = HeavyAtoms(self.input_ligand_path).imp()
                     self.parent.v.rg = int(math.ceil(Gyrate(self.input_ligand_path).gyrate()))
                     if self.parent.v.cr:
-                        if self.parent.v.input_target == None and self.parent.v.input_control is None:
+                        if self.parent.v.input_offtarget == None and self.parent.v.input_target is None:
                             progress(self.parent.program_body, 0, 0, 4, finish=True, mess='Ligand Definition...')
                             self.parent.program_body.prep_rec_lig_button.setEnabled(False)
                             self.parent.program_body.wdir_button.setEnabled(True)
-                        elif self.parent.v.input_target == None and self.parent.v.input_control is not None:
+                        elif self.parent.v.input_offtarget == None and self.parent.v.input_target is not None:
                             progress(self.parent.program_body, 0, 0, 7, finish=True, mess='Ligand Definition...')
                             self.parent.program_body.prep_rec_lig_button.setEnabled(False)
                             self.parent.program_body.wdir_button.setEnabled(True)
-                        elif self.parent.v.input_target != None and self.parent.v.input_control is None:
+                        elif self.parent.v.input_offtarget != None and self.parent.v.input_target is None:
                             progress(self.parent.program_body, 0, 0, 7, finish=True, mess='Ligand Definition...')
                             self.parent.program_body.prep_rec_lig_button.setEnabled(False)
                             self.parent.program_body.wdir_button.setEnabled(True)
@@ -447,7 +447,7 @@ class Loader(QtGui.QMainWindow):
                             self.parent.program_body.prep_rec_lig_button.setEnabled(True)
                             self.parent.program_body.wdir_button.setEnabled(False)
                     else:
-                        if self.parent.v.input_target != None:
+                        if self.parent.v.input_offtarget != None:
                             progress(self.parent.program_body, 0, 0, 10, finish=True, mess='Ligand Definition...')
                             self.parent.program_body.prep_rec_lig_button.setEnabled(True)
                             self.parent.program_body.wdir_button.setEnabled(False)
@@ -455,6 +455,7 @@ class Loader(QtGui.QMainWindow):
                             progress(self.parent.program_body, 0, 0, 6, finish=True, mess='Ligand Definition...')
                             self.parent.program_body.prep_rec_lig_button.setEnabled(False)
                             self.parent.program_body.wdir_button.setEnabled(True)
+
     def load_amdock_file(self):
         data_file = QtGui.QFileDialog(caption='Open AMDock File')
         data_file.setFileMode(QtGui.QFileDialog.AnyFile)
@@ -482,8 +483,8 @@ class Loader(QtGui.QMainWindow):
                         self.parent.v.program_mode = 'SIMPLE'
                         self.parent.v.cr = False
                         self.parent.v.scoring = False
-                    elif (line.split()[2]).strip() == 'CROSS':
-                        self.parent.v.program_mode = 'CROSS'
+                    elif (line.split()[2]).strip() == 'OFF-TARGET':
+                        self.parent.v.program_mode = 'OFF-TARGET'
                         self.parent.v.cr = True
                         self.parent.v.scoring = False
                     else:
@@ -496,11 +497,11 @@ class Loader(QtGui.QMainWindow):
                     self.parent.v.ligands = (line[19:]).strip()
                 elif re.search('>  Target_Metals(Zn):', line):
                     self.parent.v.metals = (line[22:]).strip()
-                elif re.search('>> CONTROL_PROTEIN:', line):
+                elif re.search('>> OFF-TARGET_PROTEIN:', line):
                     self.parent.v.analog_protein_name = (line.split()[2]).strip()
-                elif re.search('>  Control_Ligands:', line):
+                elif re.search('>  Off-Target_Ligands:', line):
                     self.parent.v.analog_ligands = (line[20:]).strip()
-                elif re.search('>  Control_Metals(Zn):', line):
+                elif re.search('>  Off-Target_Metals(Zn):', line):
                     self.parent.v.analog_metals = (line[23:]).strip()
                 elif re.search('>> LIGAND:', line):
                     self.parent.v.ligand_name = (line.split()[2]).strip()
@@ -553,7 +554,7 @@ class Loader(QtGui.QMainWindow):
                     complete += '0'
                 else:
                     complete += '1'
-                if self.parent.v.program_mode is 'CROSS':
+                if self.parent.v.program_mode is 'OFF-TARGET':
                     #6
                     if os.path.exists(os.path.join(self.parent.v.input_dir, self.parent.v.analog_protein_name + '_h.pdbqt')):
                         complete += '0'

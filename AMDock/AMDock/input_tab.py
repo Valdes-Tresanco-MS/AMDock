@@ -2315,10 +2315,10 @@ class Program_body(QtGui.QWidget):
 
         if os.path.exists(`self.parent.v.input_protein`):
             try:
-                os.remove(`self.parent.v.input_target`)
+                os.remove(`self.parent.v.input_offtarget`)
             except:
                 pass
-        self.parent.v.input_target = None
+        self.parent.v.input_offtarget = None
         self.parent.v.protein_name = None
         self.parent.v.ligands = None
         self.protein_text.clear()
@@ -2336,12 +2336,12 @@ class Program_body(QtGui.QWidget):
         self.ligand_label.clear()
         self.parent.v.ligand_name = None
 
-        if os.path.exists(`self.parent.v.input_control`):
+        if os.path.exists(`self.parent.v.input_target`):
             try:
-                os.remove(`self.parent.v.input_control`)
+                os.remove(`self.parent.v.input_target`)
             except:
                 pass
-        self.parent.v.input_control = None
+        self.parent.v.input_target = None
         self.parent.v.analog_protein_name = None
         self.parent.v.analog_ligands = None
         self.protein_textB.clear()
@@ -2428,10 +2428,10 @@ class Program_body(QtGui.QWidget):
 
                 if os.path.exists(`self.parent.v.input_protein`):
                     try:
-                        os.remove(`self.parent.v.input_target`)
+                        os.remove(`self.parent.v.input_offtarget`)
                     except:
                         pass
-                self.parent.v.input_target = None
+                self.parent.v.input_offtarget = None
                 self.parent.v.protein_name = None
                 self.parent.v.ligands = None
                 self.protein_text.clear()
@@ -2449,12 +2449,12 @@ class Program_body(QtGui.QWidget):
                 self.ligand_label.clear()
                 self.parent.v.ligand_name = None
 
-                if os.path.exists(`self.parent.v.input_control`):
+                if os.path.exists(`self.parent.v.input_target`):
                     try:
-                        os.remove(`self.parent.v.input_control`)
+                        os.remove(`self.parent.v.input_target`)
                     except:
                         pass
-                self.parent.v.input_control = None
+                self.parent.v.input_target = None
                 self.parent.v.analog_protein_name = None
                 self.parent.v.analog_ligands = None
                 self.protein_textB.clear()
@@ -2526,10 +2526,10 @@ class Program_body(QtGui.QWidget):
 
                 if os.path.exists(`self.parent.v.input_protein`):
                     try:
-                        os.remove(`self.parent.v.input_target`)
+                        os.remove(`self.parent.v.input_offtarget`)
                     except:
                         pass
-                self.parent.v.input_target = None
+                self.parent.v.input_offtarget = None
                 self.parent.v.protein_name = None
                 self.parent.v.ligands = None
                 self.protein_text.clear()
@@ -2547,12 +2547,12 @@ class Program_body(QtGui.QWidget):
                 self.ligand_text.clear()
                 self.ligand_label.clear()
 
-                if os.path.exists(`self.parent.v.input_control`):
+                if os.path.exists(`self.parent.v.input_target`):
                     try:
-                        os.remove(`self.parent.v.input_control`)
+                        os.remove(`self.parent.v.input_target`)
                     except:
                         pass
-                self.parent.v.input_control = None
+                self.parent.v.input_target = None
                 self.parent.v.analog_protein_name = None
                 self.parent.v.analog_ligands = None
                 self.protein_textB.clear()
@@ -2659,10 +2659,10 @@ class Program_body(QtGui.QWidget):
 
                 if os.path.exists(`self.parent.v.input_protein`):
                     try:
-                        os.remove(`self.parent.v.input_target`)
+                        os.remove(`self.parent.v.input_offtarget`)
                     except:
                         pass
-                self.parent.v.input_target = None
+                self.parent.v.input_offtarget = None
                 self.parent.v.protein_name = None
                 self.parent.v.ligands = None
                 self.protein_text.clear()
@@ -2680,12 +2680,12 @@ class Program_body(QtGui.QWidget):
                 self.ligand_text.clear()
                 self.ligand_label.clear()
 
-                if os.path.exists(`self.parent.v.input_control`):
+                if os.path.exists(`self.parent.v.input_target`):
                     try:
-                        os.remove(`self.parent.v.input_control`)
+                        os.remove(`self.parent.v.input_target`)
                     except:
                         pass
-                self.parent.v.input_control = None
+                self.parent.v.input_target = None
                 self.parent.v.analog_protein_name = None
                 self.parent.v.analog_ligands = None
                 self.protein_textB.clear()
@@ -2963,10 +2963,9 @@ class Program_body(QtGui.QWidget):
                         self.bld_pymol_timer.stop()
                     except:
                         pass
-
-        elif prot == 'control':
-            if os.path.exists('user_control_dim.txt'):
-                cfile = open('user_control_dim.txt')
+        elif prot == 'off-target':
+            if os.path.exists('user_off-target_dim.txt'):
+                cfile = open('user_off-target_dim.txt')
                 for line in cfile:
                     line = line.strip('\n')
                     self.dim_data_control = line.split()
@@ -2989,15 +2988,14 @@ class Program_body(QtGui.QWidget):
 
                     self.run_button.setEnabled(False)
                     self.need_gridB = True
-                    os.remove('user_control_dim.txt')
+                    os.remove('user_off-target_dim.txt')
                     self.b_pymol_timerB.stop()
                     self.grid_pymol_buttonB.setEnabled(False)
                     # try:self.bld_pymol_timerB.stop()
                     # except:pass
-
-        elif prot == 'control_build':
-            if os.path.exists('user_control_dim.txt'):
-                cfile = open('user_control_dim.txt')
+        elif prot == 'off-target_build':
+            if os.path.exists('user_off-target_dim.txt'):
+                cfile = open('user_off-target_dim.txt')
                 for line in cfile:
                     line = line.strip('\n')
                     self.dim_data_control = line.split()
@@ -3016,7 +3014,7 @@ class Program_body(QtGui.QWidget):
 
                     self.run_button.setEnabled(False)
                     self.need_gridB = True
-                    os.remove('user_control_dim.txt')
+                    os.remove('user_off-target_dim.txt')
                     try:
                         self.b_pymol_timerB.stop()
                     except:
@@ -3187,7 +3185,7 @@ class Program_body(QtGui.QWidget):
             files = glob.glob('%s*.map' % self.parent.v.analog_protein_name) + glob.glob(
                 '%s*.fld' % self.parent.v.analog_protein_name) + glob.glob(
                 '%s*.xyz' % self.parent.v.analog_protein_name) + glob.glob(
-                '%s*.gpf' % self.parent.v.analog_protein_name) + ['user_control_dim.txt', self.parent.v.FILL,
+                '%s*.gpf' % self.parent.v.analog_protein_name) + ['user_off-target_dim.txt', self.parent.v.FILL,
                                                                   self.parent.v.obj_center1, self.parent.v.res_center1,
                                                                   self.parent.v.gd1]
             for file in files:
@@ -4465,7 +4463,7 @@ class Program_body(QtGui.QWidget):
                     self.parent.result_tab.clear_result_tab()
                     self.amdock_load()
         if file.objectName() == "protein_buttonA":
-            if self.parent.v.input_target is None:
+            if self.parent.v.input_offtarget is None:
                 self.parent.loader.load_protein()
                 # if self.parent.v.cr:
                 #     if self.parent.v.input_lig is None and self.parent.v.analog_protein_file == '':
@@ -4484,8 +4482,8 @@ class Program_body(QtGui.QWidget):
             else:
                 self.prot_opt = prot_warning(self)
                 if self.prot_opt == QtGui.QMessageBox.Yes:
-                    os.remove(self.parent.v.input_target)
-                    self.parent.v.input_target = None
+                    os.remove(self.parent.v.input_offtarget)
+                    self.parent.v.input_offtarget = None
                     self.parent.v.metals = None
                     self.parent.v.ligands = None
                     self.parent.v.target_prepare = True
@@ -4497,11 +4495,11 @@ class Program_body(QtGui.QWidget):
                     self.protein_text.clear()
                     if self.parent.v.cr:
                         self.btnA_lig.show()
-                        if self.parent.v.input_lig == None and self.parent.v.input_control == None:
+                        if self.parent.v.input_lig == None and self.parent.v.input_target == None:
                             progress(self, 0, 0, 2, reverse=True, mess='Target Definition...')
-                        elif self.parent.v.input_lig == None and self.parent.v.input_control != None:
+                        elif self.parent.v.input_lig == None and self.parent.v.input_target != None:
                             progress(self, 0, 0, 5, reverse=True, mess='Target Definition...')
-                        elif self.parent.v.input_lig != None and self.parent.v.input_control == None:
+                        elif self.parent.v.input_lig != None and self.parent.v.input_target == None:
                             progress(self, 0, 0, 4, reverse=True, mess='Target Definition...')
                         else:
                             progress(self, 0, 0, 7, reverse=True, mess='Target Definition...')
@@ -4517,8 +4515,8 @@ class Program_body(QtGui.QWidget):
 
                 self.check_opt = self.parent.checker.autodockzn_check('A')
                 if self.check_opt == QtGui.QMessageBox.Ok:
-                    os.remove(self.parent.v.input_target)
-                    self.parent.v.input_target = None
+                    os.remove(self.parent.v.input_offtarget)
+                    self.parent.v.input_offtarget = None
                     self.parent.v.metals = None
                     self.parent.v.ligands = None
                     self.btnA_lig.show()
@@ -4527,11 +4525,11 @@ class Program_body(QtGui.QWidget):
                     self.protein_label.clear()
 
                     if self.parent.v.cr:
-                        if self.parent.v.input_lig is None and self.parent.v.input_control == None:
+                        if self.parent.v.input_lig is None and self.parent.v.input_target == None:
                             progress(self, 0, 0, 2, mess='Target Definition...')
-                        elif self.parent.v.input_lig is None and self.parent.v.input_control != None:
+                        elif self.parent.v.input_lig is None and self.parent.v.input_target != None:
                             progress(self, 0, 0, 5, mess='Target Definition...')
-                        elif self.parent.v.input_lig is not None and self.parent.v.input_control == None:
+                        elif self.parent.v.input_lig is not None and self.parent.v.input_target == None:
                             progress(self, 0, 0, 4, mess='Target Definition...')
                         else:
                             progress(self, 0, 0, 7, mess='Target Definition...')
@@ -4550,8 +4548,8 @@ class Program_body(QtGui.QWidget):
             else:
                 self.check_opt = self.parent.checker.check_correct_prog('A')
                 if self.check_opt == QtGui.QMessageBox.Yes:
-                    if self.parent.v.analog_metals is None and self.parent.v.input_control is not None:
-                        self.parent.v.input_target = None
+                    if self.parent.v.analog_metals is None and self.parent.v.input_target is not None:
+                        self.parent.v.input_offtarget = None
                         self.protein_text.clear()
                         # self.non_ligand.hide()
                         self.protein_text.clear()
@@ -4561,7 +4559,7 @@ class Program_body(QtGui.QWidget):
                         self.parent.v.docking_program = "AutoDockZn"
                         self.parent.statusbar.showMessage(self.parent.v.docking_program + " is selected")
         if file.objectName() == "protein_buttonB":
-            if self.parent.v.input_control is None:
+            if self.parent.v.input_target is None:
                 # if self.parent.v.ligand_file == '' and self.parent.v.protein_file == '':
                 #     progress(self, 0,0,2,mess='Control Definition...')
                 # elif self.parent.v.ligand_file == '' and self.parent.v.protein_file != '':
@@ -4574,7 +4572,7 @@ class Program_body(QtGui.QWidget):
             else:
                 self.prot_opt = prot_warning(self)
                 if self.prot_opt == QtGui.QMessageBox.Yes:
-                    os.remove(self.parent.v.input_control)
+                    os.remove(self.parent.v.input_target)
                     self.parent.v.analog_metals = None
                     self.parent.v.analog_ligands = None
                     self.parent.v.control_prepare = True
@@ -4584,11 +4582,11 @@ class Program_body(QtGui.QWidget):
                     # self.non_ligandB.hide()
                     self.protein_labelB.clear()
                     self.protein_textB.clear()
-                    if self.parent.v.input_lig is None and self.parent.v.input_target is None:
+                    if self.parent.v.input_lig is None and self.parent.v.input_offtarget is None:
                         progress(self, 0, 0, 2, reverse=True, mess='Control Definition...')
-                    elif self.parent.v.input_lig is None and self.parent.v.input_target is None:
+                    elif self.parent.v.input_lig is None and self.parent.v.input_offtarget is None:
                         progress(self, 0, 0, 5, reverse=True, mess='Control Definition...')
-                    elif self.parent.v.input_lig is not None and self.parent.v.input_target is None:
+                    elif self.parent.v.input_lig is not None and self.parent.v.input_offtarget is None:
                         progress(self, 0, 0, 4, reverse=True, mess='Control Definition...')
                     else:
                         progress(self, 0, 0, 7, reverse=True, mess='Control Definition...')
@@ -4596,8 +4594,8 @@ class Program_body(QtGui.QWidget):
             if self.parent.v.docking_program == 'AutoDockZn':
                 self.check_opt = self.parent.checker.autodockzn_check('B')
                 if self.check_opt == QtGui.QMessageBox.Ok:
-                    os.remove(self.parent.v.input_control)
-                    self.parent.v.input_control = None
+                    os.remove(self.parent.v.input_target)
+                    self.parent.v.input_target = None
                     # self.non_ligandB.hide()
                     self.btnB_lig.show()
                     self.parent.v.analog_metals = None
@@ -4605,11 +4603,11 @@ class Program_body(QtGui.QWidget):
                     self.protein_textB.clear()
                     self.protein_labelB.clear()
 
-                    if self.parent.v.input_lig == '' and self.parent.v.input_target == None:
+                    if self.parent.v.input_lig == '' and self.parent.v.input_offtarget == None:
                         progress(self, 0, 0, 2, reverse=True, mess='Control Definition...')
-                    elif self.parent.v.input_lig == '' and self.parent.v.input_target != None:
+                    elif self.parent.v.input_lig == '' and self.parent.v.input_offtarget != None:
                         progress(self, 0, 0, 5, reverse=True, mess='Control Definition...')
-                    elif self.parent.v.input_lig != '' and self.parent.v.input_target == None:
+                    elif self.parent.v.input_lig != '' and self.parent.v.input_offtarget == None:
                         progress(self, 0, 0, 4, reverse=True, mess='Control Definition...')
                     else:
                         progress(self, 0, 0, 7, reverse=True, mess='Control Definition...')
@@ -4622,8 +4620,8 @@ class Program_body(QtGui.QWidget):
             else:
                 self.check_opt = self.parent.checker.check_correct_prog('B')
                 if self.check_opt == QtGui.QMessageBox.Yes:
-                    if self.parent.v.metals is None and self.parent.v.input_target is not None:
-                        self.parent.v.input_control = None
+                    if self.parent.v.metals is None and self.parent.v.input_offtarget is not None:
+                        self.parent.v.input_target = None
                         # self.non_ligandB.hide()
                         self.btnB_lig.show()
                         self.parent.v.analog_metals = None
@@ -4647,17 +4645,17 @@ class Program_body(QtGui.QWidget):
                     self.ligand_label.clear()
                     # self.parent.loader.load_ligand()
                     if self.parent.v.cr:
-                        if self.parent.v.input_target == None and self.parent.v.input_control == None:
+                        if self.parent.v.input_offtarget == None and self.parent.v.input_target == None:
                             progress(self.parent.program_body, 0, 0, 2, reverse=True, mess='Ligand Definition...')
-                        elif self.parent.v.input_target == None and self.parent.v.input_control != None:
+                        elif self.parent.v.input_offtarget == None and self.parent.v.input_target != None:
                             progress(self.parent.program_body, 0, 0, 5, reverse=True, mess='Ligand Definition...')
-                        elif self.parent.v.input_target != None and self.parent.v.input_control == None:
+                        elif self.parent.v.input_offtarget != None and self.parent.v.input_target == None:
                             progress(self.parent.program_body, 0, 0, 5, reverse=True, mess='Ligand Definition...')
                         else:
                             progress(self.parent.program_body, 0, 0, 8, reverse=True, mess='Ligand Definition...')
                     else:
 
-                        if self.parent.v.input_target == None:
+                        if self.parent.v.input_offtarget == None:
                             progress(self, 0, 0, 2, reverse=True, mess='Ligand Definition...')
                         else:
                             progress(self, 0, 0, 6, reverse=True, mess='Ligand Definition...')
@@ -4827,22 +4825,22 @@ class Program_body(QtGui.QWidget):
             # self.parent.v.protein_pdbqt_fileB = os.path.join(self.parent.v.input_dir, self.parent.v.analog_protein_name + '_h.pdbqt')
             if self.parent.v.docking_program == 'AutoDock Vina':
                 vina_resultB = os.path.join(self.parent.v.result_dir, self.parent.v.ligand_name + '_h_out2.pdbqt')
-                self.reB = Result_Analysis(vina_resultB, 'all_poses_control_ADV_result.pdb',
+                self.reB = Result_Analysis(vina_resultB, 'all_poses_off-target_ADV_result.pdb',
                                            os.path.join(self.parent.v.input_dir, self.parent.v.analog_protein_pdbqt),
                                            self.parent.v.heavy_atoms)
-                self.parent.v.analog_result_file = 'all_poses_control_ADV_result.pdb'
-                self.parent.v.best_analog_result_file = 'best_pose_control_ADV_result.pdb'
-                self.parent.output2file.out2file('>  all_poses_control_file: all_poses_control_ADV_result.pdb\n')
-                self.parent.output2file.out2file('>  best_pose_control_file: best_pose_control_ADV_result.pdb\n')
+                self.parent.v.analog_result_file = 'all_poses_off-target_ADV_result.pdb'
+                self.parent.v.best_analog_result_file = 'best_pose_off-target_ADV_result.pdb'
+                self.parent.output2file.out2file('>  all_poses_off-target_file: all_poses_off-target_ADV_result.pdb\n')
+                self.parent.output2file.out2file('>  best_pose_off-target_file: best_pose_off-target_ADV_result.pdb\n')
             else:
                 autodock_resultB = os.path.join(self.parent.v.result_dir, self.autodock_dlgB)
-                self.reB = Result_Analysis(autodock_resultB, 'all_poses_control_AD4_result.pdb',
+                self.reB = Result_Analysis(autodock_resultB, 'all_poses_off-target_AD4_result.pdb',
                                            os.path.join(self.parent.v.input_dir, self.parent.v.analog_protein_pdbqt),
                                            self.parent.v.heavy_atoms)
-                self.parent.v.analog_result_file = 'all_poses_control_AD4_result.pdb'
-                self.parent.v.best_analog_result_file = 'best_pose_control_AD4_result.pdb'
-                self.parent.output2file.out2file('>  all_poses_control_file: all_poses_control_AD4_result.pdb\n')
-                self.parent.output2file.out2file('>  best_pose_control_file: best_pose_control_AD4_result.pdb\n')
+                self.parent.v.analog_result_file = 'all_poses_off-target_AD4_result.pdb'
+                self.parent.v.best_analog_result_file = 'best_pose_off-target_AD4_result.pdb'
+                self.parent.output2file.out2file('>  all_poses_off-target_file: all_poses_off-target_AD4_result.pdb\n')
+                self.parent.output2file.out2file('>  best_pose_off-target_file: best_pose_off-target_AD4_result.pdb\n')
             self.resultsB = self.reB.result2table()
 
             self.parent.output2file.out2file(
@@ -4967,7 +4965,7 @@ class Program_body(QtGui.QWidget):
     def check_res(self, text):  # OKOK
         if text.objectName() == 'grid_predef_text':
             try:
-                self.check = GridDefinition(self.parent.v.input_target, self.grid_predef_text.text())
+                self.check = GridDefinition(self.parent.v.input_offtarget, self.grid_predef_text.text())
                 self.parent.v.error = self.check.check_select()
             except:
                 self.parent.v.error = 1
@@ -4997,7 +4995,7 @@ class Program_body(QtGui.QWidget):
                 self.bind_site_button.setEnabled(False)
         else:
             try:
-                self.check = GridDefinition(self.parent.v.input_control, self.grid_predef_textB.text())
+                self.check = GridDefinition(self.parent.v.input_target, self.grid_predef_textB.text())
                 self.parent.v.errorB = self.check.check_select()
             except:
                 self.parent.v.errorB = 1
@@ -5412,7 +5410,7 @@ class Program_body(QtGui.QWidget):
             if self.need_grid:
                 process_list.extend(self.list_process)
         elif self.parent.v.grid_def == "by_ligand":
-            prev_ligand_arg = [self.parent.v.input_target, None, str(self.parent.v.selected_ligand),
+            prev_ligand_arg = [self.parent.v.input_offtarget, None, str(self.parent.v.selected_ligand),
                                self.parent.v.obj_center, True]
             self.previous_ligand = {
                 'function GridDefinition: Previous Ligand Center': [GridDefinition, prev_ligand_arg]}
@@ -5504,7 +5502,7 @@ class Program_body(QtGui.QWidget):
                 if self.need_gridB:
                     process_list.extend(self.list_process)
             elif self.parent.v.analog_grid_def == "by_ligand":
-                prev_ligand_arg = [self.parent.v.input_control, None, str(self.parent.v.analog_selected_ligand),
+                prev_ligand_arg = [self.parent.v.input_target, None, str(self.parent.v.analog_selected_ligand),
                                    self.parent.v.obj_center1, True]
                 self.previous_ligandB = {
                     'function GridDefinition: Previous Ligand Center B': [GridDefinition, prev_ligand_arg]}

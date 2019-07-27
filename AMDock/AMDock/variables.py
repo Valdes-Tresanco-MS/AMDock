@@ -78,7 +78,7 @@ class Variables():
     ligand_prepare = True
     input_lig = None
     input_target = None
-    input_control = None
+    input_offtarget = None
     scoring_file = None
     prot_align = True
     log = False
