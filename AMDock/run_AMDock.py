@@ -16,7 +16,7 @@ def run():
         fapp = QtGui.QFont()
         fapp.setPointSize(11)
         fapp.setFamily('Times')
-        app.setFont(fapp)
+        # app.setFont(fapp)
 
         splash = SplashScreen(QtGui.QPixmap(ob.splashscreen_path), app)
         main = AMDock()

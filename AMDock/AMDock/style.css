@@ -20,33 +20,33 @@
 /*    }*/
 
 /* .:Tabs-Bar (tabWidget):.*/
-/*QTabWidget#windows::pane { !* The tab widget frame *!*/
-/*     border-top: 2px solid #05B8CC;*/
+/*QTabWidget#tab_lobby { !* The tab widget frame *!*/
+/*     background-color: black;*/
 /*     }*/
 /*QTabWidget#windows:tab-bar {*/
 /*     left: 100px; !* move to the right by 100px *!*/
 /*     }*/
-/*QTabWidget {*/
+/*#program_body {*/
 /*    border-left: 2px solid #05B8CC;*/
-/*    background-color: #05B8CC;*/
+/*    background-color: black;*/
 /*    }*/
 /* .:End Tabs-Bar performance:. */
 
 /* .:QTabWidget performance:. */
-#program_body, #configuration_tab, #result_tab, #help_tab {
-    background-color: #E5E5E5;
-    border-left: 1px solid #2F3336;
-    border-right: 1px solid #2F3336;
+/*#program_body, #configuration_tab, #result_tab, #help_tab {*/
+/*    background-color: #E5E5E5;*/
+/*    border-left: 1px solid #2F3336;*/
+/*    border-right: 1px solid #2F3336;*/
 
-    }
+/*    }*/
 
-#tab_lobby {
-    background-color: black;
-    /*background-image: url(images/presentation.png);*/
-    border-left: 3px solid #2F3336;
-    border-right: 3px solid #2F3336;
-    /*border-bottom: 3px solid #2F3336;*/
-    }
+/*#tab_lobby {*/
+/*    !*background-color: black;*!*/
+/*    background-image: url(images/presentation.png);*/
+/*    border-left: 3px solid #2F3336;*/
+/*    border-right: 3px solid #2F3336;*/
+/*    border-bottom: 3px solid #2F3336;*/
+/*    }*/
 
         /*buttons*/
 #adock_button,#dock_vina_button, #results_button, #adockZn_button {
@@ -68,7 +68,7 @@ QPushButton#adock_button:hover,#dock_vina_button:hover, #results_button:hover, #
     border-bottom-left-radius: 0px;
     }
 QLabel#comment_vina_dock, #comment_adock, #comment_adockZn, #comment_results{
-    font-size:11px;
+    font-size:12px;
     font-family: "Times New Roman";
     color: #fff;
     background-color:#2F3336;

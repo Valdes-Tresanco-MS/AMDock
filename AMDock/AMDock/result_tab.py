@@ -7,7 +7,7 @@ from warning import reset_warning
 from variables import Variables
 from rfile_show import Result_File
 
-__version__ = "1.0 For Windows and Linux"
+__version__ = "1.0 For main_window and Linux"
 
 
 class Results(QtGui.QWidget):
@@ -308,9 +308,9 @@ class Results(QtGui.QWidget):
         reset_opt = reset_warning(self)
         if reset_opt == QtGui.QMessageBox.Yes:
             self.parent.statusbar.showMessage("Version: %s" % __version__)
-            self.parent.windows.setTabEnabled(0, True)
-            self.parent.windows.setCurrentIndex(0)
-            self.parent.windows.setTabEnabled(2, False)
+            self.parent.main_window.setTabEnabled(0, True)
+            self.parent.main_window.setCurrentIndex(0)
+            self.parent.main_window.setTabEnabled(2, False)
             self.parent.program_body.project_text.setEnabled(True)
             self.parent.program_body.wdir_button.setEnabled(True)
             self.parent.program_body.project_text.clear()
@@ -324,7 +324,7 @@ class Results(QtGui.QWidget):
             self.parent.program_body.ligand_text.clear()
             self.parent.program_body.ligand_label.clear()
             self.parent.program_body.grid_box.setEnabled(False)
-            self.parent.program_body.grid_auto.setChecked(True)
+            # self.parent.program_body.grid_auto.setChecked(True)
             self.parent.program_body.btnA_auto.setChecked(True)
             self.parent.program_body.btnB_auto.setChecked(True)
             self.parent.program_body.progressBar.setValue(0)
@@ -332,8 +332,8 @@ class Results(QtGui.QWidget):
             self.parent.program_body.stop_button.setEnabled(False)
             self.parent.program_body.reset_button.setEnabled(True)
             self.parent.program_body.bind_site_button.setEnabled(True)
-            self.parent.program_body.non_ligand.hide()
-            self.parent.program_body.non_ligandB.hide()
+            # self.parent.program_body.non_ligand.hide()
+            # self.parent.program_body.non_ligandB.hide()
             self.parent.program_body.simple_docking.setChecked(True)
             self.parent.program_body.run_scoring.hide()
             self.parent.program_body.non_button.hide()
