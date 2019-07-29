@@ -3,9 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="bd425420-1a52-44ec-abd0-1980491a941f" name="Default" comment="interface changes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Docking_Program.py" beforeDir="false" afterPath="$PROJECT_DIR$/Docking_Program.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lobby_tab.py" beforeDir="false" afterPath="$PROJECT_DIR$/lobby_tab.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/splash_screen.py" beforeDir="false" afterPath="$PROJECT_DIR$/splash_screen.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/style.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../README.md" afterDir="false" />
     </list>

@@ -1,4 +1,4 @@
-# AMDock
+# AMDock: *A*ssisted *M*olecular *Dock*ing with Autodock4 and Autodock Vina
 Build 1.1.0
 
 INSTALLATION

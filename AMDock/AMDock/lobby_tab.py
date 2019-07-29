@@ -1,6 +1,7 @@
 from PyQt4 import QtGui, QtCore
 from variables import Objects
 
+
 class FRAME(QtGui.QFrame):
     def __init__(self, parent=None):
         QtGui.QFrame.__init__(self, parent=parent)
@@ -10,12 +11,12 @@ class FRAME(QtGui.QFrame):
         painter.drawPixmap(self.rect(), QtGui.QPixmap(Objects.presentation))
         QtGui.QFrame.paintEvent(self, event)
 
+
 class Lobby(FRAME):
     def __init__(self, parent=None):
         QtGui.QFrame.__init__(self, parent)
         self.parent = parent
         self.setObjectName("tab_lobby")
-
         self.dock_vina_button = QtGui.QPushButton(self)
         self.dock_vina_button.setObjectName("dock_vina_button")
         self.dock_vina_button.setMinimumSize(180, 70)
