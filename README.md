@@ -1,9 +1,10 @@
 # AMDock
 Build 1.1.0
 
-INSTALLATION<br>
+INSTALLATION
+
 -unzip the *.zip file<br>
--execute ./install.sh and follow instructions<br>
+-execute `./install.sh` and follow instructions
 
 
 Before installation, verify that you have PyMol, PyQt4, OpenBabel (python binding [PyBabel]) and numpy as python
@@ -21,6 +22,6 @@ if not, please select the previous address<br>
 
 UNINSTALL
 
-search the installation directory and execute ./unistall.sh and follow instructions<br>
+search the installation directory and execute `./uninstall.sh` and follow instructions<br>
 
 To view the update history, please check Changes_History file
