@@ -1,4 +1,9 @@
-
+#Build 1.1.0
+-Graphical interface improvements
+-Change in the scoring procedure when autodock4 and autodock 4Zn are selected. Now, autodock4 is used instead of the script.
+-Fixed some bugs
+#Build 1.0.3
+-Change the scoring mode. Now using AutoDock4 instead of the evaluation script
 #Build 1.0.2
 -fixed some bugs
 -In Off-Target Docking module, both the target and off-target proteins are align, thus improving the visualization of
