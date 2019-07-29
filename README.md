@@ -1,7 +1,12 @@
 # AMDock: *A*ssisted *M*olecular *Dock*ing with Autodock4 and Autodock Vina
-Build 1.1.0
+AMDock (Assisted Molecular Docking) is a user-friendly graphical tool to assist in the docking of protein-ligand 
+complexes using Autodock-Vina or AutoDock4. This tool integrates several external programs for processing docking input 
+files under user’s supervision.
 
-INSTALLATION
+
+**Build 1.1.0**
+
+**INSTALL**
 
 -unzip the *.zip file<br>
 -execute `./install.sh` and follow instructions
@@ -20,7 +25,7 @@ PyMOL should automatically have:
 
 if not, please select the previous address<br>
 
-UNINSTALL
+**UNINSTALL**
 
 search the installation directory and execute `./uninstall.sh` and follow instructions<br>
 
