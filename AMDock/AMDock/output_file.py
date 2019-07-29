@@ -1,8 +1,6 @@
-
 class OutputFile:
     def __init__(self, parent):
         self.parent = parent
-
 
     def file_header(self, filename):
         self.file = open(filename, 'w')

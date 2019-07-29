@@ -114,6 +114,7 @@ from variables import Objects as ob
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
     app_icon = QtGui.QIcon()
+    dw = QtGui.QDesktopWidget()
     app_icon.addFile('images/amdock_icon.png', QtCore.QSize(16, 20))
     app_icon.addFile('images/amdock_icon.png', QtCore.QSize(24, 30))
     app_icon.addFile('images/amdock_icon.png', QtCore.QSize(32, 40))
@@ -126,6 +127,7 @@ if __name__ == "__main__":
     main = AMDock()
     splash.finish(main)
     main.setMinimumSize(1080, 740)
+    main.resize(1080, int(dw.height()*0.9))
     main.setWindowTitle('AMDock: Assisted Molecular Docking with AutoDock4 and AutoDock Vina')
     main.setWindowIcon(app_icon)
     main.show()

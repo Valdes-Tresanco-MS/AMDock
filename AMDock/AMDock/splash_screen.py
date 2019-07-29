@@ -19,7 +19,6 @@ class SplashScreen(QSplashScreen):
         text.setText('Loading modules...')
         self.show()
         self.setMask(image.mask())
-        # time.sleep(0.5)
         modules = ['AutoDockTools','MolKit', 'PyBabel','AMDock','mglutil', 'Support','numpy','PyQt4']
         programs = ['pdb2pqr', 'pymol', 'obabel']
         ml = 0
@@ -38,7 +37,6 @@ class SplashScreen(QSplashScreen):
             app.processEvents()
         if len(self.non_loaded) is not 0:
             text.setText('Some modules have not been loaded... Please check that program is not corrupted')
-            # app.processEvents()
             time.sleep(5)
             app.processEvents()
         else:
@@ -51,4 +49,3 @@ class SplashScreen(QSplashScreen):
             return True
         else:
             return False
-

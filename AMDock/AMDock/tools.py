@@ -5,9 +5,6 @@ from math import sqrt
 import os
 import subprocess
 
-# from AMDock.variables import WorkersAndScripts
-
-
 atom_prop = {"AL": 26.9815, "Al": 26.9815, "AR": 39.948, "Ar": 39.948, "AU": 196.97, "Au": 196.97, "Br": 78.9183,
              "BR": 78.9183, "C": 12, "Ca": 39.9625906, "CA": 39.9625906, "Cl": 34.968852721, "CL": 34.968852721,
              "Cs": 132.90, "CS": 132.90, "D": 2.014101779, "F": 18.998, "Fe": 53.9396127, "FE": 53.9396127, "Ge": 72.64,
@@ -45,7 +42,6 @@ class PDBMap():
         self.pdb_file = pdb_file
         self.pdb_list = self.pdb2map()
         self.protein_only, self.hetero_only = self.parts()
-        # self.coord()
 
     def imp(self):
         return self.protein_only, self.hetero_only
@@ -401,15 +397,13 @@ class GridDefinition(PDBMap):
     def __init__(self, pdb_filename, residues_select=None, ligand_select=None, gd_file=None, size=True):
 
         PDBMap.__init__(self, pdb_filename)
-        # self.file = pdb_filename
 
         self.res_sel = residues_select
         self.lig_sel = ligand_select
-
         self.gd_file = gd_file
         self.size = size
 
-        self.protein_only, self.ligands_only = PDBMap.imp(self)  # self.parts()
+        self.protein_only, self.ligands_only = PDBMap.imp(self)
         self.selection = self.select_list()
         try:
             self.minimun = self.minim()
@@ -542,7 +536,6 @@ class Converter:
         self.obabel = obabel
 
     def format2pdb(self):
-        # mol = pybel.readfile(self.format, self.inputfile).next()
         print [self.obabel, "-i", self.format, self.inputfile, "-o", 'pdb', "-O", self.output]
         if self.format == 'mol2':
             c2 = subprocess.Popen([self.obabel, "-i", self.format, self.inputfile, "-o", 'pdb', "-O", 'temp.pdb'],
@@ -610,8 +603,6 @@ class Converter:
 class Gyrate(PDBMap):
     def __init__(self, pdb_file):
         PDBMap.__init__(self, pdb_file)
-        # self.pdb_file = pdb_file
-        # self.gyrate()
 
     def gyrate(self):
         self.coord = PDBMap.coord(self)

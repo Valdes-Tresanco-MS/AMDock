@@ -15,8 +15,6 @@ class Program_body(QtGui.QWidget):
     def __init__(self, parent=None):
         super(Program_body, self).__init__(parent)
         self.setObjectName("program_body")
-        # self.setStyleSheet('background-color: black;')
-        # self.setStyleSheet("border-image: url(./images/presentation.png);")
         self.parent = parent
         with open(self.parent.objects.style_file) as f:
             self.setStyleSheet(f.read())
@@ -32,48 +30,29 @@ class Program_body(QtGui.QWidget):
 
         # **project_box
         self.project_box = QtGui.QGroupBox(self)
-        # self.project_box.setGeometry(QtCore.QRect(5, 10, 890, 95))
-#         # font = QtGui.QFont()
-#         # font.setPointSize(10)
-#         # self.project_box.setFont(font)
         self.project_box.setObjectName("project_box")
         self.project_box.setTitle("Project")
 
         self.project_label = QtGui.QLabel(self.project_box)
-        # self.project_label.setGeometry(QtCore.QRect(10, 20, 90, 22))
         self.project_label.setText("Project Name:")
-#         # font = QtGui.QFont()
-#         # font.setPointSize(10)
-#         # font.setBold(True)
-#         # self.project_label.setFont(font)
 
         self.project_text = QtGui.QLineEdit(self.project_box)
-        # self.project_text.setGeometry(QtCore.QRect(100, 20, 735, 22))
         self.project_text.setObjectName("project_text")
         self.project_text.setPlaceholderText(self.parent.v.project_name)
         self.proj_name_validator = QtGui.QRegExpValidator(QtCore.QRegExp("\\S+"))
         self.project_text.setValidator(self.proj_name_validator)
 
         self.project_help = QtGui.QPushButton(self.project_box)
-        # self.project_help.setGeometry(QtCore.QRect(860, 15, 22, 22))
-#         # font = QtGui.QFont()
-#         # font.setPointSize(10)
-#         # self.project_help.setFont(font)
         self.project_help.setObjectName("project_help")
         self.project_help.setText("?")
         self.project_help.setToolTip(self.parent.tt.project_tt)
 
         self.wdir_button = QtGui.QPushButton(self.project_box)
-        # self.wdir_button.setGeometry(QtCore.QRect(10, 60, 128, 22))
-#         # font = QtGui.QFont()
-#         # font.setPointSize(10)
-#         # self.wdir_button.setFont(font)
         self.wdir_button.setObjectName("wdir_button")
         self.wdir_button.setText("Project Folder")
         self.wdir_button.clicked.connect(lambda: self.load_file(self.wdir_button))
 
         self.wdir_text = QtGui.QLineEdit(self.project_box)
-        # self.wdir_text.setGeometry(QtCore.QRect(145, 60, 690, 22))
         self.wdir_text.setReadOnly(True)
         self.wdir_text.setObjectName("wdir_text")
         self.wdir_text.setPlaceholderText("Location for the project")
@@ -87,30 +66,15 @@ class Program_body(QtGui.QWidget):
 
         # **Input_box
         self.input_box = QtGui.QGroupBox(self)
-        # self.input_box.setGeometry(QtCore.QRect(5, 110, 890, 151))
-        # font = QtGui.QFont()
-        # font.setPointSize(10)
-        # self.input_box.setFont(font)
         self.input_box.setObjectName("input_box")
         self.input_box.setTitle("Input")
         self.input_box.setEnabled(False)
 
         self.pH_label = QtGui.QLabel(self.input_box)
-        # self.pH_label.setGeometry(QtCore.QRect(10, 25, 95, 22))
-        # font = QtGui.QFont()
-        # font.setPointSize(9)
-        # # font.setBold(True)
-        # self.pH_label.setFont(font)
         self.pH_label.setObjectName("ph_button")
         self.pH_label.setText("Set pH:")
 
         self.pH_value = QtGui.QDoubleSpinBox(self.input_box)
-        # self.pH_value.setGeometry(QtCore.QRect(110, 25, 55, 22))
-        # font = QtGui.QFont()
-        # font.setPointSize(9)
-        # font.setBold(True)
-        # # font.setWeight(75)
-        # self.pH_value.setFont(font)
         self.pH_value.setAlignment(QtCore.Qt.AlignCenter)
         self.pH_value.setDecimals(1)
         self.pH_value.setMinimum(0)
@@ -122,115 +86,63 @@ class Program_body(QtGui.QWidget):
         self.docking_mode = QtGui.QButtonGroup(self.input_box)
 
         self.simple_docking = QtGui.QRadioButton('Simple Docking', self.input_box)
-        # font = QtGui.QFont()
-        # font.setPointSize(10)
-        # self.simple_docking.setGeometry(QtCore.QRect(250, 25, 110, 22))
         self.simple_docking.setObjectName("simple_docking")
-        # self.simple_docking.setFont(font)
         self.simple_docking.setChecked(True)
         self.docking_mode.addButton(self.simple_docking, 1)
 
         self.cross_reaction = QtGui.QRadioButton('Off-Target Docking', self.input_box)
-        # font = QtGui.QFont()
-        # font.setPointSize(10)
-        # self.cross_reaction.setGeometry(QtCore.QRect(430, 25, 150, 22))
         self.cross_reaction.setObjectName("cross_reaction")
-        # self.cross_reaction.setFont(font)
-        # self.cross_reaction.setEnabled(False)
         self.docking_mode.addButton(self.cross_reaction, 2)
 
         self.rescoring = QtGui.QRadioButton('Scoring', self.input_box)
-        # font = QtGui.QFont()
-        # font.setPointSize(10)
-        # self.rescoring.setGeometry(QtCore.QRect(605, 25, 65, 22))
         self.rescoring.setObjectName("rescoring")
-        # self.rescoring.setFont(font)
         self.docking_mode.addButton(self.rescoring, 3)
 
         self.protein_button = QtGui.QPushButton(self.input_box)
-        # self.protein_button.setGeometry(QtCore.QRect(7, 55, 61, 22))
-        # font = QtGui.QFont()
-        # font.setPointSize(9)
-        # self.protein_button.setFont(font)
         self.protein_button.setObjectName("protein_buttonA")
         self.protein_button.setText("Protein")
-        # self.protein_button.setEnabled(False)
         self.protein_button.clicked.connect(lambda: self.load_file(self.protein_button))
 
         self.protein_text = QtGui.QLineEdit(self.input_box)
-        # self.protein_text.setGeometry(QtCore.QRect(70, 55, 690, 22))
         self.protein_text.setObjectName("protein_text")
         self.protein_text.setReadOnly(True)
         self.protein_text.setPlaceholderText('target protein')
 
         self.protein_label = QtGui.QLabel(self.input_box)
-        # self.protein_label.setGeometry((QtCore.QRect(70, 75, 690, 20)))
-        # font = QtGui.QFont()
-        # font.setPointSize(8)
-        # self.protein_label.setFont(font)
 
         self.protein_buttonB = QtGui.QPushButton(self.input_box)
-        # self.protein_buttonB.setGeometry(QtCore.QRect(441, 55, 61, 22))
-        # font = QtGui.QFont()
-        # font.setPointSize(9)
-        # self.protein_buttonB.setFont(font)
         self.protein_buttonB.setObjectName("protein_buttonB")
         self.protein_buttonB.setText("Off-Target")
-        # self.protein_buttonB.setEnabled(False)
         self.protein_buttonB.hide()
         self.protein_buttonB.clicked.connect(lambda: self.load_file(self.protein_buttonB))
 
         self.protein_textB = QtGui.QLineEdit(self.input_box)
-        # self.protein_textB.setGeometry(QtCore.QRect(505, 55, 360, 22))
         self.protein_textB.setObjectName("protein_textB")
         self.protein_textB.setReadOnly(True)
         self.protein_textB.setPlaceholderText('off-target protein')
         self.protein_textB.hide()
 
         self.protein_labelB = QtGui.QLabel(self.input_box)
-        # self.protein_labelB.setGeometry((QtCore.QRect(505, 75, 370, 20)))
-        # font = QtGui.QFont()
-        # font.setPointSize(8)
-        # self.protein_labelB.setFont(font)
         self.protein_labelB.hide()
 
         self.input_help = QtGui.QPushButton(self.input_box)
-        # self.input_help.setGeometry(QtCore.QRect(860, 15, 22, 22))
-        # font = QtGui.QFont()
-        # font.setPointSize(10)
-        # self.input_help.setFont(font)
         self.input_help.setObjectName("input_help")
         self.input_help.setText("?")
         self.input_help.setToolTip(self.parent.tt.input_tt)
 
         self.ligand_button = QtGui.QPushButton(self.input_box)
-        # self.ligand_button.setGeometry(QtCore.QRect(7, 100, 61, 22))
-        # font = QtGui.QFont()
-        # font.setPointSize(9)
-        # self.ligand_button.setFont(font)
         self.ligand_button.setObjectName("ligand_button")
-        # self.ligand_button.setEnabled(False)
         self.ligand_button.setText("Ligand")
         self.ligand_button.clicked.connect(lambda: self.load_file(self.ligand_button))
 
         self.ligand_text = QtGui.QLineEdit(self.input_box)
-        # self.ligand_text.setGeometry(QtCore.QRect(70, 100, 690, 22))
         self.ligand_text.setObjectName("ligand_text")
         self.ligand_text.setReadOnly(True)
         self.ligand_text.setPlaceholderText('ligand')
 
         self.ligand_label = QtGui.QLabel(self.input_box)
-        # self.ligand_label.setGeometry((QtCore.QRect(70, 120, 690, 20)))
-        # font = QtGui.QFont()
-        # font.setPointSize(8)
-        # self.ligand_label.setFont(font)
 
         self.prep_rec_lig_button = QtGui.QPushButton(self.input_box)
-        # self.prep_rec_lig_button.setGeometry(QtCore.QRect(775, 65, 105, 45))
-        # font = QtGui.QFont()
-        # font.setPointSize(10)
-        # # font.setBold(True)
-        # self.prep_rec_lig_button.setFont(font)
         self.prep_rec_lig_button.setObjectName("prep_rec_lig_button")
         self.prep_rec_lig_button.setText("Prepare\nInput")
         self.prep_rec_lig_button.setEnabled(False)
@@ -244,48 +156,19 @@ class Program_body(QtGui.QWidget):
         self.flags_layout.addStretch(1)
         self.flags_layout.addWidget(self.input_help)
 
-        # self.prot_label_layout = QtGui.QVBoxLayout()
-        # self.prot_label_layout.addWidget(self.protein_text)
-        # self.prot_label_layout.addWidget(self.protein_label)
-        #
-        # self.prot_layout = QtGui.QHBoxLayout()
-        # self.prot_layout.addWidget(self.protein_button)
-        # self.prot_layout.addLayout(self.prot_label_layout, 1)
-        #
-        # self.prot_label_layoutB = QtGui.QVBoxLayout()
-        # self.prot_label_layoutB.addWidget(self.protein_textB)
-        # self.prot_label_layoutB.addWidget(self.protein_labelB)
-        #
-        # self.protB_layout = QtGui.QHBoxLayout()
-        # self.protB_layout.addWidget(self.protein_buttonB)
-        # self.protB_layout.addLayout(self.prot_label_layoutB, 1)
-        #
-        # self.lig_label_layout = QtGui.QVBoxLayout()
-        # self.lig_label_layout.addWidget(self.ligand_text)
-        # self.lig_label_layout.addWidget(self.ligand_label)
-        #
-        # self.lig_layout = QtGui.QHBoxLayout()
-        # self.lig_layout.addWidget(self.ligand_button)
-        # self.lig_layout.addLayout(self.lig_label_layout, 1)
-
-
         self.input_layout = QtGui.QGridLayout()
         self.input_layout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
         self.input_layout.addWidget(self.protein_button, 0, 0)
         self.input_layout.addWidget(self.protein_text, 0, 1)
         self.input_layout.addWidget(self.protein_label, 1, 1)
-        # self.input_layout.addLayout(self.prot_layout)
 
         self.input_layout.addWidget(self.protein_buttonB, 2, 0)
-        # self.input_layout.addLayout(self.protB_layout)
         self.input_layout.addWidget(self.protein_textB, 2, 1, 1, 1)
         self.input_layout.addWidget(self.protein_labelB, 3, 1)
         self.input_layout.addWidget(self.ligand_button, 4, 0)
-        # self.input_layout.addLayout(self.lig_layout)
         #
         self.input_layout.addWidget(self.ligand_text, 4, 1, 1, 1)
         self.input_layout.addWidget(self.ligand_label, 5, 1)
-        # self.input_layout.addWidget(self.prep_rec_lig_button, 1, 4, 1, 10)
 
         self.content_layout = QtGui.QHBoxLayout()
         self.content_layout.addLayout(self.input_layout)
@@ -294,406 +177,231 @@ class Program_body(QtGui.QWidget):
         self.input_box_layout = QtGui.QVBoxLayout(self.input_box)
         self.input_box_layout.addLayout(self.flags_layout)
         self.input_box_layout.addLayout(self.content_layout)
-        # self.input_box_layout.addWidget(self.wdir_button, 2, 0)
-        # self.input_box_layout.addWidget(self.wdir_text, 2, 1, 1, 1)
 
         # **Grid_box
         self.grid_box = QtGui.QGroupBox(self)
-        # self.grid_box.setGeometry(QtCore.QRect(5, 265, 890, 180))
-        # font = QtGui.QFont()
-        # font.setPointSize(10)
-        # self.grid_box.setFont(font)
         self.grid_box.setObjectName("grid_box")
         self.grid_box.setTitle("Search Space")
         self.grid_box.setEnabled(False)
 
         self.protein_column_label = QtGui.QLabel('Target', self.grid_box)
-        # self.protein_column_label.setGeometry(QtCore.QRect(268, 10, 50, 22))
-        # self.protein_column_label.hide()
         self.protein_column_label.setAlignment(QtCore.Qt.AlignCenter)
 
         self.protein_column_group_btnA = QtGui.QButtonGroup(self.grid_box)
 
         self.btnA_auto = QtGui.QRadioButton(self.grid_box)
-        # self.btnA_auto.setGeometry(QtCore.QRect(285, 30, 16, 16))
         self.btnA_auto.setObjectName('btnA_auto')
         self.btnA_auto.setChecked(True)
-        # self.btnA_auto.hide()
         self.protein_column_group_btnA.addButton(self.btnA_auto, 1)
-        # self.btnA_auto.toggled.connect(lambda: self.grid_protA(self.btnA_auto))
         self.btnA_auto.toggled.connect(lambda: self.grid_prot(self.btnA_auto))
 
         self.btnA_res = QtGui.QRadioButton(self.grid_box)
-        # self.btnA_res.setGeometry(QtCore.QRect(285, 60, 16, 16))
         self.protein_column_group_btnA.addButton(self.btnA_res, 2)
-        # self.btnA_res.hide()
         self.btnA_res.setObjectName('btnA_res')
-        # self.btnA_res.toggled.connect(lambda: self.grid_protA(self.btnA_res))
         self.btnA_res.toggled.connect(lambda: self.grid_prot(self.btnA_res))
 
         self.btnA_lig = QtGui.QRadioButton(self.grid_box)
-        # self.btnA_lig.setGeometry(QtCore.QRect(285, 90, 16, 16))
-        # self.btnA_lig.hide()
         self.btnA_lig.setObjectName('btnA_lig')
         self.protein_column_group_btnA.addButton(self.btnA_lig, 3)
-        # self.btnA_lig.toggled.connect(lambda: self.grid_protA(self.btnA_lig))
         self.btnA_lig.toggled.connect(lambda: self.grid_prot(self.btnA_lig))
 
         self.btnA_user = QtGui.QRadioButton(self.grid_box)
-        # self.btnA_user.setGeometry(QtCore.QRect(285, 120, 16, 16))
         self.protein_column_group_btnA.addButton(self.btnA_user, 4)
-        # self.btnA_user.hide()
         self.btnA_user.setObjectName('btnA_user')
-        # self.btnA_user.toggled.connect(lambda: self.grid_protA(self.btnA_user))
         self.btnA_user.toggled.connect(lambda: self.grid_prot(self.btnA_user))
 
         self.protein1_column_label = QtGui.QLabel('Off-Target', self.grid_box)
-        # self.protein1_column_label.setGeometry(QtCore.QRect(658, 10, 65, 22))
         self.protein1_column_label.hide()
         self.protein1_column_label.setAlignment(QtCore.Qt.AlignCenter)
-
-        # self.protein1_column_group = QtGui.QGroupBox(self.grid_box)
-        # self.protein1_column_group.setGeometry(QtCore.QRect(36, 35, 25, 100))
 
         self.protein_column_group_btnB = QtGui.QButtonGroup(self.grid_box)
 
         self.btnB_auto = QtGui.QRadioButton(self.grid_box)
-        # self.btnB_auto.setGeometry(QtCore.QRect(675, 30, 16, 16))
         self.btnB_auto.setChecked(True)
         self.protein_column_group_btnB.addButton(self.btnB_auto, 1)
         self.btnB_auto.hide()
-        # self.btnB_auto.toggled.connect(lambda: self.grid_protB(self.btnB_auto))
         self.btnB_auto.toggled.connect(lambda: self.grid_prot(self.btnB_auto))
 
         self.btnB_res = QtGui.QRadioButton(self.grid_box)
-        # self.btnB_res.setGeometry(QtCore.QRect(675, 60, 16, 16))
-        # self.btnB_res.toggled.connect(lambda: self.grid_protB(self.btnB_res))
         self.btnB_res.toggled.connect(lambda: self.grid_prot(self.btnB_res))
 
         self.protein_column_group_btnB.addButton(self.btnB_res, 2)
         self.btnB_res.hide()
 
         self.btnB_lig = QtGui.QRadioButton(self.grid_box)
-        # self.btnB_lig.setGeometry(QtCore.QRect(675, 90, 16, 16))
         self.protein_column_group_btnB.addButton(self.btnB_lig, 3)
         self.btnB_lig.hide()
-        # self.btnB_lig.toggled.connect(lambda: self.grid_protB(self.btnB_lig))
         self.btnB_lig.toggled.connect(lambda: self.grid_prot(self.btnB_lig))
 
         self.btnB_user = QtGui.QRadioButton(self.grid_box)
-        # self.btnB_user.setGeometry(QtCore.QRect(675, 120, 16, 16))
         self.protein_column_group_btnB.addButton(self.btnB_user, 4)
         self.btnB_user.hide()
-        # self.btnB_user.toggled.connect(lambda: self.grid_protB(self.btnB_user))
         self.btnB_user.toggled.connect(lambda: self.grid_prot(self.btnB_user))
 
-        # font1 = QtGui.QFont()
-        # font1.setPointSize(9)
-
-        # font2 = QtGui.QFont()
-        # font2.setPointSize(8)
-
-        #TODO: automatic
-        # self.grid_auto = QtGui.QRadioButton(self.grid_box)
-        # # self.grid_auto.setGeometry(QtCore.QRect(10, 30, 220, 17))
-        # self.grid_auto.setChecked(True)
-        # self.grid_auto.setObjectName("grid_auto")
-        # self.grid_auto.setText("Automatic")
-        # self.grid_auto.toggled.connect(lambda: self.grid_definition(self.grid_auto))
-#         # self.grid_auto.setFont(font1)
-
         self.grid_auto_cr = QtGui.QLabel(self.grid_box)
-        # self.grid_auto_cr.setGeometry(QtCore.QRect(10, 30, 220, 20))
         self.grid_auto_cr.setText("Automatic")
-        # self.grid_auto_cr.hide()
-#         # self.grid_auto_cr.setFont(font1)
-
-        # TODO: por residuos
-        # self.grid_predef = QtGui.QRadioButton(self.grid_box)
-        # # self.grid_predef.setGeometry(QtCore.QRect(10, 60, 135, 20))
-        # self.grid_predef.setObjectName("grid_predef")
-        # self.grid_predef.setText("Center on Residue(s)")
-        # self.grid_predef.toggled.connect(lambda: self.grid_definition(self.grid_predef))
-#         # self.grid_predef.setFont(font1)
 
         self.grid_predef_cr = QtGui.QLabel(self.grid_box)
-        # self.grid_predef_cr.setGeometry(QtCore.QRect(10, 60, 135, 20))
         self.grid_predef_cr.setText("Center on Residue(s)")
-        # self.grid_predef_cr.hide()
-#         # self.grid_predef_cr.setFont(font1)
 
         self.grid_predef_text = QtGui.QLineEdit(self.grid_box)
-        # self.grid_predef_text./(QtCore.QRect(150, 60, 631, 20))
         self.grid_predef_text.setObjectName("grid_predef_text")
         self.grid_predef_text.setPlaceholderText('CHN:RES:NUM,...,CHN:RES:NUM (chain:residue:number of residue)')
         self.grid_predef_text.hide()
         self.grid_predef_text.textChanged.connect(lambda: self.check_res(self.grid_predef_text))
-        # self.grid_predef_text.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding,
-        #                                                       QtGui.QSizePolicy.Minimum,
-        #                                                       QtGui.QSizePolicy.LineEdit ))
 
         self.grid_predef_textB = QtGui.QLineEdit(self.grid_box)
-        # self.grid_predef_textB.setGeometry(QtCore.QRect(510, 77, 345, 20))
         self.grid_predef_textB.setObjectName("grid_predef_textB")
         self.grid_predef_textB.setPlaceholderText('CHN:RES:NUM,...,CHN:RES:NUM (chain:residue:number of residue)')
         self.grid_predef_textB.hide()
         self.grid_predef_textB.textChanged.connect(lambda: self.check_res(self.grid_predef_textB))
 
-        # self.grid_predef_label = QtGui.QLabel(self.grid_box)
-        # self.grid_predef_label.setGeometry(QtCore.QRect(160, 76, 621, 20))
-        # self.grid_predef_label.setText("Example: A:ALA:125, B:ARG:34")
-#         # font = QtGui.QFont()
-#         # font.setPointSize(7)
-#         # self.grid_predef_label.setFont(font)
-        # self.grid_predef_label.hide()
-
-        # self.grid_predef_labelB = QtGui.QLabel(self.grid_box)
-        # self.grid_predef_labelB.setGeometry(QtCore.QRect(510, 93, 340, 20))
-        # self.grid_predef_labelB.setText("Example: A:ALA:125, B:ARG:34")
-#         # font = QtGui.QFont()
-#         # font.setPointSize(7)
-#         # self.grid_predef_labelB.setFont(font)
-        # self.grid_predef_labelB.hide()
-
-        # TODO: by lig
-        # self.grid_by_lig = QtGui.QRadioButton(self.grid_box)
-        # # self.grid_by_lig.setGeometry(QtCore.QRect(10, 90, 185, 20))
-        # self.grid_by_lig.setObjectName("grid_by_lig")
-        # self.grid_by_lig.setText("Center on Ligand")
-        # self.grid_by_lig.setEnabled(False)
-        # self.grid_by_lig.toggled.connect(lambda: self.grid_definition(self.grid_by_lig))
-#         # self.grid_by_lig.setFont(font1)
-
         self.grid_by_lig_cr = QtGui.QLabel(self.grid_box)
-        # self.grid_by_lig_cr.setGeometry(QtCore.QRect(10, 90, 185, 20))
         self.grid_by_lig_cr.setText("Center on Ligand")
-        # self.grid_by_lig_cr.hide()
-#         # self.grid_by_lig_cr.setFont(font1)
 
         self.lig_list = QtGui.QComboBox(self.grid_box)
-        # self.lig_list.setGeometry(QtCore.QRect(233, 90, 120, 20))
         self.lig_list.setObjectName("lig_list")
-        # # font = QtGui.QFont()
-        # # font.setPointSize(9)
-        # self.lig_list.setFont(font)
         self.lig_list.hide()
-        # self.lig_list.setEnabled(False)
         self.lig_list.currentIndexChanged.connect(lambda: self.lig_select(self.lig_list))
 
         self.lig_listB = QtGui.QComboBox(self.grid_box)
-        # self.lig_listB.setGeometry(QtCore.QRect(623, 107, 120, 20))
         self.lig_listB.setObjectName("lig_listB")
-        # font = QtGui.QFont()
-        # font.setPointSize(9)
-        # self.lig_listB.setFont(font)
         self.lig_listB.hide()
-        # self.lig_listB.setEnabled(False)
         self.lig_listB.currentIndexChanged.connect(lambda: self.lig_select(self.lig_listB))
-
-        # TODO: by user
-        # self.grid_user = QtGui.QRadioButton(self.grid_box)
-        # self.grid_user.setText('Box')
-        # # self.grid_user.setGeometry(QtCore.QRect(10, 120, 70, 22))
-        # self.grid_user.setObjectName('grid_user')
-        # self.grid_user.toggled.connect(lambda: self.grid_definition(self.grid_user))
-#         # self.grid_user.setFont(font1)
 
         self.grid_user_cr = QtGui.QLabel(self.grid_box)
         self.grid_user_cr.setText('Box')
-        # self.grid_user_cr.setGeometry(QtCore.QRect(10, 120, 70, 22))
-        # self.grid_user_cr.hide()
-#         # self.grid_user_cr.setFont(font1)
 
         self.coor_box = QtGui.QGroupBox(self.grid_box)
-        # self.coor_box.setGeometry(QtCore.QRect(183, 120, 260, 45))
         self.coor_box.setTitle("Center")
         self.coor_box.setAlignment(QtCore.Qt.AlignCenter)
-        # self.coor_box.setEnabled(False)
         self.coor_box.hide()
 
         self.coor_x_label = QtGui.QLabel(self.coor_box)
-        # self.coor_x_label.setGeometry(QtCore.QRect(5, 15, 10, 22))
         self.coor_x_label.setText('X:')
-        # self.coor_x_label.setFont(font1)
         self.coor_x = QtGui.QLineEdit(self.coor_box)
-        # self.coor_x.setGeometry(QtCore.QRect(17, 15, 60, 22))
         self.coor_x.setValidator(QtGui.QDoubleValidator(-100, 100, 2))
         self.coor_x.setMaxLength(5)
         self.coor_x.setObjectName('coor_x')
         self.coor_x.textChanged.connect(self.check_grid)
-        # self.coor_x.setFont(font1)
 
         self.coor_y_label = QtGui.QLabel(self.coor_box)
-        # self.coor_y_label.setGeometry(QtCore.QRect(94, 15, 10, 22))
         self.coor_y_label.setText('Y:')
-        # self.coor_y_label.setFont(font1)
         self.coor_y = QtGui.QLineEdit(self.coor_box)
-        # self.coor_y.setGeometry(QtCore.QRect(106, 15, 60, 22))
         self.coor_y.setValidator(QtGui.QDoubleValidator(-100, 100, 2))
         self.coor_y.setMaxLength(5)
         self.coor_y.setObjectName('coor_y')
         self.coor_y.textChanged.connect(self.check_grid)
-        # self.coor_y.setFont(font1)
 
         self.coor_z_label = QtGui.QLabel(self.coor_box)
-        # self.coor_z_label.setGeometry(QtCore.QRect(183, 15, 10, 22))
         self.coor_z_label.setText('Z:')
-        # self.coor_z_label.setFont(font1)
         self.coor_z = QtGui.QLineEdit(self.coor_box)
-        # self.coor_z./(QtCore.QRect(195, 15, 60, 22))
         self.coor_z.setValidator(QtGui.QDoubleValidator(-100, 100, 2))
         self.coor_z.setMaxLength(5)
         self.coor_z.setObjectName('coor_z')
         self.coor_z.textChanged.connect(self.check_grid)
-        # self.coor_z.setFont(font1)
 
         self.size_box = QtGui.QGroupBox(self.grid_box)
-        # self.size_box.setGeometry(QtCore.QRect(447, 120, 260, 45))
         self.size_box.setTitle("Size")
         self.size_box.setAlignment(QtCore.Qt.AlignCenter)
-        # self.size_box.setEnabled(False)
         self.size_box.hide()
 
         self.size_x_label = QtGui.QLabel(self.size_box)
-        # self.size_x_label./(QtCore.QRect(5, 15, 10, 22))
         self.size_x_label.setText('X:')
-        # self.size_x_label.setFont(font1)
         self.size_x = QtGui.QLineEdit(self.size_box)
-        # self.size_x.setGeometry(QtCore.QRect(17, 15, 60, 22))
         self.size_x.setValidator(QtGui.QIntValidator(8, 150))
         self.size_x.setMaxLength(5)
         self.size_x.setObjectName('size_x')
         self.size_x.textChanged.connect(self.check_grid)
-        # self.size_x.setFont(font1)
 
         self.size_y_label = QtGui.QLabel(self.size_box)
-        # self.size_y_label.setGeometry(QtCore.QRect(94, 15, 10, 22))
         self.size_y_label.setText('Y:')
-        # self.size_y_label.setFont(font1)
         self.size_y = QtGui.QLineEdit(self.size_box)
-        # self.size_y.setGeometry(QtCore.QRect(106, 15, 60, 22))
         self.size_y.setValidator(QtGui.QIntValidator(8, 150))
         self.size_y.setMaxLength(5)
         self.size_y.setObjectName('size_y')
         self.size_y.textChanged.connect(self.check_grid)
-        # self.size_y.setFont(font1)
 
         self.size_z_label = QtGui.QLabel(self.size_box)
-        # self.size_z_label.setGeometry(QtCore.QRect(183, 15, 10, 22))
         self.size_z_label.setText('Z:')
-        # self.size_z_label.setFont(font1)
         self.size_z = QtGui.QLineEdit(self.size_box)
-        # self.size_z.setGeometry(QtCore.QRect(195, 15, 60, 22))
         self.size_z.setValidator(QtGui.QIntValidator(8, 150))
         self.size_z.setMaxLength(5)
         self.size_z.setObjectName('size_z')
         self.size_z.textChanged.connect(self.check_grid)
-        # self.size_z.setFont(font1)
 
         self.coor_boxB = QtGui.QGroupBox(self.grid_box)
-        # self.coor_boxB.setGeometry(QtCore.QRect(510, 130, 170, 45))
         self.coor_boxB.setTitle("Center")
         self.coor_boxB.setAlignment(QtCore.Qt.AlignCenter)
-        # self.coor_boxB.setEnabled(False)
         self.coor_boxB.hide()
 
         self.coor_x_labelB = QtGui.QLabel(self.coor_boxB)
-        # self.coor_x_labelB.setGeometry(QtCore.QRect(5, 15, 10, 22))
         self.coor_x_labelB.setText('X:')
-        # self.coor_x_labelB.setFont(font1)
         self.coor_xB = QtGui.QLineEdit(self.coor_boxB)
-        # self.coor_xB.setGeometry(QtCore.QRect(15, 15, 40, 22))
         self.coor_xB.setValidator(QtGui.QDoubleValidator(-100, 100, 2))
         self.coor_xB.setMaxLength(6)
         self.coor_xB.setObjectName('coor_xB')
         self.coor_xB.textChanged.connect(self.check_grid)
-        # self.coor_xB.setFont(font1)
 
         self.coor_y_labelB = QtGui.QLabel(self.coor_boxB)
-        # self.coor_y_labelB.setGeometry(QtCore.QRect(60, 15, 10, 22))
         self.coor_y_labelB.setText('Y:')
-        # self.coor_y_labelB.setFont(font1)
         self.coor_yB = QtGui.QLineEdit(self.coor_boxB)
-        # self.coor_yB.setGeometry(QtCore.QRect(70, 15, 40, 22))
         self.coor_yB.setValidator(QtGui.QDoubleValidator(-100, 100, 2))
         self.coor_yB.setMaxLength(6)
         self.coor_yB.setObjectName('coor_yB')
         self.coor_yB.textChanged.connect(self.check_grid)
-        # self.coor_yB.setFont(font1)
 
         self.coor_z_labelB = QtGui.QLabel(self.coor_boxB)
-        # self.coor_z_labelB.setGeometry(QtCore.QRect(115, 15, 10, 22))
         self.coor_z_labelB.setText('Z:')
-        # self.coor_z_label.setFont(font1)
         self.coor_zB = QtGui.QLineEdit(self.coor_boxB)
-        # self.coor_zB.setGeometry(QtCore.QRect(125, 15, 40, 22))
         self.coor_zB.setValidator(QtGui.QDoubleValidator(-100, 100, 2))
         self.coor_zB.setMaxLength(6)
         self.coor_zB.setObjectName('coor_zB')
         self.coor_zB.textChanged.connect(self.check_grid)
-        # self.coor_zB.setFont(font1)
 
         self.size_boxB = QtGui.QGroupBox(self.grid_box)
-        # self.size_boxB.setGeometry(QtCore.QRect(685, 130, 170, 45))
         self.size_boxB.setTitle("Size")
         self.size_boxB.setAlignment(QtCore.Qt.AlignCenter)
-        # self.size_boxB.setEnabled(False)
         self.size_boxB.hide()
 
         self.size_x_labelB = QtGui.QLabel(self.size_boxB)
-        # self.size_x_labelB.setGeometry(QtCore.QRect(5, 15, 10, 22))
         self.size_x_labelB.setText('X:')
-        # self.size_x_labelB.setFont(font1)
         self.size_xB = QtGui.QLineEdit(self.size_boxB)
-        # self.size_xB.setGeometry(QtCore.QRect(15, 15, 40, 22))
         self.size_xB.setValidator(QtGui.QIntValidator(8, 150))
         self.size_xB.setMaxLength(6)
         self.size_xB.setObjectName('size_xB')
         self.size_xB.textChanged.connect(self.check_grid)
-        # self.size_xB.setFont(font1)
 
         self.size_y_labelB = QtGui.QLabel(self.size_boxB)
-        # self.size_y_labelB.setGeometry(QtCore.QRect(60, 15, 10, 22))
         self.size_y_labelB.setText('Y:')
-        # self.size_y_labelB.setFont(font1)
         self.size_yB = QtGui.QLineEdit(self.size_boxB)
-        # self.size_yB.setGeometry(QtCore.QRect(70, 15, 40, 22))
         self.size_yB.setValidator(QtGui.QIntValidator(8, 150))
         self.size_yB.setMaxLength(6)
         self.size_yB.setObjectName('size_yB')
         self.size_yB.textChanged.connect(self.check_grid)
-        # self.size_yB.setFont(font1)
 
         self.size_z_labelB = QtGui.QLabel(self.size_boxB)
-        # self.size_z_labelB.setGeometry(QtCore.QRect(115, 15, 10, 22))
         self.size_z_labelB.setText('Z:')
-        # self.size_z_labelB.setFont(font1)
         self.size_zB = QtGui.QLineEdit(self.size_boxB)
-        # self.size_zB.setGeometry(QtCore.QRect(125, 15, 40, 22))
         self.size_zB.setValidator(QtGui.QIntValidator(8, 150))
         self.size_zB.setMaxLength(6)
         self.size_zB.setObjectName('size_zB')
         self.size_zB.textChanged.connect(self.check_grid)
-        # self.size_zB.setFont(font1)
         self.spacer = QtGui.QSpacerItem(20, 20, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
         self.center_layout = QtGui.QHBoxLayout(self.coor_box)
-        self.center_layout.setContentsMargins(0,0,0,0)
+        self.center_layout.setContentsMargins(0, 0, 0, 0)
         self.center_layout.addWidget(self.coor_x_label)
         self.center_layout.addWidget(self.coor_x)
-        # self.center_layout.addItem(self.spacer)
         self.center_layout.addWidget(self.coor_y_label)
         self.center_layout.addWidget(self.coor_y)
-        # self.center_layout.addItem(self.spacer)
         self.center_layout.addWidget(self.coor_z_label)
         self.center_layout.addWidget(self.coor_z)
         self.center_layoutB = QtGui.QHBoxLayout(self.coor_boxB)
         self.center_layoutB.setContentsMargins(0, 0, 0, 0)
         self.center_layoutB.addWidget(self.coor_x_labelB)
         self.center_layoutB.addWidget(self.coor_xB)
-        # self.center_layoutB.addItem(self.spacer)
         self.center_layoutB.addWidget(self.coor_y_labelB)
         self.center_layoutB.addWidget(self.coor_yB)
-        # self.center_layoutB.addItem(self.spacer)
         self.center_layoutB.addWidget(self.coor_z_labelB)
         self.center_layoutB.addWidget(self.coor_zB)
 
@@ -701,138 +409,78 @@ class Program_body(QtGui.QWidget):
         self.size_layout.setContentsMargins(0, 0, 0, 0)
         self.size_layout.addWidget(self.size_x_label)
         self.size_layout.addWidget(self.size_x)
-        # self.size_layout.addItem(self.spacer)
         self.size_layout.addWidget(self.size_y_label)
         self.size_layout.addWidget(self.size_y)
-        # self.size_layout.addItem(self.spacer)
         self.size_layout.addWidget(self.size_z_label)
         self.size_layout.addWidget(self.size_z)
         self.size_layoutB = QtGui.QHBoxLayout(self.size_boxB)
         self.size_layoutB.setContentsMargins(0, 0, 0, 0)
         self.size_layoutB.addWidget(self.size_x_labelB)
         self.size_layoutB.addWidget(self.size_xB)
-        # self.size_layoutB.addItem(self.spacer)
         self.size_layoutB.addWidget(self.size_y_labelB)
         self.size_layoutB.addWidget(self.size_yB)
-        # self.size_layoutB.addItem(self.spacer)
         self.size_layoutB.addWidget(self.size_z_labelB)
         self.size_layoutB.addWidget(self.size_zB)
 
-
-
         self.bind_site_button = QtGui.QPushButton(self.grid_box)
-        # self.bind_site_button.setGeometry(QtCore.QRect(775, 90, 105, 50))
-        # # font = QtGui.QFont()
-        # # font.setPointSize(10)
-        # # font.setBold(True)
-        # self.bind_site_button.setFont(font)
         self.bind_site_button.setObjectName("bind_site_button")
         self.bind_site_button.setText("Define\nSearch Space")
-        self.bind_site_button.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed,QtGui.QSizePolicy.Fixed ))
+        self.bind_site_button.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed))
 
         self.grid_pymol_button = QtGui.QPushButton(self.grid_box)
-        # self.grid_pymol_button.setGeometry(QtCore.QRect(363, 155, 80, 22))
         self.grid_pymol_button.setObjectName("grid_pymol_button")
         self.grid_pymol_button.setText("Show in PyMOL")
         self.grid_pymol_button.clicked.connect(lambda: self.grid_actions(self.grid_pymol_button))
         self.grid_pymol_button.setEnabled(False)
-        # self.grid_pymol_button.setFont(font1)
 
-        # self.build_pymol_button = QtGui.QPushButton(self.grid_box)
-        # self.build_pymol_button.setGeometry(QtCore.QRect(363, 155, 80, 22))
-        # self.build_pymol_button.setObjectName("build_pymol_button")
-        # self.build_pymol_button.setText("Build in PyMOL")
-        # self.build_pymol_button.clicked.connect(lambda: self.grid_actions(self.build_pymol_button))
-        # self.build_pymol_button.setEnabled(False)
-        # self.build_pymol_button.hide()
         self.grid_pymol_button.setText('Show in Pymol')
-#         # self.build_pymol_button.setFont(font1)
 
         self.grid_pymol_buttonB = QtGui.QPushButton(self.grid_box)
-        # self.grid_pymol_buttonB.setGeometry(QtCore.QRect(601, 155, 80, 22))
         self.grid_pymol_buttonB.setObjectName("grid_pymol_buttonB")
         self.grid_pymol_buttonB.setText("Show in PyMOL")
         self.grid_pymol_buttonB.hide()
         self.grid_pymol_buttonB.clicked.connect(lambda: self.grid_actions(self.grid_pymol_buttonB))
         self.grid_pymol_buttonB.setEnabled(False)
-        # self.grid_pymol_buttonB.setFont(font1)
-
-        # self.build_pymol_buttonB = QtGui.QPushButton(self.grid_box)
-        # self.build_pymol_buttonB.setGeometry(QtCore.QRect(363, 155, 80, 22))
-        # self.build_pymol_buttonB.setObjectName("build_pymol_buttonB")
-        # self.build_pymol_buttonB.setText("Build in PyMOL")
-        # self.build_pymol_buttonB.clicked.connect(lambda: self.grid_actions(self.build_pymol_buttonB))
-        # self.build_pymol_buttonB.setEnabled(False)
-        # self.build_pymol_buttonB.hide()
-#         # self.build_pymol_buttonB.setFont(font1)
 
         self.reset_grid_button = QtGui.QPushButton(self.grid_box)
-        # self.reset_grid_button.setGeometry(QtCore.QRect(447, 155, 80, 22))
         self.reset_grid_button.setObjectName("reset_grid_button")
         self.reset_grid_button.setText("Reset")
         self.reset_grid_button.clicked.connect(lambda: self.grid_actions(self.reset_grid_button))
         self.reset_grid_button.setEnabled(False)
-        # self.reset_grid_button.setFont(font1)
 
         self.reset_grid_buttonB = QtGui.QPushButton(self.grid_box)
-        # self.reset_grid_buttonB.setGeometry(QtCore.QRect(685, 155, 80, 22))
         self.reset_grid_buttonB.setObjectName("reset_grid_buttonB")
         self.reset_grid_buttonB.setText("Reset")
         self.reset_grid_buttonB.hide()
         self.reset_grid_buttonB.clicked.connect(lambda: self.grid_actions(self.reset_grid_buttonB))
         self.reset_grid_buttonB.setEnabled(False)
-        # self.reset_grid_buttonB.setFont(font1)
 
-        self.grid_help = QtGui.QPushButton()#self.grid_box)
-        self.grid_help.setMaximumSize(22,22)
-        # self.grid_help.setGeometry(QtCore.QRect(860, 15, 22, 22))
-        # font = QtGui.QFont()
-        # font.setPointSize(10)
-        # self.grid_help.setFont(font)
+        self.grid_help = QtGui.QPushButton()  # self.grid_box)
+        self.grid_help.setMaximumSize(22, 22)
         self.grid_help.setObjectName("grid_help")
         self.grid_help.setText("?")
         self.grid_help.setToolTip(self.parent.tt.grid_tt)
 
-
-
         self.checker_icon = QtGui.QLabel(self.grid_box)
-        # self.checker_icon.setGeometry(QtCore.QRect(795, 55, 30, 30))
         self.checker_icon.setPixmap(QtGui.QPixmap(self.parent.objects.error_checker))
         self.checker_icon.hide()
 
         self.checker_icon_ok = QtGui.QLabel(self.grid_box)
-        # self.checker_icon_ok.setGeometry(QtCore.QRect(795, 55, 30, 30))
         self.checker_icon_ok.setPixmap(QtGui.QPixmap(self.parent.objects.error_checker_ok))
         self.checker_icon_ok.hide()
 
-
         self.run_button = QtGui.QPushButton(self)
-        # self.run_button.setGeometry(QtCore.QRect(780, 510, 105, 50))
-        # font = QtGui.QFont()
-        # font.setPointSize(11)
-        # font.setBold(True)
-        # self.run_button.setFont(font)
         self.run_button.setObjectName("run_button")
         self.run_button.setText("Run Docking")
         self.run_button.setEnabled(False)
 
         self.run_scoring = QtGui.QPushButton(self)
-        # self.run_scoring.setGeometry(QtCore.QRect(780, 510, 105, 50))
-        # font = QtGui.QFont()
-        # font.setPointSize(11)
-        # font.setBold(True)
-        # self.run_scoring.setFont(font)
         self.run_scoring.setObjectName("run_scoring")
         self.run_scoring.setText("Run Scoring")
         self.run_scoring.setEnabled(False)
         self.run_scoring.hide()
 
         self.stop_button = QtGui.QPushButton(self)
-        # self.stop_button.setGeometry(QtCore.QRect(15, 510, 105, 50))
-        # font = QtGui.QFont()
-        # font.setPointSize(11)
-        # font.setBold(True)
-        # self.stop_button.setFont(font)
         self.stop_button.setObjectName("stop_button")
         self.stop_button.setText("Stop Docking")
         self.stop_button.setEnabled(False)
@@ -845,10 +493,6 @@ class Program_body(QtGui.QWidget):
         self.non_button.hide()
 
         self.reset_button = QtGui.QPushButton(self)
-        # self.reset_button.setGeometry(QtCore.QRect(405, 570, 80, 35))
-        # # font = QtGui.QFont()
-        # # font.setPointSize(10)
-        # self.reset_button.setFont(font)
         self.reset_button.setObjectName("reset_button")
         self.reset_button.setText("  Reset")
         self.reset_button.setIcon(QtGui.QIcon(QtGui.QPixmap(self.parent.objects.reset_icon)))
@@ -856,7 +500,6 @@ class Program_body(QtGui.QWidget):
         self.reset_button.clicked.connect(self.reset_function)
 
         self.progressBar = QtGui.QProgressBar(self)
-        # self.progressBar.setGeometry(QtCore.QRect(125, 530, 650, 25))
         self.progressBar.setValue(0)
         self.progressBar.setAlignment(QtCore.Qt.AlignCenter)
         self.progressBar.setOrientation(QtCore.Qt.Horizontal)
@@ -864,12 +507,10 @@ class Program_body(QtGui.QWidget):
         self.progressBar.setTextDirection(QtGui.QProgressBar.TopToBottom)
         self.progressBar.setObjectName("progressBar")
         self.progressBar.setFormat("%p%")
-        # self.progressBar.setValue(50)
 
         self.progressBar_label = QtGui.QLabel(self)
         font3 = QtGui.QFont()
         font3.setPointSize(6)
-        # self.indic_label.setFont(font3)
 
         self.p1 = QtGui.QLabel('|')
         self.p1.setFont(font3)
@@ -891,10 +532,8 @@ class Program_body(QtGui.QWidget):
         self.mol_docking.setFont(font3)
 
         self.label_prog = QtGui.QHBoxLayout()
-        self.label_prog.setContentsMargins(0,0,0,0)
+        self.label_prog.setContentsMargins(0, 0, 0, 0)
         self.label_prog.setMargin(0)
-        # self.label_prog.
-        # self.label_prog.addWidget(self.p1)
         self.label_prog.addWidget(self.init_conf, 9.8, QtCore.Qt.AlignCenter)
         self.label_prog.addWidget(self.p2)
         self.label_prog.addWidget(self.input_files, 14.8, QtCore.Qt.AlignCenter)
@@ -902,40 +541,32 @@ class Program_body(QtGui.QWidget):
         self.label_prog.addWidget(self.search_space, 24.8, QtCore.Qt.AlignCenter)
         self.label_prog.addWidget(self.p4)
         self.label_prog.addWidget(self.mol_docking, 50, QtCore.Qt.AlignCenter)
-        # self.label_prog.addWidget(self.p5)
 
         self.checker_icon = QtGui.QLabel(self.grid_box)
-        # self.checker_icon.setGeometry(QtCore.QRect(795, 55, 30, 30))
         self.checker_icon.setPixmap(QtGui.QPixmap(self.parent.objects.error_checker))
         self.checker_icon.hide()
 
         self.checker_iconB = QtGui.QLabel(self.grid_box)
-        # self.checker_iconB.setGeometry(QtCore.QRect(860, 75, 25, 25))
         self.checker_iconB.setPixmap(QtGui.QPixmap(self.parent.objects.error_checker))
         self.checker_iconB.hide()
 
         self.checker_icon_ok = QtGui.QLabel(self.grid_box)
-        # self.checker_icon_ok.setGeometry(QtCore.QRect(795, 55, 30, 30))
         self.checker_icon_ok.setPixmap(QtGui.QPixmap(self.parent.objects.error_checker_ok))
         self.checker_icon_ok.hide()
 
         self.checker_icon_okB = QtGui.QLabel(self.grid_box)
-        # self.checker_icon_okB.setGeometry(QtCore.QRect(860, 75, 25, 25))
         self.checker_icon_okB.setPixmap(QtGui.QPixmap(self.parent.objects.error_checker_ok))
         self.checker_icon_okB.hide()
 
         self.grid_icon = QtGui.QLabel()
-        # self.grid_icon.setGeometry(QtCore.QRect(715, 127, 30, 30))
         self.grid_icon.setPixmap(QtGui.QPixmap(self.parent.objects.error_checker))
         self.grid_icon.hide()
 
         self.grid_iconB = QtGui.QLabel(self.grid_box)
-        # self.grid_iconB.setGeometry(QtCore.QRect(860, 150, 30, 30))
         self.grid_iconB.setPixmap(QtGui.QPixmap(self.parent.objects.error_checker))
         self.grid_iconB.hide()
 
         self.grid_icon_ok = QtGui.QLabel(self.grid_box)
-        # self.grid_icon_ok.setGeometry(QtCore.QRect(715, 125, 30, 30))
         self.grid_icon_ok.setPixmap(QtGui.QPixmap(self.parent.objects.error_checker_ok))
         self.grid_icon_ok.hide()
 
@@ -995,13 +626,11 @@ class Program_body(QtGui.QWidget):
         self.all_options = QtGui.QGridLayout()
         self.all_options.setSizeConstraint(QtGui.QLayout.SetFixedSize)
 
-        self.all_options.setColumnStretch(1, 1) #make column 1 and 2 regular width
-        # self.all_options.setColumnStretch(2, 1) # TODO: pasado para la seleccion del procedimiento
+        self.all_options.setColumnStretch(1, 1)  # make column 1 and 2 regular width
         self.all_options.addItem(self.spacer, 0, 0)
         self.all_options.addWidget(self.protein_column_label, 0, 1, QtCore.Qt.AlignCenter)
         self.all_options.addWidget(self.protein1_column_label, 0, 2, QtCore.Qt.AlignCenter)
         self.all_options.addItem(self.spacer, 0, 3)
-        # self.all_options.addWidget(self.grid_help, 0, 4)
 
         self.all_options.addWidget(self.grid_auto_cr, 1, 0)
         self.all_options.addWidget(self.btnA_auto, 1, 1, QtCore.Qt.AlignCenter)
@@ -1028,7 +657,6 @@ class Program_body(QtGui.QWidget):
         self.grid_help_layout.addWidget(self.grid_help)
 
         self.binding_layout = QtGui.QVBoxLayout()
-        # self.binding_layout.addWidget(self.grid_help, QtCore.Qt.AlignCenter)
         self.binding_layout.addLayout(self.grid_help_layout, QtCore.Qt.AlignRight)
         self.binding_layout.addStretch(1)
         self.binding_layout.addWidget(self.bind_site_button)
@@ -1038,9 +666,6 @@ class Program_body(QtGui.QWidget):
         self.grid_content.addLayout(self.all_options)
         self.grid_content.addLayout(self.binding_layout)
 
-        # self.grid_content.addWidget(self.bind_site_button)
-        # self.grid_content.setSizeConstraint(QtGui.QLayout.Se)
-
         self.worker = Worker()
         self.worker.readyReadStandardOutput.connect(self.readStdOutput)
         self.worker.readyReadStandardError.connect(self.readStdError)
@@ -1048,8 +673,6 @@ class Program_body(QtGui.QWidget):
         self.worker.prog_finished.connect(self.process_progress)
         self.worker.prog_finished.connect(self.run_queue)
         self.worker.queue_finished.connect(self.check_queue)
-
-        # self.worker.prog_started.connect(self.prog_progress)
 
         self.cross_reaction.toggled.connect(lambda: self.simulation_form(self.cross_reaction))
         self.simple_docking.toggled.connect(lambda: self.simulation_form(self.simple_docking))
@@ -1085,11 +708,6 @@ class Program_body(QtGui.QWidget):
         self.body_layout.addStretch(1)
         self.body_layout.addLayout(self.progress_layout)
 
-        # self.protein_column_group_btnA.buttonClicked[QtGui.QAbstractButton].connect(self.grid_protA)
-        ######## OK
-
-        # self.kk()
-
     def reset_function(self):
         if self.parent.v.WDIR is None:
             self.parent.statusbar.showMessage("Version: %s" % __version__)
@@ -1122,32 +740,13 @@ class Program_body(QtGui.QWidget):
                 self.lig_list.hide()
                 self.lig_listB.clear()
                 self.lig_listB.hide()
-
                 self.simple_docking.setChecked(True)
-                # self.grid_box.setEnabled(False)
-                # self.grid_auto.setChecked(True)
-                # self.btnA_auto.setChecked(True)
-                # self.btnB_auto.setChecked(True)
-
                 self.grid_icon.hide()
-
-                # self.grid_auto.setEnabled(False)
-                # self.grid_predef.setEnabled(False)
-                # self.grid_user.setEnabled(False)
-                # self.grid_by_lig.setEnabled(False)
-
-                # self.grid_pymol_button.setGeometry(QtCore.QRect(363, 155, 80, 22))
-                # self.reset_grid_button.setGeometry(QtCore.QRect(447, 155, 80, 22))
                 self.grid_pymol_buttonB.hide()
-                # self.build_pymol_button.hide()
                 self.grid_pymol_button.setText('Show in Pymol')
-                # self.build_pymol_buttonB.hide()
-
                 self.progressBar.setValue(0)
                 self.run_button.setEnabled(False)
                 self.stop_button.setEnabled(False)
-                # self.non_ligand.hide()
-                # self.non_ligandB.hide()
                 try:
                     self.b_pymol.__del__()
                 except:
@@ -1191,6 +790,7 @@ class Program_body(QtGui.QWidget):
                                                       "another program.", QtGui.QMessageBox.Ok)
                 self.parent.v = Variables()
                 self.parent.configuration_tab.initial_config()
+
     def hide_all(self, l):
         if l == 'A':
             self.grid_predef_text.hide()
@@ -1201,7 +801,6 @@ class Program_body(QtGui.QWidget):
             self.size_box.hide()
             self.grid_icon_ok.hide()
             self.grid_icon.hide()
-
         elif l == 'B':
             self.grid_predef_textB.hide()
             self.checker_iconB.hide()
@@ -1231,7 +830,6 @@ class Program_body(QtGui.QWidget):
 
     def grid_prot(self, b):
         if b.isChecked():
-
             if self.protein_column_group_btnA.id(b) == 1:
                 self.hide_all('A')
                 self.parent.v.grid_def = 'auto'
@@ -1259,7 +857,6 @@ class Program_body(QtGui.QWidget):
                 self.size_x.clear()
                 self.size_y.clear()
                 self.size_z.clear()
-                # self.grid_icon_ok.hide()
                 self.grid_icon.show()
                 self.grid_pymol_button.setText('Build in PyMol')
                 self.grid_pymol_button.setEnabled(True)
@@ -1291,353 +888,59 @@ class Program_body(QtGui.QWidget):
                 self.size_xB.clear()
                 self.size_yB.clear()
                 self.size_zB.clear()
-                # self.grid_icon_ok.hide()
                 self.grid_iconB.show()
-
-            # if self.protein_column_group_btnA.id(b) == 1:
-            #     self.parent.v.grid_def = 'auto'
-            #     self.grid_predef_text.clear()
-            #     self.coor_x.clear()
-            #     self.coor_y.clear()
-            #     self.coor_z.clear()
-            #     self.size_x.clear()
-            #     self.size_y.clear()
-            #     self.size_z.clear()
-            #     # self.grid_icon.hide()
-            #     # self.checker_icon.hide()
-            #
-            # if self.protein_column_group_btnA.id(b) != 2:
-            #     # self.grid_predef_label.hide()
-            #     self.grid_predef_text.hide()
-            #
-            #     self.checker_icon.hide()
-            #     # self.grid_icon_ok.hide()
-            # else:
-            #     self.parent.v.grid_def = 'by_residues'
-            #     self.coor_x.clear()
-            #     self.coor_y.clear()
-            #     self.coor_z.clear()
-            #     self.size_x.clear()
-            #     self.size_y.clear()
-            #     self.size_z.clear()
-            # if self.protein_column_group_btnA.id(b) != 3:
-            #     self.lig_list.hide()
-            # else:
-            #     self.parent.v.grid_def = 'by_ligand'
-            #     self.grid_predef_text.clear()
-            #     self.coor_x.clear()
-            #     self.coor_y.clear()
-            #     self.coor_z.clear()
-            #     self.size_x.clear()
-            #     self.size_y.clear()
-            #     self.size_z.clear()
-            #
-            # if self.protein_column_group_btnA.id(b) != 4:
-            #     self.coor_box.hide()
-            #     self.size_box.hide()
-            #
-            #     # self.grid_icon_ok.hide()
-            #     # self.grid_icon.hide()
-            # else:
-            #     self.parent.v.grid_def = 'by_user'
-            #     self.grid_predef_text.clear()
-            # if self.protein_column_group_btnB.id(b) == 1:
-            #     self.parent.v.analog_grid_def = 'auto'
-            #     self.coor_xB.clear()
-            #     self.coor_yB.clear()
-            #     self.coor_zB.clear()
-            #     self.size_xB.clear()
-            #     self.size_yB.clear()
-            #     self.size_zB.clear()
-            #     self.grid_predef_textB.clear()
-            # if self.protein_column_group_btnB.id(b) != 2:
-            #     # self.grid_predef_labelB.hide()
-            #     self.grid_predef_textB.hide()
-            #     # self.grid_predef_textB.clear()
-            #     # self.checker_iconB.hide()
-            #     # self.checker_icon_okB.hide()
-            # else:
-            #     self.parent.v.analog_grid_def = 'by_residues'
-            #     self.coor_xB.clear()
-            #     self.coor_yB.clear()
-            #     self.coor_zB.clear()
-            #     self.size_xB.clear()
-            #     self.size_yB.clear()
-            #     self.size_zB.clear()
-            # if self.protein_column_group_btnB.id(b) != 3:
-            #     self.lig_listB.hide()
-            # else:
-            #     self.parent.v.analog_grid_def = 'by_ligand'
-            #     self.grid_predef_textB.clear()
-            #     self.coor_xB.clear()
-            #     self.coor_yB.clear()
-            #     self.coor_zB.clear()
-            #     self.size_xB.clear()
-            #     self.size_yB.clear()
-            #     self.size_zB.clear()
-            # if self.protein_column_group_btnB.id(b) != 4:
-            #     self.coor_boxB.hide()
-            #     self.size_boxB.hide()
-            #
-            #     # self.grid_iconB.hide()
-            #     # self.grid_icon_okB.hide()
-            # else:
-            #     self.parent.v.analog_grid_def = 'by_user'
-            #     self.grid_predef_textB.clear()
 
             if (self.protein_column_group_btnA.id(b) == 1 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 1) or (
                     self.protein_column_group_btnB.id(b) == 1 and self.protein_column_group_btnA.id(
                 self.protein_column_group_btnA.checkedButton()) == 1):
                 self.bind_site_button.setEnabled(True)
-                # if self.parent.v.analog_ligands == None:
-                #     self.btnB_lig.setEnabled(False)
-                    # self.non_ligandB.setGeometry(QtCore.QRect(658, 90, 30, 20))
-                # if self.parent.v.ligands == None:
-                #     self.btnA_lig.setEnabled(False)
-                    # self.non_ligand.setGeometry(QtCore.QRect(268, 90, 30, 20))
-
-                # self.checker_icon.hide()
-                # self.grid_icon.hide()
-                # self.grid_icon_ok.hide()
-                # self.checker_icon_ok.hide()
-                # self.checker_iconB.hide()
-                # self.grid_iconB.hide()
-                # self.grid_icon_okB.hide()
-                # self.checker_icon_okB.hide()
-
-                # self.build_pymol_button.hide()
                 self.grid_pymol_button.setText('Show in Pymol')
-                # self.build_pymol_buttonB.hide()
-                # self.grid_pymol_button.show()
-                # self.grid_pymol_buttonB.show()
-
-                # self.bind_site_button.setGeometry(QtCore.QRect(775, 90, 105, 50))
-                # self.grid_by_lig_cr.setGeometry(QtCore.QRect(10, 90, 185, 20))
-                # self.btnB_lig.setGeometry(QtCore.QRect(675, 90, 16, 16))
-                # self.btnA_lig.setGeometry(QtCore.QRect(285, 90, 16, 16))
-                # self.grid_user_cr.setGeometry(QtCore.QRect(10, 120, 185, 20))
-                # self.btnB_user.setGeometry(QtCore.QRect(675, 120, 16, 16))
-                # self.btnA_user.setGeometry(QtCore.QRect(285, 120, 16, 16))
-                #
-                # self.grid_pymol_button.setGeometry(QtCore.QRect(211, 155, 80, 22))
-                # self.grid_pymol_buttonB.setGeometry(QtCore.QRect(601, 155, 80, 22))
-                # self.reset_grid_button.setGeometry(QtCore.QRect(295, 155, 80, 22))
-                # self.reset_grid_buttonB.setGeometry(QtCore.QRect(685, 155, 80, 22))
-
-                # self.grid_box.resize(890, 180)
             elif (self.protein_column_group_btnA.id(b) == 1 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 2) or (
                     self.protein_column_group_btnB.id(b) == 2 and self.protein_column_group_btnA.id(
                 self.protein_column_group_btnA.checkedButton()) == 1):
-                # self.grid_predef_labelB.show()
-                # self.grid_predef_textB.show()
-                # self.checker_icon.hide()
-                # self.checker_icon_ok.hide()
                 if self.parent.v.errorB == 1:
                     self.checker_iconB.show()
                     self.bind_site_button.setEnabled(False)
                 else:
                     self.checker_icon_okB.show()
                     self.bind_site_button.setEnabled(True)
-
-                # if self.parent.v.analog_ligands == None:
-                #     self.btnB_lig.setEnabled(False)
-                    # self.non_ligandB.setGeometry(QtCore.QRect(658, 115, 30, 20))
-                # if self.parent.v.ligands == None:
-                #     self.btnA_lig.setEnabled(False)
-                    # self.non_ligand.setGeometry(QtCore.QRect(268, 115, 30, 20))
-
-                # self.checker_icon.hide()
-                # self.grid_icon.hide()
-                # self.grid_icon_ok.hide()
-                # self.checker_icon_ok.hide()
-                # self.checker_iconB.hide()
-                # self.grid_iconB.hide()
-                # self.grid_icon_okB.hide()
-                # self.checker_icon_okB.hide()
-
-                # self.build_pymol_button.hide()
-                # self.build_pymol_buttonB.hide()
                 self.grid_pymol_button.setText('Show in Pymol')
-                # self.grid_pymol_buttonB.show()
-
-                # self.bind_site_button.setGeometry(QtCore.QRect(775, 110, 105, 50))
-                # self.checker_iconB.setGeometry(QtCore.QRect(860, 75, 25, 25))
-                # self.checker_icon_okB.setGeometry(QtCore.QRect(860, 75, 25, 25))
-                # self.grid_by_lig_cr.setGeometry(QtCore.QRect(10, 115, 185, 20))
-                # self.btnB_lig.setGeometry(QtCore.QRect(675, 115, 16, 16))
-                # self.btnA_lig.setGeometry(QtCore.QRect(285, 115, 16, 16))
-                # self.grid_user_cr.setGeometry(QtCore.QRect(10, 140, 185, 20))
-                # self.btnB_user.setGeometry(QtCore.QRect(675, 140, 16, 16))
-                # self.btnA_user.setGeometry(QtCore.QRect(285, 140, 16, 16))
-                # self.lig_list.setGeometry(QtCore.QRect(233, 120, 120, 20))
-                # self.lig_listB.setGeometry(QtCore.QRect(623, 120, 120, 20))
-                #
-                # self.grid_pymol_button.setGeometry(QtCore.QRect(211, 175, 80, 22))
-                # self.grid_pymol_buttonB.setGeometry(QtCore.QRect(601, 175, 80, 22))
-                # self.reset_grid_button.setGeometry(QtCore.QRect(295, 175, 80, 22))
-                # self.reset_grid_buttonB.setGeometry(QtCore.QRect(685, 175, 80, 22))
-
-                # self.grid_box.resize(890, 200)
             elif (self.protein_column_group_btnA.id(b) == 1 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 3) or (
                     self.protein_column_group_btnB.id(b) == 3 and self.protein_column_group_btnA.id(
                 self.protein_column_group_btnA.checkedButton()) == 1):
                 self.bind_site_button.setEnabled(True)
-                # if self.parent.v.analog_ligands != None:
-                #     self.lig_listB.show()
-                # else:
-                #     self.btnB_lig.setEnabled(False)
-                    # self.non_ligandB.setGeometry(QtCore.QRect(658, 90, 30, 20))
-                # if self.parent.v.ligands == None:
-                #     self.btnA_lig.setEnabled(False)
-                    # self.non_ligand.setGeometry(QtCore.QRect(268, 90, 30, 20))
-
-                # self.checker_icon.hide()
-                # self.grid_icon.hide()
-                # self.grid_icon_ok.hide()
-                # self.checker_icon_ok.hide()
-                # self.checker_iconB.hide()
-                # self.grid_iconB.hide()
-                # self.grid_icon_okB.hide()
-                # self.checker_icon_okB.hide()
-
-                # self.build_pymol_button.hide()
-                # self.build_pymol_buttonB.hide()
                 self.grid_pymol_button.setText('Show in Pymol')
-                # self.grid_pymol_buttonB.show()
-
-                # self.grid_by_lig_cr.setGeometry(QtCore.QRect(10, 90, 185, 20))
-                # self.btnB_lig.setGeometry(QtCore.QRect(675, 90, 16, 16))
-                # self.btnA_lig.setGeometry(QtCore.QRect(285, 90, 16, 16))
-                # self.grid_user_cr.setGeometry(QtCore.QRect(10, 140, 185, 20))
-                # self.btnB_user.setGeometry(QtCore.QRect(675, 140, 16, 16))
-                # self.btnA_user.setGeometry(QtCore.QRect(285, 140, 16, 16))
-                # self.lig_list.setGeometry(QtCore.QRect(233, 110, 120, 20))
-                # self.lig_listB.setGeometry(QtCore.QRect(623, 110, 120, 20))
-                #
-                # self.grid_pymol_button.setGeometry(QtCore.QRect(211, 175, 80, 22))
-                # self.grid_pymol_buttonB.setGeometry(QtCore.QRect(601, 175, 80, 22))
-                # self.reset_grid_button.setGeometry(QtCore.QRect(295, 175, 80, 22))
-                # self.reset_grid_buttonB.setGeometry(QtCore.QRect(685, 175, 80, 22))
-                #
-                # self.grid_box.resize(890, 200)
             elif (self.protein_column_group_btnA.id(b) == 1 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 4) or (
                     self.protein_column_group_btnB.id(b) == 4 and self.protein_column_group_btnA.id(
                 self.protein_column_group_btnA.checkedButton()) == 1):
                 self.grid = 2
-                # self.coor_boxB.show()
-                # self.size_boxB.show()
-                # self.grid_iconB.show()
-
                 if self.parent.v.gerrorB == 1:
                     self.grid_iconB.show()
                     self.bind_site_button.setEnabled(False)
                 else:
                     self.grid_icon_okB.show()
                     self.bind_site_button.setEnabled(True)
-
-                # self.checker_icon.hide()
-                # self.grid_icon.hide()
-                # self.grid_icon_ok.hide()
-                # self.checker_icon_ok.hide()
-                # self.checker_iconB.hide()
-                # self.checker_icon_okB.hide()
-
-                # self.build_pymol_buttonB.show()
                 self.grid_pymol_buttonB.setText('Build in PyMol')
-                # self.build_pymol_buttonB.setEnabled(True)
-
-                # self.grid_icon_okB.show()
-                # if self.parent.v.analog_ligands == None:
-                #     self.btnB_lig.setEnabled(False)
-                    # self.non_ligandB.setGeometry(QtCore.QRect(658, 90, 30, 20))
-                # if self.parent.v.ligands == None:
-                #     self.btnA_lig.setEnabled(False)
-                    # self.non_ligand.setGeometry(QtCore.QRect(268, 90, 30, 20))
-
-                # self.bind_site_button.setGeometry(QtCore.QRect(775, 60, 105, 50))
-                # self.grid_iconB.setGeometry(QtCore.QRect(860, 150, 30, 30))
-                # self.grid_icon_okB.setGeometry(QtCore.QRect(860, 150, 30, 30))
-                # self.grid_by_lig_cr.setGeometry(QtCore.QRect(10, 90, 185, 20))
-                # self.btnB_lig.setGeometry(QtCore.QRect(675, 90, 16, 16))
-                # self.btnA_lig.setGeometry(QtCore.QRect(285, 90, 16, 16))
-                # self.grid_user_cr.setGeometry(QtCore.QRect(10, 120, 185, 20))
-                # self.btnB_user.setGeometry(QtCore.QRect(675, 120, 16, 16))
-                # self.btnA_user.setGeometry(QtCore.QRect(285, 120, 16, 16))
-                # self.coor_boxB.setGeometry(QtCore.QRect(510, 136, 170, 45))
-                # self.size_boxB.setGeometry(QtCore.QRect(685, 136, 170, 45))
-
-                # self.grid_pymol_button.setGeometry(QtCore.QRect(211, 185, 80, 22))
-                # self.grid_pymol_buttonB.setGeometry(QtCore.QRect(601, 185, 80, 22))
-                # self.build_pymol_buttonB.setGeometry(QtCore.QRect(601, 185, 80, 22))
-                # self.reset_grid_button.setGeometry(QtCore.QRect(295, 185, 80, 22))
-                # self.reset_grid_buttonB.setGeometry(QtCore.QRect(685, 185, 80, 22))
-
-                # self.grid_box.resize(890, 210)
             elif (self.protein_column_group_btnA.id(b) == 2 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 1) or (
                     self.protein_column_group_btnB.id(b) == 1 and self.protein_column_group_btnA.id(
                 self.protein_column_group_btnA.checkedButton()) == 2):
-                # self.grid_predef_text.show()
-                # self.grid_predef_label.show()
-                # self.checker_icon.show()
-                # self.checker_icon_ok.show()
                 if self.parent.v.error == 1:
                     self.checker_icon.show()
                     self.bind_site_button.setEnabled(False)
                 else:
                     self.checker_icon_ok.show()
                     self.bind_site_button.setEnabled(True)
-
-                # if self.parent.v.analog_ligands == None:
-                #     self.btnB_lig.setEnabled(False)
-                    # self.non_ligandB.setGeometry(QtCore.QRect(658, 115, 30, 20))
-                # if self.parent.v.ligands == None:
-                #     self.btnA_lig.setEnabled(False)
-                    # self.non_ligand.setGeometry(QtCore.QRect(268, 115, 30, 20))
-
-                # self.checker_icon.hide()
-                # self.grid_icon.hide()
-                # self.grid_icon_ok.hide()
-                # self.checker_icon_ok.hide()
-                # self.checker_iconB.hide()
-                # self.grid_iconB.hide()
-                # self.grid_icon_okB.hide()
-                # self.checker_icon_okB.hide()
-
-                # self.build_pymol_button.hide()
-                # self.build_pymol_buttonB.hide()
                 self.grid_pymol_button.setText('Show in Pymol')
-                # self.grid_pymol_buttonB.show()
                 self.grid_pymol_buttonB.setText('Show in Pymol')
-
-                # self.checker_icon.setGeometry(QtCore.QRect(477, 75, 25, 25))
-                # self.checker_icon_ok.setGeometry(QtCore.QRect(477, 75, 25, 25))
-                # self.grid_by_lig_cr.setGeometry(QtCore.QRect(10, 115, 185, 20))
-                # self.btnB_lig.setGeometry(QtCore.QRect(675, 115, 16, 16))
-                # self.btnA_lig.setGeometry(QtCore.QRect(285, 115, 16, 16))
-                # self.grid_user_cr.setGeometry(QtCore.QRect(10, 140, 185, 20))
-                # self.btnB_user.setGeometry(QtCore.QRect(675, 140, 16, 16))
-                # self.btnA_user.setGeometry(QtCore.QRect(285, 140, 16, 16))
-                #
-                # self.grid_pymol_button.setGeometry(QtCore.QRect(211, 175, 80, 22))
-                #
-                # self.grid_pymol_buttonB.setGeometry(QtCore.QRect(601, 175, 80, 22))
-                # self.reset_grid_button.setGeometry(QtCore.QRect(295, 175, 80, 22))
-                # self.reset_grid_buttonB.setGeometry(QtCore.QRect(685, 175, 80, 22))
-                #
-                # self.grid_box.resize(890, 200)
             elif (self.protein_column_group_btnA.id(b) == 2 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 2) or (
                     self.protein_column_group_btnB.id(b) == 2 and self.protein_column_group_btnA.id(
                 self.protein_column_group_btnA.checkedButton()) == 2):
-                # self.grid_predef_text.show()
-                # self.grid_predef_label.show()
-                # self.grid_predef_textB.show()
-                # self.grid_predef_labelB.show()
                 if self.parent.v.errorB == 1:
                     self.checker_iconB.show()
                 else:
@@ -1650,122 +953,29 @@ class Program_body(QtGui.QWidget):
                     self.bind_site_button.setEnabled(True)
                 else:
                     self.bind_site_button.setEnabled(False)
-
-                # if self.parent.v.analog_ligands == None:
-                #     self.btnB_lig.setEnabled(False)
-                    # self.non_ligandB.setGeometry(QtCore.QRect(658, 115, 30, 20))
-                # if self.parent.v.ligands == None:
-                #     self.btnA_lig.setEnabled(False)
-                    # self.non_ligand.setGeometry(QtCore.QRect(268, 115, 30, 20))
-
-                # self.checker_icon.hide()
-                # self.grid_icon.hide()
-                # self.grid_icon_ok.hide()
-                # self.checker_icon_ok.hide()
-                # self.checker_iconB.hide()
-                # self.grid_iconB.hide()
-                # self.grid_icon_okB.hide()
-                # self.checker_icon_okB.hide()
-
-                # self.build_pymol_button.hide()
-                # self.build_pymol_buttonB.hide()
                 self.grid_pymol_button.setText('Show in Pymol')
-                # self.grid_pymol_buttonB.show()
                 self.grid_pymol_buttonB.setText('Show in Pymol')
-
-                # self.bind_site_button.setGeometry(QtCore.QRect(775, 110, 105, 50))
-                # self.checker_iconB.setGeometry(QtCore.QRect(860, 75, 25, 25))
-                # self.checker_icon_okB.setGeometry(QtCore.QRect(860, 75, 25, 25))
-                # self.checker_icon.setGeometry(QtCore.QRect(477, 75, 25, 25))
-                # self.checker_icon_ok.setGeometry(QtCore.QRect(477, 75, 25, 25))
-                # self.grid_by_lig_cr.setGeometry(QtCore.QRect(10, 115, 185, 20))
-                # self.btnB_lig.setGeometry(QtCore.QRect(675, 115, 16, 16))
-                # self.btnA_lig.setGeometry(QtCore.QRect(285, 115, 16, 16))
-                # self.grid_user_cr.setGeometry(QtCore.QRect(10, 140, 185, 20))
-                # self.btnB_user.setGeometry(QtCore.QRect(675, 140, 16, 16))
-                # self.btnA_user.setGeometry(QtCore.QRect(285, 140, 16, 16))
-
-                # self.grid_pymol_button.setGeometry(QtCore.QRect(211, 175, 80, 22))
-                # self.grid_pymol_buttonB.setGeometry(QtCore.QRect(601, 175, 80, 22))
-                # self.reset_grid_button.setGeometry(QtCore.QRect(295, 175, 80, 22))
-                # self.reset_grid_buttonB.setGeometry(QtCore.QRect(685, 175, 80, 22))
-                #
-                # self.grid_box.resize(890, 200)
             elif (self.protein_column_group_btnA.id(b) == 2 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 3) or (
                     self.protein_column_group_btnB.id(b) == 3 and self.protein_column_group_btnA.id(
                 self.protein_column_group_btnA.checkedButton()) == 2):
-
                 if self.parent.v.error == 1:
                     self.checker_icon.show()
                     self.bind_site_button.setEnabled(False)
                 else:
                     self.checker_icon_ok.show()
                     self.bind_site_button.setEnabled(True)
-
-                # if self.parent.v.analog_ligands != None:
-                #     self.lig_listB.show()
-                # else:
-                #     self.btnB_lig.setEnabled(False)
-                    # self.non_ligandB.setGeometry(QtCore.QRect(658, 115, 30, 20))
-                # if self.parent.v.ligands == None:
-                #     self.btnA_lig.setEnabled(False)
-                    # self.non_ligand.setGeometry(QtCore.QRect(268, 115, 30, 20))
-
-                # self.grid_predef_text.show()
-                # self.grid_predef_label.show()
-                # self.lig_listB.show()
-                # self.checker_icon.show()
-
-                # self.checker_icon.hide()
-                # self.grid_icon.hide()
-                # self.grid_icon_ok.hide()
-                # self.checker_icon_ok.hide()
-                # self.checker_iconB.hide()
-                # self.grid_iconB.hide()
-                # self.grid_icon_okB.hide()
-                # self.checker_icon_okB.hide()
-
-                # self.build_pymol_button.hide()
-                # self.build_pymol_buttonB.hide()
                 self.grid_pymol_button.setText('Show in Pymol')
-                # self.grid_pymol_buttonB.show()
                 self.grid_pymol_buttonB.setText('Show in Pymol')
-
-                # self.checker_icon.setGeometry(QtCore.QRect(477, 75, 25, 25))
-                # self.checker_icon_ok.setGeometry(QtCore.QRect(477, 75, 25, 25))
-                # self.grid_by_lig_cr.setGeometry(QtCore.QRect(10, 115, 185, 20))
-                # self.btnB_lig.setGeometry(QtCore.QRect(675, 115, 16, 16))
-                # self.btnA_lig.setGeometry(QtCore.QRect(285, 115, 16, 16))
-                # self.grid_user_cr.setGeometry(QtCore.QRect(10, 160, 185, 20))
-                # self.btnB_user.setGeometry(QtCore.QRect(675, 160, 16, 16))
-                # self.btnA_user.setGeometry(QtCore.QRect(285, 160, 16, 16))
-                # self.lig_listB.setGeometry(QtCore.QRect(623, 134, 120, 20))
-                #
-                # self.grid_pymol_button.setGeometry(QtCore.QRect(211, 195, 80, 22))
-                # self.grid_pymol_buttonB.setGeometry(QtCore.QRect(601, 195, 80, 22))
-                # self.reset_grid_button.setGeometry(QtCore.QRect(295, 195, 80, 22))
-                # self.reset_grid_buttonB.setGeometry(QtCore.QRect(685, 195, 80, 22))
-                #
-                # self.grid_box.resize(890, 220)
             elif (self.protein_column_group_btnA.id(b) == 2 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 4) or (
                     self.protein_column_group_btnB.id(b) == 4 and self.protein_column_group_btnA.id(
                 self.protein_column_group_btnA.checkedButton()) == 2):
                 self.grid = 2
-
-                # self.grid_predef_text.show()
-                # self.grid_predef_label.show()
-                # self.coor_boxB.show()
-                # self.size_boxB.show()
-                # self.grid_iconB.show()
-
-                # self.checker_icon.show()
                 if self.parent.v.gerrorB == 1:
                     self.grid_iconB.show()
                 else:
                     self.grid_icon_okB.show()
-
                 if self.parent.v.error == 1:
                     self.checker_icon.show()
                 else:
@@ -1774,97 +984,14 @@ class Program_body(QtGui.QWidget):
                     self.bind_site_button.setEnabled(True)
                 else:
                     self.bind_site_button.setEnabled(False)
-
-                # if self.parent.v.analog_ligands == None:
-                #     self.btnB_lig.setEnabled(False)
-                #     # self.non_ligandB.setGeometry(QtCore.QRect(658, 115, 30, 20))
-                # if self.parent.v.ligands == None:
-                #     self.btnA_lig.setEnabled(False)
-                    # self.non_ligand.setGeometry(QtCore.QRect(268, 115, 30, 20))
-
-                # self.checker_icon.hide()
-                # self.grid_icon.hide()
-                # self.grid_icon_ok.hide()
-                # # self.checker_icon_ok.hide()
-                # self.checker_iconB.hide()
-                # # self.grid_iconB.hide()
-                # # self.grid_icon_okB.hide()
-                # self.checker_icon_okB.hide()
-                # self.grid_pymol_buttonB.show()
-                # self.build_pymol_buttonB.show()
                 self.grid_pymol_buttonB.setText('Build in PyMol')
-                # self.grid_pymol_buttonB.setText('Show in Pymol')
-                # self.build_pymol_buttonB.setEnabled(True)
-
-                # self.bind_site_button.setGeometry(QtCore.QRect(775, 60, 105, 50))
-                # self.grid_iconB.setGeometry(QtCore.QRect(860, 170, 30, 30))
-                # self.grid_icon_okB.setGeometry(QtCore.QRect(860, 150, 30, 30))
-                # self.checker_icon.setGeometry(QtCore.QRect(477, 75, 25, 25))
-                # self.checker_icon_ok.setGeometry(QtCore.QRect(477, 75, 25, 25))
-                # self.grid_by_lig_cr.setGeometry(QtCore.QRect(10, 115, 185, 20))
-                # self.btnB_lig.setGeometry(QtCore.QRect(675, 115, 16, 16))
-                # self.btnA_lig.setGeometry(QtCore.QRect(285, 115, 16, 16))
-                # self.grid_user_cr.setGeometry(QtCore.QRect(10, 140, 185, 20))
-                # self.btnB_user.setGeometry(QtCore.QRect(675, 140, 16, 16))
-                # self.btnA_user.setGeometry(QtCore.QRect(285, 140, 16, 16))
-                # self.coor_box.setGeometry(QtCore.QRect(120, 156, 170, 45))
-                # self.size_box.setGeometry(QtCore.QRect(295, 156, 170, 45))
-                # self.coor_boxB.setGeometry(QtCore.QRect(510, 156, 170, 45))
-                # self.size_boxB.setGeometry(QtCore.QRect(685, 156, 170, 45))
-                #
-                # self.grid_pymol_button.setGeometry(QtCore.QRect(211, 205, 80, 22))
-                # self.grid_pymol_buttonB.setGeometry(QtCore.QRect(601, 205, 80, 22))
-                # self.build_pymol_buttonB.setGeometry(QtCore.QRect(601, 205, 80, 22))
-                # self.reset_grid_button.setGeometry(QtCore.QRect(295, 205, 80, 22))
-                # self.reset_grid_buttonB.setGeometry(QtCore.QRect(685, 205, 80, 22))
-                #
-                # self.grid_box.resize(890, 230)
-
             elif (self.protein_column_group_btnA.id(b) == 3 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 1) or (
                     self.protein_column_group_btnB.id(b) == 1 and self.protein_column_group_btnA.id(
                 self.protein_column_group_btnA.checkedButton()) == 3):
                 self.bind_site_button.setEnabled(True)
-                # if self.parent.v.analog_ligands == None:
-                #     self.btnB_lig.hide()
-                    # self.non_ligandB.setGeometry(QtCore.QRect(658, 90, 30, 20))
-                # if self.parent.v.ligands == None:
-                    # self.lig_list.setEnabled(False)
-                # else:
-                #     self.btnA_lig.setEnabled(False)
-                    # self.non_ligand.setGeometry(QtCore.QRect(268, 90, 30, 20))
-
-                # self.checker_icon.hide()
-                # self.grid_icon.hide()
-                # self.grid_icon_ok.hide()
-                # self.checker_icon_ok.hide()
-                # self.checker_iconB.hide()
-                # self.grid_iconB.hide()
-                # self.grid_icon_okB.hide()
-                # self.checker_icon_okB.hide()
-
-                # self.build_pymol_button.hide()
-                # self.build_pymol_buttonB.hide()
                 self.grid_pymol_button.setText('Show in Pymol')
-                # self.grid_pymol_buttonB.show()
                 self.grid_pymol_buttonB.setText('Show in Pymol')
-
-                # self.lig_list.show()
-                # self.grid_by_lig_cr.setGeometry(QtCore.QRect(10, 90, 185, 20))
-                # self.btnB_lig.setGeometry(QtCore.QRect(675, 90, 16, 16))
-                # self.btnA_lig.setGeometry(QtCore.QRect(285, 90, 16, 16))
-                # self.grid_user_cr.setGeometry(QtCore.QRect(10, 140, 185, 20))
-                # self.btnB_user.setGeometry(QtCore.QRect(675, 140, 16, 16))
-                # self.btnA_user.setGeometry(QtCore.QRect(285, 140, 16, 16))
-                # self.lig_list.setGeometry(QtCore.QRect(233, 109, 120, 20))
-                # self.lig_listB.setGeometry(QtCore.QRect(623, 110, 120, 20))
-                #
-                # self.grid_pymol_button.setGeometry(QtCore.QRect(211, 175, 80, 22))
-                # self.grid_pymol_buttonB.setGeometry(QtCore.QRect(601, 175, 80, 22))
-                # self.reset_grid_button.setGeometry(QtCore.QRect(295, 175, 80, 22))
-                # self.reset_grid_buttonB.setGeometry(QtCore.QRect(685, 175, 80, 22))
-                #
-                # self.grid_box.resize(890, 200)
             elif (self.protein_column_group_btnA.id(b) == 3 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 2) or (
                     self.protein_column_group_btnB.id(b) == 2 and self.protein_column_group_btnA.id(
@@ -1875,172 +1002,31 @@ class Program_body(QtGui.QWidget):
                 else:
                     self.checker_icon_okB.show()
                     self.bind_site_button.setEnabled(True)
-
-                # if self.parent.v.ligands != None:
-                #     self.lig_list.show()
-                # else:
-                #     self.btnA_lig.setEnabled(False)
-                    # self.non_ligand.setGeometry(QtCore.QRect(268, 115, 30, 20))
-
-                # if self.parent.v.analog_ligands == None:
-                #     self.btnB_lig.setEnabled(False)
-                    # self.non_ligandB.setGeometry(QtCore.QRect(658, 115, 30, 20))
-
-                # self.checker_icon.hide()
-                # self.grid_icon.hide()
-                # self.grid_icon_ok.hide()
-                # self.checker_icon_ok.hide()
-                # # self.checker_iconB.hide()
-                # self.grid_iconB.hide()
-                # self.grid_icon_okB.hide()
-                # self.checker_icon_okB.hide()
-
-                # self.build_pymol_button.hide()
-                # self.build_pymol_buttonB.hide()
                 self.grid_pymol_button.setText('Show in Pymol')
-                # self.grid_pymol_buttonB.show()
-
-                # self.lig_list.show()
-                # self.grid_predef_textB.show()
-                # self.grid_predef_labelB.show()
-                # self.checker_iconB.show()
-                # self.bind_site_button.setGeometry(QtCore.QRect(775, 110, 105, 50))
-                # self.checker_iconB.setGeometry(QtCore.QRect(860, 75, 25, 25))
-                # self.checker_icon_okB.setGeometry(QtCore.QRect(860, 75, 25, 25))
-                # self.grid_by_lig_cr.setGeometry(QtCore.QRect(10, 115, 185, 20))
-                # self.btnB_lig.setGeometry(QtCore.QRect(675, 115, 16, 16))
-                # self.btnA_lig.setGeometry(QtCore.QRect(285, 115, 16, 16))
-                # self.grid_user_cr.setGeometry(QtCore.QRect(10, 160, 185, 20))
-                # self.btnB_user.setGeometry(QtCore.QRect(675, 160, 16, 16))
-                # self.btnA_user.setGeometry(QtCore.QRect(285, 160, 16, 16))
-                # self.lig_list.setGeometry(QtCore.QRect(233, 134, 120, 20))
-                #
-                # self.grid_pymol_button.setGeometry(QtCore.QRect(211, 195, 80, 22))
-                # self.grid_pymol_buttonB.setGeometry(QtCore.QRect(601, 195, 80, 22))
-                # self.reset_grid_button.setGeometry(QtCore.QRect(295, 195, 80, 22))
-                # self.reset_grid_buttonB.setGeometry(QtCore.QRect(685, 195, 80, 22))
-                #
-                # self.grid_box.resize(890, 220)
             elif (self.protein_column_group_btnA.id(b) == 3 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 3) or (
                     self.protein_column_group_btnB.id(b) == 3 and self.protein_column_group_btnA.id(
                 self.protein_column_group_btnA.checkedButton()) == 3):
                 self.bind_site_button.setEnabled(True)
-                # if self.parent.v.analog_ligands != None and self.parent.v.ligands != None:
-                #     self.lig_listB.show()
-                #     self.lig_list.show()
-                # elif self.parent.v.analog_ligands != None:
-                #     self.lig_listB.show()
-                # elif self.parent.v.ligands != None:
-                #     self.lig_list.show()
-                # else:
-                #     self.btnB_lig.setEnabled(False)
-                #     # self.non_ligandB.setGeometry(QtCore.QRect(658, 90, 30, 20))
-                #     self.btnA_lig.setEnabled(False)
-                #     # self.non_ligand.setGeometry(QtCore.QRect(268, 90, 30, 20))
-                #     self.grid_by_lig_cr.setEnabled(False)
-
-                # self.checker_icon.hide()
-                # self.grid_icon.hide()
-                # self.grid_icon_ok.hide()
-                # self.checker_icon_ok.hide()
-                # self.checker_iconB.hide()
-                # self.grid_iconB.hide()
-                # self.grid_icon_okB.hide()
-                # self.checker_icon_okB.hide()
-
-                # self.build_pymol_button.hide()
-                # self.build_pymol_buttonB.hide()
                 self.grid_pymol_button.setText('Show in Pymol')
                 self.grid_pymol_buttonB.setText('Show in Pymol')
-                # self.grid_pymol_buttonB.show()
-
-                # self.lig_list.show()
-                # self.lig_listB.show()
-                # self.grid_by_lig_cr.setGeometry(QtCore.QRect(10, 90, 185, 20))
-                # self.btnB_lig.setGeometry(QtCore.QRect(675, 90, 16, 16))
-                # self.btnA_lig.setGeometry(QtCore.QRect(285, 90, 16, 16))
-                # self.grid_user_cr.setGeometry(QtCore.QRect(10, 140, 185, 20))
-                # self.btnB_user.setGeometry(QtCore.QRect(675, 140, 16, 16))
-                # self.btnA_user.setGeometry(QtCore.QRect(285, 140, 16, 16))
-                # self.lig_list.setGeometry(QtCore.QRect(233, 110, 120, 20))
-                # self.lig_listB.setGeometry(QtCore.QRect(623, 110, 120, 20))
-                #
-                # self.grid_pymol_button.setGeometry(QtCore.QRect(211, 175, 80, 22))
-                # self.grid_pymol_buttonB.setGeometry(QtCore.QRect(601, 175, 80, 22))
-                # self.reset_grid_button.setGeometry(QtCore.QRect(295, 175, 80, 22))
-                # self.reset_grid_buttonB.setGeometry(QtCore.QRect(685, 175, 80, 22))
-                #
-                # self.grid_box.resize(890, 200)
             elif (self.protein_column_group_btnA.id(b) == 3 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 4) or (
                     self.protein_column_group_btnB.id(b) == 4 and self.protein_column_group_btnA.id(
                 self.protein_column_group_btnA.checkedButton()) == 3):
                 self.grid = 2
-                # if self.parent.v.ligands != None:
-                #     self.lig_list.show()
-                # else:
-                #     self.btnA_lig.setEnabled(False)
-                    # self.non_ligand.setGeometry(QtCore.QRect(268, 90, 30, 20))
-                # if self.parent.v.analog_ligands == None:
-                #     self.btnB_lig.setEnabled(False)
-                    # self.non_ligandB.setGeometry(QtCore.QRect(658, 90, 30, 20))
-
                 if self.parent.v.gerrorB == 1:
                     self.grid_iconB.show()
                     self.bind_site_button.setEnabled(False)
                 else:
                     self.grid_icon_okB.show()
                     self.bind_site_button.setEnabled(True)
-
-                # self.checker_icon.hide()
-                # self.grid_icon.hide()
-                # self.grid_icon_ok.hide()
-                # self.checker_icon_ok.hide()
-                # self.checker_iconB.hide()
-                # # self.grid_iconB.hide()
-                # # self.grid_icon_okB.hide()
-                # self.checker_icon_okB.hide()
-
-                # self.grid_pymol_buttonB.show()
-                # self.build_pymol_buttonB.show()
                 self.grid_pymol_buttonB.setText('Build in PyMol')
-                # self.build_pymol_buttonB.setEnabled(True)
-
-                # self.lig_list.show()
-                # self.coor_boxB.show()
-                # self.size_boxB.show()
-                # self.grid_iconB.show()
-                # self.bind_site_button.setGeometry(QtCore.QRect(775, 60, 105, 50))
-                # self.grid_iconB.setGeometry(QtCore.QRect(860, 170, 30, 30))
-                # self.grid_icon_okB.setGeometry(QtCore.QRect(860, 150, 30, 30))
-                # self.grid_by_lig_cr.setGeometry(QtCore.QRect(10, 90, 185, 20))
-                # self.btnB_lig.setGeometry(QtCore.QRect(675, 90, 16, 16))
-                # self.btnA_lig.setGeometry(QtCore.QRect(285, 90, 16, 16))
-                # self.grid_user_cr.setGeometry(QtCore.QRect(10, 140, 185, 20))
-                # self.btnB_user.setGeometry(QtCore.QRect(675, 140, 16, 16))
-                # self.btnA_user.setGeometry(QtCore.QRect(285, 140, 16, 16))
-                # self.lig_list.setGeometry(QtCore.QRect(233, 110, 120, 20))
-                # self.coor_boxB.setGeometry(QtCore.QRect(510, 156, 170, 45))
-                # self.size_boxB.setGeometry(QtCore.QRect(685, 156, 170, 45))
-                #
-                # self.grid_pymol_button.setGeometry(QtCore.QRect(211, 205, 80, 22))
-                # self.grid_pymol_buttonB.setGeometry(QtCore.QRect(601, 205, 80, 22))
-                # self.build_pymol_buttonB.setGeometry(QtCore.QRect(601, 205, 80, 22))
-                # self.reset_grid_button.setGeometry(QtCore.QRect(295, 205, 80, 22))
-                # self.reset_grid_buttonB.setGeometry(QtCore.QRect(685, 205, 80, 22))
-                #
-                # self.grid_box.resize(890, 230)
             elif (self.protein_column_group_btnA.id(b) == 4 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 1) or (
                     self.protein_column_group_btnB.id(b) == 1 and self.protein_column_group_btnA.id(
                 self.protein_column_group_btnA.checkedButton()) == 4):
-                # self.coor_box.show()
-                # self.size_box.show()
-                # self.grid_icon.show()
-
                 self.grid = 1
-                # self.grid_icon.show()
                 if self.parent.v.gerror == 1:
                     self.grid_icon.show()
                     self.grid_icon_ok.hide()
@@ -2049,65 +1035,16 @@ class Program_body(QtGui.QWidget):
                     self.grid_icon_ok.show()
                     self.grid_icon.hide()
                     self.bind_site_button.setEnabled(True)
-
-                # if self.parent.v.analog_ligands == None:
-                #     self.btnB_lig.setEnabled(False)
-                    # self.non_ligandB.setGeometry(QtCore.QRect(658, 90, 30, 20))
-                # if self.parent.v.ligands == None:
-                #     self.btnA_lig.setEnabled(False)
-                    # self.non_ligand.setGeometry(QtCore.QRect(268, 90, 30, 20))
-
-                # self.checker_icon.hide()
-                # # self.grid_icon.hide()
-                # # self.grid_icon_ok.hide()
-                # self.checker_icon_ok.hide()
-                # self.checker_iconB.hide()
-                # self.grid_iconB.hide()
-                # self.grid_icon_okB.hide()
-                # self.checker_icon_okB.hide()
-
                 self.grid_pymol_button.setText('Build in Pymol')
-                # self.build_pymol_button.show()
-                # self.build_pymol_button.setEnabled(True)
-
-                # self.grid_icon.setGeometry(QtCore.QRect(475, 150, 25, 25))
-                # self.grid_icon_ok.setGeometry(QtCore.QRect(475, 150, 25, 25))
-                # self.grid_by_lig_cr.setGeometry(QtCore.QRect(10, 90, 185, 20))
-                # self.btnB_lig.setGeometry(QtCore.QRect(675, 90, 16, 16))
-                # self.btnA_lig.setGeometry(QtCore.QRect(285, 90, 16, 16))
-                # self.grid_user_cr.setGeometry(QtCore.QRect(10, 120, 185, 20))
-                # self.btnB_user.setGeometry(QtCore.QRect(675, 120, 16, 16))
-                # self.btnA_user.setGeometry(QtCore.QRect(285, 120, 16, 16))
-                # self.coor_box.setGeometry(QtCore.QRect(120, 136, 170, 45))
-                # self.size_box.setGeometry(QtCore.QRect(295, 136, 170, 45))
-                #
-                # self.grid_pymol_button.setGeometry(QtCore.QRect(211, 185, 80, 22))
-                # self.build_pymol_button.setGeometry(QtCore.QRect(211, 185, 80, 22))
-                # self.grid_pymol_buttonB.setGeometry(QtCore.QRect(601, 185, 80, 22))
-                # self.reset_grid_button.setGeometry(QtCore.QRect(295, 185, 80, 22))
-                # self.reset_grid_buttonB.setGeometry(QtCore.QRect(685, 185, 80, 22))
-                #
-                # self.grid_box.resize(890, 210)
             elif (self.protein_column_group_btnA.id(b) == 4 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 2) or (
                     self.protein_column_group_btnB.id(b) == 2 and self.protein_column_group_btnA.id(
                 self.protein_column_group_btnA.checkedButton()) == 4):
                 self.grid = 1
-
-                # self.coor_box.show()
-                # self.size_box.show()
-                # self.grid_icon.show()
-
-                # self.grid_predef_textB.show()
-                # self.grid_predef_labelB.show()
-                # self.checker_iconB.show()
-                # self.grid_icon.show()
-
                 if self.parent.v.errorB == 1:
                     self.checker_iconB.show()
                 else:
                     self.checker_icon_okB.show()
-
                 if self.parent.v.gerror == 1:
                     self.grid_icon.show()
                 else:
@@ -2116,121 +1053,24 @@ class Program_body(QtGui.QWidget):
                     self.bind_site_button.setEnabled(True)
                 else:
                     self.bind_site_button.setEnabled(False)
-
-                # if self.parent.v.analog_ligands == None:
-                #     self.btnB_lig.setEnabled(False)
-                    # self.non_ligandB.setGeometry(QtCore.QRect(658, 115, 30, 20))
-                # if self.parent.v.ligands == None:
-                #     self.btnA_lig.setEnabled(False)
-                    # self.non_ligand.setGeometry(QtCore.QRect(268, 115, 30, 20))
-
-                # self.checker_icon.hide()
-                # self.grid_icon.hide()
-                # self.grid_icon_ok.hide()
-                # self.checker_icon_ok.hide()
-                # # self.checker_iconB.hide()
-                # self.grid_iconB.hide()
-                # self.grid_icon_okB.hide()
-                # self.checker_icon_okB.hide()
                 self.grid_pymol_button.setText('Build in Pymol')
-                # self.build_pymol_button.show()
-                # self.build_pymol_button.setEnabled(True)
-
-                # self.bind_site_button.setGeometry(QtCore.QRect(775, 110, 105, 50))
-                # self.checker_iconB.setGeometry(QtCore.QRect(860, 75, 25, 25))
-                # self.checker_icon_okB.setGeometry(QtCore.QRect(860, 75, 25, 25))
-                # self.grid_icon.setGeometry(QtCore.QRect(475, 170, 25, 25))
-                # self.grid_icon_ok.setGeometry(QtCore.QRect(475, 170, 25, 25))
-                # self.grid_by_lig_cr.setGeometry(QtCore.QRect(10, 115, 185, 20))
-                # self.btnB_lig.setGeometry(QtCore.QRect(675, 115, 16, 16))
-                # self.btnA_lig.setGeometry(QtCore.QRect(285, 115, 16, 16))
-                # self.grid_user_cr.setGeometry(QtCore.QRect(10, 140, 185, 20))
-                # self.btnB_user.setGeometry(QtCore.QRect(675, 140, 16, 16))
-                # self.btnA_user.setGeometry(QtCore.QRect(285, 140, 16, 16))
-                # self.coor_box.setGeometry(QtCore.QRect(120, 156, 170, 45))
-                # self.size_box.setGeometry(QtCore.QRect(295, 156, 170, 45))
-                #
-                # self.grid_pymol_button.setGeometry(QtCore.QRect(211, 205, 80, 22))
-                # self.build_pymol_button.setGeometry(QtCore.QRect(211, 205, 80, 22))
-                # self.grid_pymol_buttonB.setGeometry(QtCore.QRect(601, 205, 80, 22))
-                # self.reset_grid_button.setGeometry(QtCore.QRect(295, 205, 80, 22))
-                # self.reset_grid_buttonB.setGeometry(QtCore.QRect(685, 205, 80, 22))
-                #
-                # self.grid_box.resize(890, 230)
             elif (self.protein_column_group_btnA.id(b) == 4 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 3) or (
                     self.protein_column_group_btnB.id(b) == 3 and self.protein_column_group_btnA.id(
                 self.protein_column_group_btnA.checkedButton()) == 4):
                 self.grid = 1
-
-                # if self.parent.v.analog_ligands != None:
-                #     self.lig_listB.show()
-                # else:
-                #     self.btnB_lig.setEnabled(False)
-                    # self.non_ligandB.setGeometry(QtCore.QRect(658, 90, 30, 20))
-                # if self.parent.v.ligands == None:
-                #     self.btnA_lig.setEnabled(False)
-                    # self.non_ligand.setGeometry(QtCore.QRect(268, 90, 30, 20))
-
                 if self.parent.v.gerror == 1:
                     self.grid_icon.show()
                     self.bind_site_button.setEnabled(False)
                 else:
                     self.grid_icon_ok.show()
                     self.bind_site_button.setEnabled(True)
-
-                # self.checker_icon.hide()
-                # # self.grid_icon.hide()
-                # # self.grid_icon_ok.hide()
-                # self.checker_icon_ok.hide()
-                # self.checker_iconB.hide()
-                # self.grid_iconB.hide()
-                # self.grid_icon_okB.hide()
-                # self.checker_icon_okB.hide()
-
                 self.grid_pymol_button.setText('Build in Pymol')
-                # self.build_pymol_button.show()
-                # self.build_pymol_button.setEnabled(True)
-
-                # self.coor_box.show()
-                # self.size_box.show()
-                # self.grid_icon.show()
-                # self.lig_listB.show()
-                # self.grid_icon.show()
-                # self.grid_icon.setGeometry(QtCore.QRect(475, 170, 25, 25))
-                # self.grid_icon_ok.setGeometry(QtCore.QRect(475, 170, 25, 25))
-                # self.grid_by_lig_cr.setGeometry(QtCore.QRect(10, 90, 185, 20))
-                # self.btnB_lig.setGeometry(QtCore.QRect(675, 90, 16, 16))
-                # self.btnA_lig.setGeometry(QtCore.QRect(285, 90, 16, 16))
-                # self.grid_user_cr.setGeometry(QtCore.QRect(10, 140, 185, 20))
-                # self.btnB_user.setGeometry(QtCore.QRect(675, 140, 16, 16))
-                # self.btnA_user.setGeometry(QtCore.QRect(285, 140, 16, 16))
-                # self.lig_listB.setGeometry(QtCore.QRect(623, 110, 120, 20))
-                # self.coor_box.setGeometry(QtCore.QRect(120, 156, 170, 45))
-                # self.size_box.setGeometry(QtCore.QRect(295, 156, 170, 45))
-                #
-                # self.grid_pymol_button.setGeometry(QtCore.QRect(211, 205, 80, 22))
-                # self.build_pymol_button.setGeometry(QtCore.QRect(211, 205, 80, 22))
-                # self.grid_pymol_buttonB.setGeometry(QtCore.QRect(601, 205, 80, 22))
-                # self.reset_grid_button.setGeometry(QtCore.QRect(295, 205, 80, 22))
-                # self.reset_grid_buttonB.setGeometry(QtCore.QRect(685, 205, 80, 22))
-
-                # self.grid_box.resize(890, 230)
-
-
             elif (self.protein_column_group_btnA.id(b) == 4 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 4) or (
                     self.protein_column_group_btnB.id(b) == 4 and self.protein_column_group_btnA.id(
                 self.protein_column_group_btnA.checkedButton()) == 4):
                 self.grid = 3
-
-                # self.coor_box.show()
-                # self.size_box.show()
-                # self.coor_boxB.show()
-                # self.size_boxB.show()
-                # self.grid_icon.show()
-                # self.grid_iconB.show()
-
                 if self.parent.v.gerrorB == 1:
                     self.grid_iconB.show()
                 else:
@@ -2243,163 +1083,8 @@ class Program_body(QtGui.QWidget):
                     self.bind_site_button.setEnabled(True)
                 else:
                     self.bind_site_button.setEnabled(False)
-
-                # if self.parent.v.analog_ligands == None:
-                #     self.btnB_lig.setEnabled(False)
-                    # self.non_ligandB.setGeometry(QtCore.QRect(658, 90, 30, 20))
-                # if self.parent.v.ligands == None:
-                #     self.btnA_lig.setEnabled(False)
-                    # self.non_ligand.setGeometry(QtCore.QRect(268, 90, 30, 20))
-
-                # self.checker_icon.hide()
-                # self.grid_icon.hide()
-                # self.grid_icon_ok.hide()
-                # self.checker_icon_ok.hide()
-                # self.checker_iconB.hide()
-                # self.grid_iconB.hide()
-                # self.grid_icon_okB.hide()
-                # self.checker_icon_okB.hide()
-
                 self.grid_pymol_button.setText('Build in Pymol')
-                # self.build_pymol_button.show()
-                # self.build_pymol_button.setEnabled(True)
-                # self.grid_pymol_buttonB.show()
-                # self.build_pymol_buttonB.show()
                 self.grid_pymol_buttonB.setText('Build in PyMol')
-                # self.build_pymol_buttonB.setEnabled(True)
-
-                # self.bind_site_button.setGeometry(QtCore.QRect(775, 60, 105, 50))
-                # self.grid_iconB.setGeometry(QtCore.QRect(860, 150, 30, 30))
-                # self.grid_icon_okB.setGeometry(QtCore.QRect(860, 150, 30, 30))
-                # self.grid_icon.setGeometry(QtCore.QRect(475, 150, 25, 25))
-                # self.grid_icon_ok.setGeometry(QtCore.QRect(475, 150, 25, 25))
-                # self.grid_by_lig_cr.setGeometry(QtCore.QRect(10, 90, 185, 20))
-                # self.btnB_lig.setGeometry(QtCore.QRect(675, 90, 16, 16))
-                # self.btnA_lig.setGeometry(QtCore.QRect(285, 90, 16, 16))
-                # self.grid_user_cr.setGeometry(QtCore.QRect(10, 120, 185, 20))
-                # self.btnB_user.setGeometry(QtCore.QRect(675, 120, 16, 16))
-                # self.btnA_user.setGeometry(QtCore.QRect(285, 120, 16, 16))
-                # self.coor_box.setGeometry(QtCore.QRect(120, 136, 170, 45))
-                # self.size_box.setGeometry(QtCore.QRect(295, 136, 170, 45))
-                # self.coor_boxB.setGeometry(QtCore.QRect(510, 136, 170, 45))
-                # self.size_boxB.setGeometry(QtCore.QRect(685, 136, 170, 45))
-                #
-                # self.grid_pymol_button.setGeometry(QtCore.QRect(211, 185, 80, 22))
-                # self.build_pymol_button.setGeometry(QtCore.QRect(211, 185, 80, 22))
-                # self.grid_pymol_buttonB.setGeometry(QtCore.QRect(601, 185, 80, 22))
-                # self.build_pymol_buttonB.setGeometry(QtCore.QRect(601, 185, 80, 22))
-                # self.reset_grid_button.setGeometry(QtCore.QRect(295, 185, 80, 22))
-                # self.reset_grid_buttonB.setGeometry(QtCore.QRect(685, 185, 80, 22))
-                #
-                # self.grid_box.resize(890, 210)
-
-    def kk(self):
-        self.grid_box.setEnabled(True)
-        self.prep_rec_lig_button.setEnabled(False)
-        self.parent.v.scoring = False
-        self.parent.v.cr = True
-        self.parent.v.program_mode = 'OFF-TARGET'
-        self.run_button.show()
-        self.stop_button.show()
-        self.run_scoring.hide()
-        self.non_button.hide()
-
-        self.progressBar.setValue(2)
-
-        ## Input box
-        # self.protein_text.resize(360, 22)
-        # self.protein_label.resize(360, 22)
-        # self.prep_rec_lig_button.setGeometry(QtCore.QRect(775, 100, 105, 45))
-        self.protein_button.setText('Target')
-        # self.protein_text.setPlaceholderText('target')
-        self.protein_buttonB.show()
-        self.protein_textB.show()
-        self.protein_labelB.show()
-
-        # self.grid_pymol_button.setGeometry(QtCore.QRect(211, 155, 80, 22))
-        # self.reset_grid_button.setGeometry(QtCore.QRect(295, 155, 80, 22))
-        self.grid_pymol_buttonB.show()
-        self.reset_grid_buttonB.show()
-
-        ### Grid definition box
-        # self.grid_box.resize(871, 200)
-        # self.grid_auto.hide()
-        # self.grid_predef.hide()
-        # self.grid_by_lig.hide()
-        # self.grid_user.hide()
-
-        self.protein_column_label.show()
-        self.btnA_auto.show()
-        self.btnA_res.show()
-        self.btnA_lig.show()
-        self.btnA_user.show()
-        self.protein1_column_label.show()
-        self.btnB_auto.show()
-        self.btnB_res.show()
-        self.btnB_lig.show()
-        self.btnB_user.show()
-
-        if os.path.exists(`self.parent.v.input_protein`):
-            try:
-                os.remove(`self.parent.v.input_offtarget`)
-            except:
-                pass
-        self.parent.v.input_offtarget = None
-        self.parent.v.protein_name = None
-        self.parent.v.ligands = None
-        self.protein_text.clear()
-        self.protein_label.clear()
-        # self.non_ligand.hide()
-        self.lig_list.hide()
-
-        if os.path.exists(`self.parent.v.input_lig`):
-            try:
-                os.remove(`self.parent.v.input_lig`)
-            except:
-                pass
-        self.parent.v.input_lig = None
-        self.ligand_text.clear()
-        self.ligand_label.clear()
-        self.parent.v.ligand_name = None
-
-        if os.path.exists(`self.parent.v.input_target`):
-            try:
-                os.remove(`self.parent.v.input_target`)
-            except:
-                pass
-        self.parent.v.input_target = None
-        self.parent.v.analog_protein_name = None
-        self.parent.v.analog_ligands = None
-        self.protein_textB.clear()
-        self.protein_labelB.clear()
-        # self.non_ligandB.hide()
-        self.lig_listB.hide()
-        self.lig_list.clear()
-        self.lig_listB.clear()
-
-        # self.non_ligand.setGeometry(QtCore.QRect(268, 90, 50, 20))
-        # self.lig_list.setEnabled(True)
-
-        # self.grid_auto.setChecked(True)
-
-        self.checker_icon.hide()
-        self.checker_icon_ok.hide()
-        self.grid_icon.hide()
-        self.grid_icon_ok.hide()
-        self.grid_predef_text.hide()
-        # self.grid_predef_label.hide()
-
-        self.grid_auto_cr.show()
-        self.grid_predef_cr.show()
-        self.grid_by_lig_cr.show()
-        self.grid_user_cr.show()
-        # self.grid_predef_text.setGeometry(QtCore.QRect(130, 77, 345, 20))
-        # self.grid_predef_label.setGeometry(QtCore.QRect(135, 93, 340, 20))
-
-        self.coor_box.hide()
-        self.size_box.hide()
-
-        self.lig_list.hide()
 
     def simulation_form(self, btn):
         if btn.isChecked():
@@ -2407,7 +1092,6 @@ class Program_body(QtGui.QWidget):
                 self.grid_box.setEnabled(False)
                 self.all_options.setColumnStretch(1, 1)
                 self.all_options.setColumnStretch(2, 1)
-
                 self.prep_rec_lig_button.setEnabled(False)
                 self.parent.v.scoring = False
                 self.parent.v.cr = True
@@ -2416,31 +1100,15 @@ class Program_body(QtGui.QWidget):
                 self.stop_button.show()
                 self.run_scoring.hide()
                 self.non_button.hide()
-
                 self.progressBar.setValue(2)
-
                 ## Input box
-                # self.protein_text.resize(360, 22)
-                # self.protein_label.resize(360, 22)
-                # self.prep_rec_lig_button.setGeometry(QtCore.QRect(775, 100, 105, 45))
                 self.protein_button.setText('Target')
-                # self.protein_text.setPlaceholderText('target')
                 self.protein_buttonB.show()
                 self.protein_textB.show()
                 self.protein_labelB.show()
-
-                # self.grid_pymol_button.setGeometry(QtCore.QRect(211, 155, 80, 22))
-                # self.reset_grid_button.setGeometry(QtCore.QRect(295, 155, 80, 22))
                 self.grid_pymol_buttonB.show()
                 self.reset_grid_buttonB.show()
-
                 ### Grid definition box
-                # self.grid_box.resize(871, 200)
-                # self.grid_auto.hide()
-                # self.grid_predef.hide()
-                # self.grid_by_lig.hide()
-                # self.grid_user.hide()
-
                 self.protein_column_label.show()
                 self.btnA_auto.show()
                 self.btnA_res.show()
@@ -2451,7 +1119,6 @@ class Program_body(QtGui.QWidget):
                 self.btnB_res.show()
                 self.btnB_lig.show()
                 self.btnB_user.show()
-
                 if os.path.exists(`self.parent.v.input_protein`):
                     try:
                         os.remove(`self.parent.v.input_offtarget`)
@@ -2462,9 +1129,7 @@ class Program_body(QtGui.QWidget):
                 self.parent.v.ligands = None
                 self.protein_text.clear()
                 self.protein_label.clear()
-                # self.non_ligand.hide()
                 self.lig_list.hide()
-
                 if os.path.exists(`self.parent.v.input_lig`):
                     try:
                         os.remove(`self.parent.v.input_lig`)
@@ -2474,7 +1139,6 @@ class Program_body(QtGui.QWidget):
                 self.ligand_text.clear()
                 self.ligand_label.clear()
                 self.parent.v.ligand_name = None
-
                 if os.path.exists(`self.parent.v.input_target`):
                     try:
                         os.remove(`self.parent.v.input_target`)
@@ -2485,72 +1149,33 @@ class Program_body(QtGui.QWidget):
                 self.parent.v.analog_ligands = None
                 self.protein_textB.clear()
                 self.protein_labelB.clear()
-                # self.non_ligandB.hide()
                 self.lig_listB.hide()
                 self.lig_list.clear()
                 self.lig_listB.clear()
-
-                # self.non_ligand.setGeometry(QtCore.QRect(268, 90, 50, 20))
-                # self.lig_list.setEnabled(True)
-
-                # self.grid_auto.setChecked(True)
-
                 self.checker_icon.hide()
                 self.checker_icon_ok.hide()
                 self.grid_icon.hide()
                 self.grid_icon_ok.hide()
                 self.grid_predef_text.hide()
-                # self.grid_predef_label.hide()
-
                 self.grid_auto_cr.show()
                 self.grid_predef_cr.show()
                 self.grid_by_lig_cr.show()
                 self.grid_user_cr.show()
-                # self.grid_predef_text.setGeometry(QtCore.QRect(130, 77, 345, 20))
-                # self.grid_predef_label.setGeometry(QtCore.QRect(135, 93, 340, 20))
-
                 self.coor_box.hide()
                 self.size_box.hide()
-
                 self.lig_list.hide()
-                #### resize
-
-                # self.coor_box.setGeometry(QtCore.QRect(120, 136, 170, 45))
-                # self.coor_x_label.setGeometry(QtCore.QRect(5, 15, 10, 22))
-                # self.coor_x.setGeometry(QtCore.QRect(15, 15, 40, 22))
-                # self.coor_y_label.setGeometry(QtCore.QRect(60, 15, 10, 22))
-                # self.coor_y.setGeometry(QtCore.QRect(70, 15, 40, 22))
-                # self.coor_z_label.setGeometry(QtCore.QRect(115, 15, 10, 22))
-                # self.coor_z.setGeometry(QtCore.QRect(125, 15, 40, 22))
-                # self.size_box.setGeometry(QtCore.QRect(295, 136, 170, 45))
-                # self.size_x_label.setGeometry(QtCore.QRect(5, 15, 10, 22))
-                # self.size_x.setGeometry(QtCore.QRect(15, 15, 40, 22))
-                # self.size_y_label.setGeometry(QtCore.QRect(60, 15, 10, 22))
-                # self.size_y.setGeometry(QtCore.QRect(70, 15, 40, 22))
-                # self.size_z_label.setGeometry(QtCore.QRect(115, 15, 10, 22))
-                # self.size_z.setGeometry(QtCore.QRect(125, 15, 40, 22))
             elif btn.text() == 'Scoring':
-                # self.all_options.setColumnStretch(1, 1)
                 self.all_options.setColumnStretch(2, 0)
                 self.grid_box.setEnabled(False)
                 self.run_button.hide()
-
                 self.prep_rec_lig_button.setEnabled(False)
                 self.parent.v.scoring = True
                 self.parent.v.cr = False
                 self.parent.v.program_mode = 'SCORING'
-                # self.run_button.()
                 self.stop_button.hide()
                 self.run_scoring.show()
                 self.non_button.show()
-                # self.lig_list.setEnabled(False)
                 self.progressBar.setValue(2)
-                # self.grid_pymol_buttonB.hide()
-                # self.reset_grid_buttonB.hide()
-                # self.grid_pymol_button.setGeometry(QtCore.QRect(363, 155, 80, 22))
-                # self.reset_grid_button.setGeometry(QtCore.QRect(447, 155, 80, 22))
-
-
                 if os.path.exists(`self.parent.v.input_protein`):
                     try:
                         os.remove(`self.parent.v.input_offtarget`)
@@ -2561,9 +1186,7 @@ class Program_body(QtGui.QWidget):
                 self.parent.v.ligands = None
                 self.protein_text.clear()
                 self.protein_label.clear()
-                # self.non_ligand.hide()
                 self.lig_list.hide()
-
                 if os.path.exists(`self.parent.v.input_lig`):
                     try:
                         os.remove(`self.parent.v.input_lig`)
@@ -2573,7 +1196,6 @@ class Program_body(QtGui.QWidget):
                 self.parent.v.ligand_name = None
                 self.ligand_text.clear()
                 self.ligand_label.clear()
-
                 if os.path.exists(`self.parent.v.input_target`):
                     try:
                         os.remove(`self.parent.v.input_target`)
@@ -2584,54 +1206,23 @@ class Program_body(QtGui.QWidget):
                 self.parent.v.analog_ligands = None
                 self.protein_textB.clear()
                 self.protein_labelB.clear()
-                # self.non_ligandB.hide()
                 self.lig_listB.hide()
-
                 self.lig_list.clear()
                 self.lig_listB.clear()
-
-                # self.prep_rec_lig_button.setGeometry(QtCore.QRect(775, 65, 105, 45))
-                # self.non_ligand.setGeometry(QtCore.QRect(268, 90, 50, 20))
                 self.parent.v.cr = False
-                # self.protein_text.setPlaceholderText(self.parent.v.protein_name)
                 self.protein_button.setText('Protein')
                 self.btnA_auto.setChecked(True)
                 self.btnB_auto.setChecked(True)
-                # self.grid_box.resize(890, 185)
-
-                # self.protein_text.resize(690, 22)
-                # self.protein_label.resize(690, 22)
-                # self.bind_site_button.setGeometry(QtCore.QRect(775, 90, 105, 45))
                 self.protein_buttonB.hide()
                 self.protein_textB.hide()
                 self.protein_labelB.hide()
-
-                # self.grid_auto.show()
-                # self.grid_predef.show()
-                # self.grid_by_lig.show()
-                # self.grid_user.show()
-
-                # self.protein_column_label.hide()
-                # self.btnA_auto.hide()
-                # self.btnA_res.hide()
-                # self.btnA_lig.hide()
-                # self.btnA_user.hide()
                 self.protein1_column_label.hide()
                 self.btnB_auto.hide()
                 self.btnB_res.hide()
                 self.btnB_lig.hide()
                 self.btnB_user.hide()
-
-                # self.grid_auto_cr.hide()
-                # self.grid_predef_cr.hide()
-                # self.grid_by_lig_cr.hide()
-                # self.grid_user_cr.hide()
-                # self.grid_predef_text.setGeometry(QtCore.QRect(150, 60, 631, 20))
-                # self.grid_predef_label.setGeometry(QtCore.QRect(150, 76, 631, 20))
                 self.grid_predef_text.hide()
-                # self.grid_predef_label.hide()
                 self.grid_predef_textB.hide()
-                # self.grid_predef_labelB.hide()
                 self.checker_icon.hide()
                 self.checker_iconB.hide()
                 self.checker_icon_ok.hide()
@@ -2640,37 +1231,15 @@ class Program_body(QtGui.QWidget):
                 self.grid_icon.hide()
                 self.grid_icon_okB.hide()
                 self.grid_icon_ok.hide()
-                # self.checker_icon.setGeometry(QtCore.QRect(795, 55, 25, 25))
-                # self.checker_icon_ok.setGeometry(QtCore.QRect(795, 55, 25, 25))
-                # self.grid_icon.setGeometry(QtCore.QRect(715, 127, 30, 30))
-                # self.grid_icon_ok.setGeometry(QtCore.QRect(715, 125, 30, 30))
-
                 self.coor_box.hide()
                 self.coor_boxB.hide()
                 self.size_box.hide()
                 self.size_boxB.hide()
-
                 self.lig_listB.hide()
                 self.lig_list.hide()
-
-                # self.coor_box.setGeometry(QtCore.QRect(183, 120, 260, 45))
-                # self.coor_x_label.setGeometry(QtCore.QRect(5, 15, 10, 22))
-                # self.coor_x.setGeometry(QtCore.QRect(17, 15, 60, 22))
-                # self.coor_y_label.setGeometry(QtCore.QRect(94, 15, 10, 22))
-                # self.coor_y.setGeometry(QtCore.QRect(106, 15, 60, 22))
-                # self.coor_z_label.setGeometry(QtCore.QRect(183, 15, 10, 22))
-                # self.coor_z.setGeometry(QtCore.QRect(195, 15, 60, 22))
-                # self.size_box.setGeometry(QtCore.QRect(447, 120, 260, 45))
-                # self.size_x_label.setGeometry(QtCore.QRect(5, 15, 10, 22))
-                # self.size_x.setGeometry(QtCore.QRect(17, 15, 60, 22))
-                # self.size_y_label.setGeometry(QtCore.QRect(94, 15, 10, 22))
-                # self.size_y.setGeometry(QtCore.QRect(106, 15, 60, 22))
-                # self.size_z_label.setGeometry(QtCore.QRect(183, 15, 10, 22))
-                # self.size_z.setGeometry(QtCore.QRect(195, 15, 60, 22))
             else:
                 self.grid_box.setEnabled(False)
                 self.all_options.setColumnStretch(2, 0)
-
                 self.prep_rec_lig_button.setEnabled(False)
                 self.parent.v.scoring = False
                 self.parent.v.cr = False
@@ -2679,11 +1248,9 @@ class Program_body(QtGui.QWidget):
                 self.stop_button.show()
                 self.run_scoring.hide()
                 self.non_button.hide()
-                # self.lig_list.setEnabled(False)
                 self.progressBar.setValue(2)
                 self.grid_pymol_buttonB.hide()
                 self.reset_grid_buttonB.hide()
-
                 if os.path.exists(`self.parent.v.input_protein`):
                     try:
                         os.remove(`self.parent.v.input_offtarget`)
@@ -2694,9 +1261,7 @@ class Program_body(QtGui.QWidget):
                 self.parent.v.ligands = None
                 self.protein_text.clear()
                 self.protein_label.clear()
-                # self.non_ligand.hide()
                 self.lig_list.hide()
-
                 if os.path.exists(`self.parent.v.input_lig`):
                     try:
                         os.remove(`self.parent.v.input_lig`)
@@ -2706,7 +1271,6 @@ class Program_body(QtGui.QWidget):
                 self.parent.v.ligand_name = None
                 self.ligand_text.clear()
                 self.ligand_label.clear()
-
                 if os.path.exists(`self.parent.v.input_target`):
                     try:
                         os.remove(`self.parent.v.input_target`)
@@ -2717,54 +1281,23 @@ class Program_body(QtGui.QWidget):
                 self.parent.v.analog_ligands = None
                 self.protein_textB.clear()
                 self.protein_labelB.clear()
-                # self.non_ligandB.hide()
                 self.lig_listB.hide()
-
                 self.lig_list.clear()
                 self.lig_listB.clear()
-
-                # self.prep_rec_lig_button.setGeometry(QtCore.QRect(775, 65, 105, 45))
-                # self.non_ligand.setGeometry(QtCore.QRect(268, 90, 50, 20))
                 self.parent.v.cr = False
-                # self.protein_text.setPlaceholderText(self.parent.v.protein_name)
                 self.protein_button.setText('Protein')
                 self.btnA_auto.setChecked(True)
                 self.btnB_auto.setChecked(True)
-                # self.grid_box.resize(890, 185)
-
-                # self.protein_text.resize(690, 22)
-                # self.protein_label.resize(690, 22)
-                # self.bind_site_button.setGeometry(QtCore.QRect(775, 90, 105, 45))
                 self.protein_buttonB.hide()
                 self.protein_textB.hide()
                 self.protein_labelB.hide()
-
-                # self.grid_auto.show()
-                # self.grid_predef.show()
-                # self.grid_by_lig.show()
-                # self.grid_user.show()
-
-                # self.protein_column_label.hide()
-                # self.btnA_auto.hide()
-                # self.btnA_res.hide()
-                # self.btnA_lig.hide()
-                # self.btnA_user.hide()
                 self.protein1_column_label.hide()
                 self.btnB_auto.hide()
                 self.btnB_res.hide()
                 self.btnB_lig.hide()
                 self.btnB_user.hide()
-
-                # self.grid_auto_cr.hide()
-                # self.grid_predef_cr.hide()
-                # self.grid_by_lig_cr.hide()
-                # self.grid_user_cr.hide()
-                # self.grid_predef_text.setGeometry(QtCore.QRect(150, 60, 631, 20))
-                # self.grid_predef_label.setGeometry(QtCore.QRect(150, 76, 631, 20))
                 self.grid_predef_text.hide()
-                # self.grid_predef_label.hide()
                 self.grid_predef_textB.hide()
-                # self.grid_predef_labelB.hide()
                 self.checker_icon.hide()
                 self.checker_iconB.hide()
                 self.checker_icon_ok.hide()
@@ -2773,156 +1306,12 @@ class Program_body(QtGui.QWidget):
                 self.grid_icon.hide()
                 self.grid_icon_okB.hide()
                 self.grid_icon_ok.hide()
-                # self.checker_icon.setGeometry(QtCore.QRect(795, 55, 25, 25))
-                # self.checker_icon_ok.setGeometry(QtCore.QRect(795, 55, 25, 25))
-                # self.grid_icon.setGeometry(QtCore.QRect(715, 127, 30, 30))
-                # self.grid_icon_ok.setGeometry(QtCore.QRect(715, 125, 30, 30))
-
                 self.coor_box.hide()
                 self.coor_boxB.hide()
                 self.size_box.hide()
                 self.size_boxB.hide()
-
                 self.lig_listB.hide()
                 self.lig_list.hide()
-        #
-        # else:
-        #     # self.all_options.setColumnStretch(1, 1)
-        #     self.all_options.setColumnStretch(2, 0)
-        #
-        #     self.prep_rec_lig_button.setEnabled(False)
-        #     self.parent.v.scoring = False
-        #     self.parent.v.cr = False
-        #     self.parent.v.program_mode = 'SIMPLE'
-        #     self.run_button.show()
-        #     self.stop_button.show()
-        #     self.run_scoring.hide()
-        #     self.non_button.hide()
-        #     self.lig_list.setEnabled(False)
-        #     self.progressBar.setValue(2)
-        #
-        #     # self.grid_pymol_button.setGeometry(QtCore.QRect(363, 155, 80, 22))
-        #     # self.reset_grid_button.setGeometry(QtCore.QRect(447, 155, 80, 22))
-        #     self.grid_pymol_buttonB.hide()
-        #     self.reset_grid_buttonB.hide()
-        #
-        #     if os.path.exists(`self.parent.v.input_protein`):
-        #         try:
-        #             os.remove(`self.parent.v.input_target`)
-        #         except:
-        #             pass
-        #
-        #     self.parent.v.input_target = None
-        #     self.parent.v.protein_name = None
-        #     self.parent.v.ligands = None
-        #     self.protein_text.clear()
-        #     self.protein_label.clear()
-        #     # self.non_ligand.hide()
-        #     self.lig_list.hide()
-        #
-        #     if os.path.exists(`self.parent.v.input_lig`):
-        #         try:
-        #             os.remove(`self.parent.v.input_lig`)
-        #         except:
-        #             pass
-        #     self.parent.v.input_lig = None
-        #     self.parent.v.ligand_name = None
-        #     self.ligand_text.clear()
-        #     self.ligand_label.clear()
-        #
-        #     if os.path.exists(`self.parent.v.input_control`):
-        #         try:
-        #             os.remove(`self.parent.v.input_control`)
-        #         except:
-        #             pass
-        #     self.parent.v.input_control = None
-        #     self.parent.v.analog_protein_name = None
-        #     self.parent.v.analog_ligands = None
-        #     self.protein_textB.clear()
-        #     self.protein_labelB.clear()
-        #     # self.non_ligandB.hide()
-        #     self.lig_listB.hide()
-        #
-        #     self.lig_list.clear()
-        #     self.lig_listB.clear()
-        #
-        #     # self.prep_rec_lig_button.setGeometry(QtCore.QRect(775, 65, 105, 45))
-        #     # self.non_ligand.setGeometry(QtCore.QRect(268, 90, 50, 20))
-        #     self.parent.v.cr = False
-        #     # self.protein_text.setPlaceholderText(self.parent.v.protein_name)
-        #     self.protein_button.setText('Protein')
-        #     self.btnA_auto.setChecked(True)
-        #     self.btnB_auto.setChecked(True)
-        #     # self.grid_box.resize(890, 185)
-        #
-        #     # self.protein_text.resize(690, 22)
-        #     # self.protein_label.resize(690, 22)
-        #     # self.bind_site_button.setGeometry(QtCore.QRect(775, 90, 105, 45))
-        #     self.protein_buttonB.hide()
-        #     self.protein_textB.hide()
-        #     self.protein_labelB.hide()
-        #
-        #     # self.grid_auto.show()
-        #     # self.grid_predef.show()
-        #     # self.grid_by_lig.show()
-        #     # self.grid_user.show()
-        #
-        #     self.protein_column_label.hide()
-        #     self.btnA_auto.hide()
-        #     self.btnA_res.hide()
-        #     self.btnA_lig.hide()
-        #     self.btnA_user.hide()
-        #     self.protein1_column_label.hide()
-        #     self.btnB_auto.hide()
-        #     self.btnB_res.hide()
-        #     self.btnB_lig.hide()
-        #     self.btnB_user.hide()
-        #
-        #     self.grid_auto_cr.hide()
-        #     self.grid_predef_cr.hide()
-        #     self.grid_by_lig_cr.hide()
-        #     self.grid_user_cr.hide()
-        #     # self.grid_predef_text.setGeometry(QtCore.QRect(150, 60, 631, 20))
-        #     # self.grid_predef_label.setGeometry(QtCore.QRect(150, 76, 631, 20))
-        #     self.grid_predef_text.hide()
-        #     # self.grid_predef_label.hide()
-        #     self.grid_predef_textB.hide()
-        #     # self.grid_predef_labelB.hide()
-        #     self.checker_icon.hide()
-        #     self.checker_iconB.hide()
-        #     self.checker_icon_ok.hide()
-        #     self.checker_icon_okB.hide()
-        #     self.grid_iconB.hide()
-        #     self.grid_icon.hide()
-        #     self.grid_icon_okB.hide()
-        #     self.grid_icon_ok.hide()
-        #     # self.checker_icon.setGeometry(QtCore.QRect(795, 55, 25, 25))
-        #     # self.checker_icon_ok.setGeometry(QtCore.QRect(795, 55, 25, 25))
-        #     # self.grid_icon.setGeometry(QtCore.QRect(715, 127, 30, 30))
-        #     # self.grid_icon_ok.setGeometry(QtCore.QRect(715, 125, 30, 30))
-        #
-        #     self.coor_box.hide()
-        #     self.coor_boxB.hide()
-        #     self.size_box.hide()
-        #     self.size_boxB.hide()
-        #
-        #     self.lig_listB.hide()
-        #     self.lig_list.hide()
-        #
-        #     # self.coor_box.setGeometry(QtCore.QRect(183, 120, 260, 45))
-        #     # self.coor_x_label.setGeometry(QtCore.QRect(5, 15, 10, 22))
-        #     # self.coor_x.setGeometry(QtCore.QRect(17, 15, 60, 22))
-        #     # self.coor_y_label.setGeometry(QtCore.QRect(94, 15, 10, 22))
-        #     # self.coor_y.setGeometry(QtCore.QRect(106, 15, 60, 22))
-        #     # self.coor_z_label.setGeometry(QtCore.QRect(183, 15, 10, 22))
-        #     # self.coor_z.setGeometry(QtCore.QRect(195, 15, 60, 22))
-        #     # self.size_box.setGeometry(QtCore.QRect(447, 120, 260, 45))
-        #     # self.size_x_label.setGeometry(QtCore.QRect(5, 15, 10, 22))
-        #     # self.size_x.setGeometry(QtCore.QRect(17, 15, 60, 22))
-        #     # self.size_y_label.setGeometry(QtCore.QRect(94, 15, 10, 22))
-        #     # self.size_y.setGeometry(QtCore.QRect(106, 15, 60, 22))
-        #     # self.size_z_label.setGeometry(QtCore.QRect(183, 15, 10, 22))
-        #     # self.size_z.setGeometry(QtCore.QRect(195, 15, 60, 22))
 
     def info_pass(self, prot):
         if prot == 'target':
@@ -2949,16 +1338,11 @@ class Program_body(QtGui.QWidget):
                     self.size_y.setText(self.dim_data_target[4])
                     self.size_z.setText(self.dim_data_target[5])
                     self.ttemp = self.dim_data_target
-
                     self.bind_site_button.setEnabled(True)
-
                     self.run_button.setEnabled(False)
                     self.need_grid = True
                     os.remove('user_target_dim.txt')
                     self.b_pymol_timer.stop()
-
-                    # try:self.bld_pymol_timer.stop()
-                    # except:pass
                     self.grid_pymol_button.setEnabled(False)
         elif prot == 'target_build':
             if os.path.exists('user_target_dim.txt'):
@@ -2968,7 +1352,6 @@ class Program_body(QtGui.QWidget):
                     self.dim_data_target = line.split()
                 tfile.close()
                 if self.dim_data_target != self.bttemp:
-
                     self.coor_x.setText(self.dim_data_target[0])
                     self.coor_y.setText(self.dim_data_target[1])
                     self.coor_z.setText(self.dim_data_target[2])
@@ -2976,9 +1359,7 @@ class Program_body(QtGui.QWidget):
                     self.size_y.setText(self.dim_data_target[4])
                     self.size_z.setText(self.dim_data_target[5])
                     self.bttemp = self.dim_data_target
-
                     self.check_grid()
-
                     self.run_button.setEnabled(False)
                     self.need_grid = True
                     os.remove('user_target_dim.txt')
@@ -3010,16 +1391,12 @@ class Program_body(QtGui.QWidget):
                     self.size_yB.setText(self.dim_data_control[4])
                     self.size_zB.setText(self.dim_data_control[5])
                     self.ttempB = self.dim_data_control
-
                     self.bind_site_button.setEnabled(True)
-
                     self.run_button.setEnabled(False)
                     self.need_gridB = True
                     os.remove('user_off-target_dim.txt')
                     self.b_pymol_timerB.stop()
                     self.grid_pymol_buttonB.setEnabled(False)
-                    # try:self.bld_pymol_timerB.stop()
-                    # except:pass
         elif prot == 'off-target_build':
             if os.path.exists('user_off-target_dim.txt'):
                 cfile = open('user_off-target_dim.txt')
@@ -3036,9 +1413,7 @@ class Program_body(QtGui.QWidget):
                     self.size_yB.setText(self.dim_data_control[4])
                     self.size_zB.setText(self.dim_data_control[5])
                     self.bttempB = self.dim_data_control
-
                     self.check_grid()
-
                     self.run_button.setEnabled(False)
                     self.need_gridB = True
                     os.remove('user_off-target_dim.txt')
@@ -3067,7 +1442,6 @@ class Program_body(QtGui.QWidget):
             self.b_pymolq.put(self.box_pymol)
             self.b_pymol.init(self.b_pymolq, 'Visualization')
             self.b_pymol.start_process()
-
             if os.path.exists(self.parent.v.obj_center):
                 tf = open(self.parent.v.obj_center)
                 for line in tf:
@@ -3083,7 +1457,6 @@ class Program_body(QtGui.QWidget):
                               `self._size_z`]
             else:
                 self.ttemp = [0, 0, 0, 0, 0, 0]
-
             self.b_pymol_timer = QtCore.QTimer()
             self.b_pymol_timer.timeout.connect(lambda: self.info_pass('target'))
             self.b_pymol_timer.start(15)
@@ -3102,7 +1475,6 @@ class Program_body(QtGui.QWidget):
             self.b_pymolqB.put(self.box_pymolB)
             self.b_pymolB.init(self.b_pymolqB, 'Visualization')
             self.b_pymolB.start_process()
-
             if os.path.exists(self.parent.v.obj_center1):
                 tf = open(self.parent.v.obj_center1)
                 for line in tf:
@@ -3117,7 +1489,6 @@ class Program_body(QtGui.QWidget):
                                `self._size_zB`]
             else:
                 self.ttempB = [0, 0, 0, 0, 0, 0]
-
             self.b_pymol_timerB = QtCore.QTimer()
             self.b_pymol_timerB.timeout.connect(lambda: self.info_pass('control'))
             self.b_pymol_timerB.start(15)
@@ -3132,10 +1503,8 @@ class Program_body(QtGui.QWidget):
             self.coor_y.clear()
             self.coor_z.clear()
             self.grid_predef_text.clear()
-
             self.ttemp = [0, 0, 0, 0, 0, 0]
             self.need_grid = True
-            # self.lig_list.setEnabled(True)
             self.grid_predef_text.setReadOnly(False)
             self.coor_x.setReadOnly(False)
             self.coor_y.setReadOnly(False)
@@ -3143,7 +1512,6 @@ class Program_body(QtGui.QWidget):
             self.size_x.setReadOnly(False)
             self.size_y.setReadOnly(False)
             self.size_z.setReadOnly(False)
-
             if self.parent.v.cr:
                 self.btnA_auto.setChecked(True)
                 self.btnA_auto.setEnabled(True)
@@ -3154,15 +1522,12 @@ class Program_body(QtGui.QWidget):
                     self.grid_by_lig.setEnabled(False)
                 self.btnA_user.setEnabled(True)
             else:
-                # self.grid_auto.setChecked(True)
-                # self.grid_auto.setEnabled(True)
                 if self.parent.v.ligands is not None:
                     self.grid_by_lig.setEnabled(True)
                 else:
                     self.grid_by_lig.setEnabled(False)
                 self.grid_user.setEnabled(True)
                 self.grid_predef.setEnabled(True)
-
             files = glob.glob('%s*.map' % self.parent.v.protein_name) + glob.glob(
                 '%s*.fld' % self.parent.v.protein_name) + glob.glob('%s*.xyz' % self.parent.v.protein_name) + glob.glob(
                 '%s*.gpf' % self.parent.v.protein_name) + ['user_target_dim.txt', self.parent.v.FILL,
@@ -3180,7 +1545,6 @@ class Program_body(QtGui.QWidget):
                     self.progressBar.setValue(37)
             else:
                 self.progressBar.setValue(25)
-
         elif btn.objectName() == 'reset_grid_buttonB':
             self.reset_grid_buttonB.setEnabled(False)
             self.grid_pymol_buttonB.setEnabled(False)
@@ -3192,7 +1556,6 @@ class Program_body(QtGui.QWidget):
             self.btnB_user.setEnabled(True)
             self.ttempB = [0, 0, 0, 0, 0, 0]
             self.need_gridB = True
-
             self.lig_listB.setEnabled(True)
             self.size_xB.clear()
             self.size_yB.clear()
@@ -3208,7 +1571,6 @@ class Program_body(QtGui.QWidget):
             self.size_xB.setReadOnly(False)
             self.size_yB.setReadOnly(False)
             self.size_zB.setReadOnly(False)
-
             files = glob.glob('%s*.map' % self.parent.v.analog_protein_name) + glob.glob(
                 '%s*.fld' % self.parent.v.analog_protein_name) + glob.glob(
                 '%s*.xyz' % self.parent.v.analog_protein_name) + glob.glob(
@@ -3224,7 +1586,6 @@ class Program_body(QtGui.QWidget):
                 self.progressBar.setValue(25)
             else:
                 self.progressBar.setValue(37)
-
         elif btn.objectName() == 'grid_pymol_button' and btn.text() == 'Build in PyMol':
             build_arg = [self.parent.v.protein_pdbqt, self.parent.ws.build_pymol, '--', '-s',
                          '%s,%s,%s' % (self.parent.v.rg, self.parent.v.rg,
@@ -3240,9 +1601,7 @@ class Program_body(QtGui.QWidget):
             self.bld_pymolq.put(self.box_pymol)
             self.bld_pymol.init(self.bld_pymolq, 'Construction')
             self.bld_pymol.start_process()
-
             self.bttemp = [0, 0, 0, 0, 0, 0]
-
             self.bld_pymol_timer = QtCore.QTimer()
             self.bld_pymol_timer.timeout.connect(lambda: self.info_pass('target_build'))
             self.bld_pymol_timer.start(15)
@@ -3261,9 +1620,7 @@ class Program_body(QtGui.QWidget):
             self.bld_pymolqB.put(self.box_pymolB)
             self.bld_pymolB.init(self.bld_pymolqB, 'Construction')
             self.bld_pymolB.start_process()
-
             self.bttempB = [0, 0, 0, 0, 0, 0]
-
             self.bld_pymol_timerB = QtCore.QTimer()
             self.bld_pymol_timerB.timeout.connect(lambda: self.info_pass('control_build'))
             self.bld_pymol_timerB.start(15)
@@ -3271,25 +1628,18 @@ class Program_body(QtGui.QWidget):
     def check_queue(self, qname, finished):
         if finished:
             self.reset_button.setEnabled(True)
-
             if qname == 'Prepare Input Files':
                 self.grid_pymol_button.setEnabled(False)
                 self.grid_pymol_buttonB.setEnabled(False)
                 self.reset_grid_button.setEnabled(False)
                 self.reset_grid_buttonB.setEnabled(False)
                 if self.parent.v.scoring:
-                    # if :
                     self.grid_box.setEnabled(False)
                     self.input_box.setEnabled(False)
                     self.run_scoring.setEnabled(True)
-                    # else:
-
                 else:
                     self.grid_box.setEnabled(True)
                     self.input_box.setEnabled(False)
-                    # self.grid_auto.setEnabled(True)
-                    # self.grid_predef.setEnabled(True)
-                    # self.grid_user.setEnabled(True)
                     self.grid_predef_text.setReadOnly(False)
                     self.grid_predef_textB.setReadOnly(False)
                     self.coor_xB.setReadOnly(False)
@@ -3304,10 +1654,6 @@ class Program_body(QtGui.QWidget):
                     self.size_x.setReadOnly(False)
                     self.size_y.setReadOnly(False)
                     self.size_z.setReadOnly(False)
-                    # if self.parent.v.ligands is not None:
-                    #     self..setEnabled(True)
-                    # else:
-                    #     self.grid_by_lig.setEnabled(False)
                 if self.parent.v.cr:
                     self.btnA_auto.setEnabled(True)
                     self.btnA_res.setEnabled(True)
@@ -3323,21 +1669,16 @@ class Program_body(QtGui.QWidget):
                     if self.parent.v.protein_pdbqt is not None and self.parent.v.ligand_pdbqt is not None:
                         if self.parent.v.scoring:
                             self.progressBar.setValue(50)
-                            # self.run_scoring.show()
                         else:
                             self.progressBar.setValue(25)
-                # self.progressBar_label.setText('Prepare Input Files:...DONE.')
                 self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IF Prepare Initial Files...Done\n')
             elif qname == 'Binding Site Determination':
-                self.grid_box.setEnabled(True)  # FIXME probable cambio por desabilitar todos los elementos
+                self.grid_box.setEnabled(True)
                 self.bind_site_button.setEnabled(False)
                 self.grid_pymol_button.setEnabled(True)
                 self.reset_grid_button.setEnabled(True)
                 self.reset_grid_buttonB.setEnabled(True)
                 self.grid_pymol_buttonB.setEnabled(True)
-                # self.build_pymol_button.setEnabled(True)
-                # self.build_pymol_buttonB.setEnabled(True)
-
                 if self.parent.v.cr:
                     self.btnA_user.setEnabled(False)
                     self.btnA_auto.setEnabled(False)
@@ -3355,14 +1696,6 @@ class Program_body(QtGui.QWidget):
                     self.size_xB.setReadOnly(True)
                     self.size_yB.setReadOnly(True)
                     self.size_zB.setReadOnly(True)
-
-                    # self.build_pymol_buttonB.hide()
-                    # self.grid_pymol_buttonB.show()
-
-                # self.grid_user.setEnabled(False)
-                # self.grid_auto.setEnabled(False)
-                # self.grid_by_lig.setEnabled(False)
-                # self.grid_predef.setEnabled(False)
                 self.grid_predef_text.setReadOnly(True)
                 self.lig_list.setEnabled(False)
                 self.coor_x.setReadOnly(True)
@@ -3372,29 +1705,19 @@ class Program_body(QtGui.QWidget):
                 self.size_y.setReadOnly(True)
                 self.size_z.setReadOnly(True)
 
-                # self.grid_predef_textB.setEnabled(False)
                 self.run_button.setEnabled(True)
                 self.need_grid = self.need_gridB = False
-                # self.progressBar_label.setText('Binding Site Determination:...DONE.')
                 self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: BSD Binding Site Definition...Done\n')
-                # self.build_pymol_button.hide()
                 self.grid_pymol_button.setText('Show in Pymol')
             elif qname == 'Molecular Docking Simulation':
                 self.go_result()
                 self.parent.configuration_tab.log_wdw.textedit.append(
                     'AMDOCK: MDS Molecular Docking Simulation...Done\n')
-                # self.progressBar_label.setText('Molecular Docking Simulation:...DONE.')
-
-                # self.parent.main_window.setTabEnabled(2, True)
-                # self.parent.main_window.setCurrentIndex(2)
-                # self.parent.main_window.setTabEnabled(1, False)
-                # self.parent.main_window.setTabEnabled(0, False)
             else:
                 self.grid_box.setEnabled(False)
                 self.progressBar.setValue(100)
                 self.go_scoring()
         else:
-            # self.reset_button.setEnabled(False)
             self.queue_name = qname
 
     def prog_show(self, prog):
@@ -3406,15 +1729,15 @@ class Program_body(QtGui.QWidget):
                     self.parent.configuration_tab.log_wdw.textedit.append(
                         'AMDOCK: IF Running PDB2PQR for Target Protein...')
                 elif prog == 'PDB2PQR B':
-                    progress(self, 1, 1, 18, time=20, mess='Running PDB2PQR for Control...')
+                    progress(self, 1, 1, 18, time=20, mess='Running PDB2PQR for Off-Target...')
                     self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: IF Running PDB2PQR for Control Protein...')
+                        'AMDOCK: IF Running PDB2PQR for Off-Target Protein...')
                 elif prog == 'Prepare_Receptor4':
                     progress(self, 1, 1, 20, time=7, mess='Prepare receptor A...')
                     self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IF Prepare Target Protein...')
                 elif prog == 'Prepare_Receptor4 B':
                     progress(self, 1, 1, 22, time=7, mess='Prepare receptor B...')
-                    self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IF Prepare Control Protein...')
+                    self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IF Prepare Off-Target Protein...')
                 elif prog == 'Prepare_Ligand4':
                     progress(self, 1, 1, 25, time=5, mess='Prepare ligand...')
                     self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IF Prepare Ligand...')
@@ -3492,56 +1815,55 @@ class Program_body(QtGui.QWidget):
                     if prog == 'function GridDefinition: Protein Center':
                         progress(self, 0, 2, 25, mess='Determination of Protein center...')
                         self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Determination of Control Protein Center...')
+                            'AMDOCK: BSD Determination of Off-Target Protein Center...')
                     if prog == 'Prepare_gpf4 B':
                         progress(self, 0, 2, 37, mess='Generate GPF file...')
                         self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Generate GPF file for Control Protein...')
+                            'AMDOCK: BSD Generate GPF file for Off-Target Protein...')
                     if prog == 'AutoGrid4 B':
                         self.part = 0
-                        progress(self, 0, 2, 37, mess='Running AutoGrid4 for Control...')
+                        progress(self, 0, 2, 37, mess='Running AutoGrid4 for Off-Target...')
                         self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Running AutoGrid4 for Control Protein...')
+                            'AMDOCK: BSD Running AutoGrid4 for Off-Target Protein...')
                     if prog == 'AutoLigand B':
-                        progress(self, 1, 2, 50, time=1000, mess='Searching Ligand Binding Site in Control...')
+                        progress(self, 1, 2, 50, time=1000, mess='Searching Ligand Binding Site in Off-Target...')
                         self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Searching Ligand Binding Site in Control Protein...')
+                            'AMDOCK: BSD Searching Ligand Binding Site in Off-Target Protein...')
                     if prog == 'function GridDefinition: FILL Center B':
                         progress(self, 0, 2, 37, mess='FILL Center Determination...')
                         self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Determination of Center for Search Space in Control Protein...')
+                            'AMDOCK: BSD Determination of Center for Search Space in Off-Target Protein...')
                 elif self.parent.v.analog_grid_def == 'by_residues':
                     if prog == 'function GridDefinition: Selected Residues Center':
                         progress(self, 0, 2, 25, mess='Determination of Selected Residues Center...')
                         self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD SDetermination of Selected Residues Center in Control Protein...')
+                            'AMDOCK: BSD SDetermination of Selected Residues Center in Off-Target Protein...')
                     if prog == 'function GridDefinition: Protein Center B':
-                        progress(self, 0, 2, 37, mess='Determination of Control Center...')
+                        progress(self, 0, 2, 37, mess='Determination of Off-Target Center...')
                         self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Determination of Control Protein Center...')
+                            'AMDOCK: BSD Determination of Off-Target Protein Center...')
                     if prog == 'Prepare_gpf4 B':
                         progress(self, 0, 2, 38, mess='Generate GPF file...')
                         self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Generate GPF file for Control Protein...')
+                            'AMDOCK: BSD Generate GPF file for Off-Target Protein...')
                     if prog == 'AutoGrid4 B':
                         self.part = 0
-                        progress(self, 0, 2, 38, mess='Running AutoGrid4 for Control...')
+                        progress(self, 0, 2, 38, mess='Running AutoGrid4 for Off-Target...')
                         self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Running AutoGrid4 for Control Protein...')
+                            'AMDOCK: BSD Running AutoGrid4 for Off-Target Protein...')
                     if prog == 'AutoLigand B':
-                        progress(self, 0, 2, 43, mess='Searching Ligand Binding Site in Control...')
+                        progress(self, 0, 2, 43, mess='Searching Ligand Binding Site in Off-Target...')
                         self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Searching Ligand Binding Site in Control Protein...')
+                            'AMDOCK: BSD Searching Ligand Binding Site in Off-Target Protein...')
                     if prog == 'function GridDefinition: FILL Center B':
                         progress(self, 0, 2, 50, mess='FILL Center Determination...')
                         self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Determination of Center for Search Space in Control Protein...')
+                            'AMDOCK: BSD Determination of Center for Search Space in Off-Target Protein...')
                 elif self.parent.v.analog_grid_def == 'by_ligand':
                     if prog == 'function GridDefinition: Previous Ligand Center B':
                         progress(self, 0, 2, 37, mess='Determination of Previous Ligand B Center...')
                         self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Determination of Center of Previous Ligand in Control Protein...')
-
+                            'AMDOCK: BSD Determination of Center of Previous Ligand in Off-Target Protein...')
             else:
                 if self.parent.v.grid_def == 'auto':
 
@@ -3609,9 +1931,9 @@ class Program_body(QtGui.QWidget):
                         'AMDOCK: MDS Determination of better poses for Target Protein...')
                 if prog == 'AutoDock Vina B':
                     self.part = 0
-                    progress(self, 0, 2, 75, mess='Determining better poses for Control...')
+                    progress(self, 0, 2, 75, mess='Determining better poses for Off-Target...')
                     self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: MDS Determination of better poses for Control Protein...')
+                        'AMDOCK: MDS Determination of better poses for Off-Target Protein...')
                 if prog == 'Prepare_gpf4':
                     progress(self, 0, 2, 50, mess='Generate GPF file...')
                     self.parent.configuration_tab.log_wdw.textedit.append(
@@ -3619,7 +1941,7 @@ class Program_body(QtGui.QWidget):
                 if prog == 'Prepare_gpf4 B':
                     progress(self, 0, 2, 75, mess='Generate GPF file...')
                     self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: MDS Generate GPF file for Control Protein...')
+                        'AMDOCK: MDS Generate GPF file for Off-Target Protein...')
                 if prog == 'AutoGrid4':
                     self.part = 0
                     progress(self, 0, 2, 50, mess='Running AutoGrid4 for Target...')
@@ -3627,9 +1949,9 @@ class Program_body(QtGui.QWidget):
                         'AMDOCK: MDS Running AutoGrid4 for Target Protein...')
                 if prog == 'AutoGrid4 B':
                     self.part = 0
-                    progress(self, 0, 2, 75, mess='Running AutoGrid4 for Control...')
+                    progress(self, 0, 2, 75, mess='Running AutoGrid4 for Off-Target...')
                     self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: MDS Running AutoGrid4 for Control Protein...')
+                        'AMDOCK: MDS Running AutoGrid4 for Off-Target Protein...')
                 if prog == 'Prepare_dpf4':
                     progress(self, 0, 2, 55, mess='Generate DPF file...')
                     self.parent.configuration_tab.log_wdw.textedit.append(
@@ -3637,7 +1959,7 @@ class Program_body(QtGui.QWidget):
                 if prog == 'Prepare_dpf4 B':
                     progress(self, 0, 2, 80, mess='Generate DPF file...')
                     self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: MDS Generate DPF file for Control Protein...')
+                        'AMDOCK: MDS Generate DPF file for Off-Target Protein...')
                 if prog == 'AutoDock4':
                     self.part = 0
                     progress(self, 0, 2, 55, mess='Determining better poses for Target...')
@@ -3648,9 +1970,9 @@ class Program_body(QtGui.QWidget):
                     self.timerAD.start(5000)
                 if prog == 'AutoDock4 B':
                     self.part = 0
-                    progress(self, 0, 2, 80, mess='Determining better poses for Control...')
+                    progress(self, 0, 2, 80, mess='Determining better poses for Off-Target...')
                     self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: MDS Determination of better poses for Control Protein...')
+                        'AMDOCK: MDS Determination of better poses for Off-Target Protein...')
                     self.timerAD = QtCore.QTimer()
                     self.timerAD.timeout.connect(self.autodock_output)
                     self.timerAD.start(5000)
@@ -3664,9 +1986,9 @@ class Program_body(QtGui.QWidget):
                     self.timerAD.start(5000)
                 if prog == 'AutoDock4ZN B':
                     self.part = 0
-                    progress(self, 0, 2, 80, mess='Determining better poses for Control...')
+                    progress(self, 0, 2, 80, mess='Determining better poses for Off-Target...')
                     self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: MDS Determination of better poses for Control Protein...')
+                        'AMDOCK: MDS Determination of better poses for Off-Target Protein...')
                     self.timerAD = QtCore.QTimer()
                     self.timerAD.timeout.connect(self.autodock_output)
                     self.timerAD.start(5000)
@@ -3715,10 +2037,8 @@ class Program_body(QtGui.QWidget):
         elif self.queue_name == 'Construction':
             if self.prog == 'pymol_buildA':
                 self.reset_grid_buttonB.setEnabled(False)
-                # self.build_pymol_buttonB.setEnabled(False)
             elif self.prog == 'pymol_buildB':
                 self.reset_grid_button.setEnabled(False)
-                # self.build_pymol_button.setEnabled(False)
 
     def process_progress(self, prog, i, err):
         if prog == 'pymol_boxA' or prog == 'pymol_boxB' or prog == 'pymol_buildA' or prog == 'pymol_buildB':
@@ -3727,59 +2047,49 @@ class Program_body(QtGui.QWidget):
             except:
                 pass
         if prog == 'pymol_buildA' or prog == 'pymol_buildB':
-            # self.build_pymol_buttonB.setEnabled(True)
-            # self.build_pymol_button.setEnabled(True)
             pass
         if self.queue_name == 'Prepare Input Files':
             if self.parent.v.cr:
                 if prog == 'PDB2PQR':
                     if i == 0:
                         progress(self, 1, 1, 14, finish=True, mess='Running PDB2PQR for Target...')
-                        # self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IF Running PDB2PQR for Target Protein...Done')
                     else:
                         progress(self, 1, 1, 10, reverse=True, mess='Running PDB2PQR for Target...')
                 elif prog == 'PDB2PQR B':
                     if i == 0:
-                        progress(self, 1, 1, 18, finish=True, mess='Running PDB2PQR for Control...')
-                        # self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IF Running PDB2PQR for Control Protein...Done')
+                        progress(self, 1, 1, 18, finish=True, mess='Running PDB2PQR for Off-Target...')
                     else:
-                        progress(self, 1, 1, 14, reverse=True, mess='Running PDB2PQR for Control...')
+                        progress(self, 1, 1, 14, reverse=True, mess='Running PDB2PQR for Off-Target...')
                 elif prog == 'Prepare_Receptor4':
                     if i == 0:
                         progress(self, 1, 1, 20, finish=True, mess='Prepare receptor A...')
-                        # self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IF Prepare Target Protein...Done')
                     else:
                         progress(self, 1, 1, 18, reverse=True, mess='Prepare receptor A...')
                 elif prog == 'Prepare_Receptor4 B':
                     if i == 0:
                         progress(self, 1, 1, 22, finish=True, mess='Prepare receptor B...')
-                        # self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IF Prepare Control Protein...Done')
                     else:
                         progress(self, 1, 1, 20, reverse=True, mess='Prepare receptor B...')
 
                 elif prog == 'Prepare_Ligand4':
                     if i == 0:
                         progress(self, 1, 1, 25, finish=True, mess='Prepare ligand...')
-                        # self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IF Prepare Ligand...Done')
                     else:
                         progress(self, 1, 1, 22, reverse=True, mess='Prepare ligand...')
             else:
                 if prog == 'PDB2PQR':
                     if i == 0:
                         progress(self, 1, 1, 18, finish=True, mess='Running PDB2PQR...')
-                        # self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IF Running PDB2PQR for Protein...Done')
                     else:
                         progress(self, 1, 1, 10, reverse=True, mess='Running PDB2PQR...')
                 elif prog == 'Prepare_Receptor4':
                     if i == 0:
                         progress(self, 1, 1, 22, finish=True, mess='Prepare receptor...')
-                        # self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IF Prepare Protein...Done')
                     else:
                         progress(self, 1, 1, 18, reverse=True, mess='Prepare receptor...')
                 elif prog == 'Prepare_Ligand4':
                     if i == 0:
                         progress(self, 1, 1, 25, finish=True, mess='Prepare ligand...')
-                        # self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IF Prepare Ligand...Done')
                     else:
                         progress(self, 1, 1, 22, reverse=True, mess='Prepare ligand...')
         elif self.queue_name == 'Binding Site Determination':
@@ -3849,11 +2159,6 @@ class Program_body(QtGui.QWidget):
                             progress(self, 0, 2, 50, finish=True, mess='Determination of Zn B Center...')
                         else:
                             progress(self, 0, 2, 37, reverse=True, mess='Determination of Zn B Center...')
-                    # elif prog == 'function GridDefinition: Protein Center':
-                    #     if i == 0:
-                    #         progress(self, 0, 2, 26, finish=True, mess='Determination of Protein Center...')
-                    #     else:
-                    #         progress(self, 0, 2, 25, reverse=True, mess='Determination of Protein Center...')
                     elif prog == 'Prepare_gpf4 B':
                         if i == 0:
                             progress(self, 0, 2, 38, finish=True, mess='Generate GPF file...')
@@ -3984,9 +2289,9 @@ class Program_body(QtGui.QWidget):
                         progress(self, 0, 2, 50, reverse=True, mess='Determining better poses for Target...')
                 if prog == 'AutoDock Vina B':
                     if i == 0:
-                        progress(self, 0, 3, 100, finish=True, mess='Determining better poses for Control...')
+                        progress(self, 0, 3, 100, finish=True, mess='Determining better poses for Off-Target...')
                     else:
-                        progress(self, 0, 2, 50, reverse=True, mess='Determining better poses for Control...')
+                        progress(self, 0, 2, 50, reverse=True, mess='Determining better poses for Off-Target...')
                 if prog == 'Prepare_gpf4':
                     if i == 0:
                         progress(self, 0, 2, 51, finish=True, mess='Generate GPF file...')
@@ -4004,9 +2309,9 @@ class Program_body(QtGui.QWidget):
                         progress(self, 0, 2, 50, reverse=True, mess='Running AutoGrid4 for Target...')
                 if prog == 'AutoGrid4 B':
                     if i == 0:
-                        progress(self, 0, 2, 80, finish=True, mess='Running AutoGrid4 for Control...')
+                        progress(self, 0, 2, 80, finish=True, mess='Running AutoGrid4 for Off-Target...')
                     else:
-                        progress(self, 0, 2, 50, reverse=True, mess='Running AutoGrid4 for Control...')
+                        progress(self, 0, 2, 50, reverse=True, mess='Running AutoGrid4 for Off-Target...')
                 if prog == 'Prepare_dpf4':
                     if i == 0:
                         progress(self, 0, 2, 56, finish=True, mess='Generate DPF file...')
@@ -4027,11 +2332,11 @@ class Program_body(QtGui.QWidget):
                         self.timerAD.stop()
                 if prog == 'AutoDock4 B':
                     if i == 0:
-                        progress(self, 0, 2, 100, finish=True, mess='Determining better poses for Control...')
+                        progress(self, 0, 2, 100, finish=True, mess='Determining better poses for Off-Target...')
                         self.part = 0
                         self.timerAD.stop()
                     else:
-                        progress(self, 0, 2, 50, reverse=True, mess='Determining better poses for Control...')
+                        progress(self, 0, 2, 50, reverse=True, mess='Determining better poses for Off-Target...')
                         self.timerAD.stop()
             else:
                 if prog == 'AutoDock Vina':
@@ -4106,8 +2411,6 @@ class Program_body(QtGui.QWidget):
                                 os.remove(file)
                             except:
                                 pass
-                        ##FIXME
-
                 else:
                     error_warning(self, prog, 'The program was finalized manually or closed by the occurrence of an '
                                               'internal error.')
@@ -4219,10 +2522,10 @@ class Program_body(QtGui.QWidget):
                 if self.queue_name == 'Binding Site Determination':
                     if self.parent.v.analog_grid_def == 'auto':
                         progress(self, 3, 2, [37, (self.part * 5) / self.total],
-                                 mess='Running AutoGrid4 for Control...')
+                                 mess='Running AutoGrid4 for Off-Target...')
                     elif self.parent.v.analog_grid_def == 'by_residues':
                         progress(self, 3, 2, [37, (self.part * 5) / self.total],
-                                 mess='Running AutoGrid4 for Control...')
+                                 mess='Running AutoGrid4 for Off-Target...')
                 else:
                     progress(self, 3, 2, [76, (self.part * 4) / self.total], mess='Running AutoGrid4...')
             if self.part == self.total:
@@ -4268,8 +2571,6 @@ class Program_body(QtGui.QWidget):
             cursor = self.parent.configuration_tab.log_wdw.textedit.textCursor()
             cursor.movePosition(cursor.End)
             cursor.insertText(self.output)
-
-        # self.parent.configuration_tab.log_wdw.textedit.append(self.output)
 
     def readStdError(self):
         self.error = QtCore.QString(self.worker.readAllStandardError())
@@ -4326,7 +2627,7 @@ class Program_body(QtGui.QWidget):
     def amdock_load(self):
         elements = {0: 'Working Directory', 1: 'Input Directory', 2: 'Results Directory', 3: 'PDBQT of Target Protein',
                     4: 'All Poses File of Target Result', 5: 'Best Pose File of Target Result',
-                    6: 'PDBQT of Control Protein', 7: 'All Poses File of Control Result',
+                    6: 'PDBQT of Off-Target Protein', 7: 'All Poses File of Control Result',
                     8: 'Best Pose File of Control Result'}
         elements_score = {0: 'Working Directory', 1: 'Input Directory', 2: 'Results Directory',
                           3: 'PDBQT of Target Protein', 4: 'PDBQT of Ligand'}
@@ -4382,8 +2683,6 @@ class Program_body(QtGui.QWidget):
                     if self.parent.v.cr:
                         self.parent.result_tab.prot_labelB.setText('Off-Target: %s' % self.parent.v.analog_protein_name)
                         self.parent.result_tab.prot_label_selB.setText('%s' % self.parent.v.analog_protein_name)
-                        # self.parent.result_tab.best_button.setGeometry(QtCore.QRect(420, 560, 140, 25))
-                        # self.parent.result_tab.all_button.setGeometry(QtCore.QRect(420, 590, 140, 25))
                         self.parent.result_tab.best_button.setText('Best Pose + Target')
                         self.parent.result_tab.all_button.setText('All Poses + Target')
                         self.parent.result_tab.best_buttonB.show()
@@ -4418,7 +2717,6 @@ class Program_body(QtGui.QWidget):
                             f += 1
                             self.parent.result_tab.value2 = float(
                                 self.parent.result_tab.result_tableB.item(0, 1).text())
-                            # self.parent.result_tab.value2.setStyleSheet("background-color: red")
                         self.parent.result_tab.result_tableB.item(0, 1).setBackgroundColor(QtGui.QColor('darkGray'))
                         self.parent.result_tab.selectivity_value = self.parent.result_tab.value1 - self.parent.result_tab.value2
                         self.parent.result_tab.selectivity_value_text.setText(
@@ -4436,9 +2734,6 @@ class Program_body(QtGui.QWidget):
                 else:
                     os.chdir(self.parent.v.result_dir)
                     self.parent.result_tab.prot_label.setText('Target: %s' % self.parent.v.protein_name)
-                    # self.parent.result_tab.prot_labelB.setText('Control: %s' % self.parent.v.analog_protein_name)
-                    # self.parent.result_tab.prot_label_sel.setText('%s' % self.parent.v.protein_name)
-                    # self.parent.result_tab.prot_label_selB.setText('%s' % self.parent.v.analog_protein_name)
                     self.parent.result_tab.best_button.hide()
                     self.parent.result_tab.all_button.hide()
                     self.parent.result_tab.show_complex.show()
@@ -4460,17 +2755,13 @@ class Program_body(QtGui.QWidget):
                                         QtGui.QColor(0, 255, 128, 200))
                             c += 1
                         f += 1
-                    # self.parent.result_tab.value1 = float(self.parent.result_tab.result_table.item(0, 1).text())
                     self.parent.result_tab.result_table.item(0, 1).setBackgroundColor(QtGui.QColor('darkGray'))
 
     def load_file(self, file):  # ok
         if file.text() == "Project Folder":
-            # self.parent.configuration_tab.log_wdw.textedit.append('Defining initial parameters...')
             if self.parent.v.loc_project is None:
                 progress(self, 0, 0, 0, mess='Working Directory Definition...')
                 self.wdir = self.parent.loader.project_location()
-                # if self.wdir is not None:
-                #     self.parent.configuration_tab.log_wdw.textedit.append(self.wdir)
             else:
                 self.options = wdir2_warning(self)
                 if self.options == QtGui.QMessageBox.Yes:
@@ -4478,7 +2769,6 @@ class Program_body(QtGui.QWidget):
                     self.parent.output2file.conclude()
                     os.chdir(self.parent.v.loc_project)
                     shutil.rmtree(self.parent.v.WDIR)
-                    # self.project_text.setDisabled(True)
                     self.parent.loader.project_location()
         if file.text() == "Load Data":
             if self.parent.v.amdock_file == None:
@@ -4492,20 +2782,6 @@ class Program_body(QtGui.QWidget):
         if file.objectName() == "protein_buttonA":
             if self.parent.v.input_offtarget is None:
                 self.parent.loader.load_protein()
-                # if self.parent.v.cr:
-                #     if self.parent.v.input_lig is None and self.parent.v.analog_protein_file == '':
-                #         progress(self, 0,0,2,mess='Target Definition...')
-                #     elif self.parent.v.input_lig is None and self.parent.v.analog_protein_file != '':
-                #         progress(self, 0, 0, 5, mess='Target Definition...')
-                #     elif self.parent.v.input_lig is not None and self.parent.v.analog_protein_file == '':
-                #         progress(self, 0, 0, 4, mess='Target Definition...')
-                #     else:
-                #         progress(self, 0, 0, 7, mess='Target Definition...')
-                # else:
-                #     if self.parent.v.input_lig is None:
-                #         progress(self, 0,0,6,mess='Protein Definition...')
-                #     else:
-                #         progress(self, 0, 0, 10, mess='Protein Definition...')
             else:
                 self.prot_opt = prot_warning(self)
                 if self.prot_opt == QtGui.QMessageBox.Yes:
@@ -4516,8 +2792,6 @@ class Program_body(QtGui.QWidget):
                     self.parent.v.target_prepare = True
                     self.lig_list.hide()
                     self.lig_list.clear()
-                    # self.btnA_lig.show()
-                    # self.non_ligand.hide()
                     self.protein_label.clear()
                     self.protein_text.clear()
                     if self.parent.v.cr:
@@ -4536,10 +2810,7 @@ class Program_body(QtGui.QWidget):
                         else:
                             progress(self, 0, 0, 6, reverse=True, mess='Protein Definition...')
                     self.parent.loader.load_protein()
-
             if self.parent.v.docking_program == 'AutoDockZn':
-                # if self.parent.v.analog_metals is not None:
-
                 self.check_opt = self.parent.checker.autodockzn_check('A')
                 if self.check_opt == QtGui.QMessageBox.Ok:
                     os.remove(self.parent.v.input_offtarget)
@@ -4548,9 +2819,7 @@ class Program_body(QtGui.QWidget):
                     self.parent.v.ligands = None
                     self.btnA_lig.show()
                     self.protein_text.clear()
-                    # self.non_ligand.hide()
                     self.protein_label.clear()
-
                     if self.parent.v.cr:
                         if self.parent.v.input_lig is None and self.parent.v.input_target == None:
                             progress(self, 0, 0, 2, mess='Target Definition...')
@@ -4561,14 +2830,12 @@ class Program_body(QtGui.QWidget):
                         else:
                             progress(self, 0, 0, 7, mess='Target Definition...')
                     else:
-
                         if self.parent.v.input_lig is None:
                             progress(self, 0, 0, 2, reverse=True, mess='Protein Definition...')
                         else:
                             progress(self, 0, 0, 6, reverse=True, mess='Protein Definition...')
 
                 elif self.check_opt == QtGui.QMessageBox.Cancel:
-                    ###lo puedo sustituir por un funcion que resetee todo el programa
                     self.parent.main_window.setCurrentIndex(0)
                     self.parent.main_window.setTabEnabled(1, False)
                     self.parent.main_window.setTabEnabled(0, True)
@@ -4578,7 +2845,6 @@ class Program_body(QtGui.QWidget):
                     if self.parent.v.analog_metals is None and self.parent.v.input_target is not None:
                         self.parent.v.input_offtarget = None
                         self.protein_text.clear()
-                        # self.non_ligand.hide()
                         self.protein_text.clear()
                         self.protein_label.clear()
                         self.parent.loader.load_protein()
@@ -4587,14 +2853,6 @@ class Program_body(QtGui.QWidget):
                         self.parent.statusbar.showMessage(self.parent.v.docking_program + " is selected")
         if file.objectName() == "protein_buttonB":
             if self.parent.v.input_target is None:
-                # if self.parent.v.ligand_file == '' and self.parent.v.protein_file == '':
-                #     progress(self, 0,0,2,mess='Control Definition...')
-                # elif self.parent.v.ligand_file == '' and self.parent.v.protein_file != '':
-                #     progress(self, 0, 0, 5, mess='Control Definition...')
-                # elif self.parent.v.ligand_file != '' and self.parent.v.protein_file == '':
-                #     progress(self, 0, 0, 4, mess='Control Definition...')
-                # else:
-                #     progress(self, 0, 0, 7, mess='Control Definition...')
                 self.parent.loader.load_proteinB()
             else:
                 self.prot_opt = prot_warning(self)
@@ -4606,15 +2864,14 @@ class Program_body(QtGui.QWidget):
                     self.lig_listB.clear()
                     self.lig_listB.hide()
                     self.btnB_lig.show()
-                    # self.non_ligandB.hide()
                     self.protein_labelB.clear()
                     self.protein_textB.clear()
                     if self.parent.v.input_lig is None and self.parent.v.input_offtarget is None:
-                        progress(self, 0, 0, 2, reverse=True, mess='Control Definition...')
+                        progress(self, 0, 0, 2, reverse=True, mess='Off-Target Definition...')
                     elif self.parent.v.input_lig is None and self.parent.v.input_offtarget is None:
-                        progress(self, 0, 0, 5, reverse=True, mess='Control Definition...')
+                        progress(self, 0, 0, 5, reverse=True, mess='Off-Target Definition...')
                     elif self.parent.v.input_lig is not None and self.parent.v.input_offtarget is None:
-                        progress(self, 0, 0, 4, reverse=True, mess='Control Definition...')
+                        progress(self, 0, 0, 4, reverse=True, mess='Off-Target Definition...')
                     else:
                         progress(self, 0, 0, 7, reverse=True, mess='Control Definition...')
                     self.parent.loader.load_proteinB()
@@ -4623,7 +2880,6 @@ class Program_body(QtGui.QWidget):
                 if self.check_opt == QtGui.QMessageBox.Ok:
                     os.remove(self.parent.v.input_target)
                     self.parent.v.input_target = None
-                    # self.non_ligandB.hide()
                     self.btnB_lig.show()
                     self.parent.v.analog_metals = None
                     self.parent.v.analog_ligands = None
@@ -4640,7 +2896,6 @@ class Program_body(QtGui.QWidget):
                         progress(self, 0, 0, 7, reverse=True, mess='Control Definition...')
 
                 elif self.check_opt == QtGui.QMessageBox.Cancel:
-                    ###lo puedo sustituir por un funcion que resetee todo el programa
                     self.parent.main_window.setCurrentIndex(0)
                     self.parent.main_window.setTabEnabled(1, False)
                     self.parent.main_window.setTabEnabled(0, True)
@@ -4649,7 +2904,6 @@ class Program_body(QtGui.QWidget):
                 if self.check_opt == QtGui.QMessageBox.Yes:
                     if self.parent.v.metals is None and self.parent.v.input_offtarget is not None:
                         self.parent.v.input_target = None
-                        # self.non_ligandB.hide()
                         self.btnB_lig.show()
                         self.parent.v.analog_metals = None
                         self.parent.v.analog_ligands = None
@@ -4670,7 +2924,6 @@ class Program_body(QtGui.QWidget):
                     self.parent.v.ligand_pdbqt = None
                     self.ligand_text.clear()
                     self.ligand_label.clear()
-                    # self.parent.loader.load_ligand()
                     if self.parent.v.cr:
                         if self.parent.v.input_offtarget == None and self.parent.v.input_target == None:
                             progress(self.parent.program_body, 0, 0, 2, reverse=True, mess='Ligand Definition...')
@@ -4688,70 +2941,6 @@ class Program_body(QtGui.QWidget):
                             progress(self, 0, 0, 6, reverse=True, mess='Ligand Definition...')
                     self.parent.loader.load_ligand()
 
-    # def grid_definition(self, g):
-    #     if g.objectName() == "grid_auto":
-    #         if g.isChecked() == True:
-    #             self.parent.v.grid_def = 'auto'
-    #
-    #     elif g.objectName() == "grid_predef":
-    #         if g.isChecked():
-    #             self.grid_predef_text.show()
-    #             # self.grid_predef_label.show()
-    #             self.parent.v.grid_def = "by_residues"
-    #             self.checker_icon.show()
-    #             self.bind_site_button.setEnabled(False)
-    #         else:
-    #             self.grid_predef_text.clear()
-    #             self.grid_predef_text.hide()
-    #             # self.grid_predef_label.hide()
-    #             self.checker_icon.hide()
-    #             self.bind_site_button.setEnabled(True)
-    #     elif g.objectName() == "grid_by_lig":
-    #         if g.isChecked():
-    #             self.lig_list.setEnabled(True)
-    #             self.lig_list.show()
-    #             self.parent.v.grid_def = 'by_ligand'
-    #         else:
-    #             self.lig_list.setEnabled(False)
-    #     elif g.objectName() == 'grid_user':
-    #         if g.isChecked():
-    #             self.parent.v.grid_def = 'by_user'
-    #             # self.coor_box.setEnabled(True)
-    #             self.coor_box.show()
-    #             # self.size_box.setEnabled(True)
-    #             self.size_box.show()
-    #             self.grid_icon.show()
-    #             self.bind_site_button.setEnabled(False)
-    #             # self.grid_box.resize(890, 210)
-    #             # self.grid_pymol_button.setGeometry(QtCore.QRect(363, 167, 80, 22))
-    #             # self.reset_grid_button.setGeometry(QtCore.QRect(447, 167, 80, 22))
-    #             # self.build_pymol_button.show()
-    #             # self.build_pymol_button.setEnabled(True)
-    #             # self.build_pymol_button.setGeometry(QtCore.QRect(363, 167, 80, 22))
-    #             # self.grid_pymol_button.hide()
-    #         else:
-    #             # self.build_pymol_button.hide()
-    #             # self.build_pymol_button.setEnabled(False)
-    #             # self.build_pymol_button.setGeometry(QtCore.QRect(363, 155, 80, 22))
-    #             self.grid_pymol_button.show()
-    #             # self.coor_box.setEnabled(False)
-    #             # self.size_box.setEnabled(False)
-    #             self.grid_icon.hide()
-    #             self.grid_icon_ok.hide()
-    #             self.coor_box.hide()
-    #             self.size_box.hide()
-    #             self.bind_site_button.setEnabled(True)
-    #             self.size_x.clear()
-    #             self.size_y.clear()
-    #             self.size_z.clear()
-    #             self.coor_x.clear()
-    #             self.coor_y.clear()
-    #             self.coor_z.clear()
-    #             # self.grid_pymol_button.setGeometry(QtCore.QRect(363, 155, 80, 22))
-    #             # self.reset_grid_button.setGeometry(QtCore.QRect(447, 155, 80, 22))
-    #
-    #             # self.grid_box.resize(890, 180)
-
     def go_result(self):
         self.parent.v.amdock_file = os.path.normpath(
             os.path.join(self.parent.v.WDIR, self.parent.v.project_name + '.amdock'))
@@ -4765,15 +2954,12 @@ class Program_body(QtGui.QWidget):
         self.parent.main_window.setTabEnabled(0, False)
         self.parent.result_tab.load_button.setEnabled(False)
         os.chdir(self.parent.v.result_dir)
-
-        # self.parent.v.protein_pdbqt_file = os.path.join(self.parent.v.input_dir,self.parent.v.protein_name + '_h.pdbqt')
         self.parent.result_tab.prot_label.setText('Target: %s' % self.parent.v.protein_name)
         self.parent.result_tab.prot_labelB.setText('Off-Target: %s' % self.parent.v.analog_protein_name)
         self.parent.result_tab.prot_label_sel.setText('%s' % self.parent.v.protein_name)
         self.parent.result_tab.prot_label_selB.setText('%s' % self.parent.v.analog_protein_name)
         self.parent.result_tab.best_button.setEnabled(True)
         self.parent.result_tab.all_button.setEnabled(True)
-
         self.parent.output2file.out2file('>  Target_Protein: %s\n' % self.parent.v.protein_name)
         if self.parent.v.docking_program == 'AutoDock Vina':
             self.parent.v.result_file = 'all_poses_target_ADV_result.pdb'
@@ -4831,8 +3017,6 @@ class Program_body(QtGui.QWidget):
             '|_______________|________________|______________|_______________|______________|\n\n\n')
 
         if self.parent.v.cr:
-            # self.parent.result_tab.best_button.setGeometry(QtCore.QRect(420, 560, 140, 25))
-            # self.parent.result_tab.all_button.setGeometry(QtCore.QRect(420, 590, 140, 25))
             self.parent.result_tab.best_button.setText('Best Pose + Target')
             self.parent.result_tab.all_button.setText('All Poses + Target')
             self.parent.result_tab.best_buttonB.show()
@@ -4847,9 +3031,7 @@ class Program_body(QtGui.QWidget):
             self.parent.result_tab.minus.show()
             self.parent.result_tab.equal.show()
             self.parent.result_tab.prot_labelB.show()
-
             self.parent.output2file.out2file('>  Off-Target_Protein: %s\n' % self.parent.v.analog_protein_name)
-            # self.parent.v.protein_pdbqt_fileB = os.path.join(self.parent.v.input_dir, self.parent.v.analog_protein_name + '_h.pdbqt')
             if self.parent.v.docking_program == 'AutoDock Vina':
                 vina_resultB = os.path.join(self.parent.v.result_dir, self.parent.v.ligand_name + '_h_out2.pdbqt')
                 self.reB = Result_Analysis(vina_resultB, 'all_poses_off-target_ADV_result.pdb',
@@ -4900,7 +3082,6 @@ class Program_body(QtGui.QWidget):
                     c += 1
                 f += 1
                 self.parent.result_tab.value2 = float(self.parent.result_tab.result_tableB.item(0, 1).text())
-                # self.parent.result_tab.value2.setStyleSheet("background-color: red")
             self.parent.output2file.out2file(
                 '|_______________|________________|______________|_______________|______________|\n\n\n')
             self.parent.result_tab.result_tableB.item(0, 1).setBackgroundColor(QtGui.QColor('darkGray'))
@@ -4926,8 +3107,6 @@ class Program_body(QtGui.QWidget):
             self.parent.result_tab.minus.hide()
             self.parent.result_tab.equal.hide()
             self.parent.result_tab.prot_labelB.hide()
-            # self.parent.result_tab.best_button.setGeometry(QtCore.QRect(25, 565, 140, 25))
-            # self.parent.result_tab.all_button.setGeometry(QtCore.QRect(175, 565, 140, 25))
             self.parent.result_tab.best_button.setText('Show Best Pose')
             self.parent.result_tab.all_button.setText('Show All Poses')
             self.parent.result_tab.best_buttonB.hide()
@@ -5122,11 +3301,8 @@ class Program_body(QtGui.QWidget):
                                 '--score_only', "--log", os.path.join(self.parent.v.result_dir,
                                                                       self.parent.v.ligand_name + '_score.log')]
             self.vina_score = {'AutoDock Vina Scoring': [self.ws.vina_exec, scoring_vina_arg]}
-
             self.queue.put(self.vina_score)
-
         elif self.parent.v.docking_program == 'AutoDock4':
-            #############################################
             protein_gpf = str(self.parent.v.protein_pdbqt.split('.')[0] + '.gpf')
             protein_dlg = str(self.parent.v.protein_pdbqt.split('.')[0] + '.dlg')
             protein_dpf = str(self.parent.v.protein_pdbqt.split('.')[0] + '.dpf')
@@ -5137,49 +3313,28 @@ class Program_body(QtGui.QWidget):
                                     self._size_x / self.parent.v.spacing_autodock,
                                     self._size_y / self.parent.v.spacing_autodock,
                                     self._size_z / self.parent.v.spacing_autodock)]
-
             self.prepare_gpf4 = {'Prepare_gpf4': [self.ws.this_python, prepare_gpf4_arg]}
-
             autogrid_arg = ['-p', protein_gpf]
             self.autogrid4 = {'AutoGrid4': [self.ws.autogrid, autogrid_arg]}
-
             prepare_dpf_arg = [self.ws.prepare_dpf_py, '-l', str(self.parent.v.ligand_pdbqt), '-r',
                                str(self.parent.v.protein_pdbqt), '-p', 'rmstol=%s' % self.parent.v.rmsd, '-p',
                                'ga_num_evals=%s' % self.parent.v.eval, '-p', 'ga_run=%s' % self.parent.v.runs, '-e']
             self.prepare_dpf4 = {'Prepare_dpf4': [self.ws.this_python, prepare_dpf_arg]}
-
             self.autodock_dlg = str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + protein_dlg)
             autodock_arg = ['-p', str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + protein_dpf), '-l',
                             os.path.join(self.parent.v.result_dir, self.parent.v.ligand_name + '_score.log')]
             self.autodock = {'AutoDock4': [self.ws.autodock, autodock_arg]}
-
             self.list_process = [self.prepare_gpf4, self.autogrid4, self.prepare_dpf4, self.autodock]
-            #############################################
             for process in self.list_process:
                 self.queue.put(process)
-
-            # scoring_autodock_arg = [self.ws.autodock_scorer, '-r', self.parent.v.protein_pdbqt, '-l',
-            #                         self.parent.v.ligand_pdbqt, '-o',
-            #                         os.path.join(self.parent.v.result_dir, self.parent.v.ligand_name + '_score.log')]
-            # self.autodock_score = {'AutoDock4 Scoring': [self.ws.this_python, scoring_autodock_arg]}
-            # self.queue.put(self.autodock_score)
         else:
-            # shutil.copy(self.ws.zn_ff, os.getcwd())
-            # scoring_autodockzn_arg = [self.ws.autodock_scorer, '-r', self.parent.v.protein_pdbqt, '-l',
-            #                         self.parent.v.ligand_pdbqt,'-p', 'AD4Zn.dat', '-o',os.path.join(self.parent.v.result_dir, self.parent.v.ligand_name + '_score.log')]
-            # self.autodockzn_score = {'AutoDock4Zn Scoring': [self.ws.this_python, scoring_autodockzn_arg]}
-            # self.queue.put(self.autodockzn_score)
-            ############################################
             shutil.copy(self.ws.zn_ff, os.getcwd())
-
             protein_TZ = str(self.parent.v.protein_pdbqt.split('.')[0] + '_TZ.pdbqt')
             protein_gpf = str(self.parent.v.protein_pdbqt.split('.')[0] + '_TZ.gpf')
             protein_dlg = str(self.parent.v.protein_pdbqt.split('.')[0] + '_TZ.dlg')
             protein_dpf = str(self.parent.v.protein_pdbqt.split('.')[0] + '_TZ.dpf')
-
             pseudozn_arg = [self.ws.zinc_pseudo_py, '-r', str(self.parent.v.protein_pdbqt)]
             self.pseudozn = {'PseudoZn': [self.ws.this_python, pseudozn_arg]}
-
             prepare_gpf4zn_arg = [self.ws.prepare_gpf4zn_py, '-l', str(self.parent.v.ligand_pdbqt), '-r',
                                   protein_TZ, '-f', self.parent.v.gd, '-p',
                                   'spacing=%.3f' % self.parent.v.spacing_autodock, '-p', 'npts=%d,%d,%d' %
@@ -5188,26 +3343,20 @@ class Program_body(QtGui.QWidget):
                                    self._size_z / self.parent.v.spacing_autodock), '-p',
                                   'parameter_file=AD4Zn.dat']
             self.prepare_gpf4zn = {'Prepare_gpf4zn': [self.ws.this_python, prepare_gpf4zn_arg]}
-
             autogridzn_arg = ['-p', protein_gpf]
             self.autogrid4 = {'AutoGrid4': [self.ws.autogrid, autogridzn_arg]}
-
             prepare_dpfzn_arg = [self.ws.prepare_dpf_py, '-l', str(self.parent.v.ligand_pdbqt), '-r', protein_TZ, '-p',
                                  'rmstol=%s' % self.parent.v.rmsd, '-p', 'ga_num_evals=%s' % self.parent.v.eval,
                                  '-p', 'ga_run=%s' % self.parent.v.runs, '-e']
             self.prepare_dfp4zn = {'Prepare_dpf4': [self.ws.this_python, prepare_dpfzn_arg]}
-
             self.autodock_dlg = str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + protein_dlg)
             autodockzn_arg = ['-p', str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + protein_dpf),
                               '-l', os.path.join(self.parent.v.result_dir, self.autodock_dlg)]
             self.autodockzn = {'AutoDock4ZN': [self.ws.autodock, autodockzn_arg]}
-
             self.list_process = [self.pseudozn, self.prepare_gpf4zn, self.autogrid4, self.prepare_dfp4zn,
                                  self.autodockzn]
             for process in self.list_process:
                 self.queue.put(process)
-            #############################################
-
         self.worker.init(self.queue, 'Scoring Process')
         self.worker.start_process()
 
@@ -5218,22 +3367,12 @@ class Program_body(QtGui.QWidget):
         self.stop_opt = stop_warning(self)
         if self.stop_opt == QtGui.QMessageBox.Yes:
             self.worker.__del__()
-
             self.stop_button.setEnabled(False)
             self.run_button.setEnabled(True)
             self.reset_button.setEnabled(True)
-            # self.project_box.setEnabled(True)
-            # self.input_box.setEnabled(True)
-            # self.grid_box.setEnabled(True)
 
     def prepare_receptor(self):
-        """
-        ejecuta pdb2pqr
-        prepare_receptor4.py
-        prepare_ligand4.py
-        """
         self.reset_button.setEnabled(False)
-
         self.parent.configuration_tab.log_wdw.textedit.append(
             'AMDOCK: IP DOCKING_PROGRAM: %s' % self.parent.v.docking_program)
         self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IP MODE: %s' % self.parent.v.program_mode)
@@ -5242,7 +3381,7 @@ class Program_body(QtGui.QWidget):
         self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IP    Ligands: %s' % self.parent.v.ligands)
         self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IP    Metals(Zn): %s' % self.parent.v.metals)
         self.parent.configuration_tab.log_wdw.textedit.append(
-            'AMDOCK: IP CONTROL_PROTEIN: %s' % self.parent.v.analog_protein_name)
+            'AMDOCK: IP OFF-TARGET_PROTEIN: %s' % self.parent.v.analog_protein_name)
         self.parent.configuration_tab.log_wdw.textedit.append(
             'AMDOCK: IP    Ligands: %s' % self.parent.v.analog_ligands)
         self.parent.configuration_tab.log_wdw.textedit.append(
@@ -5273,18 +3412,14 @@ class Program_body(QtGui.QWidget):
             self.parent.v.protein_pqr = self.parent.v.protein_name + '_h.pqr'
             self.parent.v.protein_h = self.parent.v.protein_name + '_h.pdb'
             self.parent.v.protein_pdbqt = self.parent.v.protein_name + '_h.pdbqt'
-            # self.parent.v.prot_basename = self.parent.v.protein_name + '_h'
         if self.parent.v.ligand_prepare:
             self.parent.v.ligand_h = self.parent.v.ligand_name + "_h.pdb"
             self.parent.v.ligand_pdbqt = self.parent.v.ligand_name + '_h.pdbqt'
-        # else:
-
         if self.parent.v.cr:
             if self.parent.v.control_prepare:
                 self.parent.v.analog_protein_pqr = self.parent.v.analog_protein_name + '_h.pqr'
                 self.parent.v.analog_protein_h = self.parent.v.analog_protein_name + '_h.pdb'
                 self.parent.v.analog_protein_pdbqt = self.parent.v.analog_protein_name + '_h.pdbqt'
-
         self.list_process = []
         if self.parent.v.target_prepare:
             self.pdb2pqr = {'PDB2PQR': [self.ws.this_python, [self.ws.pdb2pqr_py, '--ph-calc-method=propka',
@@ -5302,7 +3437,6 @@ class Program_body(QtGui.QWidget):
             prepare_receptor4_arg = [self.ws.prepare_receptor4_py, '-r', self.parent.v.protein_h, '-v', '-U',
                                      'nphs_lps_waters_nonstdres_deleteAltB']
             self.prepare_receptor4 = {'Prepare_Receptor4': [self.ws.this_python, prepare_receptor4_arg]}
-
         if self.parent.v.control_prepare:
             self.pdb2pqrB = {'PDB2PQR B': [self.ws.this_python, [self.ws.pdb2pqr_py, '--ph-calc-method=propka',
                                                                  '--verbose', '--noopt', '--drop-water', '--chain',
@@ -5316,12 +3450,9 @@ class Program_body(QtGui.QWidget):
                 fix_pqr_argB = [self.parent.v.analog_protein_file, self.parent.v.analog_protein_pqr]
 
             self.fix_pqrB = {'function Fix_PQR B': [Fix_PQR, fix_pqr_argB]}
-
             prepare_receptor4_argB = [self.ws.prepare_receptor4_py, '-r', self.parent.v.analog_protein_h, '-v', '-U',
                                       'nphs_lps_waters_nonstdres_deleteAltB']
-
             self.prepare_receptor4B = {'Prepare_Receptor4 B': [self.ws.this_python, prepare_receptor4_argB]}
-
         if self.parent.v.ligand_prepare:
             protonate_ligand_arg = ['-i', 'pdb', self.parent.v.ligand_pdb, '-opdb', '-O', self.parent.v.ligand_h, '-h',
                                     '-p', `self.parent.v.pH`]
@@ -5330,7 +3461,6 @@ class Program_body(QtGui.QWidget):
             prepare_ligand4_arg = [self.ws.prepare_ligand4_py, '-l', self.parent.v.ligand_h, '-v', '-o',
                                    self.parent.v.ligand_pdbqt]
             self.prepare_ligand4 = {'Prepare_Ligand4': [self.ws.this_python, prepare_ligand4_arg]}
-
         if self.parent.v.cr:
             if self.parent.v.target_prepare:
                 self.list_process.append(self.pdb2pqr)
@@ -5343,7 +3473,6 @@ class Program_body(QtGui.QWidget):
             if self.parent.v.ligand_prepare:
                 self.list_process.append(self.protonate_ligand)
                 self.list_process.append(self.prepare_ligand4)
-
         else:
             if self.parent.v.target_prepare:
                 self.list_process.append(self.pdb2pqr)
@@ -5352,7 +3481,6 @@ class Program_body(QtGui.QWidget):
             if self.parent.v.ligand_prepare:
                 self.list_process.append(self.protonate_ligand)
                 self.list_process.append(self.prepare_ligand4)
-
         if self.parent.v.scoring and self.parent.v.docking_program != 'AutoDock Vina':
             prev_ligand_arg = [self.parent.v.input_lig, None, None, self.parent.v.gd, False]
             self.previous_ligand = {'function GridDefinition: Previous Ligand Center': [GridDefinition,
@@ -5361,11 +3489,7 @@ class Program_body(QtGui.QWidget):
             self.queue.put(self.previous_ligand)
             self.worker.init(self.queue, 'Binding Site Determination')
             self.worker.start_process()
-
             self._size_x = self._size_y = self._size_z = self.parent.v.rg
-
-        #################
-
         self.queue = Queue.Queue()
         for process in self.list_process:
             self.queue.put(process)
@@ -5383,18 +3507,10 @@ class Program_body(QtGui.QWidget):
         """
         self.reset_button.setEnabled(False)
         self.grid_box.setEnabled(False)
-        #         #binding site determination
-        # self.parent.v.gd = 'gd.txt'
-        # self.parent.v.res_center = 'residues_center.txt'
-        # self.parent.v.prev_ligand = 'prev_lig_center.txt'
-        # self.parent.v.obj_center = 'obj_center.txt'
-
         self._size_x = self._size_y = self._size_z = self._size_xB = self._size_yB = self._size_zB = self.parent.v.rg
-
         self.parent.v.FILL = 'FILL_%dout1.pdb' % (6 * self.parent.v.heavy_atoms)
         self.parent.v.selected_residues = self.grid_predef_text.text()
         self.parent.v.analog_selected_residues = self.grid_predef_textB.text()
-
         process_list = []
         if self.parent.v.grid_def == 'auto':
             prot_dimension_arg = [self.parent.v.protein_pdbqt, None, None, self.parent.v.gd, False]
@@ -5454,7 +3570,6 @@ class Program_body(QtGui.QWidget):
                 self.siz_x = int(self.size_x.text())
                 self.siz_y = int(self.size_y.text())
                 self.siz_z = int(self.size_z.text())
-
                 if self.siz_x < self.parent.v.rg or self.siz_y < self.parent.v.rg or self.siz_z < self.parent.v.rg:
                     self.grid_opt, self.dim_list = smallbox_warning(self, {'x': self.siz_x, 'y': self.siz_y,
                                                                            'z': self.siz_z}, self.parent.v.rg,
@@ -5480,7 +3595,6 @@ class Program_body(QtGui.QWidget):
                         self.progressBar.setValue(50)
                 else:
                     self.progressBar.setValue(50)
-
         if self.parent.v.cr:
             if self.parent.v.analog_grid_def == 'auto':
                 prot_dimension_argB = [self.parent.v.analog_protein_pdbqt, None, None, self.parent.v.gd1, False]
@@ -5497,10 +3611,8 @@ class Program_body(QtGui.QWidget):
                 autoligand_argB = [str(self.ws.autoligand_py), '-r', str(self.parent.v.analog_protein_pdbqt[:-6]), '-a',
                                    str(self.parent.v.heavy_atoms), '-f', '1']
                 self.autoligandB = {'AutoLigand B': [self.ws.this_python, autoligand_argB]}
-
                 dimension_FILLB = [self.parent.v.FILL, None, None, self.parent.v.obj_center1, False]
                 self.FILL_centerB = {'function GridDefinition: FILL Center B': [GridDefinition, dimension_FILLB]}
-
                 self.list_process = [self.prot_centerB, self.prepare_gpf4B, self.autogrid4B, self.autoligandB,
                                      self.FILL_centerB]
                 if self.need_gridB:
@@ -5595,20 +3707,13 @@ class Program_body(QtGui.QWidget):
         self.grid_box.setEnabled(False)
 
         if self.parent.v.docking_program == 'AutoDock Vina':
-            ## requirement
-            #  -receptor and ligand
-            #  -center and size
-            #  -cup and poses
-            #  -exhaustiveness
-
             vina_arg = ['--receptor', self.parent.v.protein_pdbqt, '--ligand', self.parent.v.ligand_pdbqt,
                         '--config', `self.parent.v.obj_center`, '--size_x', '%d' % self._size_x, '--size_y',
                         '%d' % self._size_y, '--size_z', '%d' % self._size_z, '--cpu', `self.parent.v.ncpu`,
                         '--num_modes', `self.parent.v.poses_vina`, '--exhaustiveness',
                         `self.parent.v.exhaustiveness`, "--out", os.path.join(self.parent.v.result_dir,
                                                                               self.parent.v.ligand_name + '_h_out.pdbqt'),
-                        "--log", os.path.join(self.parent.v.result_dir,
-                                              self.parent.v.ligand_name + '_h_out.log')]
+                        "--log", os.path.join(self.parent.v.result_dir, self.parent.v.ligand_name + '_h_out.log')]
             vina_argB = ['--receptor', self.parent.v.analog_protein_pdbqt, '--ligand', self.parent.v.ligand_pdbqt,
                          '--config', `self.parent.v.obj_center1`, '--size_x', '%d' % self._size_xB, '--size_y',
                          '%d' % self._size_yB, '--size_z', '%d' % self._size_zB, '--cpu', `self.parent.v.ncpu`,
@@ -5624,25 +3729,19 @@ class Program_body(QtGui.QWidget):
                 self.queue.put(self.vinaB)
             self.worker.init(self.queue, 'Molecular Docking Simulation')
             self.worker.start_process()
-
         elif self.parent.v.docking_program == 'AutoDock4':
-
             protein_gpf = str(self.parent.v.protein_pdbqt.split('.')[0] + '.gpf')
             protein_dlg = str(self.parent.v.protein_pdbqt.split('.')[0] + '.dlg')
             protein_dpf = str(self.parent.v.protein_pdbqt.split('.')[0] + '.dpf')
-
             prepare_gpf4_arg = [self.ws.prepare_gpf4_py, '-l', str(self.parent.v.ligand_pdbqt), '-r',
                                 str(self.parent.v.protein_pdbqt), '-f', self.parent.v.obj_center, '-p', 'spacing=%.3f' %
                                 self.parent.v.spacing_autodock, '-p', 'npts=%d,%d,%d' % (
                                     self._size_x / self.parent.v.spacing_autodock,
                                     self._size_y / self.parent.v.spacing_autodock,
                                     self._size_z / self.parent.v.spacing_autodock)]
-
             self.prepare_gpf4 = {'Prepare_gpf4': [self.ws.this_python, prepare_gpf4_arg]}
-
             autogrid_arg = ['-p', protein_gpf]
             self.autogrid4 = {'AutoGrid4': [self.ws.autogrid, autogrid_arg]}
-
             prepare_dpf_arg = [self.ws.prepare_dpf_py, '-l', str(self.parent.v.ligand_pdbqt), '-r',
                                str(self.parent.v.protein_pdbqt), '-p', 'rmstol=%s' % self.parent.v.rmsd, '-p',
                                'ga_num_evals=%s' % self.parent.v.eval, '-p', 'ga_run=%s' % self.parent.v.runs]
@@ -5652,9 +3751,7 @@ class Program_body(QtGui.QWidget):
             autodock_arg = ['-p', str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + protein_dpf), '-l',
                             os.path.join(self.parent.v.result_dir, self.autodock_dlg)]
             self.autodock = {'AutoDock4': [self.ws.autodock, autodock_arg]}
-
             self.list_process = [self.prepare_gpf4, self.autogrid4, self.prepare_dpf4, self.autodock]
-
             if self.parent.v.cr:
                 proteinB_gpf = str(self.parent.v.analog_protein_pdbqt.split('.')[0] + '.gpf')
                 proteinB_dlg = str(self.parent.v.analog_protein_pdbqt.split('.')[0] + '.dlg')
@@ -5723,10 +3820,8 @@ class Program_body(QtGui.QWidget):
             autodockzn_arg = ['-p', str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + protein_dpf),
                               '-l', os.path.join(self.parent.v.result_dir, self.autodock_dlg)]
             self.autodockzn = {'AutoDock4ZN': [self.ws.autodock, autodockzn_arg]}
-
             self.list_process = [self.pseudozn, self.prepare_gpf4zn, self.autogrid4, self.prepare_dfp4zn,
                                  self.autodockzn]
-
             if self.parent.v.cr:
                 proteinB_TZ = str(self.parent.v.analog_protein_pdbqt.split('.')[0] + '_TZ.pdbqt')
                 proteinB_gpf = str(self.parent.v.analog_protein_pdbqt.split('.')[0] + '_TZ.gpf')
@@ -5768,5 +3863,3 @@ class Program_body(QtGui.QWidget):
                 self.queue.put(process)
             self.worker.init(self.queue, 'Molecular Docking Simulation')
             self.worker.start_process()
-
-            ################################################################################################################

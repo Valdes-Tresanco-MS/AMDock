@@ -90,9 +90,6 @@ class WorkersAndScripts():
     this_python = sys.executable
     extprg_path = os.path.join(os.path.dirname(__file__), 'programs')
     doc_path = os.path.join(os.path.dirname(__file__), 'doc')
-
-    # python_lib = os.path.join(os.path.dirname(this_python), 'Lib', "site-packages")
-
     pdb2pqr_py = str(os.path.join(extprg_path, 'pdb2pqr', 'pdb2pqr.py'))
     prepare_gpf4_py = str(os.path.join(extprg_path, 'prepare_gpf4.py'))
     prepare_gpf4zn_py = str(os.path.join(extprg_path, 'prepare_gpf4zn.py'))

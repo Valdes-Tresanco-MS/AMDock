@@ -1,5 +1,5 @@
 from PyQt4 import QtGui, QtCore
-import os
+
 
 class Lobby(QtGui.QFrame):
     def __init__(self, parent=None):
@@ -14,10 +14,8 @@ class Lobby(QtGui.QFrame):
         self.dock_vina_button.setMaximumSize(180, 70)
         self.dock_vina_button.setText("Autodock Vina")
         self.dock_vina_button.clicked.connect(lambda: self.program_select(self.dock_vina_button))
-        # self.dock_vina_button.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
 
         self.adock_button = QtGui.QPushButton(self)
-        # self.adock_button.setGeometry(QtCore.QRect(195, 35, 165, 70))
         self.adock_button.setMinimumSize(180, 70)
         self.adock_button.setMaximumSize(180, 70)
         self.adock_button.setObjectName("adock_button")
@@ -26,7 +24,6 @@ class Lobby(QtGui.QFrame):
         self.adock_button.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
 
         self.adockZn_button = QtGui.QPushButton(self)
-        # self.adockZn_button.setGeometry(QtCore.QRect(375, 35, 165, 70))
         self.adockZn_button.setMinimumSize(180, 70)
         self.adockZn_button.setMaximumSize(180, 70)
         self.adockZn_button.setObjectName("adockZn_button")
@@ -35,7 +32,6 @@ class Lobby(QtGui.QFrame):
         self.adockZn_button.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
 
         self.results_button = QtGui.QPushButton(self)
-        # self.results_button.setGeometry(QtCore.QRect(620, 35, 200, 70))
         self.results_button.setMinimumSize(180, 70)
         self.results_button.setMaximumSize(180, 70)
         self.results_button.setObjectName("results_button")
@@ -44,7 +40,6 @@ class Lobby(QtGui.QFrame):
         self.results_button.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
 
         self.comment_vina_dock = QtGui.QLabel(self)
-        # self.comment_vina_dock.setGeometry(QtCore.QRect(15, 103, 165, 60))
         self.comment_vina_dock.setMinimumSize(180, 60)
         self.comment_vina_dock.setMaximumSize(180, 60)
         self.comment_vina_dock.setLineWidth(10)
@@ -56,7 +51,6 @@ class Lobby(QtGui.QFrame):
         self.comment_vina_dock.setText("1-Molecular Docking Simulation\n2-Cross Docking with \n     Autodock Vina.")
 
         self.comment_adock = QtGui.QLabel(self)
-        # self.comment_adock.setGeometry(QtCore.QRect(195, 103, 165, 60))
         self.comment_adock.setMinimumSize(180, 60)
         self.comment_adock.setMaximumSize(180, 60)
         self.comment_adock.setLineWidth(10)
@@ -68,7 +62,6 @@ class Lobby(QtGui.QFrame):
         self.comment_adock.setText("1-Molecular Docking Simulation\n2-Cross Docking with\n     Autodock4.")
 
         self.comment_adockZn = QtGui.QLabel(self)
-        # self.comment_adockZn.setGeometry(QtCore.QRect(375, 103, 165, 60))
         self.comment_adockZn.setMinimumSize(180, 60)
         self.comment_adockZn.setMaximumSize(180, 60)
         self.comment_adockZn.setLineWidth(10)
@@ -80,7 +73,6 @@ class Lobby(QtGui.QFrame):
         self.comment_adockZn.setText("1-Molecular Docking Simulation\n2-Cross Docking with\n     Autodock4Zn.")
 
         self.comment_results = QtGui.QLabel(self)
-        # self.comment_results.setGeometry(QtCore.QRect(620, 103, 200, 60))
         self.comment_results.setMinimumSize(180, 60)
         self.comment_results.setMaximumSize(180, 60)
         self.comment_results.setLineWidth(10)
@@ -93,14 +85,8 @@ class Lobby(QtGui.QFrame):
 
         self.spacer = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         self.buttons_layout = QtGui.QHBoxLayout()
-        # self.buttons_layout.addWidget()
 
         self.vina_layout = QtGui.QVBoxLayout()
-        # self.vina_layout.setContentsMargins(0,0,0,0)
-        # self.vina_layout.setMargin(0)
-        # self.vina_layout.setSizeConstraint(QtGui.QLayout.SetMinimumSize)
-        # self.vina_layout.setGeometry()
-        # self.vina_layout
         self.vina_layout.addWidget(self.dock_vina_button)
         self.vina_layout.addWidget(self.comment_vina_dock)
         self.vina_layout.setSpacing(0)
@@ -135,53 +121,29 @@ class Lobby(QtGui.QFrame):
         self.lobby_layout.addStretch(2)
         self.lobby_layout.addLayout(self.cont_layout)
         self.lobby_layout.addStretch(10)
-        # self.lobby_layout.addItem(self.spacer, 0, 0, 0, -1)
-        # self.lobby_layout.addWidget(self, 1, 1)
-        # self.lobby_layout.addItem(self.spacer, 0, 2, 0, -1)
-        # self
-    # def paintEvent(self, QPaintEvent):
-    #
-    #     self.opt = QtGui.QStyleOption()
-    #     self.op.init(self)
-    #     {
-    #         QStyleOption
-    #     opt;
-    #     opt.init(this);
-    #     QPainter
-    #     p(this);
-    #     style()->drawPrimitive(QStyle::PE_Widget, & opt, & p, this);
-    #     }
 
-        # self.addTab(self, self.icon, '')
-
-        #### detect hover mouse event
         self.timer12 = QtCore.QTimer(self)
         self.timer12.start(10)
         self.timer12.timeout.connect(self.Hover)
 
     def Hover(self):
         ''' change propety of object'''
-        ###effect for vina_dock button
         if self.dock_vina_button.underMouse():
             self.comment_vina_dock.show()
         else:
             self.comment_vina_dock.hide()
-        ### effect for adock button
         if self.adock_button.underMouse():
             self.comment_adock.show()
         else:
             self.comment_adock.hide()
-        ###effect for adock_button button
         if self.adockZn_button.underMouse():
             self.comment_adockZn.show()
         else:
             self.comment_adockZn.hide()
-        ###effect for vina_result
         if self.results_button.underMouse():
             self.comment_results.show()
         else:
             self.comment_results.hide()
-        
 
     def program_select(self, b):
         if b.objectName() == 'adock_button':

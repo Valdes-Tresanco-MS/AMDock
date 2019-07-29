@@ -52,5 +52,3 @@ PYTHON="python"
 
 #Run the AMDock launcher
 $PYTHON $AMDock_HOME/AMDock/Docking_Program.py
-
-
