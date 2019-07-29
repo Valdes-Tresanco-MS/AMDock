@@ -1,12 +1,12 @@
-# import
-from warning import no_ADzn_warning, metal_no_ADzn_warning, prot_no_metal_warning, prot_with_metal_warning,metal_no_ADzn_warning1,prot_with_metal_warning1
+from warning import metal_no_ADzn_warning, prot_with_metal_warning, metal_no_ADzn_warning1, prot_with_metal_warning1
+
 
 class Checker():
     def __init__(self, parent):
         self.parent = parent
         self.resp1 = self.resp2 = self.resp3 = 0
 
-    def autodockzn_check(self,prot):
+    def autodockzn_check(self, prot):
         if prot == 'A':
             if self.parent.v.metals is None:
                 if self.parent.v.cr:
@@ -17,7 +17,8 @@ class Checker():
                 else:
                     self.out1 = metal_no_ADzn_warning(self.parent)
                 return self.out1
-            else: return 0
+            else:
+                return 0
         else:
             if self.parent.v.analog_metals is None:
                 if self.parent.v.cr:
@@ -28,7 +29,9 @@ class Checker():
                 else:
                     self.out1 = metal_no_ADzn_warning(self.parent)
                 return self.out1
-            else: return 0
+            else:
+                return 0
+
     def check_correct_prog(self, prot):
         if prot == 'A':
             if self.parent.v.metals is not None:
@@ -40,9 +43,7 @@ class Checker():
         else:
             if self.parent.v.analog_metals is not None:
                 if self.parent.v.metals is None:
-                    resp = prot_with_metal_warning1(self.parent,'A')
+                    resp = prot_with_metal_warning1(self.parent, 'A')
                 else:
                     resp = prot_with_metal_warning(self.parent)
                 return resp
-
-

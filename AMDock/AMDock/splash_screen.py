@@ -19,8 +19,7 @@ class SplashScreen(QSplashScreen):
         text.setText('Loading modules...')
         self.show()
         self.setMask(image.mask())
-        # time.sleep(0.5)
-        modules = ['AutoDockTools','MolKit', 'PyBabel', 'AMDock','mglutil', 'Support','numpy','PyQt4']
+        modules = ['AutoDockTools','MolKit', 'PyBabel','AMDock','mglutil', 'Support','numpy','PyQt4']
         programs = ['pdb2pqr', 'pymol', 'obabel']
         ml = 0
         self.non_loaded = []
@@ -30,6 +29,7 @@ class SplashScreen(QSplashScreen):
                 __import__(i)
             except ImportError:
                 self.non_loaded.append(i)
+                print i
                 text.setText('Error... Cann\'t be loaded Module: %s' % i)
             time.sleep(0.2)
             ml += 12.5
@@ -37,8 +37,8 @@ class SplashScreen(QSplashScreen):
             app.processEvents()
         if len(self.non_loaded) is not 0:
             text.setText('Some modules have not been loaded... Please check that program is not corrupted')
+            time.sleep(5)
             app.processEvents()
-            time.sleep(4)
         else:
             text.setText('Initialiting AMDock...')
             app.processEvents()
@@ -49,4 +49,3 @@ class SplashScreen(QSplashScreen):
             return True
         else:
             return False
-

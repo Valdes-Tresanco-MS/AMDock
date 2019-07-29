@@ -1,85 +1,38 @@
-QStatusBar {
-    border: 2px solid #222222
-    }
- /*.:Exit button:.*/
-QPushButton#exit {
-    border: 2px solid #222222;
-    border-bottom-left-radius: 0px;
-    border-bottom-right-radius: 0px;
-    border-top-left-radius: 0px;
-    border-top-right-radius: 10px;
-    }
+/*buttons*/
+QFrame#tab_lobby {
+    background-image: url("images/presentation.png");
+}
 
-/* .:Minimize button:.*/
-QPushButton#minimize {
-    border: 2px solid #222222;
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 0px;
-    border-top-left-radius: 0px;
-    border-top-right-radius: 0px;
-    }
-
-/* .:Tabs-Bar (tabWidget):.*/
-QTabWidget#windows::pane { /* The tab widget frame */
-     border-top: 2px solid #05B8CC;
-     }
-QTabWidget#windows:tab-bar {
-     left: 100px; /* move to the right by 100px */
-     }
-QTabWidget {
-    border-left: 2px solid #05B8CC;
-    background-color: #05B8CC;
-    }
-/* .:End Tabs-Bar performance:. */
-
-/* .:QTabWidget performance:. */
-#program_body, #configuration_tab, #result_tab, #help_tab {
-    background-color: #E5E5E5;
-    border-left: 1px solid #2F3336;
-    border-right: 1px solid #2F3336;
-
-    }
-
-#lobby {
-    /*background-color: black;*/
-    /*background-image: url(presentation.png);*/
-    border-left: 3px solid #2F3336;
-    border-right: 3px solid #2F3336;
-    /*border-bottom: 3px solid #2F3336;*/
-    }
-
-        /*buttons*/
-#adock_button,#dock_vina_button, #results_button, #adockZn_button {
+#adock_button, #dock_vina_button, #results_button, #adockZn_button {
     font-size: 25px;
     font-family: "Times New Roman";
-    color:#fff;
-    background-color:#495158;
+    color: #fff;
+    background-color: #495158;
     border: 2px solid #495158;
     border-radius: 10px
-    }
+}
 
-
-QPushButton#adock_button:hover,#dock_vina_button:hover, #results_button:hover, #adockZn_button:hover {
+QPushButton#adock_button:hover, #dock_vina_button:hover, #results_button:hover, #adockZn_button:hover {
     background-color: #2F3336;
     border: 2px solid #2F3336;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     border-bottom-right-radius: 0px;
     border-bottom-left-radius: 0px;
-    }
-QLabel#comment_vina_dock, #comment_adock, #comment_adockZn, #comment_results{
-    font-size:11px;
+}
+
+QLabel#comment_vina_dock, #comment_adock, #comment_adockZn, #comment_results {
+    font-size: 12px;
     font-family: "Times New Roman";
     color: #fff;
-    background-color:#2F3336;
+    background-color: #2F3336;
     border: 2px solid #2F3336;
     border-top: 2px solid #000000;
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
     border-top-left-radius: 0px;
     border-top-right-radius: 0px
-    }
-/* .:End QTabWidget performance:. */
+}
 
 /* Help buttons*/
 #project_help, #input_help, #grid_help, #output_help, #import_help, #display_help, #visualization_help, #clustering_help, #data_config_help, #vina_config_help, #AD4_config_help, #pdb2pqr_config_help {
@@ -87,24 +40,26 @@ QLabel#comment_vina_dock, #comment_adock, #comment_adockZn, #comment_results{
     border-radius: 11px;
     background-color: blue;
     color: white;
-    }
+}
+
 /*End Help buttons*/
 
 #statusbar {
     border-top: 2px solid #05B8CC;
-    }
+}
 
 QPushButton::pressed {
     border: 2px solid #05B8CC
-    }
+}
+
 QPushButton:hover {
     border: 2px solid #05B8CC
-    }
+}
+
 QPushButton#run_button:hover, QPushButton#run_button:pressed {
     border: 2px solid green;
-    }
+}
+
 QPushButton#stop_button:hover, QPushButton#stop_button:pressed {
     border: 2px solid red;
-    }
-
-
+}

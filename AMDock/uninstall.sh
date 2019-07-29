@@ -37,7 +37,6 @@ else
     exit 1
 fi 
 
-
 desktop_apps=$HOME/.local/share/applications
 if [ -f "$desktop_apps/AMDock.desktop" ]
   then
