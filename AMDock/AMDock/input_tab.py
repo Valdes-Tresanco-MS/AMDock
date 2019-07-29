@@ -4168,7 +4168,7 @@ class Program_body(QtGui.QWidget):
                     try:
                         self.total = (int(self.out.split()[20]) * -2) + 1
                     except:
-                        pass
+                        self.total = 100
                 self.part += 1
                 if self.queue_name == 'Binding Site Determination':
                     if self.parent.v.cr:
@@ -4214,7 +4214,7 @@ class Program_body(QtGui.QWidget):
                     try:
                         self.total = (int(self.out.split()[20]) * -2) + 1
                     except:
-                        pass
+                        self.total = 100
                 self.part += 1
                 if self.queue_name == 'Binding Site Determination':
                     if self.parent.v.analog_grid_def == 'auto':

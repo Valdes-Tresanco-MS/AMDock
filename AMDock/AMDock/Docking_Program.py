@@ -1,6 +1,5 @@
 #!/bin/python
 import sys
-
 from checker import Checker
 from file_loader import *
 from info_tab import Help
@@ -10,7 +9,7 @@ from output_file import OutputFile
 from result_tab import Results
 from setting_tab import Configuration_tab
 from variables import Variables, WorkersAndScripts, Text_and_ToolTip, Objects
-
+from PyQt4 import QtGui, QtCore
 __version__ = "1.1.0 For Windows and Linux"
 
 
@@ -109,8 +108,8 @@ class AMDock(QtGui.QMainWindow):
         else:
             event.ignore()
 
-from AMDock.splash_screen import SplashScreen
-from AMDock.variables import Objects as ob
+from splash_screen import SplashScreen
+from variables import Objects as ob
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)

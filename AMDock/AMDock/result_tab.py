@@ -1,13 +1,11 @@
 from PyQt4 import QtGui, QtCore
-# from graphics import Qt4MplCanvas
-# from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
 import os, Queue
 from command_runner import Worker
 from warning import reset_warning
 from variables import Variables
 from rfile_show import Result_File
 
-__version__ = "1.0 For main_window and Linux"
+__version__ = "1.1.0 For main_window and Linux"
 
 
 class Results(QtGui.QWidget):
@@ -20,29 +18,24 @@ class Results(QtGui.QWidget):
         self.only_one = 0
 
         self.import_box = QtGui.QGroupBox(self)
-        # self.import_box.setGeometry(QtCore.QRect(5, 5, 890, 40))
         self.import_box.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.import_box.setObjectName("import_box")
         self.import_box.setTitle("Import")
 
         self.load_button = QtGui.QPushButton(self.import_box)
-        # self.load_button.setGeometry(QtCore.QRect(10, 15, 70, 22))
         self.load_button.setObjectName("load_button")
         self.load_button.setText("Load Data")
 
         self.import_text = QtGui.QLineEdit(self.import_box)
-        # self.import_text.setGeometry(QtCore.QRect(85, 15, 675, 22))
         self.import_text.setReadOnly(True)
         self.import_text.setObjectName("import_text")
         self.import_text.setPlaceholderText('*.amdock')
 
         self.show_rfile = QtGui.QPushButton(self.import_box)
-        # self.show_rfile.setGeometry(QtCore.QRect(770, 15, 80, 22))
         self.show_rfile.setObjectName("show_rfile")
         self.show_rfile.setText("Results File")
 
         self.import_help = QtGui.QPushButton(self.import_box)
-        # self.import_help.setGeometry(QtCore.QRect(865, 11, 22, 22))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.import_help.setFont(font)
@@ -57,38 +50,21 @@ class Results(QtGui.QWidget):
         self.import_layout.addWidget(self.import_help)
 
         self.data_box = QtGui.QGroupBox(self)
-        # self.data_box.setGeometry(QtCore.QRect(5, 45, 890, 510))
-        # font = QtGui.QFont()
-        # font.setPointSize(10)
-        # self.data_box.setFont(font)
         self.data_box.setAlignment(QtCore.Qt.AlignCenter)
         self.data_box.setObjectName("data_box")
         self.data_box.setTitle("Data Result")
-
-        # self.target_label = QtGui.QLabel('Target')
-        # self.target_label.hide()
-        # self.offtarget_label = QtGui.QLabel('Off-Target')
-        # self.offtarget_label.hide()
-
-        self.prot_label = QtGui.QLabel(self.data_box)
-        # self.prot_label.setGeometry(QtCore.QRect(10,10,650,22))
-
-        self.prot_labelB = QtGui.QLabel(self.data_box)
-        # self.prot_labelB.setGeometry(QtCore.QRect(10, 260, 650, 22))
+        self.prot_label = QtGui.QLabel('Target: ', self.data_box)
+        self.prot_labelB = QtGui.QLabel('Off-Target', self.data_box)
         self.prot_labelB.hide()
-
         self.prot_label_sel = QtGui.QLabel(self)
-        # self.prot_label_sel.setGeometry(QtCore.QRect(92, 560, 80, 22))
         self.prot_label_sel.setAlignment(QtCore.Qt.AlignCenter)
         self.prot_label_sel.hide()
 
         self.prot_label_selB = QtGui.QLabel(self)
-        # self.prot_label_selB.setGeometry(QtCore.QRect(178, 560, 80, 22))
         self.prot_label_selB.setAlignment(QtCore.Qt.AlignCenter)
         self.prot_label_selB.hide()
 
         self.minus = QtGui.QLabel(self)
-        # self.minus.setGeometry(QtCore.QRect(170, 582, 20, 22))
         self.minus.setText('-')
         font = QtGui.QFont()
         font.setPointSize(14)
@@ -97,7 +73,6 @@ class Results(QtGui.QWidget):
         self.minus.hide()
 
         self.equal = QtGui.QLabel(self)
-        # self.equal.setGeometry(QtCore.QRect(240, 582, 20, 22))
         self.equal.setText('=')
         font = QtGui.QFont()
         font.setPointSize(14)
@@ -106,7 +81,6 @@ class Results(QtGui.QWidget):
         self.equal.hide()
 
         self.selectivity = QtGui.QLabel(self)
-        # self.selectivity.setGeometry(QtCore.QRect(10, 580, 100, 25))
         self.selectivity.setText('Selectivity: ')
         font = QtGui.QFont()
         font.setPointSize(12)
@@ -115,8 +89,6 @@ class Results(QtGui.QWidget):
         self.selectivity.hide()
 
         self.selectivity_value_text = QtGui.QLabel(self)
-        # self.selectivity_value_text.setGeometry(QtCore.QRect(270, 580, 150, 25))
-        # self.selectivity_value_text.setText('3.345 kcal/mol')
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
@@ -124,13 +96,11 @@ class Results(QtGui.QWidget):
         self.selectivity_value_text.hide()
 
         self.sele1 = QtGui.QSpinBox(self)
-        # self.sele1.setGeometry(QtCore.QRect(120, 585, 40, 20))
         self.sele1.setRange(1, 10)
         self.sele1.setObjectName('sele1')
         self.sele1.hide()
 
         self.sele2 = QtGui.QSpinBox(self)
-        # self.sele2.setGeometry(QtCore.QRect(190, 585, 40, 20))
         self.sele2.setRange(1, 10)
         self.sele2.setObjectName('sele2')
         self.sele2.hide()
@@ -139,7 +109,6 @@ class Results(QtGui.QWidget):
         self.sele2.valueChanged.connect(lambda: self.select_row(self.sele2))
 
         self.result_table = QtGui.QTableWidget(self.data_box)
-        # self.result_table.setGeometry(QtCore.QRect(10, 35, 870, 220))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.result_table.setFont(font)
@@ -154,7 +123,6 @@ class Results(QtGui.QWidget):
         self.result_table.sortItems(0, QtCore.Qt.AscendingOrder)
 
         self.result_tableB = QtGui.QTableWidget(self.data_box)
-        # self.result_tableB.setGeometry(QtCore.QRect(10, 285, 870, 220))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.result_tableB.setFont(font)
@@ -170,43 +138,36 @@ class Results(QtGui.QWidget):
         self.result_tableB.hide()
 
         self.best_button = QtGui.QPushButton(self)
-        # self.best_button.setGeometry(QtCore.QRect(25, 580, 140, 25))
         self.best_button.setObjectName("best_button")
         self.best_button.setText("Show Best Pose")
         self.best_button.setFont(font)
         self.best_button.setEnabled(False)
 
         self.best_buttonB = QtGui.QPushButton(self)
-        # self.best_buttonB.setGeometry(QtCore.QRect(570, 560, 140, 25))
         self.best_buttonB.setObjectName("best_buttonB")
         self.best_buttonB.setText("Best Pose + Off-Target")
         self.best_buttonB.setFont(font)
         self.best_buttonB.hide()
 
         self.all_button = QtGui.QPushButton(self)
-        # self.all_button.setGeometry(QtCore.QRect(175, 580, 140, 25))
         self.all_button.setObjectName("all_button")
         self.all_button.setText("Show All Poses")
         self.all_button.setFont(font)
         self.all_button.setEnabled(False)
 
         self.all_buttonB = QtGui.QPushButton(self)
-        # self.all_buttonB.setGeometry(QtCore.QRect(570, 590, 140, 25))
         self.all_buttonB.setObjectName("all_buttonB")
         self.all_buttonB.setText("All Poses + Off-Target")
         self.all_buttonB.setFont(font)
         self.all_buttonB.hide()
 
         self.show_complex = QtGui.QPushButton(self)
-        # self.show_complex.setGeometry(QtCore.QRect(25, 580, 140, 25))
         self.show_complex.setObjectName("show_complex")
         self.show_complex.setText("Show Complex")
         self.show_complex.setFont(font)
-        # self.show_complex.setEnabled(False)
         self.show_complex.hide()
 
         self.new_button = QtGui.QPushButton(self)
-        # self.new_button.setGeometry(QtCore.QRect(780, 575, 110, 35))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.new_button.setFont(font)
@@ -241,12 +202,6 @@ class Results(QtGui.QWidget):
         self.rest_layout.setColumnStretch(4, 1)
         self.rest_layout.setColumnStretch(5, 1)
         self.rest_layout.setColumnStretch(6, 5)
-        #
-        # self.select_layout = QtGui.QHBoxLayout()
-        # self.select_layout.addWidget(self.selectivity)
-        # self.select_layout.addLayout(self.rest_layout)
-        # self.select_layout.addWidget(self.equal)
-        # self.select_layout.addWidget(self.selectivity_value_text)
 
         self.buttons_layout = QtGui.QHBoxLayout()
         self.buttons_layout.addWidget(self.show_complex)
@@ -266,14 +221,12 @@ class Results(QtGui.QWidget):
         self.tab_layout.addLayout(self.buttons_layout)
 
         self.new_button.clicked.connect(lambda: self.new_project(self.new_button))
-        # load button
         self.load_button.clicked.connect(lambda: self.parent.program_body.load_file(self.load_button))
         self.best_button.clicked.connect(lambda: self.show_best(self.best_button))
         self.all_button.clicked.connect(lambda: self.show_all(self.all_button))
         self.best_buttonB.clicked.connect(lambda: self.show_best(self.best_buttonB))
         self.all_buttonB.clicked.connect(lambda: self.show_all(self.all_buttonB))
         self.show_complex.clicked.connect(self._show_complex)
-
         self.show_rfile.clicked.connect(self.show_result_file)
 
     def show_result_file(self):
@@ -297,8 +250,6 @@ class Results(QtGui.QWidget):
                     self.rfile_show.lineEdit_12.setText(str(self.parent.v.analog_metals))
                     self.rfile_show.lineEdit_13.setText(str(self.parent.v.analog_result_file))
                     self.rfile_show.lineEdit_14.setText(str(self.parent.v.best_analog_result_file))
-
-
         else:
             QtGui.QMessageBox.information(self, 'Information',
                                           'The amdock file is not defined yet. Please define amdock file.',
@@ -324,7 +275,6 @@ class Results(QtGui.QWidget):
             self.parent.program_body.ligand_text.clear()
             self.parent.program_body.ligand_label.clear()
             self.parent.program_body.grid_box.setEnabled(False)
-            # self.parent.program_body.grid_auto.setChecked(True)
             self.parent.program_body.btnA_auto.setChecked(True)
             self.parent.program_body.btnB_auto.setChecked(True)
             self.parent.program_body.progressBar.setValue(0)
@@ -332,8 +282,7 @@ class Results(QtGui.QWidget):
             self.parent.program_body.stop_button.setEnabled(False)
             self.parent.program_body.reset_button.setEnabled(True)
             self.parent.program_body.bind_site_button.setEnabled(True)
-            # self.parent.program_body.non_ligand.hide()
-            # self.parent.program_body.non_ligandB.hide()
+            self.prot_label.setText('Target: ')
             self.parent.program_body.simple_docking.setChecked(True)
             self.parent.program_body.run_scoring.hide()
             self.parent.program_body.non_button.hide()
@@ -386,22 +335,6 @@ class Results(QtGui.QWidget):
             self.parent.program_body.lig_listB.clear()
             self.parent.program_body.lig_listB.hide()
 
-            # self.parent.program_body.grid_predef_text.setReadOnly(False)
-            # self.parent.program_body.grid_predef_textB.setReadOnly(False)
-            # self.parent.program_body.coor_xB.setReadOnly(False)
-            # self.parent.program_body.coor_yB.setReadOnly(False)
-            # self.parent.program_body.coor_zB.setReadOnly(False)
-            # self.parent.program_body.size_xB.setReadOnly(False)
-            # self.parent.program_body.size_yB.setReadOnly(False)
-            # self.parent.program_body.size_zB.setReadOnly(False)
-            # self.parent.program_body.coor_x.setReadOnly(False)
-            # self.parent.program_body.coor_y.setReadOnly(False)
-            # self.parent.program_body.coor_z.setReadOnly(False)
-            # self.parent.program_body.size_x.setReadOnly(False)
-            # self.parent.program_body.size_y.setReadOnly(False)
-            # self.parent.program_body.size_z.setReadOnly(False)
-            # self.parent.program_body.
-
     def clear_result_tab(self):
         self.import_text.clear()
         self.result_table.clear()
@@ -419,8 +352,6 @@ class Results(QtGui.QWidget):
         self.prot_label_sel.hide()
         self.prot_label_selB.hide()
         self.prot_labelB.hide()
-        # self.best_button.setGeometry(QtCore.QRect(25, 580, 140, 25))
-        # self.all_button.setGeometry(QtCore.QRect(175, 580, 140, 25))
         self.best_button.setText('Show Best Pose')
         self.all_button.setText('Show All Poses')
         self.best_buttonB.hide()
