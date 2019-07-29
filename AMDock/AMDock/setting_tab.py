@@ -21,6 +21,7 @@ class Configuration_tab(QtGui.QWidget):
         self.log_view = QtGui.QCheckBox(self)
         self.log_view.setObjectName("log_view")
         self.log_view.setText("View Log Window")
+        self.log_view.setFixedWidth(200)
 
         self.save = QtGui.QPushButton(self)
         self.save.setText('Save Configuration in File')
