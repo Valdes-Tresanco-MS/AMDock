@@ -2,21 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="bd425420-1a52-44ec-abd0-1980491a941f" name="Default" comment="interface changes">
-      <change beforePath="$PROJECT_DIR$/../AMDock.sh" beforeDir="false" afterPath="$PROJECT_DIR$/../AMDock.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Docking_Program.py" beforeDir="false" afterPath="$PROJECT_DIR$/Docking_Program.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/checker.py" beforeDir="false" afterPath="$PROJECT_DIR$/checker.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/input_tab.py" beforeDir="false" afterPath="$PROJECT_DIR$/input_tab.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lobby_tab.py" beforeDir="false" afterPath="$PROJECT_DIR$/lobby_tab.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/log_window.py" beforeDir="false" afterPath="$PROJECT_DIR$/log_window.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/output_file.py" beforeDir="false" afterPath="$PROJECT_DIR$/output_file.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/result2tab.py" beforeDir="false" afterPath="$PROJECT_DIR$/result2tab.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/some_slots.py" beforeDir="false" afterPath="$PROJECT_DIR$/some_slots.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/splash_screen.py" beforeDir="false" afterPath="$PROJECT_DIR$/splash_screen.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/style.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/variables.py" beforeDir="false" afterPath="$PROJECT_DIR$/variables.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/warning.py" beforeDir="false" afterPath="$PROJECT_DIR$/warning.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Change_History.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../Change_History.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../README.md" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -50,7 +38,7 @@
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../run_AMDock.py" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../.." />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -234,7 +222,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1509554932473</updated>
-      <workItem from="1564408647153" duration="8038000" />
+      <workItem from="1564408647153" duration="9180000" />
     </task>
     <task id="LOCAL-00001" summary="interface changes">
       <created>1564412195657</created>
@@ -243,7 +231,14 @@
       <option name="project" value="LOCAL" />
       <updated>1564412195657</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="interface changes">
+      <created>1564416695982</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1564416695983</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

@@ -1,9 +1,15 @@
 # AMDock
-Build 1.0.2
+Build 1.1.0
 
 INSTALLATION<br>
 -unzip the *.zip file<br>
 -execute ./install.sh and follow instructions<br>
+
+
+Before installation, verify that you have PyMol, PyQt4, OpenBabel (python binding [PyBabel]) and numpy as python
+  modules, if not, execute<br> 
+  sudo apt install pymol python-qt4 openbabel python-openbabel python-numpy
+
 
 Before using the program, check that pymol has the AMDock plugin in taskbar.<br>
 If it does not appear please follow the instructions:<br>
