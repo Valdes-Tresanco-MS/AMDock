@@ -12,9 +12,9 @@ files under user’s supervision.
 -execute `./install.sh` and follow instructions
 
 
-Before installation, verify that you have PyMol, PyQt4, OpenBabel (python binding [PyBabel]) and numpy as python
+Before installation, verify that you have PyMol, PyQt4 and numpy as python
   modules, if not, execute<br> 
-  `sudo apt install pymol python-qt4 openbabel python-openbabel python-numpy`
+  `sudo apt install pymol python-qt4 python-numpy`
 
 Before using the program, check that pymol has the AMDock plugin in taskbar.<br>
 If it does not appear please follow the instructions:<br>
@@ -27,6 +27,6 @@ if not, please select the previous address<br>
 
 **UNINSTALL**
 
-search the installation directory and execute `./uninstall.sh` and follow instructions<br>
+search the installation directory and execute `./uninstall.sh` and follow instructions
 
 To view the update history, please check Changes_History file
