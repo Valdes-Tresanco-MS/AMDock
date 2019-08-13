@@ -32,6 +32,7 @@ class Program_body(QtGui.QWidget):
         self.project_box = QtGui.QGroupBox(self)
         self.project_box.setObjectName("project_box")
         self.project_box.setTitle("Project")
+        self.project_box.setToolTip(self.parent.tt.project_tt)
 
         self.project_label = QtGui.QLabel(self.project_box)
         self.project_label.setText("Project Name:")
@@ -42,10 +43,10 @@ class Program_body(QtGui.QWidget):
         self.proj_name_validator = QtGui.QRegExpValidator(QtCore.QRegExp("\\S+"))
         self.project_text.setValidator(self.proj_name_validator)
 
-        self.project_help = QtGui.QPushButton(self.project_box)
-        self.project_help.setObjectName("project_help")
-        self.project_help.setText("?")
-        self.project_help.setToolTip(self.parent.tt.project_tt)
+        # self.project_help = QtGui.QPushButton(self.project_box)
+        # self.project_help.setObjectName("project_help")
+        # self.project_help.setText("?")
+        # self.project_help.setToolTip(self.parent.tt.project_tt)
 
         self.wdir_button = QtGui.QPushButton(self.project_box)
         self.wdir_button.setObjectName("wdir_button")
@@ -60,7 +61,7 @@ class Program_body(QtGui.QWidget):
         self.project_box_layout = QtGui.QGridLayout(self.project_box)
         self.project_box_layout.addWidget(self.project_label, 0, 0)
         self.project_box_layout.addWidget(self.project_text, 0, 1, 1, 1)
-        self.project_box_layout.addWidget(self.project_help, 0, 2)
+        # self.project_box_layout.addWidget(self.project_help, 0, 2)
         self.project_box_layout.addWidget(self.wdir_button, 1, 0)
         self.project_box_layout.addWidget(self.wdir_text, 1, 1, 1, 1)
 
@@ -69,6 +70,7 @@ class Program_body(QtGui.QWidget):
         self.input_box.setObjectName("input_box")
         self.input_box.setTitle("Input")
         self.input_box.setEnabled(False)
+        self.input_box.setToolTip(self.parent.tt.input_tt)
 
         self.pH_label = QtGui.QLabel(self.input_box)
         self.pH_label.setObjectName("ph_button")
@@ -125,10 +127,10 @@ class Program_body(QtGui.QWidget):
         self.protein_labelB = QtGui.QLabel(self.input_box)
         self.protein_labelB.hide()
 
-        self.input_help = QtGui.QPushButton(self.input_box)
-        self.input_help.setObjectName("input_help")
-        self.input_help.setText("?")
-        self.input_help.setToolTip(self.parent.tt.input_tt)
+        # self.input_help = QtGui.QPushButton(self.input_box)
+        # self.input_help.setObjectName("input_help")
+        # self.input_help.setText("?")
+        # self.input_help.setToolTip(self.parent.tt.input_tt)
 
         self.ligand_button = QtGui.QPushButton(self.input_box)
         self.ligand_button.setObjectName("ligand_button")
@@ -150,11 +152,14 @@ class Program_body(QtGui.QWidget):
         self.flags_layout = QtGui.QHBoxLayout()
         self.flags_layout.addWidget(self.pH_label)
         self.flags_layout.addWidget(self.pH_value)
+        self.flags_layout.addStretch(1)
         self.flags_layout.addWidget(self.simple_docking)
         self.flags_layout.addWidget(self.cross_reaction)
         self.flags_layout.addWidget(self.rescoring)
         self.flags_layout.addStretch(1)
-        self.flags_layout.addWidget(self.input_help)
+
+        # self.flags_layout.addStretch(1)
+        # self.flags_layout.addWidget(self.input_help)
 
         self.input_layout = QtGui.QGridLayout()
         self.input_layout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
@@ -183,6 +188,7 @@ class Program_body(QtGui.QWidget):
         self.grid_box.setObjectName("grid_box")
         self.grid_box.setTitle("Search Space")
         self.grid_box.setEnabled(False)
+        self.grid_box.setToolTip(self.parent.tt.grid_tt)
 
         self.protein_column_label = QtGui.QLabel('Target', self.grid_box)
         self.protein_column_label.setAlignment(QtCore.Qt.AlignCenter)
@@ -455,11 +461,11 @@ class Program_body(QtGui.QWidget):
         self.reset_grid_buttonB.clicked.connect(lambda: self.grid_actions(self.reset_grid_buttonB))
         self.reset_grid_buttonB.setEnabled(False)
 
-        self.grid_help = QtGui.QPushButton()  # self.grid_box)
-        self.grid_help.setMaximumSize(22, 22)
-        self.grid_help.setObjectName("grid_help")
-        self.grid_help.setText("?")
-        self.grid_help.setToolTip(self.parent.tt.grid_tt)
+        # self.grid_help = QtGui.QPushButton()  # self.grid_box)
+        # self.grid_help.setMaximumSize(22, 22)
+        # self.grid_help.setObjectName("grid_help")
+        # self.grid_help.setText("?")
+        # self.grid_help.setToolTip(self.parent.tt.grid_tt)
 
         self.checker_icon = QtGui.QLabel(self.grid_box)
         self.checker_icon.setPixmap(QtGui.QPixmap(self.parent.objects.error_checker))
@@ -652,12 +658,12 @@ class Program_body(QtGui.QWidget):
         self.all_options.addLayout(self.conf_buttons, 5, 1, QtCore.Qt.AlignCenter)
         self.all_options.addLayout(self.conf_buttonsB, 5, 2, QtCore.Qt.AlignCenter)
 
-        self.grid_help_layout = QtGui.QHBoxLayout()
-        self.grid_help_layout.addItem(self.spacer)
-        self.grid_help_layout.addWidget(self.grid_help)
+        # self.grid_help_layout = QtGui.QHBoxLayout()
+        # self.grid_help_layout.addItem(self.spacer)
+        # self.grid_help_layout.addWidget(self.grid_help)
 
         self.binding_layout = QtGui.QVBoxLayout()
-        self.binding_layout.addLayout(self.grid_help_layout, QtCore.Qt.AlignRight)
+        # self.binding_layout.addLayout(self.grid_help_layout, QtCore.Qt.AlignRight)
         self.binding_layout.addStretch(1)
         self.binding_layout.addWidget(self.bind_site_button)
         self.binding_layout.addStretch(1)
@@ -2047,6 +2053,7 @@ class Program_body(QtGui.QWidget):
             except:
                 pass
         if prog == 'pymol_buildA' or prog == 'pymol_buildB':
+            # TODO: change status for pymol buttons
             pass
         if self.queue_name == 'Prepare Input Files':
             if self.parent.v.cr:

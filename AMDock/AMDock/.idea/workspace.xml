@@ -1,7 +1,82 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="bd425420-1a52-44ec-abd0-1980491a941f" name="Default" comment="interface changes" />
+    <list default="true" id="bd425420-1a52-44ec-abd0-1980491a941f" name="Default" comment="interface changes">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/images/presentation.png" beforeDir="false" afterPath="$PROJECT_DIR$/images/presentation.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/input_tab.py" beforeDir="false" afterPath="$PROJECT_DIR$/input_tab.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/variables.py" beforeDir="false" afterPath="$PROJECT_DIR$/variables.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/AutoLigandCommand.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/CADD/VisionNetworks/VS_net.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/CADD/VisionNetworks/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/CADD/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/CADD/cadd.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/autoanalyze3Commands.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/autoanalyze41Commands.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/autoanalyze4Commands.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/autoanalyzeCommands.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/autodpf3Commands.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/autodpf41Commands.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/autodpf4Commands.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/autodpfCommands.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/autoflex41Commands.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/autoflex4Commands.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/autoflexCommands.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/autogpf3Commands.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/autogpf41Commands.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/autogpf4Commands.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/autogpfCommands.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/autopilotCommands.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/autostart3Commands.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/autostart41Commands.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/autostart4Commands.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/autostartCommands.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/autotors3Commands.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/autotors41Commands.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/autotors4Commands.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/autotorsCommands.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/bin/adt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/bin/adt3" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/bin/adt4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AutoDockTools/bin/runAdt.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../MolKit/GapFinder.py" beforeDir="false" afterPath="$PROJECT_DIR$/../MolKit/GapFinder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../MolKit/amberPrmTop.py" beforeDir="false" afterPath="$PROJECT_DIR$/../MolKit/amberPrmTop.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../MolKit/bondSelector.py" beforeDir="false" afterPath="$PROJECT_DIR$/../MolKit/bondSelector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../MolKit/distanceSelector.py" beforeDir="false" afterPath="$PROJECT_DIR$/../MolKit/distanceSelector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../MolKit/hydrogenBondBuilder.py" beforeDir="false" afterPath="$PROJECT_DIR$/../MolKit/hydrogenBondBuilder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../MolKit/interactionDescriptor.py" beforeDir="false" afterPath="$PROJECT_DIR$/../MolKit/interactionDescriptor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../MolKit/mol2Parser.py" beforeDir="false" afterPath="$PROJECT_DIR$/../MolKit/mol2Parser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../MolKit/molecule.py" beforeDir="false" afterPath="$PROJECT_DIR$/../MolKit/molecule.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../MolKit/protein.py" beforeDir="false" afterPath="$PROJECT_DIR$/../MolKit/protein.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mglutil/math/TensorModule.py" beforeDir="false" afterPath="$PROJECT_DIR$/../mglutil/math/TensorModule.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mglutil/math/VectorModule.py" beforeDir="false" afterPath="$PROJECT_DIR$/../mglutil/math/VectorModule.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mglutil/math/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/../mglutil/math/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mglutil/math/crystal.py" beforeDir="false" afterPath="$PROJECT_DIR$/../mglutil/math/crystal.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mglutil/math/gridDescriptor.py" beforeDir="false" afterPath="$PROJECT_DIR$/../mglutil/math/gridDescriptor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mglutil/math/kinematics.py" beforeDir="false" afterPath="$PROJECT_DIR$/../mglutil/math/kinematics.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mglutil/math/kinematicstest.py" beforeDir="false" afterPath="$PROJECT_DIR$/../mglutil/math/kinematicstest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mglutil/math/ncoords.py" beforeDir="false" afterPath="$PROJECT_DIR$/../mglutil/math/ncoords.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mglutil/math/ncoordstest.py" beforeDir="false" afterPath="$PROJECT_DIR$/../mglutil/math/ncoordstest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mglutil/math/rigidFit.py" beforeDir="false" afterPath="$PROJECT_DIR$/../mglutil/math/rigidFit.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mglutil/math/rmsd.py" beforeDir="false" afterPath="$PROJECT_DIR$/../mglutil/math/rmsd.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mglutil/math/rmsdtest.py" beforeDir="false" afterPath="$PROJECT_DIR$/../mglutil/math/rmsdtest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mglutil/math/rotax.py" beforeDir="false" afterPath="$PROJECT_DIR$/../mglutil/math/rotax.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mglutil/math/statetocoords.py" beforeDir="false" afterPath="$PROJECT_DIR$/../mglutil/math/statetocoords.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mglutil/math/statetocoordstest.py" beforeDir="false" afterPath="$PROJECT_DIR$/../mglutil/math/statetocoordstest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mglutil/math/torsion.py" beforeDir="false" afterPath="$PROJECT_DIR$/../mglutil/math/torsion.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mglutil/math/transformation.py" beforeDir="false" afterPath="$PROJECT_DIR$/../mglutil/math/transformation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mglutil/math/transformationtest.py" beforeDir="false" afterPath="$PROJECT_DIR$/../mglutil/math/transformationtest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mglutil/math/usr.py" beforeDir="false" afterPath="$PROJECT_DIR$/../mglutil/math/usr.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mglutil/util/colorUtil.py" beforeDir="false" afterPath="$PROJECT_DIR$/../mglutil/util/colorUtil.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mglutil/util/misc.py" beforeDir="false" afterPath="$PROJECT_DIR$/../mglutil/util/misc.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mglutil/util/parser.py" beforeDir="false" afterPath="$PROJECT_DIR$/../mglutil/util/parser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../Change_History.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../LICENSE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../grid_amdock.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../install.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../module_checker.py" beforeDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,7 +109,7 @@
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../.." />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -192,10 +267,10 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.kk" />
-      <item itemvalue="Python.kk (1)" />
-      <item itemvalue="Python.redict_borrar" />
       <item itemvalue="Python.Docking_Program" />
+      <item itemvalue="Python.kk (1)" />
+      <item itemvalue="Python.kk" />
+      <item itemvalue="Python.redict_borrar" />
       <item itemvalue="Python.run_AMDock (1)" />
     </list>
     <recent_temporary>
@@ -218,7 +293,8 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1509554932473</updated>
-      <workItem from="1564408647153" duration="11291000" />
+      <workItem from="1564408647153" duration="11730000" />
+      <workItem from="1565732511305" duration="642000" />
     </task>
     <task id="LOCAL-00001" summary="interface changes">
       <created>1564412195657</created>
@@ -252,7 +328,9 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>
@@ -264,6 +342,6 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/AMDock$run_AMDock__1_.coverage" NAME="run_AMDock (1) Coverage Results" MODIFIED="1564408868518" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.." />
-    <SUITE FILE_PATH="coverage/AMDock$Docking_Program.coverage" NAME="Docking_Program Coverage Results" MODIFIED="1564413365452" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/AMDock$Docking_Program.coverage" NAME="Docking_Program Coverage Results" MODIFIED="1565732667783" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
