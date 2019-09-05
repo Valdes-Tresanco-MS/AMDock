@@ -770,18 +770,7 @@ class Program_body(QtGui.QWidget):
                     self.b_pymol_timerB.stop()
                 except:
                     pass
-                # self.btnA_auto.setEnabled(True)
-                # self.btnA_res.setEnabled(True)
-                # self.btnA_lig.setEnabled(True)
-                # self.btnA_user.setEnabled(True)
-                # self.btnB_auto.setEnabled(True)
-                # self.btnB_res.setEnabled(True)
-                # self.btnB_lig.setEnabled(True)
-                # self.btnB_user.setEnabled(True)
-                # self.grid_pymol_button.setEnabled(False)
-                # self.grid_pymol_buttonB.setEnabled(False)
-                # self.reset_grid_button.setEnabled(False)
-                # self.reset_grid_buttonB.setEnabled(False)
+
                 if self.parent.v.WDIR is not None:
                     rm_folder = QtGui.QMessageBox.warning(self, 'Warning',
                                                           "Do you wish to delete the previous project's folder?.",
