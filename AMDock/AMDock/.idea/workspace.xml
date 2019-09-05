@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="bd425420-1a52-44ec-abd0-1980491a941f" name="Default" comment="fixed reset grid function">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/file_loader.py" beforeDir="false" afterPath="$PROJECT_DIR$/file_loader.py" afterDir="false" />
-    </list>
+    <list default="true" id="bd425420-1a52-44ec-abd0-1980491a941f" name="Default" comment="fixed number of evaluations spin" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,7 +34,7 @@
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$USER_HOME$/Descargas/AMDock-win-master/Lib/site-packages/AMDock/setting_tab.py" />
+    <property name="last_opened_file_path" value="$USER_HOME$/Descargas/AMDock-win-master/Lib/site-packages/AMDock/variables.py" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -45,7 +42,7 @@
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
-    <property name="two.files.diff.last.used.file" value="$USER_HOME$/Descargas/AMDock-win-master/Lib/site-packages/AMDock/setting_tab.py" />
+    <property name="two.files.diff.last.used.file" value="$USER_HOME$/Descargas/AMDock-win-master/Lib/site-packages/AMDock/variables.py" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -223,7 +220,7 @@
       <updated>1509554932473</updated>
       <workItem from="1564408647153" duration="11730000" />
       <workItem from="1565732511305" duration="642000" />
-      <workItem from="1567694052002" duration="1861000" />
+      <workItem from="1567694052002" duration="2105000" />
     </task>
     <task id="LOCAL-00001" summary="interface changes">
       <created>1564412195657</created>
@@ -253,7 +250,21 @@
       <option name="project" value="LOCAL" />
       <updated>1567700387110</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="fixed keywords for protein analysis">
+      <created>1567700707262</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1567700707262</updated>
+    </task>
+    <task id="LOCAL-00006" summary="fixed number of evaluations spin">
+      <created>1567700895359</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1567700895359</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -275,7 +286,9 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="interface changes" />
     <MESSAGE value="fixed reset grid function" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixed reset grid function" />
+    <MESSAGE value="fixed keywords for protein analysis" />
+    <MESSAGE value="fixed number of evaluations spin" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed number of evaluations spin" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/AMDock$run_AMDock__1_.coverage" NAME="run_AMDock (1) Coverage Results" MODIFIED="1564408868518" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.." />
