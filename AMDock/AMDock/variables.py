@@ -32,7 +32,7 @@ class Variables():
     runs_AD = 10
     spacing_autoligand = 1.0
     spacing_autodock = 0.375
-    eval = 250000
+    eval = 2500000
     rmsd = 2.0
     runs = 10
     protein_file = None
@@ -76,7 +76,7 @@ class Variables():
     gerrorB = 1
     heavy_atoms = 0
     target_prepare = True
-    control_prepare = True
+    offtarget_prepare = True
     ligand_prepare = True
     input_lig = None
     input_target = None
@@ -123,7 +123,7 @@ class Text_and_ToolTip():
     project_tt = '<html><head/><body style="font-family: Times New Roman; font-size:10pt;"><p><span style="font-weight:600;">Defining the working directory. </span></p><p><span style=" font-style:italic; text-decoration: underline;">Project Name</span><span >: Define the project´s name. By default, the project will be named as &quot;Docking_Project&quot;; If a folder with the same name already exists, the new folder will be renamed as: previous name + modification date.</span></p><p align="justify"><span style="font-style:italic; text-decoration: underline;">Location for Project</span><span>: Define the project´s location. </span><span style=" text-decoration: underline; color:#ff0000;">This parameter is mandatory!!!</span></p></body></html>'
     input_tt = '<html><head/><body style="font-family:Times New Roman; font-size:10pt;"><p><span ' \
                'style="font-weight:600;">Defining the input files. </span></p><p><span style="font-style:italic; ' \
-               'text-decoration: underline;">Set pH</span><span >: Protonation states of protein residues and that of the ligand will be defined based on this pH value.</span></p><p><span style=" font-style:italic; text-decoration: underline;">Simple Docking</span><span >: Perform a simple molecular docking simulation. </span></p><p><span style="font-style:italic; text-decoration: underline;">Off-Target Docking(CD)</span><span >: Perform assays of selectivity between two proteins and a ligand.</span></p><p><span style="font-style:italic; text-decoration: underline;">Scoring</span><span >: Estimate the affinity of a complex using the scoring function of the selected program.</span></p><p><span style="font-style:italic; text-decoration: underline;">Protein (Target)</span><span >: Enter the protein (target) file.</span></p><p><span style="font-style:italic; text-decoration: underline;">Ligand</span><span >: Enter the ligand file.</span></p><p><span style="font-style:italic; text-decoration: underline;">Off-Target(if CD is selected)</span><span>: Enter the protein (off-target) file. The target will be considered as reference.</span></p></body></html>'
+               'text-decoration: underline;">Set pH</span><span >: Protonation states of protein residues and that of the ligand will be defined based on this pH value.</span></p><p><span style=" font-style:italic; text-decoration: underline;">Simple Docking</span><span >: Perform a simple molecular docking simulation. </span></p><p><span style="font-style:italic; text-decoration: underline;">Off-Target Docking(CD)</span><span >: Perform assays of selectivity between two proteins and a ligand.</span></p><p><span style="font-style:italic; text-decoration: underline;">Scoring</span><span >: Estimate the affinity of a complex using the scoring function of the selected program.</span></p><p><span style="font-style:italic; text-decoration: underline;">Protein (Target)</span><span >: Enter the protein (target) file.</span></p><p><span style="font-style:italic; text-decoration: underline;">Ligand</span><span >: Enter the ligand file.</span></p><p><span style="font-style:italic; text-decoration: underline;">Off-Targe(if CD is selected)</span><span>: Enter the protein (Off-Target) file. The Target will be considered as reference.</span></p></body></html>'
     grid_tt = '<html><head/><body style="font-family:Times New Roman; font-size:10pt;"><p><span style="font-weight:600;">Defining the search space. </span></p><p><span style="font-style:italic;">The determination of the search space will be as follows:</span></p><p><span style="font-style:italic; text-decoration: underline;">Automatic: </span><span>A potential ligand binding site will be identified and characterized by using AutoLigand tool (see manual).<br/></span><span style="font-style:italic; text-decoration: underline;">Center on Residue(s)</span><span >: A box with optimal dimensions (see manual) will be placed on the geometric center of this/these residue(s)<br/></span><span style="font-style:italic; text-decoration: underline;">Center on Ligand</span><span > : A box with optimal dimensions (see manual) will be placed on the geometric center of ligand.<br/></span><span style="font-style:italic; text-decoration: underline;">Box</span><span >: Set the coordinates and dimensions respectively.</span></p></body></html>'
     result_tt = '<html><head/><body style="font-family:Times New Roman; font-size:10pt;"><p><span style="font-weight:600;">Loading previous projects. </span></p><p><span style="font-style:italic; text-decoration: underline;">Load Data: </span><span>Open a dialog box that allows the selection of the .amdock file.<br/></span><span style="font-style:italic; text-decoration: underline;">Result File</span><span >: Open a dialog box that allows the visualization of the content of the .amdock file.<br/></span></p></body></html>'
 
@@ -178,11 +178,7 @@ class Objects():
     style_file = os.path.join(os.path.dirname(__file__), 'style.css')
     iconsPath = os.path.join(os.path.dirname(__file__), 'images')
     splashscreen_path = os.path.join(iconsPath, 'splashscreen.png')
-    app_icon = os.path.join(iconsPath, 'amdcok_icon.png')
-    close_icon_hover = os.path.join(iconsPath, 'close_icon_hover.png')
-    close_icon = os.path.join(iconsPath, 'close_icon.png')
-    minimize_icon_hover = os.path.join(iconsPath, 'minimize_icon_hover.png')
-    minimize_icon = os.path.join(iconsPath, 'minimize_icon.png')
+    app_icon = os.path.join(iconsPath, 'amdock_icon.png')
     reset_icon = os.path.join(iconsPath, 'reset.png')
     home_icon_white = os.path.join(iconsPath, 'home_icon_white.png')
     home_icon = os.path.join(iconsPath, 'home_icon.png')

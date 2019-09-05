@@ -152,13 +152,10 @@ class Program_body(QtGui.QWidget):
         self.flags_layout = QtGui.QHBoxLayout()
         self.flags_layout.addWidget(self.pH_label)
         self.flags_layout.addWidget(self.pH_value)
-        self.flags_layout.addStretch(1)
         self.flags_layout.addWidget(self.simple_docking)
         self.flags_layout.addWidget(self.cross_reaction)
         self.flags_layout.addWidget(self.rescoring)
         self.flags_layout.addStretch(1)
-
-        # self.flags_layout.addStretch(1)
         # self.flags_layout.addWidget(self.input_help)
 
         self.input_layout = QtGui.QGridLayout()
@@ -435,15 +432,15 @@ class Program_body(QtGui.QWidget):
 
         self.grid_pymol_button = QtGui.QPushButton(self.grid_box)
         self.grid_pymol_button.setObjectName("grid_pymol_button")
-        self.grid_pymol_button.setText("Show in PyMOL")
+        self.grid_pymol_button.setText('Show in PyMol')
         self.grid_pymol_button.clicked.connect(lambda: self.grid_actions(self.grid_pymol_button))
         self.grid_pymol_button.setEnabled(False)
 
-        self.grid_pymol_button.setText('Show in Pymol')
+        # self.grid_pymol_button.setText('Show in PyMol')
 
         self.grid_pymol_buttonB = QtGui.QPushButton(self.grid_box)
         self.grid_pymol_buttonB.setObjectName("grid_pymol_buttonB")
-        self.grid_pymol_buttonB.setText("Show in PyMOL")
+        self.grid_pymol_buttonB.setText("Show in PyMol")
         self.grid_pymol_buttonB.hide()
         self.grid_pymol_buttonB.clicked.connect(lambda: self.grid_actions(self.grid_pymol_buttonB))
         self.grid_pymol_buttonB.setEnabled(False)
@@ -742,14 +739,18 @@ class Program_body(QtGui.QWidget):
                 self.protein_labelB.clear()
                 self.ligand_text.clear()
                 self.ligand_label.clear()
-                self.lig_list.clear()
-                self.lig_list.hide()
-                self.lig_listB.clear()
-                self.lig_listB.hide()
-                self.simple_docking.setChecked(True)
-                self.grid_icon.hide()
-                self.grid_pymol_buttonB.hide()
-                self.grid_pymol_button.setText('Show in Pymol')
+                # self.lig_list.clear()
+                # self.lig_list.hide()
+                # self.lig_listB.clear()
+                # self.lig_listB.hide()
+                # self.simple_docking.setChecked(True)
+                # self.grid_icon.hide()
+                # self.grid_pymol_buttonB.hide()
+                self.grid_pymol_button.setText('Show in PyMol')
+                self.grid_pymol_buttonB.setText('Show in PyMol')
+
+                self.hide_all('all')
+                self.grid_box.setEnabled(False)
                 self.progressBar.setValue(0)
                 self.run_button.setEnabled(False)
                 self.stop_button.setEnabled(False)
@@ -769,18 +770,18 @@ class Program_body(QtGui.QWidget):
                     self.b_pymol_timerB.stop()
                 except:
                     pass
-                self.btnA_auto.setEnabled(True)
-                self.btnA_res.setEnabled(True)
-                self.btnA_lig.setEnabled(True)
-                self.btnA_user.setEnabled(True)
-                self.btnB_auto.setEnabled(True)
-                self.btnB_res.setEnabled(True)
-                self.btnB_lig.setEnabled(True)
-                self.btnB_user.setEnabled(True)
-                self.grid_pymol_button.setEnabled(False)
-                self.grid_pymol_buttonB.setEnabled(False)
-                self.reset_grid_button.setEnabled(False)
-                self.reset_grid_buttonB.setEnabled(False)
+                # self.btnA_auto.setEnabled(True)
+                # self.btnA_res.setEnabled(True)
+                # self.btnA_lig.setEnabled(True)
+                # self.btnA_user.setEnabled(True)
+                # self.btnB_auto.setEnabled(True)
+                # self.btnB_res.setEnabled(True)
+                # self.btnB_lig.setEnabled(True)
+                # self.btnB_user.setEnabled(True)
+                # self.grid_pymol_button.setEnabled(False)
+                # self.grid_pymol_buttonB.setEnabled(False)
+                # self.reset_grid_button.setEnabled(False)
+                # self.reset_grid_buttonB.setEnabled(False)
                 if self.parent.v.WDIR is not None:
                     rm_folder = QtGui.QMessageBox.warning(self, 'Warning',
                                                           "Do you wish to delete the previous project's folder?.",
@@ -833,6 +834,8 @@ class Program_body(QtGui.QWidget):
             self.grid_iconB.hide()
             self.grid_icon_ok.hide()
             self.grid_icon.hide()
+            self.btnA_auto.setChecked(True)
+            self.btnB_auto.setChecked(True)
 
     def grid_prot(self, b):
         if b.isChecked():
@@ -840,18 +843,22 @@ class Program_body(QtGui.QWidget):
                 self.hide_all('A')
                 self.parent.v.grid_def = 'auto'
                 self.grid_pymol_button.setEnabled(False)
+                self.grid_pymol_button.setText('Show in PyMol')
             elif self.protein_column_group_btnA.id(b) == 2:
                 self.hide_all('A')
                 self.grid_predef_text.clear()
+                self.grid_predef_text.setReadOnly(False)
                 self.grid_predef_text.show()
                 self.checker_icon.show()
                 self.parent.v.grid_def = 'by_residues'
+                self.grid_pymol_button.setText('Show in PyMol')
                 self.grid_pymol_button.setEnabled(False)
             elif self.protein_column_group_btnA.id(b) == 3:
                 self.hide_all('A')
                 self.lig_list.show()
                 self.parent.v.grid_def = 'by_ligand'
                 self.grid_pymol_button.setEnabled(False)
+                self.grid_pymol_button.setText('Show in PyMol')
             elif self.protein_column_group_btnA.id(b) == 4:
                 self.hide_all('A')
                 self.parent.v.grid_def = 'by_user'
@@ -863,26 +870,35 @@ class Program_body(QtGui.QWidget):
                 self.size_x.clear()
                 self.size_y.clear()
                 self.size_z.clear()
+                self.coor_x.setReadOnly(False)
+                self.coor_y.setReadOnly(False)
+                self.coor_z.setReadOnly(False)
+                self.size_x.setReadOnly(False)
+                self.size_y.setReadOnly(False)
+                self.size_z.setReadOnly(False)
                 self.grid_icon.show()
                 self.grid_pymol_button.setText('Build in PyMol')
                 self.grid_pymol_button.setEnabled(True)
-                self.grid_pymol_button.setEnabled(False)
             if self.protein_column_group_btnB.id(b) == 1:
                 self.hide_all('B')
                 self.parent.v.analog_grid_def = 'auto'
                 self.grid_pymol_buttonB.setEnabled(False)
+                self.grid_pymol_buttonB.setText('Show in PyMol')
             elif self.protein_column_group_btnB.id(b) == 2:
                 self.hide_all('B')
                 self.grid_predef_textB.clear()
+                self.grid_predef_textB.setReadOnly(False)
                 self.grid_predef_textB.show()
                 self.checker_iconB.show()
                 self.parent.v.analog_grid_def = 'by_residues'
                 self.grid_pymol_buttonB.setEnabled(False)
+                self.grid_pymol_buttonB.setText('Show in PyMol')
             elif self.protein_column_group_btnB.id(b) == 3:
                 self.hide_all('B')
                 self.lig_listB.show()
                 self.parent.v.analog_grid_def = 'by_ligand'
                 self.grid_pymol_buttonB.setEnabled(False)
+                self.grid_pymol_buttonB.setText('Show in PyMol')
             elif self.protein_column_group_btnB.id(b) == 4:
                 self.hide_all('B')
                 self.parent.v.analog_grid_def = 'by_user'
@@ -894,15 +910,17 @@ class Program_body(QtGui.QWidget):
                 self.size_xB.clear()
                 self.size_yB.clear()
                 self.size_zB.clear()
+                self.coor_xB.setReadOnly(False)
+                self.coor_yB.setReadOnly(False)
+                self.coor_zB.setReadOnly(False)
+                self.size_xB.setReadOnly(False)
+                self.size_yB.setReadOnly(False)
+                self.size_zB.setReadOnly(False)
                 self.grid_iconB.show()
+                self.grid_pymol_buttonB.setText('Build in PyMol')
+                self.grid_pymol_buttonB.setEnabled(True)
 
             if (self.protein_column_group_btnA.id(b) == 1 and self.protein_column_group_btnB.id(
-                    self.protein_column_group_btnB.checkedButton()) == 1) or (
-                    self.protein_column_group_btnB.id(b) == 1 and self.protein_column_group_btnA.id(
-                self.protein_column_group_btnA.checkedButton()) == 1):
-                self.bind_site_button.setEnabled(True)
-                self.grid_pymol_button.setText('Show in Pymol')
-            elif (self.protein_column_group_btnA.id(b) == 1 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 2) or (
                     self.protein_column_group_btnB.id(b) == 2 and self.protein_column_group_btnA.id(
                 self.protein_column_group_btnA.checkedButton()) == 1):
@@ -912,13 +930,6 @@ class Program_body(QtGui.QWidget):
                 else:
                     self.checker_icon_okB.show()
                     self.bind_site_button.setEnabled(True)
-                self.grid_pymol_button.setText('Show in Pymol')
-            elif (self.protein_column_group_btnA.id(b) == 1 and self.protein_column_group_btnB.id(
-                    self.protein_column_group_btnB.checkedButton()) == 3) or (
-                    self.protein_column_group_btnB.id(b) == 3 and self.protein_column_group_btnA.id(
-                self.protein_column_group_btnA.checkedButton()) == 1):
-                self.bind_site_button.setEnabled(True)
-                self.grid_pymol_button.setText('Show in Pymol')
             elif (self.protein_column_group_btnA.id(b) == 1 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 4) or (
                     self.protein_column_group_btnB.id(b) == 4 and self.protein_column_group_btnA.id(
@@ -930,7 +941,6 @@ class Program_body(QtGui.QWidget):
                 else:
                     self.grid_icon_okB.show()
                     self.bind_site_button.setEnabled(True)
-                self.grid_pymol_buttonB.setText('Build in PyMol')
             elif (self.protein_column_group_btnA.id(b) == 2 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 1) or (
                     self.protein_column_group_btnB.id(b) == 1 and self.protein_column_group_btnA.id(
@@ -941,8 +951,6 @@ class Program_body(QtGui.QWidget):
                 else:
                     self.checker_icon_ok.show()
                     self.bind_site_button.setEnabled(True)
-                self.grid_pymol_button.setText('Show in Pymol')
-                self.grid_pymol_buttonB.setText('Show in Pymol')
             elif (self.protein_column_group_btnA.id(b) == 2 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 2) or (
                     self.protein_column_group_btnB.id(b) == 2 and self.protein_column_group_btnA.id(
@@ -959,8 +967,6 @@ class Program_body(QtGui.QWidget):
                     self.bind_site_button.setEnabled(True)
                 else:
                     self.bind_site_button.setEnabled(False)
-                self.grid_pymol_button.setText('Show in Pymol')
-                self.grid_pymol_buttonB.setText('Show in Pymol')
             elif (self.protein_column_group_btnA.id(b) == 2 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 3) or (
                     self.protein_column_group_btnB.id(b) == 3 and self.protein_column_group_btnA.id(
@@ -971,8 +977,6 @@ class Program_body(QtGui.QWidget):
                 else:
                     self.checker_icon_ok.show()
                     self.bind_site_button.setEnabled(True)
-                self.grid_pymol_button.setText('Show in Pymol')
-                self.grid_pymol_buttonB.setText('Show in Pymol')
             elif (self.protein_column_group_btnA.id(b) == 2 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 4) or (
                     self.protein_column_group_btnB.id(b) == 4 and self.protein_column_group_btnA.id(
@@ -990,14 +994,6 @@ class Program_body(QtGui.QWidget):
                     self.bind_site_button.setEnabled(True)
                 else:
                     self.bind_site_button.setEnabled(False)
-                self.grid_pymol_buttonB.setText('Build in PyMol')
-            elif (self.protein_column_group_btnA.id(b) == 3 and self.protein_column_group_btnB.id(
-                    self.protein_column_group_btnB.checkedButton()) == 1) or (
-                    self.protein_column_group_btnB.id(b) == 1 and self.protein_column_group_btnA.id(
-                self.protein_column_group_btnA.checkedButton()) == 3):
-                self.bind_site_button.setEnabled(True)
-                self.grid_pymol_button.setText('Show in Pymol')
-                self.grid_pymol_buttonB.setText('Show in Pymol')
             elif (self.protein_column_group_btnA.id(b) == 3 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 2) or (
                     self.protein_column_group_btnB.id(b) == 2 and self.protein_column_group_btnA.id(
@@ -1008,14 +1004,6 @@ class Program_body(QtGui.QWidget):
                 else:
                     self.checker_icon_okB.show()
                     self.bind_site_button.setEnabled(True)
-                self.grid_pymol_button.setText('Show in Pymol')
-            elif (self.protein_column_group_btnA.id(b) == 3 and self.protein_column_group_btnB.id(
-                    self.protein_column_group_btnB.checkedButton()) == 3) or (
-                    self.protein_column_group_btnB.id(b) == 3 and self.protein_column_group_btnA.id(
-                self.protein_column_group_btnA.checkedButton()) == 3):
-                self.bind_site_button.setEnabled(True)
-                self.grid_pymol_button.setText('Show in Pymol')
-                self.grid_pymol_buttonB.setText('Show in Pymol')
             elif (self.protein_column_group_btnA.id(b) == 3 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 4) or (
                     self.protein_column_group_btnB.id(b) == 4 and self.protein_column_group_btnA.id(
@@ -1027,7 +1015,6 @@ class Program_body(QtGui.QWidget):
                 else:
                     self.grid_icon_okB.show()
                     self.bind_site_button.setEnabled(True)
-                self.grid_pymol_buttonB.setText('Build in PyMol')
             elif (self.protein_column_group_btnA.id(b) == 4 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 1) or (
                     self.protein_column_group_btnB.id(b) == 1 and self.protein_column_group_btnA.id(
@@ -1041,7 +1028,6 @@ class Program_body(QtGui.QWidget):
                     self.grid_icon_ok.show()
                     self.grid_icon.hide()
                     self.bind_site_button.setEnabled(True)
-                self.grid_pymol_button.setText('Build in Pymol')
             elif (self.protein_column_group_btnA.id(b) == 4 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 2) or (
                     self.protein_column_group_btnB.id(b) == 2 and self.protein_column_group_btnA.id(
@@ -1059,7 +1045,6 @@ class Program_body(QtGui.QWidget):
                     self.bind_site_button.setEnabled(True)
                 else:
                     self.bind_site_button.setEnabled(False)
-                self.grid_pymol_button.setText('Build in Pymol')
             elif (self.protein_column_group_btnA.id(b) == 4 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 3) or (
                     self.protein_column_group_btnB.id(b) == 3 and self.protein_column_group_btnA.id(
@@ -1071,7 +1056,6 @@ class Program_body(QtGui.QWidget):
                 else:
                     self.grid_icon_ok.show()
                     self.bind_site_button.setEnabled(True)
-                self.grid_pymol_button.setText('Build in Pymol')
             elif (self.protein_column_group_btnA.id(b) == 4 and self.protein_column_group_btnB.id(
                     self.protein_column_group_btnB.checkedButton()) == 4) or (
                     self.protein_column_group_btnB.id(b) == 4 and self.protein_column_group_btnA.id(
@@ -1089,8 +1073,8 @@ class Program_body(QtGui.QWidget):
                     self.bind_site_button.setEnabled(True)
                 else:
                     self.bind_site_button.setEnabled(False)
-                self.grid_pymol_button.setText('Build in Pymol')
-                self.grid_pymol_buttonB.setText('Build in PyMol')
+            else:
+                self.bind_site_button.setEnabled(True)
 
     def simulation_form(self, btn):
         if btn.isChecked():
@@ -1329,14 +1313,15 @@ class Program_body(QtGui.QWidget):
                 tfile.close()
                 if self.dim_data_target != self.ttemp:
                     if self.parent.v.cr:
-                        self.btnA_user.setChecked(True)
+                        # self.btnA_user.setChecked(True)
                         if self.need_gridB:
                             self.progressBar.setValue(25)
                         else:
                             self.progressBar.setValue(37)
                     else:
-                        self.grid_user.setChecked(True)
+                        # self.grid_user.setChecked(True)
                         self.progressBar.setValue(25)
+                    self.btnA_user.setChecked(True)
                     self.coor_x.setText(self.dim_data_target[0])
                     self.coor_y.setText(self.dim_data_target[1])
                     self.coor_z.setText(self.dim_data_target[2])
@@ -1377,52 +1362,52 @@ class Program_body(QtGui.QWidget):
                         self.bld_pymol_timer.stop()
                     except:
                         pass
-        elif prot == 'off-target':
-            if os.path.exists('user_off-target_dim.txt'):
-                cfile = open('user_off-target_dim.txt')
+        elif prot == 'offtarget':
+            if os.path.exists('user_off_target_dim.txt'):
+                cfile = open('user_off_target_dim.txt')
                 for line in cfile:
                     line = line.strip('\n')
-                    self.dim_data_control = line.split()
+                    self.dim_data_offtarget = line.split()
                 cfile.close()
-                if self.dim_data_control != self.ttempB:
+                if self.dim_data_offtarget != self.ttempB:
                     if self.need_grid:
                         self.progressBar.setValue(25)
                     else:
                         self.progressBar.setValue(37)
                     self.btnB_user.setChecked(True)
-                    self.coor_xB.setText(self.dim_data_control[0])
-                    self.coor_yB.setText(self.dim_data_control[1])
-                    self.coor_zB.setText(self.dim_data_control[2])
-                    self.size_xB.setText(self.dim_data_control[3])
-                    self.size_yB.setText(self.dim_data_control[4])
-                    self.size_zB.setText(self.dim_data_control[5])
-                    self.ttempB = self.dim_data_control
+                    self.coor_xB.setText(self.dim_data_offtarget[0])
+                    self.coor_yB.setText(self.dim_data_offtarget[1])
+                    self.coor_zB.setText(self.dim_data_offtarget[2])
+                    self.size_xB.setText(self.dim_data_offtarget[3])
+                    self.size_yB.setText(self.dim_data_offtarget[4])
+                    self.size_zB.setText(self.dim_data_offtarget[5])
+                    self.ttempB = self.dim_data_offtarget
                     self.bind_site_button.setEnabled(True)
                     self.run_button.setEnabled(False)
                     self.need_gridB = True
-                    os.remove('user_off-target_dim.txt')
+                    os.remove('user_off_target_dim.txt')
                     self.b_pymol_timerB.stop()
                     self.grid_pymol_buttonB.setEnabled(False)
-        elif prot == 'off-target_build':
-            if os.path.exists('user_off-target_dim.txt'):
-                cfile = open('user_off-target_dim.txt')
+        elif prot == 'offtarget_build':
+            if os.path.exists('user_off_target_dim.txt'):
+                cfile = open('user_off_target_dim.txt')
                 for line in cfile:
                     line = line.strip('\n')
-                    self.dim_data_control = line.split()
+                    self.dim_data_offtarget = line.split()
                 cfile.close()
-                if self.dim_data_control != self.bttempB:
+                if self.dim_data_offtarget != self.bttempB:
                     self.btnB_user.setChecked(True)
-                    self.coor_xB.setText(self.dim_data_control[0])
-                    self.coor_yB.setText(self.dim_data_control[1])
-                    self.coor_zB.setText(self.dim_data_control[2])
-                    self.size_xB.setText(self.dim_data_control[3])
-                    self.size_yB.setText(self.dim_data_control[4])
-                    self.size_zB.setText(self.dim_data_control[5])
-                    self.bttempB = self.dim_data_control
+                    self.coor_xB.setText(self.dim_data_offtarget[0])
+                    self.coor_yB.setText(self.dim_data_offtarget[1])
+                    self.coor_zB.setText(self.dim_data_offtarget[2])
+                    self.size_xB.setText(self.dim_data_offtarget[3])
+                    self.size_yB.setText(self.dim_data_offtarget[4])
+                    self.size_zB.setText(self.dim_data_offtarget[5])
+                    self.bttempB = self.dim_data_offtarget
                     self.check_grid()
                     self.run_button.setEnabled(False)
                     self.need_gridB = True
-                    os.remove('user_off-target_dim.txt')
+                    os.remove('user_off_target_dim.txt')
                     try:
                         self.b_pymol_timerB.stop()
                     except:
@@ -1469,8 +1454,8 @@ class Program_body(QtGui.QWidget):
         elif btn.objectName() == 'grid_pymol_buttonB' and btn.text() == 'Show in PyMol':
             visual_arg = [self.parent.v.analog_protein_pdbqt, self.parent.ws.grid_pymol, '--', '-c',
                           self.parent.v.obj_center1, '-s', '%s,%s,%s' % (self._size_xB, self._size_yB, self._size_zB),
-                          '-p', 'control']
-            self.box_pymolB = {'pymol_boxB': [self.parent.ws.pymol, visual_arg]}
+                          '-p', 'off-target']
+            self.box_pymolB = {'pymol_boxB': [self.parent.ws.this_python, visual_arg]}
             self.b_pymolB = Worker()
             self.b_pymolB.readyReadStandardOutput.connect(self.readStdOutput)
             self.b_pymolB.readyReadStandardError.connect(self.readStdError)
@@ -1496,49 +1481,38 @@ class Program_body(QtGui.QWidget):
             else:
                 self.ttempB = [0, 0, 0, 0, 0, 0]
             self.b_pymol_timerB = QtCore.QTimer()
-            self.b_pymol_timerB.timeout.connect(lambda: self.info_pass('control'))
+            self.b_pymol_timerB.timeout.connect(lambda: self.info_pass('offtarget'))
             self.b_pymol_timerB.start(15)
         elif btn.objectName() == 'reset_grid_button':
+            self.hide_all('A')
             self.reset_grid_button.setEnabled(False)
             self.grid_pymol_button.setEnabled(False)
             self.run_button.setEnabled(False)
-            self.size_x.clear()
-            self.size_y.clear()
-            self.size_z.clear()
-            self.coor_x.clear()
-            self.coor_y.clear()
-            self.coor_z.clear()
-            self.grid_predef_text.clear()
+            self.bind_site_button.setEnabled(True)
             self.ttemp = [0, 0, 0, 0, 0, 0]
             self.need_grid = True
-            self.grid_predef_text.setReadOnly(False)
-            self.coor_x.setReadOnly(False)
-            self.coor_y.setReadOnly(False)
-            self.coor_z.setReadOnly(False)
-            self.size_x.setReadOnly(False)
-            self.size_y.setReadOnly(False)
-            self.size_z.setReadOnly(False)
-            if self.parent.v.cr:
-                self.btnA_auto.setChecked(True)
-                self.btnA_auto.setEnabled(True)
-                self.btnA_res.setEnabled(True)
-                if self.parent.v.ligands is not None:
-                    self.btnA_lig.setEnabled(True)
-                else:
-                    self.grid_by_lig.setEnabled(False)
-                self.btnA_user.setEnabled(True)
+
+            self.btnA_auto.setChecked(True)
+            self.btnA_auto.setEnabled(True)
+            self.btnA_res.setEnabled(True)
+            if self.parent.v.ligands is not None:
+                self.btnA_lig.setEnabled(True)
+                self.lig_list.setEnabled(True)
             else:
-                if self.parent.v.ligands is not None:
-                    self.grid_by_lig.setEnabled(True)
-                else:
-                    self.grid_by_lig.setEnabled(False)
-                self.grid_user.setEnabled(True)
-                self.grid_predef.setEnabled(True)
-            files = glob.glob('%s*.map' % self.parent.v.protein_name) + glob.glob(
-                '%s*.fld' % self.parent.v.protein_name) + glob.glob('%s*.xyz' % self.parent.v.protein_name) + glob.glob(
-                '%s*.gpf' % self.parent.v.protein_name) + ['user_target_dim.txt', self.parent.v.FILL,
-                                                           self.parent.v.obj_center, self.parent.v.res_center,
-                                                           self.parent.v.gd]
+                self.btnA_lig.setEnabled(False)
+                # self.lig_list.setEnabled(False)
+            self.btnA_user.setEnabled(True)
+            files = []
+            dd = '%s*.map' % self.parent.v.protein_name
+            files.extend(glob.glob(dd))
+            dd = '%s*.fld' % self.parent.v.protein_name
+            files.extend(glob.glob(dd))
+            dd = '%s*.xyz' % self.parent.v.protein_name
+            files.extend(glob.glob(dd))
+            dd = '%s*.gpf' % self.parent.v.protein_name
+            files.extend(glob.glob(dd))
+            files.extend(['user_target_dim.txt', self.parent.v.FILL, self.parent.v.obj_center, self.parent.v.res_center,
+                        self.parent.v.gd])
             for file in files:
                 try:
                     os.remove(file)
@@ -1552,37 +1526,35 @@ class Program_body(QtGui.QWidget):
             else:
                 self.progressBar.setValue(25)
         elif btn.objectName() == 'reset_grid_buttonB':
+            self.hide_all('B')
             self.reset_grid_buttonB.setEnabled(False)
             self.grid_pymol_buttonB.setEnabled(False)
             self.run_button.setEnabled(False)
+            self.bind_site_button.setEnabled(True)
+            self.ttempB = [0, 0, 0, 0, 0, 0]
+            self.need_gridB = True
             self.btnB_auto.setChecked(True)
             self.btnB_auto.setEnabled(True)
             self.btnB_res.setEnabled(True)
-            self.btnB_lig.setEnabled(True)
+            if self.parent.v.analog_ligands is not None:
+                self.btnB_lig.setEnabled(True)
+                self.lig_listB.setEnabled(True)
+            else:
+                self.btnB_lig.setEnabled(False)
             self.btnB_user.setEnabled(True)
-            self.ttempB = [0, 0, 0, 0, 0, 0]
-            self.need_gridB = True
-            self.lig_listB.setEnabled(True)
-            self.size_xB.clear()
-            self.size_yB.clear()
-            self.size_zB.clear()
-            self.coor_xB.clear()
-            self.coor_yB.clear()
-            self.coor_zB.clear()
-            self.grid_predef_textB.clear()
-            self.grid_predef_textB.setReadOnly(False)
-            self.coor_xB.setReadOnly(False)
-            self.coor_yB.setReadOnly(False)
-            self.coor_zB.setReadOnly(False)
-            self.size_xB.setReadOnly(False)
-            self.size_yB.setReadOnly(False)
-            self.size_zB.setReadOnly(False)
-            files = glob.glob('%s*.map' % self.parent.v.analog_protein_name) + glob.glob(
-                '%s*.fld' % self.parent.v.analog_protein_name) + glob.glob(
-                '%s*.xyz' % self.parent.v.analog_protein_name) + glob.glob(
-                '%s*.gpf' % self.parent.v.analog_protein_name) + ['user_off-target_dim.txt', self.parent.v.FILL,
-                                                                  self.parent.v.obj_center1, self.parent.v.res_center1,
-                                                                  self.parent.v.gd1]
+
+            files = []
+            dd = '%s*.map' % self.parent.v.analog_protein_name
+            files.extend(glob.glob(dd))
+            dd = '%s*.fld' % self.parent.v.analog_protein_name
+            files.extend(glob.glob(dd))
+            dd = '%s*.xyz' % self.parent.v.analog_protein_name
+            files.extend(glob.glob(dd))
+            dd = '%s*.gpf' % self.parent.v.analog_protein_name
+            files.extend(glob.glob(dd))
+            files.extend(['user_off_target_dim.txt', self.parent.v.FILL, self.parent.v.obj_center1,
+                          self.parent.v.res_center1, self.parent.v.gd1])
+
             for file in files:
                 try:
                     os.remove(file)
@@ -1614,7 +1586,7 @@ class Program_body(QtGui.QWidget):
         elif btn.objectName() == 'grid_pymol_buttonB' and btn.text() == 'Build in PyMol':
             build_arg = [self.parent.v.analog_protein_pdbqt, self.parent.ws.build_pymol, '--', '-s',
                          '%s,%s,%s' % (self.parent.v.rg, self.parent.v.rg,
-                                       self.parent.v.rg), '-p', 'control']
+                                       self.parent.v.rg), '-p', 'off-target']
             self.box_pymolB = {'pymol_buildB': [self.parent.ws.pymol, build_arg]}
             self.bld_pymolB = Worker()
             self.bld_pymolB.readyReadStandardOutput.connect(self.readStdOutput)
@@ -1628,7 +1600,7 @@ class Program_body(QtGui.QWidget):
             self.bld_pymolB.start_process()
             self.bttempB = [0, 0, 0, 0, 0, 0]
             self.bld_pymol_timerB = QtCore.QTimer()
-            self.bld_pymol_timerB.timeout.connect(lambda: self.info_pass('control_build'))
+            self.bld_pymol_timerB.timeout.connect(lambda: self.info_pass('offtarget_build'))
             self.bld_pymol_timerB.start(15)
 
     def check_queue(self, qname, finished):
@@ -1702,6 +1674,8 @@ class Program_body(QtGui.QWidget):
                     self.size_xB.setReadOnly(True)
                     self.size_yB.setReadOnly(True)
                     self.size_zB.setReadOnly(True)
+                    self.grid_pymol_buttonB.setText('Show in PyMol')
+                    self.need_gridB = False
                 self.grid_predef_text.setReadOnly(True)
                 self.lig_list.setEnabled(False)
                 self.coor_x.setReadOnly(True)
@@ -1712,9 +1686,10 @@ class Program_body(QtGui.QWidget):
                 self.size_z.setReadOnly(True)
 
                 self.run_button.setEnabled(True)
-                self.need_grid = self.need_gridB = False
+                self.need_grid = False
                 self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: BSD Binding Site Definition...Done\n')
-                self.grid_pymol_button.setText('Show in Pymol')
+                self.grid_pymol_button.setText('Show in PyMol')
+                self.progressBar.setValue(50)
             elif qname == 'Molecular Docking Simulation':
                 self.go_result()
                 self.parent.configuration_tab.log_wdw.textedit.append(
@@ -2043,7 +2018,9 @@ class Program_body(QtGui.QWidget):
         elif self.queue_name == 'Construction':
             if self.prog == 'pymol_buildA':
                 self.reset_grid_buttonB.setEnabled(False)
+                self.reset_grid_buttonB.setEnabled(False)
             elif self.prog == 'pymol_buildB':
+                self.reset_grid_button.setEnabled(False)
                 self.reset_grid_button.setEnabled(False)
 
     def process_progress(self, prog, i, err):
@@ -2052,9 +2029,13 @@ class Program_body(QtGui.QWidget):
                 os.remove('pymol_data.txt')
             except:
                 pass
-        if prog == 'pymol_buildA' or prog == 'pymol_buildB':
+        if prog in ['pymol_buildA', 'pymol_buildB', 'pymol_boxA', 'pymol_boxB']:
             # TODO: change status for pymol buttons
-            pass
+            self.grid_pymol_button.setEnabled(True)
+            self.grid_pymol_buttonB.setEnabled(True)
+            self.reset_grid_button.setEnabled(True)
+            self.reset_grid_buttonB.setEnabled(True)
+            # pass
         if self.queue_name == 'Prepare Input Files':
             if self.parent.v.cr:
                 if prog == 'PDB2PQR':
@@ -2393,7 +2374,7 @@ class Program_body(QtGui.QWidget):
                                                             'Autoligand has failed generating an object '
                                                             'centered on the selected residue(s) (See the Manual). Now the box will be centered on the '
                                                             'selected residues.\n Take into account that this could decrease the search space'
-                                                            'considerably. Do you wish to continue?',
+                                                            ' considerably. Do you wish to continue?',
                                                             QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
                     if select_res == QtGui.QMessageBox.Yes:
                         os.rename(self.parent.v.res_center, self.parent.v.obj_center)
@@ -2401,6 +2382,7 @@ class Program_body(QtGui.QWidget):
                         self.reset_button.setEnabled(True)
                         self.reset_grid_button.setEnabled(True)
                         self.grid_pymol_button.setEnabled(True)
+                        self.grid_box.setEnabled(True)
                         if self.parent.v.cr:
                             self.progressBar.setValue(37)
                         else:
@@ -2409,10 +2391,21 @@ class Program_body(QtGui.QWidget):
                         self.grid_box.setEnabled(True)
                         self.progressBar.setValue(25)
                         self.reset_button.setEnabled(True)
-                        files = glob.glob('%s*.map') % self.parent.v.protein_name + glob.glob('%s*.fld') % \
-                                self.parent.v.protein_name + glob.glob('%s*.xyz') % self.parent.v.protein_name + \
-                                glob.glob('%s*.gpf') % self.parent.v.protein_name
-
+                        files = []
+                        dd = '%s*.map' % self.parent.v.protein_name
+                        files.extend(glob.glob(dd))
+                        dd = '%s*.fld' % self.parent.v.protein_name
+                        # files.extend(glob.glob('%s*.fld') % self.parent.v.protein_name)
+                        files.extend(glob.glob(dd))
+                        dd = '%s*.xyz' % self.parent.v.protein_name
+                        # files.extend(glob.glob('%s*.xyz') % self.parent.v.protein_name)
+                        # dd = '%s*.fld' % self.parent.v.protein_name
+                        files.extend(glob.glob(dd))
+                        # files.extend(glob.glob('%s*.gpf') % self.parent.v.protein_name)
+                        dd = '%s*.gpf' % self.parent.v.protein_name
+                        files.extend(glob.glob(dd))
+                        files.extend([self.parent.v.res_center, self.parent.v.obj_center])
+                        # os.get
                         for file in files:
                             try:
                                 os.remove(file)
@@ -2421,6 +2414,7 @@ class Program_body(QtGui.QWidget):
                 else:
                     error_warning(self, prog, 'The program was finalized manually or closed by the occurrence of an '
                                               'internal error.')
+                    self.grid_box.setEnabled(True)
                     self.reset_button.setEnabled(True)
             elif prog == 'AutoLigand B':
                 if self.parent.v.analog_grid_def == 'by_residues':
@@ -2613,7 +2607,7 @@ class Program_body(QtGui.QWidget):
                                  mess='Determining better poses...')
                 elif self.prog == 'AutoDock4 B' or self.prog == 'AutoDock4ZN B':
                     progress(self, 3, 3, [79, self.part * 20 / self.parent.v.runs],
-                             mess='Determining better poses for Control...')
+                             mess='Determining better poses for Off-Target...')
             if self.part == self.parent.v.runs:
                 self.part = 0
                 self.timerAD.stop()
@@ -2634,8 +2628,8 @@ class Program_body(QtGui.QWidget):
     def amdock_load(self):
         elements = {0: 'Working Directory', 1: 'Input Directory', 2: 'Results Directory', 3: 'PDBQT of Target Protein',
                     4: 'All Poses File of Target Result', 5: 'Best Pose File of Target Result',
-                    6: 'PDBQT of Off-Target Protein', 7: 'All Poses File of Control Result',
-                    8: 'Best Pose File of Control Result'}
+                    6: 'PDBQT of Off-Target Protein', 7: 'All Poses File of Off-Target Result',
+                    8: 'Best Pose File of Off-Target Result'}
         elements_score = {0: 'Working Directory', 1: 'Input Directory', 2: 'Results Directory',
                           3: 'PDBQT of Target Protein', 4: 'PDBQT of Ligand'}
         self.parent.statusbar.showMessage(" Loading .amdock file...", 2000)
@@ -2867,7 +2861,7 @@ class Program_body(QtGui.QWidget):
                     os.remove(self.parent.v.input_target)
                     self.parent.v.analog_metals = None
                     self.parent.v.analog_ligands = None
-                    self.parent.v.control_prepare = True
+                    self.parent.v.offtarget_prepare = True
                     self.lig_listB.clear()
                     self.lig_listB.hide()
                     self.btnB_lig.show()
@@ -2880,7 +2874,7 @@ class Program_body(QtGui.QWidget):
                     elif self.parent.v.input_lig is not None and self.parent.v.input_offtarget is None:
                         progress(self, 0, 0, 4, reverse=True, mess='Off-Target Definition...')
                     else:
-                        progress(self, 0, 0, 7, reverse=True, mess='Control Definition...')
+                        progress(self, 0, 0, 7, reverse=True, mess='Off-Target Definition...')
                     self.parent.loader.load_proteinB()
             if self.parent.v.docking_program == 'AutoDockZn':
                 self.check_opt = self.parent.checker.autodockzn_check('B')
@@ -2894,13 +2888,13 @@ class Program_body(QtGui.QWidget):
                     self.protein_labelB.clear()
 
                     if self.parent.v.input_lig == '' and self.parent.v.input_offtarget == None:
-                        progress(self, 0, 0, 2, reverse=True, mess='Control Definition...')
+                        progress(self, 0, 0, 2, reverse=True, mess='Off-Target Definition...')
                     elif self.parent.v.input_lig == '' and self.parent.v.input_offtarget != None:
-                        progress(self, 0, 0, 5, reverse=True, mess='Control Definition...')
+                        progress(self, 0, 0, 5, reverse=True, mess='Off-Target Definition...')
                     elif self.parent.v.input_lig != '' and self.parent.v.input_offtarget == None:
-                        progress(self, 0, 0, 4, reverse=True, mess='Control Definition...')
+                        progress(self, 0, 0, 4, reverse=True, mess='Off-Target Definition...')
                     else:
-                        progress(self, 0, 0, 7, reverse=True, mess='Control Definition...')
+                        progress(self, 0, 0, 7, reverse=True, mess='Off-Target Definition...')
 
                 elif self.check_opt == QtGui.QMessageBox.Cancel:
                     self.parent.main_window.setCurrentIndex(0)
@@ -3423,7 +3417,7 @@ class Program_body(QtGui.QWidget):
             self.parent.v.ligand_h = self.parent.v.ligand_name + "_h.pdb"
             self.parent.v.ligand_pdbqt = self.parent.v.ligand_name + '_h.pdbqt'
         if self.parent.v.cr:
-            if self.parent.v.control_prepare:
+            if self.parent.v.offtarget_prepare:
                 self.parent.v.analog_protein_pqr = self.parent.v.analog_protein_name + '_h.pqr'
                 self.parent.v.analog_protein_h = self.parent.v.analog_protein_name + '_h.pdb'
                 self.parent.v.analog_protein_pdbqt = self.parent.v.analog_protein_name + '_h.pdbqt'
@@ -3444,7 +3438,7 @@ class Program_body(QtGui.QWidget):
             prepare_receptor4_arg = [self.ws.prepare_receptor4_py, '-r', self.parent.v.protein_h, '-v', '-U',
                                      'nphs_lps_waters_nonstdres_deleteAltB']
             self.prepare_receptor4 = {'Prepare_Receptor4': [self.ws.this_python, prepare_receptor4_arg]}
-        if self.parent.v.control_prepare:
+        if self.parent.v.offtarget_prepare:
             self.pdb2pqrB = {'PDB2PQR B': [self.ws.this_python, [self.ws.pdb2pqr_py, '--ph-calc-method=propka',
                                                                  '--verbose', '--noopt', '--drop-water', '--chain',
                                                                  '--with-ph', str(self.parent.v.pH),
@@ -3473,7 +3467,7 @@ class Program_body(QtGui.QWidget):
                 self.list_process.append(self.pdb2pqr)
                 self.list_process.append(self.fix_pqr)
                 self.list_process.append(self.prepare_receptor4)
-            if self.parent.v.control_prepare:
+            if self.parent.v.offtarget_prepare:
                 self.list_process.append(self.pdb2pqrB)
                 self.list_process.append(self.fix_pqrB)
                 self.list_process.append(self.prepare_receptor4B)

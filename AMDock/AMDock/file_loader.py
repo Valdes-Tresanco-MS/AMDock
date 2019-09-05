@@ -162,11 +162,11 @@ class Loader(QtGui.QMainWindow):
                         self.parent.program_body.prep_rec_lig_button.setEnabled(False)
                         self.parent.program_body.wdir_button.setEnabled(True)
             try:
-                if self.parent.v.prot_align and self.target_ext in ['pdb', 'ent'] and self.control_ext in ['pdb',
+                if self.parent.v.prot_align and self.target_ext in ['pdb', 'ent'] and self.offtarget_ext in ['pdb',
                                                                                                            'ent']:
                     aln = subprocess.Popen([self.parent.ws.pymol, '-c', self.parent.ws.aln_pymol, '--', '-t',
                                             self.target_name + '.' + self.target_ext, '-o',
-                                            self.control_name + '.' + self.control_ext], stdin=subprocess.PIPE,
+                                            self.offtarget_name + '.' + self.offtarget_ext], stdin=subprocess.PIPE,
                                            stdout=subprocess.PIPE)
                     aln.wait()
             except:
@@ -179,11 +179,11 @@ class Loader(QtGui.QMainWindow):
         if data_file.exec_():
             filenames = data_file.selectedFiles()
 
-            self.control_path = str(filenames[0])
-            self.control_ext = str(os.path.basename(self.control_path).split('.')[1])
-            self.control_name = str(os.path.basename(self.control_path).split('.')[0]).replace(' ', '_')
+            self.offtarget_path = str(filenames[0])
+            self.offtarget_ext = str(os.path.basename(self.offtarget_path).split('.')[1])
+            self.offtarget_name = str(os.path.basename(self.offtarget_path).split('.')[0]).replace(' ', '_')
 
-            self.parent.v.analog_protein_name = self.control_name
+            self.parent.v.analog_protein_name = self.offtarget_name
             if self.parent.v.analog_protein_name == self.parent.v.protein_name:
                 self.same = same_protein(self, 'Off-Target Protein', self.parent.v.analog_protein_name,
                                          'Target Protein')
@@ -209,18 +209,18 @@ class Loader(QtGui.QMainWindow):
                     self.parent.program_body.protein_labelB.clear()
                     self.load_proteinB()
             else:
-                self.parent.program_body.protein_labelB.setText('Loaded Off-Target from: %s' % self.control_path)
-                self.parent.program_body.protein_textB.setText(os.path.basename(self.control_path))
+                self.parent.program_body.protein_labelB.setText('Loaded Off-Target from: %s' % self.offtarget_path)
+                self.parent.program_body.protein_textB.setText(os.path.basename(self.offtarget_path))
 
-                if self.control_ext == 'pdbqt':
-                    self.parent.v.control_prepare = False
-                    self.parent.v.analog_protein_pdbqt = str(os.path.basename(self.control_path)).replace(' ', '_')
+                if self.offtarget_ext == 'pdbqt':
+                    self.parent.v.offtarget_prepare = False
+                    self.parent.v.analog_protein_pdbqt = str(os.path.basename(self.offtarget_path)).replace(' ', '_')
                 else:
-                    self.parent.v.analog_protein_file = str(os.path.basename(self.control_path)).replace(' ', '_')
+                    self.parent.v.analog_protein_file = str(os.path.basename(self.offtarget_path)).replace(' ', '_')
                 self.parent.v.input_target = os.path.join(self.parent.v.input_dir,
-                                                          self.control_name.replace(' ', '_') + '.' + self.control_ext)
+                                                          self.offtarget_name.replace(' ', '_') + '.' + self.offtarget_ext)
                 try:
-                    shutil.copy('%s' % self.control_path, self.parent.v.input_target)
+                    shutil.copy('%s' % self.offtarget_path, self.parent.v.input_target)
                 except:
                     nowdir = QtGui.QMessageBox.critical(self.parent, 'Error', 'The working directory was not found or '
                                                                               'it does not have permission for writing.'
@@ -228,10 +228,10 @@ class Loader(QtGui.QMainWindow):
                                                         QtGui.QMessageBox.Ok)
 
                 os.chdir(self.parent.v.input_dir)
-                self.parent.v.analog_protein = PDBMap(self.control_path)
+                self.parent.v.analog_protein = PDBMap(self.offtarget_path)
                 try:
                     self.parent.v.analog_ligands = self.parent.v.analog_protein.count_molecules()['ligands']
-                    if self.control_ext == 'pdbqt':
+                    if self.offtarget_ext == 'pdbqt':
                         elim_lig = QtGui.QMessageBox.warning(self.parent, 'Warning',
                                                              'The pdbqt file selected have a ligand.\n'
                                                              ' Do you wish to eliminate it?',
@@ -269,11 +269,11 @@ class Loader(QtGui.QMainWindow):
                     self.parent.program_body.prep_rec_lig_button.setEnabled(True)
                     self.parent.program_body.wdir_button.setEnabled(False)
             try:
-                if self.parent.v.prot_align and self.target_ext in ['pdb', 'ent'] and self.control_ext in ['pdb',
+                if self.parent.v.prot_align and self.target_ext in ['pdb', 'ent'] and self.offtarget_ext in ['pdb',
                                                                                                            'ent']:
                     aln = subprocess.Popen([self.parent.ws.pymol, '-c', self.parent.ws.aln_pymol, '--', '-t',
                                             self.target_name + '.' + self.target_ext, '-o',
-                                            self.control_name + '.' + self.control_ext], stdin=subprocess.PIPE,
+                                            self.offtarget_name + '.' + self.offtarget_ext], stdin=subprocess.PIPE,
                                            stdout=subprocess.PIPE)
                     aln.wait()
             except:
@@ -299,7 +299,7 @@ class Loader(QtGui.QMainWindow):
                     self.parent.program_body.ligand_label.clear()
                     self.load_ligand()
             elif self.parent.v.ligand_name == self.parent.v.analog_protein_name:
-                self.same = same_protein(self, 'Ligand', self.parent.v.protein_name, 'Control Protein', 'ligand')
+                self.same = same_protein(self, 'Ligand', self.parent.v.protein_name, 'Off-Target Protein', 'ligand')
                 if self.same == QtGui.QMessageBox.Ok:
                     self.parent.v.ligand_file = None
                     self.parent.program_body.ligand_text.clear()

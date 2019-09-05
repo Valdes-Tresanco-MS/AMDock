@@ -129,7 +129,7 @@ class Configuration_tab(QtGui.QWidget):
         self.neval_value.setMinimum(200000)
         self.neval_value.setMaximum(10000000)
         self.neval_value.setSingleStep(100000)
-        self.neval_value.setObjectName("nposes_value")
+        self.neval_value.setObjectName("neval_value")
 
         self.nruns = QtGui.QLabel(self.AD4_config_box)
         self.nruns.setObjectName("nruns")
@@ -276,7 +276,7 @@ class Configuration_tab(QtGui.QWidget):
             self.NoPoses = self.nposes_value.value()
         elif k.objectName() == "exh_value":
             self.exhaustiveness = self.exh_value.value()
-        elif k.objectName() == 'neval':
+        elif k.objectName() == 'neval_value':
             self.ga_num_eval = self.neval_value.value()
         elif k.objectName() == 'nruns_value':
             self.ga_run = self.nruns_value.value()
