@@ -178,7 +178,7 @@ class Objects():
     style_file = os.path.join(os.path.dirname(__file__), 'style.css')
     iconsPath = os.path.join(os.path.dirname(__file__), 'images')
     splashscreen_path = os.path.join(iconsPath, 'splashscreen.png')
-    app_icon_ = os.path.join(iconsPath, 'amdock_icon.png')
+    app_icon = os.path.join(iconsPath, 'amdock_icon.png')
     reset_icon = os.path.join(iconsPath, 'reset.png')
     home_icon_white = os.path.join(iconsPath, 'home_icon_white.png')
     home_icon = os.path.join(iconsPath, 'home_icon.png')
