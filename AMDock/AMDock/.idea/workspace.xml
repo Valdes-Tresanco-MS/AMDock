@@ -37,7 +37,7 @@
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$USER_HOME$/Descargas/AMDock-win-master/Lib/site-packages/AMDock/file_loader.py" />
+    <property name="last_opened_file_path" value="$USER_HOME$/Descargas/AMDock-win-master/Lib/site-packages/AMDock/setting_tab.py" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -45,7 +45,7 @@
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
-    <property name="two.files.diff.last.used.file" value="$USER_HOME$/Descargas/AMDock-win-master/Lib/site-packages/AMDock/file_loader.py" />
+    <property name="two.files.diff.last.used.file" value="$USER_HOME$/Descargas/AMDock-win-master/Lib/site-packages/AMDock/setting_tab.py" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
