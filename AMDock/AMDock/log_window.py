@@ -14,7 +14,7 @@ class LogWindow(QtGui.QDialog):
         self.parent = parent
         layout = QtGui.QVBoxLayout()
 
-        font = QtGui.QFont('Times')
+        font = QtGui.QFont('Courier New')
         font.setPointSize(10)
         font.setKerning(False)
         self.textedit = QtGui.QTextEdit(self)
