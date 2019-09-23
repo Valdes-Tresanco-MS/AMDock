@@ -1,0 +1,97 @@
+HETATM    1  N   LIG P2006      20.213 136.590   1.917  1.00 37.31           N  
+HETATM    2  CA  LIG P2006      19.614 135.330   1.382  1.00 36.92           C  
+HETATM    3  C   LIG P2006      18.823 135.584   0.089  1.00 36.55           C  
+HETATM    4  O   LIG P2006      17.595 135.679   0.141  1.00 37.23           O  
+HETATM    5  CB  LIG P2006      18.650 134.697   2.414  1.00 36.91           C  
+HETATM    6  SG  LIG P2006      19.422 133.867   3.879  1.00 35.44           S  
+HETATM    7  N   LIG P2007      19.493 135.701  -1.060  1.00 35.37           N  
+HETATM    8  CA  LIG P2007      18.749 135.921  -2.305  1.00 33.34           C  
+HETATM    9  C   LIG P2007      18.525 134.619  -3.074  1.00 32.07           C  
+HETATM   10  O   LIG P2007      19.467 133.873  -3.356  1.00 31.56           O  
+HETATM   11  CB  LIG P2007      19.437 136.956  -3.250  1.00 33.66           C  
+HETATM   12  CG1 LIG P2007      19.633 138.278  -2.517  1.00 33.37           C  
+HETATM   13  CG2 LIG P2007      20.751 136.413  -3.778  1.00 33.80           C  
+HETATM   14  N   LIG P2008      17.264 134.360  -3.406  1.00 30.24           N  
+HETATM   15  CA  LIG P2008      16.871 133.151  -4.126  1.00 28.60           C  
+HETATM   16  C   LIG P2008      16.936 133.287  -5.638  1.00 27.30           C  
+HETATM   17  O   LIG P2008      16.975 132.282  -6.351  1.00 25.62           O  
+HETATM   18  CB  LIG P2008      15.440 132.754  -3.762  1.00 29.50           C  
+HETATM   19  CG  LIG P2008      15.106 132.473  -2.301  1.00 30.28           C  
+HETATM   20  CD1 LIG P2008      13.769 131.758  -2.235  1.00 29.89           C  
+HETATM   21  CD2 LIG P2008      16.185 131.607  -1.678  1.00 30.94           C  
+HETATM   22  N   LIG P2009      16.926 134.528  -6.121  1.00 25.84           N  
+HETATM   23  CA  LIG P2009      16.954 134.788  -7.553  1.00 25.20           C  
+HETATM   24  C   LIG P2009      17.386 136.218  -7.867  1.00 24.64           C  
+HETATM   25  O   LIG P2009      17.763 136.947  -6.923  1.00 23.80           O  
+HETATM   26  CB  LIG P2009      15.565 134.541  -8.149  1.00 25.50           C  
+HETATM   27  OG  LIG P2009      14.626 135.461  -7.618  1.00 25.52           O  
+HETATM   28  OXT LIG P2009      17.340 136.584  -9.062  1.00 24.13           O1-
+HETATM   29  C1  LIG P2010      20.474 132.608   3.111  1.00 36.13           C  
+HETATM   30  C2  LIG P2010      19.744 131.942   1.961  1.00 35.46           C  
+HETATM   31  C3  LIG P2010      20.263 131.736   0.717  1.00 34.90           C  
+HETATM   32  C4  LIG P2010      21.659 132.146   0.304  1.00 35.70           C  
+HETATM   33  C5  LIG P2010      19.481 131.078  -0.390  1.00 33.85           C  
+HETATM   34  C6  LIG P2010      19.582 129.548  -0.405  1.00 31.67           C  
+HETATM   35  C7  LIG P2010      18.351 128.894  -0.989  1.00 29.30           C  
+HETATM   36  C8  LIG P2010      18.240 128.390  -2.247  1.00 27.78           C  
+HETATM   37  C9  LIG P2010      19.356 128.407  -3.269  1.00 28.05           C  
+HETATM   38  C10 LIG P2010      16.950 127.759  -2.720  1.00 27.00           C  
+HETATM   39  C11 LIG P2010      16.384 128.364  -4.003  1.00 25.08           C  
+HETATM   40  C12 LIG P2010      15.072 127.741  -4.422  1.00 23.70           C  
+HETATM   41  C13 LIG P2010      14.388 128.108  -5.532  1.00 23.06           C  
+HETATM   42  C14 LIG P2010      14.876 129.192  -6.484  1.00 23.39           C  
+HETATM   43  C15 LIG P2010      13.044 127.500  -5.925  1.00 22.82           C  
+HETATM   44  C16 LIG P2010      12.037 128.605  -6.155  1.00 23.84           C  
+HETATM   45  C17 LIG P2010      11.647 129.299  -4.864  1.00 23.54           C  
+HETATM   46  C18 LIG P2010      10.840 130.378  -4.766  1.00 24.52           C  
+HETATM   47  C19 LIG P2010      10.229 131.095  -5.948  1.00 25.30           C  
+HETATM   48  C20 LIG P2010      10.471 130.984  -3.447  1.00 23.36           C  
+CONECT    1    2
+CONECT    2    1    3    5
+CONECT    3    2    4    7
+CONECT    4    3
+CONECT    5    2    6
+CONECT    6    5   29
+CONECT    7    3    8
+CONECT    8    7    9   11
+CONECT    9    8   10   14
+CONECT   10    9
+CONECT   11    8   12   13
+CONECT   12   11
+CONECT   13   11
+CONECT   14    9   15
+CONECT   15   14   16   18
+CONECT   16   15   17   22
+CONECT   17   16
+CONECT   18   15   19
+CONECT   19   18   20   21
+CONECT   20   19
+CONECT   21   19
+CONECT   22   16   23
+CONECT   23   22   24   26
+CONECT   24   23   25   28
+CONECT   25   24
+CONECT   26   23   27
+CONECT   27   26
+CONECT   28   24
+CONECT   29    6   30
+CONECT   30   29   31
+CONECT   31   30   32   33
+CONECT   32   31
+CONECT   33   31   34
+CONECT   34   33   35
+CONECT   35   34   36
+CONECT   36   35   37   38
+CONECT   37   36
+CONECT   38   36   39
+CONECT   39   38   40
+CONECT   40   39   41
+CONECT   41   40   42   43
+CONECT   42   41
+CONECT   43   41   44
+CONECT   44   43   45
+CONECT   45   44   46
+CONECT   46   45   47   48
+CONECT   47   46
+CONECT   48   46
+END

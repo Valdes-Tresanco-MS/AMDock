@@ -1,0 +1,53 @@
+HETATM    1  S1  CEL A 682      18.621  22.572  48.149  1.00 43.78           S  
+HETATM    2  C15 CEL A 682      20.371  22.796  48.141  1.00 41.41           C  
+HETATM    3  C14 CEL A 682      20.931  23.865  47.489  1.00 39.70           C  
+HETATM    4  C13 CEL A 682      22.298  23.989  47.492  1.00 39.68           C  
+HETATM    5  C12 CEL A 682      23.035  23.036  48.152  1.00 39.92           C  
+HETATM    6  C17 CEL A 682      22.469  21.977  48.817  1.00 40.26           C  
+HETATM    7  C16 CEL A 682      21.106  21.848  48.810  1.00 40.98           C  
+HETATM    8  N2  CEL A 682      24.418  23.067  48.200  1.00 40.07           N  
+HETATM    9  C3  CEL A 682      25.338  23.556  47.304  1.00 40.53           C  
+HETATM   10  C5  CEL A 682      25.164  24.116  45.975  1.00 39.27           C  
+HETATM   11  C10 CEL A 682      24.332  23.543  45.033  1.00 37.27           C  
+HETATM   12  C9  CEL A 682      24.237  24.101  43.785  1.00 37.20           C  
+HETATM   13  C8  CEL A 682      24.975  25.224  43.476  1.00 37.91           C  
+HETATM   14  C11 CEL A 682      24.893  25.868  42.137  1.00 35.46           C  
+HETATM   15  C7  CEL A 682      25.813  25.783  44.413  1.00 38.04           C  
+HETATM   16  C6  CEL A 682      25.913  25.224  45.658  1.00 38.09           C  
+HETATM   17  C2  CEL A 682      26.545  23.358  47.922  1.00 41.52           C  
+HETATM   18  C1  CEL A 682      26.262  22.759  49.163  1.00 41.45           C  
+HETATM   19  C4  CEL A 682      27.203  22.330  50.191  1.00 43.00           C  
+HETATM   20  F3  CEL A 682      27.190  23.042  51.345  1.00 43.04           F  
+HETATM   21  F2  CEL A 682      26.935  21.047  50.511  1.00 45.98           F  
+HETATM   22  F1  CEL A 682      28.474  22.363  49.754  1.00 43.55           F  
+HETATM   23  N1  CEL A 682      24.958  22.569  49.324  1.00 41.09           N  
+HETATM   24  N3  CEL A 682      18.046  23.449  49.521  1.00 42.37           N  
+HETATM   25  O2  CEL A 682      18.447  21.160  48.396  1.00 45.34           O  
+HETATM   26  O1  CEL A 682      18.155  23.115  46.885  1.00 45.63           O  
+CONECT    1    2   24   25   26
+CONECT    2    1    3    7
+CONECT    3    2    4
+CONECT    4    3    5
+CONECT    5    4    6    8
+CONECT    6    5    7
+CONECT    7    2    6
+CONECT    8    5    9   23
+CONECT    9    8   10   17
+CONECT   10    9   11   16
+CONECT   11   10   12
+CONECT   12   11   13
+CONECT   13   12   14   15
+CONECT   14   13
+CONECT   15   13   16
+CONECT   16   10   15
+CONECT   17    9   18
+CONECT   18   17   19   23
+CONECT   19   18   20   21   22
+CONECT   20   19
+CONECT   21   19
+CONECT   22   19
+CONECT   23    8   18
+CONECT   24    1
+CONECT   25    1
+CONECT   26    1
+END
