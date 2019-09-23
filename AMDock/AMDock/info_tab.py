@@ -21,7 +21,7 @@ class Help(QtGui.QWidget):
 
         self.documentation_button = QtGui.QPushButton(self.documentation_box)
         self.documentation_button.setText('Documentation')
-        self.documentation_button.clicked.connect(lambda : subprocess.call(['evince',self.parent.ws.manual]))
+        self.documentation_button.clicked.connect(lambda : subprocess.call(['xdg-open',self.parent.ws.manual]))
 
         self.citing_box = QtGui.QGroupBox(self)
         self.citing_box.setTitle("Cite Us")
