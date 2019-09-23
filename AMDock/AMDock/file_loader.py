@@ -94,11 +94,11 @@ class Loader(QtGui.QMainWindow):
                 else:
                     self.parent.v.protein_file = str(os.path.basename(self.target_path)).replace(' ', '_')
 
-                self.parent.v.input_offtarget = os.path.join(self.parent.v.input_dir,
+                self.parent.v.input_target = os.path.join(self.parent.v.input_dir,
                                                              self.target_name.replace(' ', '_') + '.' + self.target_ext)
 
                 try:
-                    shutil.copy('%s' % self.target_path, self.parent.v.input_offtarget)
+                    shutil.copy('%s' % self.target_path, self.parent.v.input_target)
                 except:
                     nowdir = QtGui.QMessageBox.critical(self.parent, 'Error', 'The working directory was not found or '
                                                                               'it does not have permission for writing.'
@@ -115,7 +115,7 @@ class Loader(QtGui.QMainWindow):
                                                              'The pdbqt file selected have a ligand.\n Do you wish to eliminate it?',
                                                              QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
                         if elim_lig == QtGui.QMessageBox.Yes:
-                            ClearAndFix(self.parent.v.input_offtarget).write()
+                            ClearAndFix(self.parent.v.input_target).write()
                             self.parent.v.ligands = None
                 except:
                     pass
@@ -217,10 +217,10 @@ class Loader(QtGui.QMainWindow):
                     self.parent.v.analog_protein_pdbqt = str(os.path.basename(self.offtarget_path)).replace(' ', '_')
                 else:
                     self.parent.v.analog_protein_file = str(os.path.basename(self.offtarget_path)).replace(' ', '_')
-                self.parent.v.input_target = os.path.join(self.parent.v.input_dir,
+                self.parent.v.input_offtarget = os.path.join(self.parent.v.input_dir,
                                                           self.offtarget_name.replace(' ', '_') + '.' + self.offtarget_ext)
                 try:
-                    shutil.copy('%s' % self.offtarget_path, self.parent.v.input_target)
+                    shutil.copy('%s' % self.offtarget_path, self.parent.v.input_offtarget)
                 except:
                     nowdir = QtGui.QMessageBox.critical(self.parent, 'Error', 'The working directory was not found or '
                                                                               'it does not have permission for writing.'
@@ -237,7 +237,7 @@ class Loader(QtGui.QMainWindow):
                                                              ' Do you wish to eliminate it?',
                                                              QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
                         if elim_lig == QtGui.QMessageBox.Yes:
-                            ClearAndFix(self.parent.v.input_target).write()
+                            ClearAndFix(self.parent.v.input_offtarget).write()
                             self.parent.v.analog_ligands = None
                 except:
                     pass
@@ -366,7 +366,7 @@ class Loader(QtGui.QMainWindow):
                                     self.parent.program_body.prep_rec_lig_button.setEnabled(True)
                                     self.parent.program_body.wdir_button.setEnabled(False)
                             else:
-                                if self.parent.v.input_offtarget is not None:
+                                if self.parent.v.input_target is not None:
                                     progress(self.parent.program_body, 0, 0, 10, finish=True,
                                              mess='Ligand Definition...')
                                     self.parent.program_body.prep_rec_lig_button.setEnabled(True)
@@ -405,7 +405,7 @@ class Loader(QtGui.QMainWindow):
                                 self.parent.program_body.prep_rec_lig_button.setEnabled(True)
                                 self.parent.program_body.wdir_button.setEnabled(False)
                         else:
-                            if self.parent.v.input_offtarget is not None:
+                            if self.parent.v.input_target is not None:
                                 progress(self.parent.program_body, 0, 0, 10, finish=True, mess='Ligand Definition...')
                                 self.parent.program_body.prep_rec_lig_button.setEnabled(True)
                                 self.parent.program_body.wdir_button.setEnabled(False)
@@ -433,7 +433,7 @@ class Loader(QtGui.QMainWindow):
                             self.parent.program_body.prep_rec_lig_button.setEnabled(True)
                             self.parent.program_body.wdir_button.setEnabled(False)
                     else:
-                        if self.parent.v.input_offtarget != None:
+                        if self.parent.v.input_target != None:
                             progress(self.parent.program_body, 0, 0, 10, finish=True, mess='Ligand Definition...')
                             self.parent.program_body.prep_rec_lig_button.setEnabled(True)
                             self.parent.program_body.wdir_button.setEnabled(False)

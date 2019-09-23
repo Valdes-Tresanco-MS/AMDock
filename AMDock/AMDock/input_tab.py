@@ -43,11 +43,6 @@ class Program_body(QtGui.QWidget):
         self.proj_name_validator = QtGui.QRegExpValidator(QtCore.QRegExp("\\S+"))
         self.project_text.setValidator(self.proj_name_validator)
 
-        # self.project_help = QtGui.QPushButton(self.project_box)
-        # self.project_help.setObjectName("project_help")
-        # self.project_help.setText("?")
-        # self.project_help.setToolTip(self.parent.tt.project_tt)
-
         self.wdir_button = QtGui.QPushButton(self.project_box)
         self.wdir_button.setObjectName("wdir_button")
         self.wdir_button.setText("Project Folder")
@@ -61,7 +56,6 @@ class Program_body(QtGui.QWidget):
         self.project_box_layout = QtGui.QGridLayout(self.project_box)
         self.project_box_layout.addWidget(self.project_label, 0, 0)
         self.project_box_layout.addWidget(self.project_text, 0, 1, 1, 1)
-        # self.project_box_layout.addWidget(self.project_help, 0, 2)
         self.project_box_layout.addWidget(self.wdir_button, 1, 0)
         self.project_box_layout.addWidget(self.wdir_text, 1, 1, 1, 1)
 
@@ -127,11 +121,6 @@ class Program_body(QtGui.QWidget):
         self.protein_labelB = QtGui.QLabel(self.input_box)
         self.protein_labelB.hide()
 
-        # self.input_help = QtGui.QPushButton(self.input_box)
-        # self.input_help.setObjectName("input_help")
-        # self.input_help.setText("?")
-        # self.input_help.setToolTip(self.parent.tt.input_tt)
-
         self.ligand_button = QtGui.QPushButton(self.input_box)
         self.ligand_button.setObjectName("ligand_button")
         self.ligand_button.setText("Ligand")
@@ -156,7 +145,6 @@ class Program_body(QtGui.QWidget):
         self.flags_layout.addWidget(self.cross_reaction)
         self.flags_layout.addWidget(self.rescoring)
         self.flags_layout.addStretch(1)
-        # self.flags_layout.addWidget(self.input_help)
 
         self.input_layout = QtGui.QGridLayout()
         self.input_layout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
@@ -436,8 +424,6 @@ class Program_body(QtGui.QWidget):
         self.grid_pymol_button.clicked.connect(lambda: self.grid_actions(self.grid_pymol_button))
         self.grid_pymol_button.setEnabled(False)
 
-        # self.grid_pymol_button.setText('Show in PyMol')
-
         self.grid_pymol_buttonB = QtGui.QPushButton(self.grid_box)
         self.grid_pymol_buttonB.setObjectName("grid_pymol_buttonB")
         self.grid_pymol_buttonB.setText("Show in PyMol")
@@ -457,12 +443,6 @@ class Program_body(QtGui.QWidget):
         self.reset_grid_buttonB.hide()
         self.reset_grid_buttonB.clicked.connect(lambda: self.grid_actions(self.reset_grid_buttonB))
         self.reset_grid_buttonB.setEnabled(False)
-
-        # self.grid_help = QtGui.QPushButton()  # self.grid_box)
-        # self.grid_help.setMaximumSize(22, 22)
-        # self.grid_help.setObjectName("grid_help")
-        # self.grid_help.setText("?")
-        # self.grid_help.setToolTip(self.parent.tt.grid_tt)
 
         self.checker_icon = QtGui.QLabel(self.grid_box)
         self.checker_icon.setPixmap(QtGui.QPixmap(self.parent.objects.error_checker))
@@ -655,12 +635,7 @@ class Program_body(QtGui.QWidget):
         self.all_options.addLayout(self.conf_buttons, 5, 1, QtCore.Qt.AlignCenter)
         self.all_options.addLayout(self.conf_buttonsB, 5, 2, QtCore.Qt.AlignCenter)
 
-        # self.grid_help_layout = QtGui.QHBoxLayout()
-        # self.grid_help_layout.addItem(self.spacer)
-        # self.grid_help_layout.addWidget(self.grid_help)
-
         self.binding_layout = QtGui.QVBoxLayout()
-        # self.binding_layout.addLayout(self.grid_help_layout, QtCore.Qt.AlignRight)
         self.binding_layout.addStretch(1)
         self.binding_layout.addWidget(self.bind_site_button)
         self.binding_layout.addStretch(1)
@@ -739,13 +714,6 @@ class Program_body(QtGui.QWidget):
                 self.protein_labelB.clear()
                 self.ligand_text.clear()
                 self.ligand_label.clear()
-                # self.lig_list.clear()
-                # self.lig_list.hide()
-                # self.lig_listB.clear()
-                # self.lig_listB.hide()
-                # self.simple_docking.setChecked(True)
-                # self.grid_icon.hide()
-                # self.grid_pymol_buttonB.hide()
                 self.grid_pymol_button.setText('Show in PyMol')
                 self.grid_pymol_buttonB.setText('Show in PyMol')
 
@@ -770,7 +738,6 @@ class Program_body(QtGui.QWidget):
                     self.b_pymol_timerB.stop()
                 except:
                     pass
-
                 if self.parent.v.WDIR is not None:
                     rm_folder = QtGui.QMessageBox.warning(self, 'Warning',
                                                           "Do you wish to delete the previous project's folder?.",
@@ -1678,7 +1645,11 @@ class Program_body(QtGui.QWidget):
                 self.need_grid = False
                 self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: BSD Binding Site Definition...Done\n')
                 self.grid_pymol_button.setText('Show in PyMol')
-                self.progressBar.setValue(50)
+                if self.parent.v.program_mode == 'SCORING':
+                    self.progressBar.setValue(10)
+                else:
+                    self.progressBar.setValue(50)
+
             elif qname == 'Molecular Docking Simulation':
                 self.go_result()
                 self.parent.configuration_tab.log_wdw.textedit.append(
@@ -2447,7 +2418,7 @@ class Program_body(QtGui.QWidget):
                     self.reset_button.setEnabled(True)
 
             else:
-                error_warning(self, prog, self.output)
+                error_warning(self, prog, err)
                 self.reset_button.setEnabled(True)
 
     def readStdOutput(self):
@@ -2639,8 +2610,8 @@ class Program_body(QtGui.QWidget):
                     if self.complete[index] == '1':
                         errlist += '\n-%s' % elements[index]
                 if len(errlist) != 0:
-                    QtGui.QMessageBox.critical(self, 'Error',
-                                               'Some files defined in .amdock file were not found or they are inaccessible.\nMissing elements:%s' % errlist)
+                    QtGui.QMessageBox.critical(self, 'Error', 'Some files defined in .amdock file were not found or '
+                                                              'they are inaccessible.\nMissing elements:%s' % errlist)
                     self.parent.result_tab.import_text.clear()
                     self.parent.v = Variables()
                 else:
@@ -2717,8 +2688,8 @@ class Program_body(QtGui.QWidget):
                         errlist += '\n-%s' % elements_score[index]
                         errlist2.append(index)
                 if len(errlist) != 0:
-                    QtGui.QMessageBox.critical(self, 'Error',
-                                               'Some files defined in .amdock file were not found or they are inaccessible.\nMissing elements:%s' % errlist)
+                    QtGui.QMessageBox.critical(self, 'Error', 'Some files defined in .amdock file were not found or '
+                                                              'they are inaccessible.\nMissing elements:%s' % errlist)
                     self.parent.result_tab.import_text.clear()
                     self.parent.v = Variables()
                 else:
@@ -2770,7 +2741,7 @@ class Program_body(QtGui.QWidget):
                     self.parent.result_tab.clear_result_tab()
                     self.amdock_load()
         if file.objectName() == "protein_buttonA":
-            if self.parent.v.input_offtarget is None:
+            if self.parent.v.input_target is None:
                 self.parent.loader.load_protein()
             else:
                 self.prot_opt = prot_warning(self)
@@ -2800,49 +2771,50 @@ class Program_body(QtGui.QWidget):
                         else:
                             progress(self, 0, 0, 6, reverse=True, mess='Protein Definition...')
                     self.parent.loader.load_protein()
-            if self.parent.v.docking_program == 'AutoDockZn':
-                self.check_opt = self.parent.checker.autodockzn_check('A')
-                if self.check_opt == QtGui.QMessageBox.Ok:
-                    os.remove(self.parent.v.input_offtarget)
-                    self.parent.v.input_offtarget = None
-                    self.parent.v.metals = None
-                    self.parent.v.ligands = None
-                    self.btnA_lig.show()
-                    self.protein_text.clear()
-                    self.protein_label.clear()
-                    if self.parent.v.cr:
-                        if self.parent.v.input_lig is None and self.parent.v.input_target == None:
-                            progress(self, 0, 0, 2, mess='Target Definition...')
-                        elif self.parent.v.input_lig is None and self.parent.v.input_target != None:
-                            progress(self, 0, 0, 5, mess='Target Definition...')
-                        elif self.parent.v.input_lig is not None and self.parent.v.input_target == None:
-                            progress(self, 0, 0, 4, mess='Target Definition...')
-                        else:
-                            progress(self, 0, 0, 7, mess='Target Definition...')
-                    else:
-                        if self.parent.v.input_lig is None:
-                            progress(self, 0, 0, 2, reverse=True, mess='Protein Definition...')
-                        else:
-                            progress(self, 0, 0, 6, reverse=True, mess='Protein Definition...')
-
-                elif self.check_opt == QtGui.QMessageBox.Cancel:
-                    self.parent.main_window.setCurrentIndex(0)
-                    self.parent.main_window.setTabEnabled(1, False)
-                    self.parent.main_window.setTabEnabled(0, True)
-            else:
-                self.check_opt = self.parent.checker.check_correct_prog('A')
-                if self.check_opt == QtGui.QMessageBox.Yes:
-                    if self.parent.v.analog_metals is None and self.parent.v.input_target is not None:
-                        self.parent.v.input_offtarget = None
-                        self.protein_text.clear()
+            if self.parent.v.input_target:
+                if self.parent.v.docking_program == 'AutoDockZn':
+                    self.check_opt = self.parent.checker.autodockzn_check('A')
+                    if self.check_opt == QtGui.QMessageBox.Ok:
+                        os.remove(self.parent.v.input_target)
+                        self.parent.v.input_target = None
+                        self.parent.v.metals = None
+                        self.parent.v.ligands = None
+                        self.btnA_lig.show()
                         self.protein_text.clear()
                         self.protein_label.clear()
-                        self.parent.loader.load_protein()
-                    else:
-                        self.parent.v.docking_program = "AutoDockZn"
-                        self.parent.statusbar.showMessage(self.parent.v.docking_program + " is selected")
+                        if self.parent.v.cr:
+                            if self.parent.v.input_lig is None and self.parent.v.input_target == None:
+                                progress(self, 0, 0, 2, mess='Target Definition...')
+                            elif self.parent.v.input_lig is None and self.parent.v.input_target != None:
+                                progress(self, 0, 0, 5, mess='Target Definition...')
+                            elif self.parent.v.input_lig is not None and self.parent.v.input_target == None:
+                                progress(self, 0, 0, 4, mess='Target Definition...')
+                            else:
+                                progress(self, 0, 0, 7, mess='Target Definition...')
+                        else:
+                            if self.parent.v.input_lig is None:
+                                progress(self, 0, 0, 2, reverse=True, mess='Protein Definition...')
+                            else:
+                                progress(self, 0, 0, 6, reverse=True, mess='Protein Definition...')
+
+                    elif self.check_opt == QtGui.QMessageBox.Cancel:
+                        self.parent.main_window.setCurrentIndex(0)
+                        self.parent.main_window.setTabEnabled(1, False)
+                        self.parent.main_window.setTabEnabled(0, True)
+                else:
+                    self.check_opt = self.parent.checker.check_correct_prog('A')
+                    if self.check_opt == QtGui.QMessageBox.Yes:
+                        if self.parent.v.analog_metals is None and self.parent.v.input_target is not None:
+                            self.parent.v.input_target = None
+                            self.protein_text.clear()
+                            self.protein_text.clear()
+                            self.protein_label.clear()
+                            self.parent.loader.load_protein()
+                        else:
+                            self.parent.v.docking_program = "AutoDockZn"
+                            self.parent.statusbar.showMessage(self.parent.v.docking_program + " is selected")
         if file.objectName() == "protein_buttonB":
-            if self.parent.v.input_target is None:
+            if self.parent.v.input_offtarget is None:
                 self.parent.loader.load_proteinB()
             else:
                 self.prot_opt = prot_warning(self)
@@ -2865,44 +2837,45 @@ class Program_body(QtGui.QWidget):
                     else:
                         progress(self, 0, 0, 7, reverse=True, mess='Off-Target Definition...')
                     self.parent.loader.load_proteinB()
-            if self.parent.v.docking_program == 'AutoDockZn':
-                self.check_opt = self.parent.checker.autodockzn_check('B')
-                if self.check_opt == QtGui.QMessageBox.Ok:
-                    os.remove(self.parent.v.input_target)
-                    self.parent.v.input_target = None
-                    self.btnB_lig.show()
-                    self.parent.v.analog_metals = None
-                    self.parent.v.analog_ligands = None
-                    self.protein_textB.clear()
-                    self.protein_labelB.clear()
-
-                    if self.parent.v.input_lig == '' and self.parent.v.input_offtarget == None:
-                        progress(self, 0, 0, 2, reverse=True, mess='Off-Target Definition...')
-                    elif self.parent.v.input_lig == '' and self.parent.v.input_offtarget != None:
-                        progress(self, 0, 0, 5, reverse=True, mess='Off-Target Definition...')
-                    elif self.parent.v.input_lig != '' and self.parent.v.input_offtarget == None:
-                        progress(self, 0, 0, 4, reverse=True, mess='Off-Target Definition...')
-                    else:
-                        progress(self, 0, 0, 7, reverse=True, mess='Off-Target Definition...')
-
-                elif self.check_opt == QtGui.QMessageBox.Cancel:
-                    self.parent.main_window.setCurrentIndex(0)
-                    self.parent.main_window.setTabEnabled(1, False)
-                    self.parent.main_window.setTabEnabled(0, True)
-            else:
-                self.check_opt = self.parent.checker.check_correct_prog('B')
-                if self.check_opt == QtGui.QMessageBox.Yes:
-                    if self.parent.v.metals is None and self.parent.v.input_offtarget is not None:
-                        self.parent.v.input_target = None
+            if self.parent.v.input_offtarget:
+                if self.parent.v.docking_program == 'AutoDockZn':
+                    self.check_opt = self.parent.checker.autodockzn_check('B')
+                    if self.check_opt == QtGui.QMessageBox.Ok:
+                        os.remove(self.parent.v.input_offtarget)
+                        self.parent.v.input_offtarget = None
                         self.btnB_lig.show()
                         self.parent.v.analog_metals = None
                         self.parent.v.analog_ligands = None
                         self.protein_textB.clear()
                         self.protein_labelB.clear()
-                        self.parent.loader.load_proteinB()
-                    else:
-                        self.parent.v.docking_program = "AutoDockZn"
-                        self.parent.statusbar.showMessage(self.parent.v.docking_program + " is selected")
+
+                        if self.parent.v.input_lig == '' and self.parent.v.input_offtarget == None:
+                            progress(self, 0, 0, 2, reverse=True, mess='Off-Target Definition...')
+                        elif self.parent.v.input_lig == '' and self.parent.v.input_offtarget != None:
+                            progress(self, 0, 0, 5, reverse=True, mess='Off-Target Definition...')
+                        elif self.parent.v.input_lig != '' and self.parent.v.input_offtarget == None:
+                            progress(self, 0, 0, 4, reverse=True, mess='Off-Target Definition...')
+                        else:
+                            progress(self, 0, 0, 7, reverse=True, mess='Off-Target Definition...')
+
+                    elif self.check_opt == QtGui.QMessageBox.Cancel:
+                        self.parent.main_window.setCurrentIndex(0)
+                        self.parent.main_window.setTabEnabled(1, False)
+                        self.parent.main_window.setTabEnabled(0, True)
+                else:
+                    self.check_opt = self.parent.checker.check_correct_prog('B')
+                    if self.check_opt == QtGui.QMessageBox.Yes:
+                        if self.parent.v.metals is None and self.parent.v.input_offtarget is not None:
+                            self.parent.v.input_offtarget = None
+                            self.btnB_lig.show()
+                            self.parent.v.analog_metals = None
+                            self.parent.v.analog_ligands = None
+                            self.protein_textB.clear()
+                            self.protein_labelB.clear()
+                            self.parent.loader.load_proteinB()
+                        else:
+                            self.parent.v.docking_program = "AutoDockZn"
+                            self.parent.statusbar.showMessage(self.parent.v.docking_program + " is selected")
         if file.text() == "Ligand":
             if self.parent.v.input_lig is None:
                 self.parent.loader.load_ligand()
@@ -3307,8 +3280,7 @@ class Program_body(QtGui.QWidget):
             autogrid_arg = ['-p', protein_gpf]
             self.autogrid4 = {'AutoGrid4': [self.ws.autogrid, autogrid_arg]}
             prepare_dpf_arg = [self.ws.prepare_dpf_py, '-l', str(self.parent.v.ligand_pdbqt), '-r',
-                               str(self.parent.v.protein_pdbqt), '-p', 'rmstol=%s' % self.parent.v.rmsd, '-p',
-                               'ga_num_evals=%s' % self.parent.v.eval, '-p', 'ga_run=%s' % self.parent.v.runs, '-e']
+                               str(self.parent.v.protein_pdbqt), '-e']
             self.prepare_dpf4 = {'Prepare_dpf4': [self.ws.this_python, prepare_dpf_arg]}
             self.autodock_dlg = str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + protein_dlg)
             autodock_arg = ['-p', str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + protein_dpf), '-l',
@@ -3335,13 +3307,11 @@ class Program_body(QtGui.QWidget):
             self.prepare_gpf4zn = {'Prepare_gpf4zn': [self.ws.this_python, prepare_gpf4zn_arg]}
             autogridzn_arg = ['-p', protein_gpf]
             self.autogrid4 = {'AutoGrid4': [self.ws.autogrid, autogridzn_arg]}
-            prepare_dpfzn_arg = [self.ws.prepare_dpf_py, '-l', str(self.parent.v.ligand_pdbqt), '-r', protein_TZ, '-p',
-                                 'rmstol=%s' % self.parent.v.rmsd, '-p', 'ga_num_evals=%s' % self.parent.v.eval,
-                                 '-p', 'ga_run=%s' % self.parent.v.runs, '-e']
+            prepare_dpfzn_arg = [self.ws.prepare_dpf_py, '-l', str(self.parent.v.ligand_pdbqt), '-r', protein_TZ, '-e']
             self.prepare_dfp4zn = {'Prepare_dpf4': [self.ws.this_python, prepare_dpfzn_arg]}
             self.autodock_dlg = str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + protein_dlg)
             autodockzn_arg = ['-p', str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + protein_dpf),
-                              '-l', os.path.join(self.parent.v.result_dir, self.autodock_dlg)]
+                              '-l', os.path.join(self.parent.v.result_dir, self.parent.v.ligand_name + '_score.log')]
             self.autodockzn = {'AutoDock4ZN': [self.ws.autodock, autodockzn_arg]}
             self.list_process = [self.pseudozn, self.prepare_gpf4zn, self.autogrid4, self.prepare_dfp4zn,
                                  self.autodockzn]
@@ -3472,7 +3442,7 @@ class Program_body(QtGui.QWidget):
                 self.list_process.append(self.protonate_ligand)
                 self.list_process.append(self.prepare_ligand4)
         if self.parent.v.scoring and self.parent.v.docking_program != 'AutoDock Vina':
-            prev_ligand_arg = [self.parent.v.input_lig, None, None, self.parent.v.gd, False]
+            prev_ligand_arg = [self.parent.v.protein_file, None, None, self.parent.v.gd, False]
             self.previous_ligand = {'function GridDefinition: Previous Ligand Center': [GridDefinition,
                                                                                         prev_ligand_arg]}
             self.queue = Queue.Queue()
@@ -3543,7 +3513,7 @@ class Program_body(QtGui.QWidget):
             if self.need_grid:
                 process_list.extend(self.list_process)
         elif self.parent.v.grid_def == "by_ligand":
-            prev_ligand_arg = [self.parent.v.input_offtarget, None, str(self.parent.v.selected_ligand),
+            prev_ligand_arg = [self.parent.v.input_target, None, str(self.parent.v.selected_ligand),
                                self.parent.v.obj_center, True]
             self.previous_ligand = {
                 'function GridDefinition: Previous Ligand Center': [GridDefinition, prev_ligand_arg]}
@@ -3631,7 +3601,7 @@ class Program_body(QtGui.QWidget):
                 if self.need_gridB:
                     process_list.extend(self.list_process)
             elif self.parent.v.analog_grid_def == "by_ligand":
-                prev_ligand_arg = [self.parent.v.input_target, None, str(self.parent.v.analog_selected_ligand),
+                prev_ligand_arg = [self.parent.v.input_offtarget, None, str(self.parent.v.analog_selected_ligand),
                                    self.parent.v.obj_center1, True]
                 self.previous_ligandB = {
                     'function GridDefinition: Previous Ligand Center B': [GridDefinition, prev_ligand_arg]}
