@@ -18,7 +18,7 @@ class Program_body(QtGui.QWidget):
         self.parent = parent
         with open(self.parent.objects.style_file) as f:
             self.setStyleSheet(f.read())
-
+        self.prog = ''
         self.part = 0
         self.total = 0
         self.grid = 0
@@ -1065,7 +1065,7 @@ class Program_body(QtGui.QWidget):
                 self.btnB_res.show()
                 self.btnB_lig.show()
                 self.btnB_user.show()
-                if os.path.exists(`self.parent.v.input_protein`):
+                if os.path.exists(`self.parent.v.input_offtarget`):
                     try:
                         os.remove(`self.parent.v.input_offtarget`)
                     except:
@@ -1122,7 +1122,7 @@ class Program_body(QtGui.QWidget):
                 self.run_scoring.show()
                 self.non_button.show()
                 self.progressBar.setValue(2)
-                if os.path.exists(`self.parent.v.input_protein`):
+                if os.path.exists(`self.parent.v.input_offtarget`):
                     try:
                         os.remove(`self.parent.v.input_offtarget`)
                     except:
@@ -1197,7 +1197,7 @@ class Program_body(QtGui.QWidget):
                 self.progressBar.setValue(2)
                 self.grid_pymol_buttonB.hide()
                 self.reset_grid_buttonB.hide()
-                if os.path.exists(`self.parent.v.input_protein`):
+                if os.path.exists(`self.parent.v.input_offtarget`):
                     try:
                         os.remove(`self.parent.v.input_offtarget`)
                     except:
@@ -2746,8 +2746,8 @@ class Program_body(QtGui.QWidget):
             else:
                 self.prot_opt = prot_warning(self)
                 if self.prot_opt == QtGui.QMessageBox.Yes:
-                    os.remove(self.parent.v.input_offtarget)
-                    self.parent.v.input_offtarget = None
+                    os.remove(self.parent.v.input_target)
+                    self.parent.v.input_target = None
                     self.parent.v.metals = None
                     self.parent.v.ligands = None
                     self.parent.v.target_prepare = True
@@ -2819,7 +2819,7 @@ class Program_body(QtGui.QWidget):
             else:
                 self.prot_opt = prot_warning(self)
                 if self.prot_opt == QtGui.QMessageBox.Yes:
-                    os.remove(self.parent.v.input_target)
+                    os.remove(self.parent.v.input_offtarget)
                     self.parent.v.analog_metals = None
                     self.parent.v.analog_ligands = None
                     self.parent.v.offtarget_prepare = True
@@ -3134,7 +3134,7 @@ class Program_body(QtGui.QWidget):
     def check_res(self, text):  # OKOK
         if text.objectName() == 'grid_predef_text':
             try:
-                self.check = GridDefinition(self.parent.v.input_offtarget, self.grid_predef_text.text())
+                self.check = GridDefinition(self.parent.v.input_target, self.grid_predef_text.text())
                 self.parent.v.error = self.check.check_select()
             except:
                 self.parent.v.error = 1
@@ -3164,7 +3164,7 @@ class Program_body(QtGui.QWidget):
                 self.bind_site_button.setEnabled(False)
         else:
             try:
-                self.check = GridDefinition(self.parent.v.input_target, self.grid_predef_textB.text())
+                self.check = GridDefinition(self.parent.v.input_offtarget, self.grid_predef_textB.text())
                 self.parent.v.errorB = self.check.check_select()
             except:
                 self.parent.v.errorB = 1
