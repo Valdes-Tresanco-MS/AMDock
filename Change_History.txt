@@ -1,3 +1,9 @@
+#Build 1.1.2
+-Graphical interface improvements
+-fixed some inconsistencies
+-added tutorial files
+-update documentation
+-fixed pymol alignment in off-target docking
 #Build 1.1.0
 -Graphical interface improvements
 -Change in the scoring procedure when autodock4 and autodock 4Zn are selected. Now, autodock4 is used instead of the script.
