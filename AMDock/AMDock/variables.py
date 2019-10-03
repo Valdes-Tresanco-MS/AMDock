@@ -117,7 +117,7 @@ class WorkersAndScripts():
     lig_site_pymol = os.path.join(extprg_path, 'ligand_site_pymol.py')
     protein_cartoon_pymol = os.path.join(extprg_path, 'protein_cartoon_pymol.py')
     openbabel = 'obabel'
-    manual = os.path.join(doc_path, 'manual.pdf')
+    manual = os.path.join(doc_path, 'AMDock_Manual.pdf')
 
 
 class Text_and_ToolTip():
