@@ -107,7 +107,17 @@ def wdir2_warning(self):
     self.msg.setMinimumSize(450, 150)
     retval = self.msg.exec_()
     return retval
-
+def wdir3_warning(self):
+    self.msg = QtGui.QMessageBox()
+    self.msg.setWindowIcon(QtGui.QIcon(QtGui.QPixmap("amdock_icon.png")))
+    self.msg.setIcon(QtGui.QMessageBox.Warning)
+    self.msg.setWindowTitle("Error")
+    self.msg.setText("This project name already exist.                              ")
+    self.msg.setInformativeText('The existing one will be renamed "(Project_Name)_(old)_(date)". Do you want to rename '
+                                'it?')
+    self.msg.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+    retval = self.msg.exec_()
+    return retval
 # (2) and (2')
 def empty_file_warning(self, file):
     self.msg = QtGui.QMessageBox()
