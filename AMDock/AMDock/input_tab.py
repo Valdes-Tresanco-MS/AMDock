@@ -18,7 +18,7 @@ class Program_body(QtGui.QWidget):
         self.parent = parent
         with open(self.parent.objects.style_file) as f:
             self.setStyleSheet(f.read())
-        self.prog = ''
+
         self.part = 0
         self.total = 0
         self.grid = 0
@@ -27,9 +27,14 @@ class Program_body(QtGui.QWidget):
         self.build = self.buildB = False
         self.process_list = []
         self.ws = WorkersAndScripts()
+        self.wdir_loc = None
+
+        self.sc_area = QtGui.QScrollArea(self)
+        self.sc_area_widget = QtGui.QWidget()
+        self.sc_area_widget.setMinimumHeight(200)
 
         # **project_box
-        self.project_box = QtGui.QGroupBox(self)
+        self.project_box = QtGui.QGroupBox(self.sc_area_widget)
         self.project_box.setObjectName("project_box")
         self.project_box.setTitle("Project")
         self.project_box.setToolTip(self.parent.tt.project_tt)
@@ -53,17 +58,22 @@ class Program_body(QtGui.QWidget):
         self.wdir_text.setObjectName("wdir_text")
         self.wdir_text.setPlaceholderText("Location for the project")
 
-        self.project_box_layout = QtGui.QGridLayout(self.project_box)
-        self.project_box_layout.addWidget(self.project_label, 0, 0)
-        self.project_box_layout.addWidget(self.project_text, 0, 1, 1, 1)
-        self.project_box_layout.addWidget(self.wdir_button, 1, 0)
-        self.project_box_layout.addWidget(self.wdir_text, 1, 1, 1, 1)
+        self.project_layout = QtGui.QGridLayout()
+        self.project_layout.addWidget(self.project_label, 0, 0)
+        self.project_layout.addWidget(self.project_text, 0, 1, 1, 1)
+        self.project_layout.addWidget(self.wdir_button, 1, 0)
+        self.project_layout.addWidget(self.wdir_text, 1, 1, 1, 1)
+        # self.project_layout.addWidget(self.proj_loc_label, 2, 0, 1, 3)
+
+        self.project_box_layout = QtGui.QHBoxLayout(self.project_box)
+        self.project_box_layout.addLayout(self.project_layout, 10)
+        # self.project_box_layout.addWidget(self.create_project)
 
         # **Input_box
-        self.input_box = QtGui.QGroupBox(self)
+        self.input_box = QtGui.QGroupBox(self.sc_area_widget)
         self.input_box.setObjectName("input_box")
         self.input_box.setTitle("Input")
-        self.input_box.setEnabled(False)
+        # self.input_box.setEnabled(False)
         self.input_box.setToolTip(self.parent.tt.input_tt)
 
         self.pH_label = QtGui.QLabel(self.input_box)
@@ -169,7 +179,7 @@ class Program_body(QtGui.QWidget):
         self.input_box_layout.addLayout(self.content_layout)
 
         # **Grid_box
-        self.grid_box = QtGui.QGroupBox(self)
+        self.grid_box = QtGui.QGroupBox(self.sc_area_widget)
         self.grid_box.setObjectName("grid_box")
         self.grid_box.setTitle("Search Space")
         self.grid_box.setEnabled(False)
@@ -679,11 +689,19 @@ class Program_body(QtGui.QWidget):
         self.progress_layout.addWidget(self.run_button)
         self.progress_layout.addWidget(self.run_scoring)
 
+        self.sc_area_widget_layout = QtGui.QVBoxLayout(self.sc_area_widget)
+        self.sc_area_widget_layout.addWidget(self.project_box)
+        self.sc_area_widget_layout.addWidget(self.input_box)
+        self.sc_area_widget_layout.addWidget(self.grid_box)
+        self.sc_area_widget_layout.addStretch(1)
+
+        self.sc_area_layout = QtGui.QHBoxLayout(self.sc_area)
+        self.sc_area_layout.addWidget(self.sc_area_widget)
+        self.sc_area.setWidgetResizable(True)
+        self.sc_area.setWidget(self.sc_area_widget)
+
         self.body_layout = QtGui.QVBoxLayout(self)
-        self.body_layout.addWidget(self.project_box)
-        self.body_layout.addWidget(self.input_box)
-        self.body_layout.addWidget(self.grid_box)
-        self.body_layout.addStretch(1)
+        self.body_layout.addWidget(self.sc_area, 1)
         self.body_layout.addLayout(self.progress_layout)
 
     def reset_function(self):
@@ -2416,7 +2434,6 @@ class Program_body(QtGui.QWidget):
                     error_warning(self, prog, 'The program was finalized manually or closed by the occurrence of an '
                                               'internal error.')
                     self.reset_button.setEnabled(True)
-
             else:
                 error_warning(self, prog, err)
                 self.reset_button.setEnabled(True)
@@ -2491,7 +2508,6 @@ class Program_body(QtGui.QWidget):
                     progress(self, 3, 2, [76, (self.part * 4) / self.total], mess='Running AutoGrid4...')
             if self.part == self.total:
                 self.part = 0
-
         elif self.prog == 'AutoDock Vina':
             v = 0
             self.total = 51
@@ -2740,6 +2756,7 @@ class Program_body(QtGui.QWidget):
                 if self.prot_opt == QtGui.QMessageBox.Yes:
                     self.parent.result_tab.clear_result_tab()
                     self.amdock_load()
+
         if file.objectName() == "protein_buttonA":
             if self.parent.v.input_target is None:
                 self.parent.loader.load_protein()
@@ -3747,7 +3764,6 @@ class Program_body(QtGui.QWidget):
                 self.queue.put(process)
             self.worker.init(self.queue, 'Molecular Docking Simulation')
             self.worker.start_process()
-
         elif self.parent.v.docking_program == 'AutoDockZn':
             shutil.copy(self.ws.zn_ff, os.getcwd())
 
