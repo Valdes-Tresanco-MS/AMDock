@@ -68,9 +68,13 @@ class Program_body(QtGui.QWidget):
         self.project_layout.addWidget(self.wdir_text, 1, 1, 1, 1)
         self.project_layout.addWidget(self.proj_loc_label, 2, 0, 1, 3)
 
+        self.create_project = QtGui.QPushButton('Create \nProject')
+        self.create_project.setObjectName('create_project')
+        self.create_project.clicked.connect(lambda: self.load_file(self.create_project))
+
         self.project_box_layout = QtGui.QHBoxLayout(self.project_box)
         self.project_box_layout.addLayout(self.project_layout, 10)
-        # self.project_box_layout.addWidget(self.create_project)
+        self.project_box_layout.addWidget(self.create_project)
 
         # **Input_box
         self.input_box = QtGui.QGroupBox(self.sc_area_widget)
