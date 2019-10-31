@@ -2742,18 +2742,37 @@ class Program_body(QtGui.QWidget):
                     self.parent.result_tab.result_table.item(0, 1).setBackgroundColor(QtGui.QColor('darkGray'))
 
     def load_file(self, file):  # ok
-        if file.text() == "Project Folder":
-            if self.parent.v.loc_project is None:
-                progress(self, 0, 0, 0, mess='Working Directory Definition...')
-                self.wdir = self.parent.loader.project_location()
+        if file.objectName() == 'create_project':
+            if not self.wdir_loc:
+                define_wdir_loc(self)
             else:
-                self.options = wdir2_warning(self)
-                if self.options == QtGui.QMessageBox.Yes:
-                    progress(self, 0, 0, 0, reverse=True, mess='Working Directory Definition...')
-                    self.parent.output2file.conclude()
-                    os.chdir(self.parent.v.loc_project)
-                    shutil.rmtree(self.parent.v.WDIR)
-                    self.parent.loader.project_location()
+                if self.parent.v.WDIR:
+                    self.options = wdir2_warning(self)
+                    if self.options == QtGui.QMessageBox.Yes:
+                        progress(self, 0, 0, 0, reverse=True, mess='Working Directory Definition...')
+                        self.parent.output2file.conclude()
+                        os.chdir(self.parent.v.loc_project)
+                        shutil.rmtree(self.parent.v.WDIR)
+                        if not self.parent.loader.create_project_function():
+                            #TODO: poner un warning
+                            pass
+                        else:
+                            self.proj_loc_label.setText('Project: %s' % self.parent.v.WDIR)
+                            self.proj_loc_label.show()
+                else:
+                    if not self.parent.loader.create_project_function():
+                        # TODO: poner un warning
+                        pass
+                    else:
+                        self.proj_loc_label.setText('Project: %s' % self.parent.v.WDIR)
+                        self.proj_loc_label.show()
+
+        if file.text() == "Project Folder":
+            self.wdir_loc = self.parent.loader.project_location()
+            if self.wdir_loc:
+                self.wdir_text.setText("%s" % self.wdir_loc)
+                # self.create_project.setEnabled(True)
+
         if file.text() == "Load Data":
             if self.parent.v.amdock_file == None:
                 self.parent.statusbar.showMessage(" Loading amdock file...", 2000)
