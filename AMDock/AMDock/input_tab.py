@@ -58,6 +58,9 @@ class Program_body(QtGui.QWidget):
         self.wdir_text.setObjectName("wdir_text")
         self.wdir_text.setPlaceholderText("Location for the project")
 
+        self.proj_loc_label = QtGui.QLabel()
+        self.proj_loc_label.hide()
+
         self.project_layout = QtGui.QGridLayout()
         self.project_layout.addWidget(self.project_label, 0, 0)
         self.project_layout.addWidget(self.project_text, 0, 1, 1, 1)
