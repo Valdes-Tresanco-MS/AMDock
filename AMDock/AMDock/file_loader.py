@@ -11,50 +11,65 @@ class Loader(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(parent)
         self.parent = parent
 
+    def create_project_function(self):
+        if self.parent.program_body.project_text.text() != '':
+            self.parent.v.project_name = str(self.parent.program_body.project_text.text())
+        try:
+            os.chdir(self.parent.v.loc_project)
+        except:
+            wdir_warning(self.parent)
+        if os.path.exists(self.parent.v.project_name):
+            rt = wdir3_warning(self.parent)
+            if rt == QtGui.QMessageBox.Yes:
+                os.rename(self.parent.v.project_name, self.parent.v.project_name + '_old_' + "%s-%s-%s-%s-%s-%s"
+                      % time.localtime(os.path.getmtime(self.parent.v.project_name))[0:6])
+            else:
+                self.parent.v.loc_project = None
+                self.parent.program_body.project_text.clear()
+                # self.parent.program_body.create_project.setEnabled(False)
+
+        try:
+            os.mkdir(self.parent.v.project_name)
+            self.parent.v.WDIR = os.path.join(self.parent.v.loc_project, self.parent.v.project_name)
+            os.chdir(self.parent.v.WDIR)
+            os.mkdir('input')
+            os.mkdir('results')
+            self.parent.program_body.input_box.setEnabled(True)
+            progress(self.parent.program_body, 0, 1, 2, finish=True, mess='Working Directory Definition...')
+            self.parent.statusbar.showMessage("Create project: %s" % self.parent.v.WDIR, 10000)
+            self.parent.v.input_dir = os.path.join(self.parent.v.WDIR, 'input')
+            self.parent.v.result_dir = os.path.join(self.parent.v.WDIR, 'results')
+            self.parent.output2file.file_header(
+                    os.path.join(self.parent.v.WDIR, self.parent.v.project_name + '.amdock'))
+            self.parent.output2file.out2file('>> PROJECT_NAME: %s\n' % self.parent.v.project_name)
+            self.parent.output2file.out2file('>> WORKING_DIRECTORY: %s\n' % os.path.normpath(self.parent.v.WDIR))
+            return True
+        except:
+            wdir_warning(self.parent)
+            self.parent.v.loc_project = None
+            self.parent.program_body.project_text.setDisabled(False)
+            return False
+
+
+
     def project_location(self):
         data_file = QtGui.QFileDialog()
         data_file.setFileMode(QtGui.QFileDialog.DirectoryOnly)
         if data_file.exec_():
-            self.parent.program_body.project_text.setDisabled(True)
+            # self.parent.program_body.project_text.setDisabled(True)
             #### when pressed location button, it is create a folder tree
             filenames = data_file.selectedFiles()
             self.parent.v.loc_project = str(filenames[0])
-            try:
-                os.chdir(self.parent.v.loc_project)
-            except:
-                wdir_warning(self.parent)
-            if self.parent.program_body.project_text.text() != '':
-                self.parent.v.project_name = str(self.parent.program_body.project_text.text())
-            try:
-                if os.path.exists(self.parent.v.project_name):
-                    os.rename(self.parent.v.project_name, self.parent.v.project_name + '_old_' + "%s-%s-%s-%s-%s-%s" %
-                              time.localtime(os.path.getmtime(self.parent.v.project_name))[0:6])
-                    os.mkdir(self.parent.v.project_name)
-                else:
-                    os.mkdir(self.parent.v.project_name)
-                self.parent.v.WDIR = os.path.join(self.parent.v.loc_project, self.parent.v.project_name)
-                os.chdir(self.parent.v.WDIR)
-                os.mkdir('input')
-                os.mkdir('results')
-                self.parent.program_body.input_box.setEnabled(True)
-                progress(self.parent.program_body, 0, 1, 2, finish=True, mess='Working Directory Definition...')
-                self.parent.program_body.wdir_text.setText(filenames[0])
-                self.parent.v.input_dir = os.path.join(self.parent.v.WDIR, 'input')
-                self.parent.v.result_dir = os.path.join(self.parent.v.WDIR, 'results')
-                self.parent.output2file.file_header(
-                    os.path.join(self.parent.v.WDIR, self.parent.v.project_name + '.amdock'))
-                self.parent.output2file.out2file('>> PROJECT_NAME: %s\n' % self.parent.v.project_name)
-                self.parent.output2file.out2file('>> WORKING_DIRECTORY: %s\n' % os.path.normpath(self.parent.v.WDIR))
-            except:
-                wdir_warning(self.parent)
-                self.parent.v.loc_project = None
-                self.parent.program_body.project_text.setDisabled(False)
-        return self.parent.v.WDIR
+
+
+
+        return self.parent.v.loc_project
 
     def load_protein(self):
         data_file = QtGui.QFileDialog()
         data_file.setFileMode(QtGui.QFileDialog.AnyFile)
         data_file.setFilter("Protein Data Bank (*.pdb *.ent *.pdbqt)")
+
         if data_file.exec_():
             filenames = data_file.selectedFiles()
             self.target_path = str(filenames[0])
@@ -178,7 +193,6 @@ class Loader(QtGui.QMainWindow):
         data_file.setFilter("Protein Data Bank (*.pdb *.ent *.pdbqt)")
         if data_file.exec_():
             filenames = data_file.selectedFiles()
-
             self.offtarget_path = str(filenames[0])
             self.offtarget_ext = str(os.path.basename(self.offtarget_path).split('.')[1])
             self.offtarget_name = str(os.path.basename(self.offtarget_path).split('.')[0]).replace(' ', '_')
