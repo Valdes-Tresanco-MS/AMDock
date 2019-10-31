@@ -10,7 +10,7 @@ from result_tab import Results
 from setting_tab import Configuration_tab
 from variables import Variables, WorkersAndScripts, Text_and_ToolTip, Objects
 from PyQt4 import QtGui, QtCore
-__version__ = "1.1.0 For Windows and Linux"
+__version__ = "1.1.2 For Windows and Linux"
 
 
 class AMDock(QtGui.QMainWindow):
@@ -66,7 +66,8 @@ class AMDock(QtGui.QMainWindow):
         self.setStatusBar(self.statusbar)
 
         QtCore.QMetaObject.connectSlotsByName(self)
-        self.statusbar.showMessage("Version: %s" % __version__)
+        self.version = QtGui.QLabel("Version: %s" % __version__)
+        self.statusbar.addWidget(self.version)
 
     def closeEvent(self, event):
         reply = QtGui.QMessageBox.question(self, 'Message', "Are you sure to quit?", QtGui.QMessageBox.Yes,

@@ -1,5 +1,5 @@
 from warning import wdir2_warning, prot_warning, lig_warning, stop_warning, error_warning, smallbox_warning, \
-    reset_warning, amdock_file_warning
+    reset_warning, amdock_file_warning, define_wdir_loc
 from PyQt4 import QtGui, QtCore
 import shutil, os, glob, re, Queue
 from result2tab import Result_Analysis, Scoring2table
@@ -122,6 +122,7 @@ class Program_body(QtGui.QWidget):
         self.protein_text.setPlaceholderText('target protein')
 
         self.protein_label = QtGui.QLabel(self.input_box)
+        self.protein_label.hide()
 
         self.protein_buttonB = QtGui.QPushButton(self.input_box)
         self.protein_buttonB.setObjectName("protein_buttonB")
@@ -149,6 +150,7 @@ class Program_body(QtGui.QWidget):
         self.ligand_text.setPlaceholderText('ligand')
 
         self.ligand_label = QtGui.QLabel(self.input_box)
+        self.ligand_label.hide()
 
         self.prep_rec_lig_button = QtGui.QPushButton(self.input_box)
         self.prep_rec_lig_button.setObjectName("prep_rec_lig_button")
@@ -170,11 +172,10 @@ class Program_body(QtGui.QWidget):
         self.input_layout.addWidget(self.protein_label, 1, 1)
 
         self.input_layout.addWidget(self.protein_buttonB, 2, 0)
-        self.input_layout.addWidget(self.protein_textB, 2, 1, 1, 1)
+        self.input_layout.addWidget(self.protein_textB, 2, 1)
         self.input_layout.addWidget(self.protein_labelB, 3, 1)
         self.input_layout.addWidget(self.ligand_button, 4, 0)
-        #
-        self.input_layout.addWidget(self.ligand_text, 4, 1, 1, 1)
+        self.input_layout.addWidget(self.ligand_text, 4, 1)
         self.input_layout.addWidget(self.ligand_label, 5, 1)
 
         self.content_layout = QtGui.QHBoxLayout()
@@ -1076,7 +1077,7 @@ class Program_body(QtGui.QWidget):
                 self.protein_button.setText('Target')
                 self.protein_buttonB.show()
                 self.protein_textB.show()
-                self.protein_labelB.show()
+                # self.protein_labelB.show()
                 self.grid_pymol_buttonB.show()
                 self.reset_grid_buttonB.show()
                 ### Grid definition box
@@ -2350,8 +2351,8 @@ class Program_body(QtGui.QWidget):
             self.reset_button.setEnabled(True)
         else:
             if prog == 'AutoDock4' or prog == 'AutoDock4 B' or prog == 'AutoDock4ZN' or prog == 'AutoDock4ZN B':
-                error_warning(self, prog,
-                              'The program was finalized manually or closed by the occurrence of an internal error.')
+                error_warning(self, prog, 'The program was finalized manually or closed by the occurrence of an '
+                                          'internal error.')
                 self.reset_button.setEnabled(True)
             elif prog == 'AutoLigand':
                 if self.parent.v.grid_def == 'by_residues':
@@ -3120,8 +3121,7 @@ class Program_body(QtGui.QWidget):
         self.parent.output2file.conclude()
 
     def go_scoring(self):
-        self.parent.v.amdock_file = os.path.normpath(
-            os.path.join(self.parent.v.WDIR, self.parent.v.project_name + '.amdock'))
+        self.parent.v.amdock_file = os.path.normpath(os.path.join(self.parent.v.WDIR, self.parent.v.project_name + '.amdock'))
         self.parent.result_tab.import_text.setText(self.parent.v.amdock_file)
         self.parent.output2file.out2file('>> RESULT\n')
         self.parent.main_window.setTabEnabled(2, True)
