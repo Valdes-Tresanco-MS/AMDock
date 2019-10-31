@@ -190,7 +190,7 @@ class Program_body(QtGui.QWidget):
         self.grid_box = QtGui.QGroupBox(self.sc_area_widget)
         self.grid_box.setObjectName("grid_box")
         self.grid_box.setTitle("Search Space")
-        self.grid_box.setEnabled(False)
+        # self.grid_box.setEnabled(False)
         self.grid_box.setToolTip(self.parent.tt.grid_tt)
 
         self.protein_column_label = QtGui.QLabel('Target', self.grid_box)
@@ -624,34 +624,54 @@ class Program_body(QtGui.QWidget):
         self.conf_buttonsB.addWidget(self.grid_pymol_buttonB)
         self.conf_buttonsB.addWidget(self.reset_grid_buttonB)
 
+        self.autoligand_table = QtGui.QTableWidget()
+        self.autoligand_table.setColumnCount(2)
+        self.autoligand_table.setHorizontalHeaderLabels(["Total Volume (A**3)","EPV (Kcal/mol A**3)"])
+        self.autoligand_table.setRowCount(10)
+        self.autoligand_table.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
+
+        self.autolig_layout = QtGui.QHBoxLayout()
+        self.autolig_layout.addWidget(self.autoligand_table, 1)
+
+        self.autoligand_tableB = QtGui.QTableWidget()
+        self.autoligand_tableB.setColumnCount(2)
+        self.autoligand_tableB.setHorizontalHeaderLabels(["Total Volume (A**3)","EPV (Kcal/mol A**3)"])
+        self.autoligand_tableB.setRowCount(10)
+        self.autoligand_tableB.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
+
+        self.autolig_layoutB = QtGui.QHBoxLayout()
+        self.autolig_layoutB.addWidget(self.autoligand_tableB, 1)
+
         self.all_options = QtGui.QGridLayout()
         self.all_options.setSizeConstraint(QtGui.QLayout.SetFixedSize)
 
         self.all_options.setColumnStretch(1, 1)  # make column 1 and 2 regular width
         self.all_options.addItem(self.spacer, 0, 0)
-        self.all_options.addWidget(self.protein_column_label, 0, 1, QtCore.Qt.AlignCenter)
-        self.all_options.addWidget(self.protein1_column_label, 0, 2, QtCore.Qt.AlignCenter)
+        self.all_options.addWidget(self.protein_column_label, 0, 1, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addWidget(self.protein1_column_label, 0, 2, 1, 1, QtCore.Qt.AlignCenter)
         self.all_options.addItem(self.spacer, 0, 3)
 
         self.all_options.addWidget(self.grid_auto_cr, 1, 0)
-        self.all_options.addWidget(self.btnA_auto, 1, 1, QtCore.Qt.AlignCenter)
-        self.all_options.addWidget(self.btnB_auto, 1, 2, QtCore.Qt.AlignCenter)
+        self.all_options.addWidget(self.btnA_auto, 1, 1, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addWidget(self.btnB_auto, 1, 2, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addLayout(self.autolig_layout, 2, 1, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addLayout(self.autolig_layoutB, 2, 2, 1, 1, QtCore.Qt.AlignCenter)
 
-        self.all_options.addWidget(self.grid_predef_cr, 2, 0)
-        self.all_options.addLayout(self.res_lay, 2, 1, QtCore.Qt.AlignCenter)
-        self.all_options.addLayout(self.res_layB, 2, 2, QtCore.Qt.AlignCenter)
+        self.all_options.addWidget(self.grid_predef_cr, 3, 0)
+        self.all_options.addLayout(self.res_lay, 3, 1, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addLayout(self.res_layB, 3, 2, 1, 1, QtCore.Qt.AlignCenter)
 
-        self.all_options.addWidget(self.grid_by_lig_cr, 3, 0)
-        self.all_options.addLayout(self.lig_lay, 3, 1, QtCore.Qt.AlignCenter)
-        self.all_options.addLayout(self.lig_layB, 3, 2, QtCore.Qt.AlignCenter)
+        self.all_options.addWidget(self.grid_by_lig_cr, 4, 0)
+        self.all_options.addLayout(self.lig_lay, 4, 1, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addLayout(self.lig_layB, 4, 2, 1, 1, QtCore.Qt.AlignCenter)
 
-        self.all_options.addWidget(self.grid_user_cr, 4, 0)
-        self.all_options.addLayout(self.coor_lay, 4, 1, QtCore.Qt.AlignCenter)
-        self.all_options.addLayout(self.coor_layB, 4, 2, QtCore.Qt.AlignCenter)
+        self.all_options.addWidget(self.grid_user_cr, 5, 0)
+        self.all_options.addLayout(self.coor_lay, 5, 1, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addLayout(self.coor_layB, 5, 2, 1, 1, QtCore.Qt.AlignCenter)
 
-        self.all_options.addItem(self.spacer, 5, 0)
-        self.all_options.addLayout(self.conf_buttons, 5, 1, QtCore.Qt.AlignCenter)
-        self.all_options.addLayout(self.conf_buttonsB, 5, 2, QtCore.Qt.AlignCenter)
+        self.all_options.addItem(self.spacer, 6, 0)
+        self.all_options.addLayout(self.conf_buttons, 6, 1, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addLayout(self.conf_buttonsB, 6, 2, 1, 1, QtCore.Qt.AlignCenter)
 
         self.binding_layout = QtGui.QVBoxLayout()
         self.binding_layout.addStretch(1)
@@ -659,7 +679,7 @@ class Program_body(QtGui.QWidget):
         self.binding_layout.addStretch(1)
 
         self.grid_content = QtGui.QHBoxLayout(self.grid_box)
-        self.grid_content.addLayout(self.all_options)
+        self.grid_content.addLayout(self.all_options, 1)
         self.grid_content.addLayout(self.binding_layout)
 
         self.worker = Worker()
