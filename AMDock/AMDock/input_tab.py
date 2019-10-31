@@ -66,7 +66,7 @@ class Program_body(QtGui.QWidget):
         self.project_layout.addWidget(self.project_text, 0, 1, 1, 1)
         self.project_layout.addWidget(self.wdir_button, 1, 0)
         self.project_layout.addWidget(self.wdir_text, 1, 1, 1, 1)
-        # self.project_layout.addWidget(self.proj_loc_label, 2, 0, 1, 3)
+        self.project_layout.addWidget(self.proj_loc_label, 2, 0, 1, 3)
 
         self.project_box_layout = QtGui.QHBoxLayout(self.project_box)
         self.project_box_layout.addLayout(self.project_layout, 10)
