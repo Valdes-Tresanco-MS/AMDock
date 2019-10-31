@@ -161,7 +161,7 @@ class Lobby(FRAME):
             self.parent.v.docking_program = 'AutoDockZn'
         elif b.objectName() == 'dock_vina_button':
             self.parent.v.docking_program = 'AutoDock Vina'
-        self.parent.statusbar.showMessage(self.parent.v.docking_program + " is selected")
+        self.parent.statusbar.addWidget(QtGui.QLabel("| " + self.parent.v.docking_program + " is selected"))
         self.parent.main_window.setCurrentIndex(1)
         self.parent.main_window.setTabEnabled(1, True)
         self.parent.main_window.setTabEnabled(0, False)
