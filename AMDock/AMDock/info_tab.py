@@ -11,7 +11,7 @@ class Help(QtGui.QWidget):
         self.version_box = QtGui.QGroupBox(self)
         self.version_box.setTitle("Version")
         self.version_label = QtGui.QLabel(self.version_box)
-        self.version_label.setText('Build 1.1.0')
+        self.version_label.setText('Build 1.1.2')
 
         self.documentation_box = QtGui.QGroupBox(self)
         self.documentation_box.setTitle("Documentation")
