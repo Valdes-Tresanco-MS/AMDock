@@ -80,6 +80,20 @@ def wdir_warning(self):
     retval = self.msg.exec_()
     return retval
 
+def define_wdir_loc(self):
+    self.msg = QtGui.QMessageBox()
+    self.msg.setWindowIcon(QtGui.QIcon(QtGui.QPixmap("amdock_icon.png")))
+    self.msg.setIcon(QtGui.QMessageBox.Critical)
+    self.msg.setWindowTitle("Warning")
+    self.msg.setText(
+        "Please define the project location.                                                           ")
+    # self.msg.setInformativeText(
+    #     "Do you wish to define a new working directory?. All the content of the previous directory will be deleted")
+    self.msg.setStandardButtons(QtGui.QMessageBox.Ok)
+    self.msg.setMinimumSize(450, 150)
+    retval = self.msg.exec_()
+    return retval
+
 def wdir2_warning(self):
     self.msg = QtGui.QMessageBox()
     self.msg.setWindowIcon(QtGui.QIcon(QtGui.QPixmap("amdock_icon.png")))
