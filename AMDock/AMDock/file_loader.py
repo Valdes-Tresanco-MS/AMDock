@@ -1,6 +1,6 @@
 import os, time, shutil, math, Queue, re
 from PyQt4 import QtGui
-from warning import wdir_warning, same_protein
+from warning import wdir_warning, same_protein, wdir3_warning, wdir2_warning
 from tools import PDBMap, HeavyAtoms, Gyrate, Converter, ClearAndFix
 import subprocess
 from some_slots import progress
