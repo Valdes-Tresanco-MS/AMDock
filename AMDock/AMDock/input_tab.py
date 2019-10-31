@@ -3546,11 +3546,12 @@ class Program_body(QtGui.QWidget):
             autogrid_arg = ['-p', str(self.parent.v.protein_name + '_autolig.gpf')]
             self.autogrid4 = {'AutoGrid4': [self.ws.autogrid, autogrid_arg]}
             autoligand_arg = [str(self.ws.autoligand_py), '-r', str(self.parent.v.protein_pdbqt[:-6]), '-a',
-                              str(self.parent.v.heavy_atoms), '-f', '1']
+                              str(self.parent.v.heavy_atoms)]
             self.autoligand = {'AutoLigand': [self.ws.this_python, autoligand_arg]}
-            dimension_FILL = [self.parent.v.FILL, None, None, self.parent.v.obj_center, False]
-            self.FILL_center = {'function GridDefinition: FILL Center': [GridDefinition, dimension_FILL]}
-            self.list_process = [self.prot_center, self.prepare_gpf4, self.autogrid4, self.autoligand, self.FILL_center]
+            # dimension_FILL = [self.parent.v.FILL, None, None, self.parent.v.obj_center, False]
+            # TODO: realizar el paso de la info del autoligand a la tabla
+            # self.FILL_center = {'function GridDefinition: FILL Center': [GridDefinition, dimension_FILL]}
+            self.list_process = [self.prot_center, self.prepare_gpf4, self.autogrid4, self.autoligand]#,self.FILL_center]
             if self.need_grid:
                 process_list.extend(self.list_process)
         elif self.parent.v.grid_def == "by_residues":
@@ -3569,10 +3570,11 @@ class Program_body(QtGui.QWidget):
             autoligand_arg = [str(self.ws.autoligand_py), '-r', str(self.parent.v.protein_pdbqt[:-6]), '-a',
                               str(self.parent.v.heavy_atoms), '-h', self.parent.v.res_center]
             self.autoligand = {'AutoLigand': [self.ws.this_python, autoligand_arg]}
-            dimension_FILL = [self.parent.v.FILL, None, None, self.parent.v.obj_center, False]
-            self.FILL_center = {'function GridDefinition: FILL Center': [GridDefinition, dimension_FILL]}
-            self.list_process = [self.res_center, self.prot_center, self.prepare_gpf4, self.autogrid4, self.autoligand,
-                                 self.FILL_center]
+            # TODO: realizar el paso de la info del autoligand a la tabla
+            # dimension_FILL = [self.parent.v.FILL, None, None, self.parent.v.obj_center, False]
+            # self.FILL_center = {'function GridDefinition: FILL Center': [GridDefinition, dimension_FILL]}
+            self.list_process = [self.res_center, self.prot_center, self.prepare_gpf4, self.autogrid4, self.autoligand]
+                #,self.FILL_center]
             if self.need_grid:
                 process_list.extend(self.list_process)
         elif self.parent.v.grid_def == "by_ligand":
@@ -3632,12 +3634,13 @@ class Program_body(QtGui.QWidget):
                 self.autogrid4B = {'AutoGrid4 B': [self.ws.autogrid, autogrid_argB]}
 
                 autoligand_argB = [str(self.ws.autoligand_py), '-r', str(self.parent.v.analog_protein_pdbqt[:-6]), '-a',
-                                   str(self.parent.v.heavy_atoms), '-f', '1']
+                                   str(self.parent.v.heavy_atoms)]
                 self.autoligandB = {'AutoLigand B': [self.ws.this_python, autoligand_argB]}
-                dimension_FILLB = [self.parent.v.FILL, None, None, self.parent.v.obj_center1, False]
-                self.FILL_centerB = {'function GridDefinition: FILL Center B': [GridDefinition, dimension_FILLB]}
-                self.list_process = [self.prot_centerB, self.prepare_gpf4B, self.autogrid4B, self.autoligandB,
-                                     self.FILL_centerB]
+                # TODO: realizar el paso de la info del autoligand a la tabla
+                # dimension_FILLB = [self.parent.v.FILL, None, None, self.parent.v.obj_center1, False]
+                # self.FILL_centerB = {'function GridDefinition: FILL Center B': [GridDefinition, dimension_FILLB]}
+                self.list_process = [self.prot_centerB, self.prepare_gpf4B, self.autogrid4B, self.autoligandB]
+                #self.FILL_centerB]
                 if self.need_gridB:
                     process_list.extend(self.list_process)
             elif self.parent.v.analog_grid_def == "by_residues":
@@ -3656,11 +3659,13 @@ class Program_body(QtGui.QWidget):
                 self.autogrid4 = {'AutoGrid4 B': [self.ws.autogrid, autogrid_arg]}
                 autoligand_arg = [str(self.ws.autoligand_py), '-r', str(self.parent.v.analog_protein_pdbqt[:-6]), '-a',
                                   str(self.parent.v.heavy_atoms), '-h', self.parent.v.res_center1]
+
                 self.autoligand = {'AutoLigand B': [self.ws.this_python, autoligand_arg]}
-                dimension_FILL = [self.parent.v.FILL, None, None, self.parent.v.obj_center1, False]
-                self.FILL_center = {'function GridDefinition: FILL Center B': [GridDefinition, dimension_FILL]}
+                # TODO: realizar el paso de la info del autoligand a la tabla
+                # dimension_FILL = [self.parent.v.FILL, None, None, self.parent.v.obj_center1, False]
+                # self.FILL_center = {'function GridDefinition: FILL Center B': [GridDefinition, dimension_FILL]}
                 self.list_process = [self.res_center, self.prot_center, self.prepare_gpf4, self.autogrid4,
-                                     self.autoligand, self.FILL_center]
+                                     self.autoligand]#, self.FILL_center]
                 if self.need_gridB:
                     process_list.extend(self.list_process)
             elif self.parent.v.analog_grid_def == "by_ligand":
