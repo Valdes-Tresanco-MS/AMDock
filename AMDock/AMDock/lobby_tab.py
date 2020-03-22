@@ -4,6 +4,7 @@ from tools import FormatedText as Ft
 
 class FRAME(QtGui.QFrame):
     def __init__(self, parent=None):
+        super(FRAME, self).__init__(parent)
         QtGui.QFrame.__init__(self, parent=parent)
         self.parent = parent
 
@@ -13,10 +14,9 @@ class FRAME(QtGui.QFrame):
         QtGui.QFrame.paintEvent(self, event)
 
 
-class Lobby(FRAME):
+class Lobby(QtGui.QFrame):
     def __init__(self, parent=None):
         super(Lobby, self).__init__(parent)
-        QtGui.QFrame.__init__(self, parent)
         self.AMDock = parent
         self.setObjectName("tab_lobby")
         self.dock_vina_button = QtGui.QPushButton(self)

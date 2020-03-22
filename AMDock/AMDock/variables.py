@@ -12,7 +12,7 @@ class Variables:
         self.this_python = sys.executable
         self.amdock_dir = os.path.dirname(__file__)
         self.extprg_path = os.path.join(self.amdock_dir, 'programs')
-        self.adt = os.path.dirname(AutoDockTools)
+        self.adt = os.path.dirname(AutoDockTools.__file__)
         self.doc_path = os.path.join(self.amdock_dir, 'Doc')
         self.pdb2pqr_py = str(os.path.join(self.extprg_path, 'pdb2pqr', 'pdb2pqr.py'))
         self.prepare_gpf4_py = str(os.path.join(self.adt, 'Utilities24', 'prepare_gpf4.py'))
@@ -27,11 +27,11 @@ class Variables:
         self.autogrid = os.path.join(self.extprg_path, 'autogrid4')
         self.autodock = os.path.join(self.extprg_path, 'autodock4')
         self.autoligand_py = os.path.join(self.extprg_path, 'AutoLigand.py')
-        self.pymol = os.path.join(os.path.dirname(pymol), '__init__.py')
+        self.pymol = os.path.join(os.path.dirname(pymol.__file__), '__init__.py')
         self.aln_pymol = os.path.join(self.extprg_path, 'protein_align_pymol.py')
         self.openbabel = 'obabel'
         self.lig_site_pymol = os.path.join(self.extprg_path, 'ligand_site_pymol.py')
-        self.manual = os.path.join(doc_path, 'AMDock_Manual.pdf')
+        self.manual = os.path.join(self.doc_path, 'AMDock_Manual.pdf')
 
         self.prog_title = '<html><head/><body style="font-family:times;color:#000000;text-decoration: ' \
                           'underline;"><p><span style="font-size:24pt; font-weight:600;">AMDock</span><span ' \

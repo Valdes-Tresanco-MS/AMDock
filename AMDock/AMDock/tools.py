@@ -2,7 +2,7 @@ import os
 import re
 from math import sqrt
 
-import pybel
+# import pybel
 from MolKit import Read, makeMoleculeFromAtoms
 from MolKit.pdbWriter import PdbqtWriter, PdbWriter
 

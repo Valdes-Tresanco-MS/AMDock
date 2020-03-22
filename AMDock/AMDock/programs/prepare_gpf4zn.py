@@ -8,7 +8,6 @@
 import string
 import os.path
 import glob
-import re
 from MolKit import Read
 from AutoDockTools.GridParameters import GridParameters, grid_parameter_list4
 from AutoDockTools.GridParameters import GridParameter4FileMaker
@@ -30,7 +29,6 @@ def usage():
     print "    [-n boolean to NOT size_box_to_include_ligand]"
     print "    [-I increment npts in all 3 dimensions by this integer]"
     print "    [-v]"
-    print "    [-f] open file with center and size values"
     print
     print "Prepare a grid parameter file (GPF) for AutoDock4."
     print
@@ -43,14 +41,14 @@ if __name__ == '__main__':
     import sys
 
     try:
-        opt_list, args = getopt.getopt(sys.argv[1:], 'vl:r:i:x:o:p:d:ynI:f:')
+        opt_list, args = getopt.getopt(sys.argv[1:], 'vl:r:i:x:o:p:d:ynI:')
     except getopt.GetoptError, msg:
         print 'prepare_gpf4.py: %s' % msg
         usage()
         sys.exit(2)
 
     receptor_filename = ligand_filename = None
-    list_filename = gpf_filename = gpf_filename = None
+    list_filename = gpf_filename = None
     output_gpf_filename = None
     flexres_filename = None
     directory = None
@@ -60,10 +58,6 @@ if __name__ == '__main__':
     size_box_to_include_ligand = True
     npts_increment = 0
     ligand_types_defined = False
-
-    center = []
-    size = []
-
     for o, a in opt_list:
         if o in ('-v', '--v'):
             verbose = 1
@@ -98,10 +92,6 @@ if __name__ == '__main__':
         if o in ('-I', '--I'):
             npts_increment = int(a)
             if verbose: print 'set npts_increment to ', npts_increment
-        if o in ('-f', '--f'):
-            grid_file = a
-            print grid_file
-            if verbose: print 'read coordinates of center and dimensions of box'
         if o in ('-h', '--'):
             usage()
             sys.exit()
@@ -140,41 +130,6 @@ if __name__ == '__main__':
         if param_str.find("parameter_file")>-1:
             parameters.append("custom_parameter_file=1")
             break
-    file = open(grid_file)
-    for line in file:
-        line = line.strip('\n')
-        if re.search('center_x', line[0:8]):
-            center_x = line[10:].strip()
-            center.append(center_x)
-        elif re.search('center_y', line[0:8]):
-            center_y = line[10:].strip()
-            center.append(center_y)
-        elif re.search('center_z', line[0:8]):
-            center_z = line[10:].strip()
-            center.append(center_z)
-        elif re.search('size_x',line[0:6]):
-            size_x = line[8:].strip()
-            size.append(size_x)
-        elif re.search('size_y',line[0:6]):
-            size_y = line[8:].strip()
-            size.append(size_y)
-        elif re.search('size_z',line[0:6]):
-            size_z = line[8:].strip()
-            size.append(size_z)
-
-    center_ = '%s %s %s'%(center[0],center[1],center[2])
-    kw = {'gridcenter': center_}
-    apply(gpfm.set_grid_parameters, (), kw)
-    print center_
-    if len(size) != 0:
-        size_ = '%s,%s,%s' % (size[0], size[1], size[2])
-    else:
-        size_ = None
-    if size_ != None:
-	    arg = {'npts': size_}
-	    apply(gpfm.set_grid_parameters, (), arg)
-    file.close()
-
     for p in parameters:
         key,newvalue = string.split(p, '=')
         if key=='gridcenter' and newvalue.find(',')>-1:

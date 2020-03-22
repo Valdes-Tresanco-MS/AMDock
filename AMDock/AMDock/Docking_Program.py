@@ -44,6 +44,7 @@ class AMDock(QtGui.QMainWindow, Variables):
         self.pH = 7.40
         self.state = 0  # 0 not running, 2 running
         self.section = -1  # -1 only PD selected, 0 project, 1 input files, 2 bsd, 3 docking
+        self.log_level = 2
 
         with open(self.style_file) as f:
             self.setStyleSheet(f.read())
@@ -141,33 +142,29 @@ class AMDock(QtGui.QMainWindow, Variables):
 from splash_screen import SplashScreen
 from variables import Objects as ob
 
-def run():
-    if __name__ == "__main__":
-        app = QtGui.QApplication(sys.argv)
-        app_icon = QtGui.QIcon()
-        v = Variables()
-        # dw = QtGui.QDesktopWidget()
-        app_icon.addFile(v.app_icon, QtCore.QSize(16, 20))
-        app_icon.addFile(v.app_icon, QtCore.QSize(24, 30))
-        app_icon.addFile(v.app_icon, QtCore.QSize(32, 40))
-        app_icon.addFile(v.app_icon, QtCore.QSize(48, 60))
-        app_icon.addFile(v.app_icon, QtCore.QSize(223, 283))
-        # app.setStyle("cleanlooks")
-        app.setWindowIcon(app_icon)
-        app.setApplicationName('AMDock: Assisted Molecular Docking for AutoDock and AutoDock Vina')
-        splash = SplashScreen(QtGui.QPixmap(v.splashscreen_path), app)
-        main = AMDock()
-        splash.finish(main)
-        main.setWindowState(QtCore.Qt.WindowMaximized)
-        # main.setMinimumSize(1080, 740)
-        # main.resize(1200, int(dw.height() * 0.9))
-        main.setWindowTitle('AMDock: Assisted Molecular Docking with AutoDock4 and AutoDock Vina')
-        main.setWindowIcon(app_icon)
-        main.show()
-        if splash.import_error():
-            sys.exit(app.exec_())
-        else:
-            sys.exit(app.exit(1))
-
-
-run()
+if __name__ == "__main__":
+    app = QtGui.QApplication(sys.argv)
+    app_icon = QtGui.QIcon()
+    v = Variables()
+    # dw = QtGui.QDesktopWidget()
+    app_icon.addFile(v.app_icon, QtCore.QSize(16, 20))
+    app_icon.addFile(v.app_icon, QtCore.QSize(24, 30))
+    app_icon.addFile(v.app_icon, QtCore.QSize(32, 40))
+    app_icon.addFile(v.app_icon, QtCore.QSize(48, 60))
+    app_icon.addFile(v.app_icon, QtCore.QSize(223, 283))
+    # app.setStyle("cleanlooks")
+    app.setWindowIcon(app_icon)
+    app.setApplicationName('AMDock: Assisted Molecular Docking for AutoDock and AutoDock Vina')
+    splash = SplashScreen(QtGui.QPixmap(v.splashscreen_path), app)
+    main = AMDock()
+    splash.finish(main)
+    main.setWindowState(QtCore.Qt.WindowMaximized)
+    # main.setMinimumSize(1080, 740)
+    # main.resize(1200, int(dw.height() * 0.9))
+    main.setWindowTitle('AMDock: Assisted Molecular Docking with AutoDock4 and AutoDock Vina')
+    main.setWindowIcon(app_icon)
+    main.show()
+    if splash.import_error():
+        sys.exit(app.exec_())
+    else:
+        sys.exit(app.exit(1))
