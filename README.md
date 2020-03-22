@@ -27,11 +27,9 @@ If it does not appear please follow the instructions:<br>
 -open PyMOL > Plugins > Manager Plugins > Settings > Add new directory<br>
 PyMOL should automatically have:
 
-`~/.pymol/startup or /home/user_name/.pymol/startup`
+`~/.pymol/startup or /home/user_name/.pymol/startup` if not, please select the previous address<br>
 
 after this you must restart PyMol
-
-if not, please select the previous address<br>
 
 ***Automatically, a file (AMDock.desktop) must be generated that allows its execution from the start menu. if you use a linux version where it doesn't appear, you can run it through the terminal:
 `installation folder> right click> run a terminal here> (in terminal) ./AMDock.sh`***
