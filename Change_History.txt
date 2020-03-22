@@ -1,3 +1,17 @@
+#Build 1.4.x
+-Changed the way that objects are selected to center in binding site determination from AutoLigand. Now by default all
+are selected and at each site previously determined docking are made. The results show the affinities for each pose.
+-Changed the way that results and box are visualized
+-Now we do the docking for every possible site identified by AutoLigand instead of doing it for arbitrary selection
+-Added a log that contains all the information of the process
+-Progress bars have been changed. Now there is better monitoring of the progress of the docking process
+-Output file now contains more information and is better organized
+#Build 1.3.8
+-Graphical interface improvements
+-fixed some inconsistencies
+-improved user experience
+-added more options
+-added functionalities for better results in search space definition
 #Build 1.1.2
 -Graphical interface improvements
 -fixed some inconsistencies
@@ -8,8 +22,6 @@
 -Graphical interface improvements
 -Change in the scoring procedure when autodock4 and autodock 4Zn are selected. Now, autodock4 is used instead of the script.
 -Fixed some bugs
-#Build 1.0.3
--Change the scoring mode. Now using AutoDock4 instead of the evaluation script
 #Build 1.0.2
 -fixed some bugs
 -In Off-Target Docking module, both the target and off-target proteins are align, thus improving the visualization of
