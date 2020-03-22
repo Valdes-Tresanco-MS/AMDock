@@ -1,50 +1,55 @@
-from warning import wdir2_warning, prot_warning, lig_warning, stop_warning, error_warning, smallbox_warning, \
-    reset_warning, amdock_file_warning, define_wdir_loc
-from PyQt4 import QtGui, QtCore
-import shutil, os, glob, re, Queue
-from result2tab import Result_Analysis, Scoring2table
-from some_slots import progress
-from tools import GridDefinition, Fix_PQR
-from variables import Variables, WorkersAndScripts
-from command_runner import Worker
+import Queue
+import math
+import os
+import re
+import shutil
 
-__version__ = "1.0 For Windows and Linux"
+from PyQt4 import QtGui, QtCore
+from command_runner import PROCESS, THREAD
+from result2tab import Result_Analysis
+from roundprogressbar import QRoundProgressBar
+from tools import Fix_PQR, PDBINFO, BASE, PROJECT, Convert
+from tools import FormatedText as Ft
+from warning import (wdir2_warning, prot_warning, lig_warning, stop_warning, smallbox_warning,
+                     reset_warning, define_wdir_loc, error_message)
 
 
 class Program_body(QtGui.QWidget):
     def __init__(self, parent=None):
         super(Program_body, self).__init__(parent)
         self.setObjectName("program_body")
-        self.parent = parent
-        with open(self.parent.objects.style_file) as f:
+        self.AMDock = parent
+        with open(self.AMDock.style_file) as f:
             self.setStyleSheet(f.read())
 
         self.part = 0
         self.total = 0
         self.grid = 0
+        self.size = [30, 30, 30]
+        self.sizeB = [30, 30, 30]
+        self.grid_center = ['', '', '']
+        self.grid_centerB = ['', '', '']
+        self.lig_size = 0
         self.need_grid = True
         self.need_gridB = True
         self.build = self.buildB = False
         self.process_list = []
-        self.ws = WorkersAndScripts()
-        self.wdir_loc = None
 
         self.sc_area = QtGui.QScrollArea(self)
         self.sc_area_widget = QtGui.QWidget()
-        self.sc_area_widget.setMinimumHeight(200)
 
         # **project_box
         self.project_box = QtGui.QGroupBox(self.sc_area_widget)
         self.project_box.setObjectName("project_box")
         self.project_box.setTitle("Project")
-        self.project_box.setToolTip(self.parent.tt.project_tt)
+        self.project_box.setToolTip(self.AMDock.project_tt)
 
         self.project_label = QtGui.QLabel(self.project_box)
         self.project_label.setText("Project Name:")
 
         self.project_text = QtGui.QLineEdit(self.project_box)
         self.project_text.setObjectName("project_text")
-        self.project_text.setPlaceholderText(self.parent.v.project_name)
+        self.project_text.setPlaceholderText(self.AMDock.project_name)
         self.proj_name_validator = QtGui.QRegExpValidator(QtCore.QRegExp("\\S+"))
         self.project_text.setValidator(self.proj_name_validator)
 
@@ -80,8 +85,7 @@ class Program_body(QtGui.QWidget):
         self.input_box = QtGui.QGroupBox(self.sc_area_widget)
         self.input_box.setObjectName("input_box")
         self.input_box.setTitle("Input")
-        # self.input_box.setEnabled(False)
-        self.input_box.setToolTip(self.parent.tt.input_tt)
+        self.input_box.setToolTip(self.AMDock.input_tt)
 
         self.pH_label = QtGui.QLabel(self.input_box)
         self.pH_label.setObjectName("ph_button")
@@ -93,7 +97,7 @@ class Program_body(QtGui.QWidget):
         self.pH_value.setMinimum(0)
         self.pH_value.setMaximum(14)
         self.pH_value.setSingleStep(0.1)
-        self.pH_value.setValue(self.parent.v.pH)
+        self.pH_value.setValue(self.AMDock.pH)
         self.pH_value.setObjectName("pH_value")
 
         self.docking_mode = QtGui.QButtonGroup(self.input_box)
@@ -103,41 +107,41 @@ class Program_body(QtGui.QWidget):
         self.simple_docking.setChecked(True)
         self.docking_mode.addButton(self.simple_docking, 1)
 
-        self.cross_reaction = QtGui.QRadioButton('Off-Target Docking', self.input_box)
-        self.cross_reaction.setObjectName("cross_reaction")
-        self.docking_mode.addButton(self.cross_reaction, 2)
+        self.offtarget_docking = QtGui.QRadioButton('Off-Target Docking', self.input_box)
+        self.offtarget_docking.setObjectName("offtarget_docking")
+        self.docking_mode.addButton(self.offtarget_docking, 2)
 
         self.rescoring = QtGui.QRadioButton('Scoring', self.input_box)
         self.rescoring.setObjectName("rescoring")
         self.docking_mode.addButton(self.rescoring, 3)
 
-        self.protein_button = QtGui.QPushButton(self.input_box)
-        self.protein_button.setObjectName("protein_buttonA")
-        self.protein_button.setText("Protein")
-        self.protein_button.clicked.connect(lambda: self.load_file(self.protein_button))
+        self.target_button = QtGui.QPushButton(self.input_box)
+        self.target_button.setObjectName("target_button")
+        self.target_button.setText("Target")
+        self.target_button.clicked.connect(lambda: self.load_file(self.target_button))
 
-        self.protein_text = QtGui.QLineEdit(self.input_box)
-        self.protein_text.setObjectName("protein_text")
-        self.protein_text.setReadOnly(True)
-        self.protein_text.setPlaceholderText('target protein')
+        self.target_text = QtGui.QLineEdit(self.input_box)
+        self.target_text.setObjectName("target_text")
+        self.target_text.setReadOnly(True)
+        self.target_text.setPlaceholderText('Target protein')
 
-        self.protein_label = QtGui.QLabel(self.input_box)
-        self.protein_label.hide()
+        self.target_label = QtGui.QLabel(self.input_box)
+        self.target_label.hide()
 
-        self.protein_buttonB = QtGui.QPushButton(self.input_box)
-        self.protein_buttonB.setObjectName("protein_buttonB")
-        self.protein_buttonB.setText("Off-Target")
-        self.protein_buttonB.hide()
-        self.protein_buttonB.clicked.connect(lambda: self.load_file(self.protein_buttonB))
+        self.offtarget_button = QtGui.QPushButton(self.input_box)
+        self.offtarget_button.setObjectName("offtarget_button")
+        self.offtarget_button.setText("Off-Target")
+        self.offtarget_button.hide()
+        self.offtarget_button.clicked.connect(lambda: self.load_file(self.offtarget_button))
 
-        self.protein_textB = QtGui.QLineEdit(self.input_box)
-        self.protein_textB.setObjectName("protein_textB")
-        self.protein_textB.setReadOnly(True)
-        self.protein_textB.setPlaceholderText('off-target protein')
-        self.protein_textB.hide()
+        self.offtarget_text = QtGui.QLineEdit(self.input_box)
+        self.offtarget_text.setObjectName("offtarget_text")
+        self.offtarget_text.setReadOnly(True)
+        self.offtarget_text.setPlaceholderText('off-target protein')
+        self.offtarget_text.hide()
 
-        self.protein_labelB = QtGui.QLabel(self.input_box)
-        self.protein_labelB.hide()
+        self.offtarget_label = QtGui.QLabel(self.input_box)
+        self.offtarget_label.hide()
 
         self.ligand_button = QtGui.QPushButton(self.input_box)
         self.ligand_button.setObjectName("ligand_button")
@@ -155,28 +159,42 @@ class Program_body(QtGui.QWidget):
         self.prep_rec_lig_button = QtGui.QPushButton(self.input_box)
         self.prep_rec_lig_button.setObjectName("prep_rec_lig_button")
         self.prep_rec_lig_button.setText("Prepare\nInput")
-        self.prep_rec_lig_button.setEnabled(False)
+        #         # self.prep_rec_lig_button.setEnabled(False)
+
+        self.align_prot = QtGui.QPushButton(self.input_box)
+        self.align_prot.setObjectName("align_prot")
+        self.align_prot.setText("Align Proteins")
+        self.align_prot.clicked.connect(self.align_proteins)
+        self.align_prot.hide()
+
 
         self.flags_layout = QtGui.QHBoxLayout()
         self.flags_layout.addWidget(self.pH_label)
         self.flags_layout.addWidget(self.pH_value)
         self.flags_layout.addWidget(self.simple_docking)
-        self.flags_layout.addWidget(self.cross_reaction)
+        self.flags_layout.addWidget(self.offtarget_docking)
         self.flags_layout.addWidget(self.rescoring)
         self.flags_layout.addStretch(1)
+        self.flags_layout.addWidget(self.align_prot)
+        # self.flags_layout.addStretch(1)/
+
 
         self.input_layout = QtGui.QGridLayout()
         self.input_layout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
-        self.input_layout.addWidget(self.protein_button, 0, 0)
-        self.input_layout.addWidget(self.protein_text, 0, 1)
-        self.input_layout.addWidget(self.protein_label, 1, 1)
+        self.input_layout.addWidget(self.target_button, 0, 0)
+        self.input_layout.addWidget(self.target_text, 0, 1)
+        self.input_layout.addWidget(self.target_label, 1, 1)
 
-        self.input_layout.addWidget(self.protein_buttonB, 2, 0)
-        self.input_layout.addWidget(self.protein_textB, 2, 1)
-        self.input_layout.addWidget(self.protein_labelB, 3, 1)
+        self.input_layout.addWidget(self.offtarget_button, 2, 0)
+        self.input_layout.addWidget(self.offtarget_text, 2, 1)
+        self.input_layout.addWidget(self.offtarget_label, 3, 1)
         self.input_layout.addWidget(self.ligand_button, 4, 0)
         self.input_layout.addWidget(self.ligand_text, 4, 1)
         self.input_layout.addWidget(self.ligand_label, 5, 1)
+
+        # self.input_btn_layout = QtGui.QVBoxLayout()
+        # self.input_btn_layout.addWidget(self.align_prot)
+        # self.input_btn_layout.addWidget(self.prep_rec_lig_button)
 
         self.content_layout = QtGui.QHBoxLayout()
         self.content_layout.addLayout(self.input_layout)
@@ -190,60 +208,61 @@ class Program_body(QtGui.QWidget):
         self.grid_box = QtGui.QGroupBox(self.sc_area_widget)
         self.grid_box.setObjectName("grid_box")
         self.grid_box.setTitle("Search Space")
-        # self.grid_box.setEnabled(False)
-        self.grid_box.setToolTip(self.parent.tt.grid_tt)
+        self.grid_box.setToolTip(self.AMDock.grid_tt)
 
-        self.protein_column_label = QtGui.QLabel('Target', self.grid_box)
-        self.protein_column_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.target_column_label = QtGui.QLabel('Target', self.grid_box)
+        self.target_column_label.setAlignment(QtCore.Qt.AlignCenter)
 
-        self.protein_column_group_btnA = QtGui.QButtonGroup(self.grid_box)
+        self.target_column_group_btnA = QtGui.QButtonGroup(self.grid_box)
+        self.target_column_group_btnA.buttonPressed.connect(self.grid_sel_protection)
 
         self.btnA_auto = QtGui.QRadioButton(self.grid_box)
         self.btnA_auto.setObjectName('btnA_auto')
         self.btnA_auto.setChecked(True)
-        self.protein_column_group_btnA.addButton(self.btnA_auto, 1)
+        self.target_column_group_btnA.addButton(self.btnA_auto, 1)
         self.btnA_auto.toggled.connect(lambda: self.grid_prot(self.btnA_auto))
 
         self.btnA_res = QtGui.QRadioButton(self.grid_box)
-        self.protein_column_group_btnA.addButton(self.btnA_res, 2)
+        self.target_column_group_btnA.addButton(self.btnA_res, 2)
         self.btnA_res.setObjectName('btnA_res')
         self.btnA_res.toggled.connect(lambda: self.grid_prot(self.btnA_res))
 
         self.btnA_lig = QtGui.QRadioButton(self.grid_box)
         self.btnA_lig.setObjectName('btnA_lig')
-        self.protein_column_group_btnA.addButton(self.btnA_lig, 3)
+        self.target_column_group_btnA.addButton(self.btnA_lig, 3)
         self.btnA_lig.toggled.connect(lambda: self.grid_prot(self.btnA_lig))
 
         self.btnA_user = QtGui.QRadioButton(self.grid_box)
-        self.protein_column_group_btnA.addButton(self.btnA_user, 4)
+        self.target_column_group_btnA.addButton(self.btnA_user, 4)
         self.btnA_user.setObjectName('btnA_user')
         self.btnA_user.toggled.connect(lambda: self.grid_prot(self.btnA_user))
 
-        self.protein1_column_label = QtGui.QLabel('Off-Target', self.grid_box)
-        self.protein1_column_label.hide()
-        self.protein1_column_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.offtarget_column_label = QtGui.QLabel('Off-Target', self.grid_box)
+        self.offtarget_column_label.hide()
+        self.offtarget_column_label.setAlignment(QtCore.Qt.AlignCenter)
 
-        self.protein_column_group_btnB = QtGui.QButtonGroup(self.grid_box)
+        self.offtarget_column_group_btnB = QtGui.QButtonGroup(self.grid_box)
+        self.offtarget_column_group_btnB.buttonPressed.connect(self.grid_sel_protection)
 
         self.btnB_auto = QtGui.QRadioButton(self.grid_box)
         self.btnB_auto.setChecked(True)
-        self.protein_column_group_btnB.addButton(self.btnB_auto, 1)
+        self.offtarget_column_group_btnB.addButton(self.btnB_auto, 1)
         self.btnB_auto.hide()
         self.btnB_auto.toggled.connect(lambda: self.grid_prot(self.btnB_auto))
 
         self.btnB_res = QtGui.QRadioButton(self.grid_box)
         self.btnB_res.toggled.connect(lambda: self.grid_prot(self.btnB_res))
 
-        self.protein_column_group_btnB.addButton(self.btnB_res, 2)
+        self.offtarget_column_group_btnB.addButton(self.btnB_res, 2)
         self.btnB_res.hide()
 
         self.btnB_lig = QtGui.QRadioButton(self.grid_box)
-        self.protein_column_group_btnB.addButton(self.btnB_lig, 3)
+        self.offtarget_column_group_btnB.addButton(self.btnB_lig, 3)
         self.btnB_lig.hide()
         self.btnB_lig.toggled.connect(lambda: self.grid_prot(self.btnB_lig))
 
         self.btnB_user = QtGui.QRadioButton(self.grid_box)
-        self.protein_column_group_btnB.addButton(self.btnB_user, 4)
+        self.offtarget_column_group_btnB.addButton(self.btnB_user, 4)
         self.btnB_user.hide()
         self.btnB_user.toggled.connect(lambda: self.grid_prot(self.btnB_user))
 
@@ -253,20 +272,25 @@ class Program_body(QtGui.QWidget):
         self.grid_predef_cr = QtGui.QLabel(self.grid_box)
         self.grid_predef_cr.setText("Center on Residue(s)")
 
+        regex = QtCore.QRegExp("([A-Z-a-z]:[A-Z-a-z]{3}:[0-9]{1,5}; )*")
+        validator = QtGui.QRegExpValidator(regex)
+
         self.grid_predef_text = QtGui.QLineEdit(self.grid_box)
         self.grid_predef_text.setObjectName("grid_predef_text")
         self.grid_predef_text.setPlaceholderText('CHN:RES:NUM,...,CHN:RES:NUM (chain:residue:number of residue)')
         self.grid_predef_text.hide()
         self.grid_predef_text.textChanged.connect(lambda: self.check_res(self.grid_predef_text))
+        self.grid_predef_text.setValidator(validator)
 
         self.grid_predef_textB = QtGui.QLineEdit(self.grid_box)
         self.grid_predef_textB.setObjectName("grid_predef_textB")
         self.grid_predef_textB.setPlaceholderText('CHN:RES:NUM,...,CHN:RES:NUM (chain:residue:number of residue)')
         self.grid_predef_textB.hide()
         self.grid_predef_textB.textChanged.connect(lambda: self.check_res(self.grid_predef_textB))
+        self.grid_predef_textB.setValidator(validator)
 
         self.grid_by_lig_cr = QtGui.QLabel(self.grid_box)
-        self.grid_by_lig_cr.setText("Center on Ligand")
+        self.grid_by_lig_cr.setText("Center on Hetero")
 
         self.lig_list = QtGui.QComboBox(self.grid_box)
         self.lig_list.setObjectName("lig_list")
@@ -288,27 +312,30 @@ class Program_body(QtGui.QWidget):
 
         self.coor_x_label = QtGui.QLabel(self.coor_box)
         self.coor_x_label.setText('X:')
-        self.coor_x = QtGui.QLineEdit(self.coor_box)
-        self.coor_x.setValidator(QtGui.QDoubleValidator(-100, 100, 2))
-        self.coor_x.setMaxLength(5)
+        self.coor_x = QtGui.QDoubleSpinBox(self.coor_box)
+        self.coor_x.setDecimals(1)
+        self.coor_x.setRange(-999, 999)
+        self.coor_x.setSingleStep(0.1)
+        self.coor_x.setAccelerated(True)
         self.coor_x.setObjectName('coor_x')
-        self.coor_x.textChanged.connect(self.check_grid)
 
         self.coor_y_label = QtGui.QLabel(self.coor_box)
         self.coor_y_label.setText('Y:')
-        self.coor_y = QtGui.QLineEdit(self.coor_box)
-        self.coor_y.setValidator(QtGui.QDoubleValidator(-100, 100, 2))
-        self.coor_y.setMaxLength(5)
+        self.coor_y = QtGui.QDoubleSpinBox(self.coor_box)
+        self.coor_y.setDecimals(1)
+        self.coor_y.setRange(-999, 999)
+        self.coor_y.setSingleStep(0.1)
+        self.coor_y.setAccelerated(True)
         self.coor_y.setObjectName('coor_y')
-        self.coor_y.textChanged.connect(self.check_grid)
 
         self.coor_z_label = QtGui.QLabel(self.coor_box)
         self.coor_z_label.setText('Z:')
-        self.coor_z = QtGui.QLineEdit(self.coor_box)
-        self.coor_z.setValidator(QtGui.QDoubleValidator(-100, 100, 2))
-        self.coor_z.setMaxLength(5)
+        self.coor_z = QtGui.QDoubleSpinBox(self.coor_box)
+        self.coor_z.setDecimals(1)
+        self.coor_z.setRange(-999, 999)
+        self.coor_z.setSingleStep(0.1)
+        self.coor_z.setAccelerated(True)
         self.coor_z.setObjectName('coor_z')
-        self.coor_z.textChanged.connect(self.check_grid)
 
         self.size_box = QtGui.QGroupBox(self.grid_box)
         self.size_box.setTitle("Size")
@@ -317,27 +344,21 @@ class Program_body(QtGui.QWidget):
 
         self.size_x_label = QtGui.QLabel(self.size_box)
         self.size_x_label.setText('X:')
-        self.size_x = QtGui.QLineEdit(self.size_box)
-        self.size_x.setValidator(QtGui.QIntValidator(8, 150))
-        self.size_x.setMaxLength(5)
+        self.size_x = QtGui.QSpinBox(self.coor_box)
+        self.size_x.setAccelerated(True)
         self.size_x.setObjectName('size_x')
-        self.size_x.textChanged.connect(self.check_grid)
 
         self.size_y_label = QtGui.QLabel(self.size_box)
         self.size_y_label.setText('Y:')
-        self.size_y = QtGui.QLineEdit(self.size_box)
-        self.size_y.setValidator(QtGui.QIntValidator(8, 150))
-        self.size_y.setMaxLength(5)
+        self.size_y = QtGui.QSpinBox(self.coor_box)
+        self.size_y.setAccelerated(True)
         self.size_y.setObjectName('size_y')
-        self.size_y.textChanged.connect(self.check_grid)
 
         self.size_z_label = QtGui.QLabel(self.size_box)
         self.size_z_label.setText('Z:')
-        self.size_z = QtGui.QLineEdit(self.size_box)
-        self.size_z.setValidator(QtGui.QIntValidator(8, 150))
-        self.size_z.setMaxLength(5)
+        self.size_z = QtGui.QSpinBox(self.coor_box)
+        self.size_z.setAccelerated(True)
         self.size_z.setObjectName('size_z')
-        self.size_z.textChanged.connect(self.check_grid)
 
         self.coor_boxB = QtGui.QGroupBox(self.grid_box)
         self.coor_boxB.setTitle("Center")
@@ -346,27 +367,30 @@ class Program_body(QtGui.QWidget):
 
         self.coor_x_labelB = QtGui.QLabel(self.coor_boxB)
         self.coor_x_labelB.setText('X:')
-        self.coor_xB = QtGui.QLineEdit(self.coor_boxB)
-        self.coor_xB.setValidator(QtGui.QDoubleValidator(-100, 100, 2))
-        self.coor_xB.setMaxLength(6)
+        self.coor_xB = QtGui.QDoubleSpinBox(self.coor_boxB)
+        self.coor_xB.setDecimals(1)
+        self.coor_xB.setRange(-999, 999)
+        self.coor_xB.setSingleStep(0.1)
+        self.coor_xB.setAccelerated(True)
         self.coor_xB.setObjectName('coor_xB')
-        self.coor_xB.textChanged.connect(self.check_grid)
 
         self.coor_y_labelB = QtGui.QLabel(self.coor_boxB)
         self.coor_y_labelB.setText('Y:')
-        self.coor_yB = QtGui.QLineEdit(self.coor_boxB)
-        self.coor_yB.setValidator(QtGui.QDoubleValidator(-100, 100, 2))
-        self.coor_yB.setMaxLength(6)
+        self.coor_yB = QtGui.QDoubleSpinBox(self.coor_boxB)
+        self.coor_yB.setDecimals(1)
+        self.coor_yB.setRange(-999, 999)
+        self.coor_yB.setSingleStep(0.1)
+        self.coor_yB.setAccelerated(True)
         self.coor_yB.setObjectName('coor_yB')
-        self.coor_yB.textChanged.connect(self.check_grid)
 
         self.coor_z_labelB = QtGui.QLabel(self.coor_boxB)
         self.coor_z_labelB.setText('Z:')
-        self.coor_zB = QtGui.QLineEdit(self.coor_boxB)
-        self.coor_zB.setValidator(QtGui.QDoubleValidator(-100, 100, 2))
-        self.coor_zB.setMaxLength(6)
+        self.coor_zB = QtGui.QDoubleSpinBox(self.coor_boxB)
+        self.coor_zB.setDecimals(1)
+        self.coor_zB.setRange(-999, 999)
+        self.coor_zB.setSingleStep(0.1)
+        self.coor_zB.setAccelerated(True)
         self.coor_zB.setObjectName('coor_zB')
-        self.coor_zB.textChanged.connect(self.check_grid)
 
         self.size_boxB = QtGui.QGroupBox(self.grid_box)
         self.size_boxB.setTitle("Size")
@@ -375,61 +399,54 @@ class Program_body(QtGui.QWidget):
 
         self.size_x_labelB = QtGui.QLabel(self.size_boxB)
         self.size_x_labelB.setText('X:')
-        self.size_xB = QtGui.QLineEdit(self.size_boxB)
-        self.size_xB.setValidator(QtGui.QIntValidator(8, 150))
-        self.size_xB.setMaxLength(6)
+        self.size_xB = QtGui.QSpinBox(self.size_boxB)
+        self.size_xB.setAccelerated(True)
         self.size_xB.setObjectName('size_xB')
-        self.size_xB.textChanged.connect(self.check_grid)
 
         self.size_y_labelB = QtGui.QLabel(self.size_boxB)
         self.size_y_labelB.setText('Y:')
-        self.size_yB = QtGui.QLineEdit(self.size_boxB)
-        self.size_yB.setValidator(QtGui.QIntValidator(8, 150))
-        self.size_yB.setMaxLength(6)
+        self.size_yB = QtGui.QSpinBox(self.size_boxB)
+        self.size_yB.setAccelerated(True)
         self.size_yB.setObjectName('size_yB')
-        self.size_yB.textChanged.connect(self.check_grid)
 
         self.size_z_labelB = QtGui.QLabel(self.size_boxB)
         self.size_z_labelB.setText('Z:')
-        self.size_zB = QtGui.QLineEdit(self.size_boxB)
-        self.size_zB.setValidator(QtGui.QIntValidator(8, 150))
-        self.size_zB.setMaxLength(6)
+        self.size_zB = QtGui.QSpinBox(self.size_boxB)
+        self.size_zB.setAccelerated(True)
         self.size_zB.setObjectName('size_zB')
-        self.size_zB.textChanged.connect(self.check_grid)
-        self.spacer = QtGui.QSpacerItem(20, 20, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
-        self.center_layout = QtGui.QHBoxLayout(self.coor_box)
-        self.center_layout.setContentsMargins(0, 0, 0, 0)
-        self.center_layout.addWidget(self.coor_x_label)
-        self.center_layout.addWidget(self.coor_x)
-        self.center_layout.addWidget(self.coor_y_label)
-        self.center_layout.addWidget(self.coor_y)
-        self.center_layout.addWidget(self.coor_z_label)
-        self.center_layout.addWidget(self.coor_z)
-        self.center_layoutB = QtGui.QHBoxLayout(self.coor_boxB)
-        self.center_layoutB.setContentsMargins(0, 0, 0, 0)
-        self.center_layoutB.addWidget(self.coor_x_labelB)
-        self.center_layoutB.addWidget(self.coor_xB)
-        self.center_layoutB.addWidget(self.coor_y_labelB)
-        self.center_layoutB.addWidget(self.coor_yB)
-        self.center_layoutB.addWidget(self.coor_z_labelB)
-        self.center_layoutB.addWidget(self.coor_zB)
 
-        self.size_layout = QtGui.QHBoxLayout(self.size_box)
-        self.size_layout.setContentsMargins(0, 0, 0, 0)
-        self.size_layout.addWidget(self.size_x_label)
-        self.size_layout.addWidget(self.size_x)
-        self.size_layout.addWidget(self.size_y_label)
-        self.size_layout.addWidget(self.size_y)
-        self.size_layout.addWidget(self.size_z_label)
-        self.size_layout.addWidget(self.size_z)
-        self.size_layoutB = QtGui.QHBoxLayout(self.size_boxB)
-        self.size_layoutB.setContentsMargins(0, 0, 0, 0)
-        self.size_layoutB.addWidget(self.size_x_labelB)
-        self.size_layoutB.addWidget(self.size_xB)
-        self.size_layoutB.addWidget(self.size_y_labelB)
-        self.size_layoutB.addWidget(self.size_yB)
-        self.size_layoutB.addWidget(self.size_z_labelB)
-        self.size_layoutB.addWidget(self.size_zB)
+        self.spacer = QtGui.QSpacerItem(20, 20, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
+        self.center_layout = QtGui.QGridLayout(self.coor_box)
+        self.center_layout.addWidget(self.coor_x_label, 0, 0, QtCore.Qt.AlignCenter)
+        self.center_layout.addWidget(self.coor_x, 1, 0, QtCore.Qt.AlignCenter)
+        self.center_layout.addWidget(self.coor_y_label, 0, 1, QtCore.Qt.AlignCenter)
+        self.center_layout.addWidget(self.coor_y, 1, 1, QtCore.Qt.AlignCenter)
+        self.center_layout.addWidget(self.coor_z_label, 0, 2, QtCore.Qt.AlignCenter)
+        self.center_layout.addWidget(self.coor_z, 1, 2, QtCore.Qt.AlignCenter)
+
+        self.center_layoutB = QtGui.QGridLayout(self.coor_boxB)
+        self.center_layoutB.addWidget(self.coor_x_labelB, 0, 0, QtCore.Qt.AlignCenter)
+        self.center_layoutB.addWidget(self.coor_xB, 1, 0, QtCore.Qt.AlignCenter)
+        self.center_layoutB.addWidget(self.coor_y_labelB, 0, 1, QtCore.Qt.AlignCenter)
+        self.center_layoutB.addWidget(self.coor_yB, 1, 1, QtCore.Qt.AlignCenter)
+        self.center_layoutB.addWidget(self.coor_z_labelB, 0, 2, QtCore.Qt.AlignCenter)
+        self.center_layoutB.addWidget(self.coor_zB, 1, 2, QtCore.Qt.AlignCenter)
+
+        self.size_layout = QtGui.QGridLayout(self.size_box)
+        self.size_layout.addWidget(self.size_x_label, 0, 0, QtCore.Qt.AlignCenter)
+        self.size_layout.addWidget(self.size_x, 1, 0, QtCore.Qt.AlignCenter)
+        self.size_layout.addWidget(self.size_y_label, 0, 1, QtCore.Qt.AlignCenter)
+        self.size_layout.addWidget(self.size_y, 1, 1, QtCore.Qt.AlignCenter)
+        self.size_layout.addWidget(self.size_z_label, 0, 2, QtCore.Qt.AlignCenter)
+        self.size_layout.addWidget(self.size_z, 1, 2, QtCore.Qt.AlignCenter)
+
+        self.size_layoutB = QtGui.QGridLayout(self.size_boxB)
+        self.size_layoutB.addWidget(self.size_x_labelB, 0, 0, QtCore.Qt.AlignCenter)
+        self.size_layoutB.addWidget(self.size_xB, 1, 0, QtCore.Qt.AlignCenter)
+        self.size_layoutB.addWidget(self.size_y_labelB, 0, 1, QtCore.Qt.AlignCenter)
+        self.size_layoutB.addWidget(self.size_yB, 1, 1, QtCore.Qt.AlignCenter)
+        self.size_layoutB.addWidget(self.size_z_labelB, 0, 2, QtCore.Qt.AlignCenter)
+        self.size_layoutB.addWidget(self.size_zB, 1, 2, QtCore.Qt.AlignCenter)
 
         self.bind_site_button = QtGui.QPushButton(self.grid_box)
         self.bind_site_button.setObjectName("bind_site_button")
@@ -440,216 +457,131 @@ class Program_body(QtGui.QWidget):
         self.grid_pymol_button.setObjectName("grid_pymol_button")
         self.grid_pymol_button.setText('Show in PyMol')
         self.grid_pymol_button.clicked.connect(lambda: self.grid_actions(self.grid_pymol_button))
-        self.grid_pymol_button.setEnabled(False)
-
-        self.grid_pymol_buttonB = QtGui.QPushButton(self.grid_box)
-        self.grid_pymol_buttonB.setObjectName("grid_pymol_buttonB")
-        self.grid_pymol_buttonB.setText("Show in PyMol")
-        self.grid_pymol_buttonB.hide()
-        self.grid_pymol_buttonB.clicked.connect(lambda: self.grid_actions(self.grid_pymol_buttonB))
-        self.grid_pymol_buttonB.setEnabled(False)
-
-        self.reset_grid_button = QtGui.QPushButton(self.grid_box)
-        self.reset_grid_button.setObjectName("reset_grid_button")
-        self.reset_grid_button.setText("Reset")
-        self.reset_grid_button.clicked.connect(lambda: self.grid_actions(self.reset_grid_button))
-        self.reset_grid_button.setEnabled(False)
-
-        self.reset_grid_buttonB = QtGui.QPushButton(self.grid_box)
-        self.reset_grid_buttonB.setObjectName("reset_grid_buttonB")
-        self.reset_grid_buttonB.setText("Reset")
-        self.reset_grid_buttonB.hide()
-        self.reset_grid_buttonB.clicked.connect(lambda: self.grid_actions(self.reset_grid_buttonB))
-        self.reset_grid_buttonB.setEnabled(False)
 
         self.checker_icon = QtGui.QLabel(self.grid_box)
-        self.checker_icon.setPixmap(QtGui.QPixmap(self.parent.objects.error_checker))
+        self.checker_icon.setPixmap(QtGui.QPixmap(self.AMDock.error_checker))
         self.checker_icon.hide()
 
         self.checker_icon_ok = QtGui.QLabel(self.grid_box)
-        self.checker_icon_ok.setPixmap(QtGui.QPixmap(self.parent.objects.error_checker_ok))
+        self.checker_icon_ok.setPixmap(QtGui.QPixmap(self.AMDock.error_checker_ok))
         self.checker_icon_ok.hide()
 
         self.run_button = QtGui.QPushButton(self)
         self.run_button.setObjectName("run_button")
-        self.run_button.setText("Run Docking")
-        self.run_button.setEnabled(False)
-
-        self.run_scoring = QtGui.QPushButton(self)
-        self.run_scoring.setObjectName("run_scoring")
-        self.run_scoring.setText("Run Scoring")
-        self.run_scoring.setEnabled(False)
-        self.run_scoring.hide()
+        self.run_button.setText("Run")
+        self.run_button.setSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
 
         self.stop_button = QtGui.QPushButton(self)
         self.stop_button.setObjectName("stop_button")
-        self.stop_button.setText("Stop Docking")
-        self.stop_button.setEnabled(False)
-        self.stop_button.clicked.connect(self.stop_docking)
+        self.stop_button.setText("Stop")
+        self.stop_button.clicked.connect(self.stop_function)
 
-        self.non_button = QtGui.QPushButton(self)
-        self.non_button.setObjectName("non_button")
-        self.non_button.setText("")
-        self.non_button.setEnabled(False)
-        self.non_button.hide()
+        self.process_state_label = QtGui.QLabel('STATE:')
+        self.process_state_label.setStyleSheet("QLabel {font-weight: bold;}")
+
+        self.process_state = QtGui.QLabel('NOT RUNNING')
+        self.process_state.setStyleSheet("QLabel {font-weight: bold; color: green;}")
+
+        self.section_name = QtGui.QLabel('SECTION:')
+        self.section_name.setStyleSheet("QLabel {font-weight: bold;}")
+
+        self.section_state = QtGui.QLabel('PROJECT')
+        self.section_state.setStyleSheet("QLabel {font-weight: bold; color: green;}")
 
         self.reset_button = QtGui.QPushButton(self)
         self.reset_button.setObjectName("reset_button")
         self.reset_button.setText("  Reset")
-        self.reset_button.setIcon(QtGui.QIcon(QtGui.QPixmap(self.parent.objects.reset_icon)))
-        self.reset_button.setEnabled(True)
+        self.reset_button.setIcon(QtGui.QIcon(QtGui.QPixmap(self.AMDock.reset_icon)))
         self.reset_button.clicked.connect(self.reset_function)
 
-        self.progressBar = QtGui.QProgressBar(self)
-        self.progressBar.setValue(0)
-        self.progressBar.setAlignment(QtCore.Qt.AlignCenter)
-        self.progressBar.setOrientation(QtCore.Qt.Horizontal)
-        self.progressBar.setInvertedAppearance(False)
-        self.progressBar.setTextDirection(QtGui.QProgressBar.TopToBottom)
-        self.progressBar.setObjectName("progressBar")
-        self.progressBar.setFormat("%p%")
+        self.progress_project_label = QtGui.QLabel('Project Progress')
 
-        self.progressBar_label = QtGui.QLabel(self)
-        font3 = QtGui.QFont()
-        font3.setPointSize(6)
+        self.progressBar_global = QRoundProgressBar(self)
+        self.progressBar_global.setValue(0)
+        self.progressBar_global.setObjectName("progressBar_global")
+        self.progressBar_global.setMinimumSize(120, 120)
 
-        self.p1 = QtGui.QLabel('|')
-        self.p1.setFont(font3)
-        self.p2 = QtGui.QLabel('|')
-        self.p2.setFont(font3)
-        self.p3 = QtGui.QLabel('|')
-        self.p3.setFont(font3)
-        self.p4 = QtGui.QLabel('|')
-        self.p4.setFont(font3)
-        self.p5 = QtGui.QLabel('|')
-        self.p5.setFont(font3)
-        self.init_conf = QtGui.QLabel('Init Conf')
-        self.init_conf.setFont(font3)
-        self.input_files = QtGui.QLabel('Prep. Input Files')
-        self.input_files.setFont(font3)
-        self.search_space = QtGui.QLabel('Search Space Definition')
-        self.search_space.setFont(font3)
-        self.mol_docking = QtGui.QLabel('Molecular Docking Simulation')
-        self.mol_docking.setFont(font3)
+        self.progress_section_label = QtGui.QLabel('Section Progress')
 
-        self.label_prog = QtGui.QHBoxLayout()
-        self.label_prog.setContentsMargins(0, 0, 0, 0)
-        self.label_prog.setMargin(0)
-        self.label_prog.addWidget(self.init_conf, 9.8, QtCore.Qt.AlignCenter)
-        self.label_prog.addWidget(self.p2)
-        self.label_prog.addWidget(self.input_files, 14.8, QtCore.Qt.AlignCenter)
-        self.label_prog.addWidget(self.p3)
-        self.label_prog.addWidget(self.search_space, 24.8, QtCore.Qt.AlignCenter)
-        self.label_prog.addWidget(self.p4)
-        self.label_prog.addWidget(self.mol_docking, 50, QtCore.Qt.AlignCenter)
+        self.progressBar_section = QRoundProgressBar(self)
+        self.progressBar_section.setAutoFillBackground(True)
+        self.progressBar_section.setValue(0)
+        self.progressBar_section.setObjectName("progressBar_section")
+        self.progressBar_section.setMinimumSize(120, 120)
+
+        self.log_button = QtGui.QPushButton('Log:')
+        self.log_button.clicked.connect(self.log_toggle)
+        self.program_label = QtGui.QLabel('')
 
         self.checker_icon = QtGui.QLabel(self.grid_box)
-        self.checker_icon.setPixmap(QtGui.QPixmap(self.parent.objects.error_checker))
+        self.checker_icon.setPixmap(QtGui.QPixmap(self.AMDock.error_checker))
         self.checker_icon.hide()
 
         self.checker_iconB = QtGui.QLabel(self.grid_box)
-        self.checker_iconB.setPixmap(QtGui.QPixmap(self.parent.objects.error_checker))
+        self.checker_iconB.setPixmap(QtGui.QPixmap(self.AMDock.error_checker))
         self.checker_iconB.hide()
 
         self.checker_icon_ok = QtGui.QLabel(self.grid_box)
-        self.checker_icon_ok.setPixmap(QtGui.QPixmap(self.parent.objects.error_checker_ok))
+        self.checker_icon_ok.setPixmap(QtGui.QPixmap(self.AMDock.error_checker_ok))
         self.checker_icon_ok.hide()
 
         self.checker_icon_okB = QtGui.QLabel(self.grid_box)
-        self.checker_icon_okB.setPixmap(QtGui.QPixmap(self.parent.objects.error_checker_ok))
+        self.checker_icon_okB.setPixmap(QtGui.QPixmap(self.AMDock.error_checker_ok))
         self.checker_icon_okB.hide()
-
-        self.grid_icon = QtGui.QLabel()
-        self.grid_icon.setPixmap(QtGui.QPixmap(self.parent.objects.error_checker))
-        self.grid_icon.hide()
-
-        self.grid_iconB = QtGui.QLabel(self.grid_box)
-        self.grid_iconB.setPixmap(QtGui.QPixmap(self.parent.objects.error_checker))
-        self.grid_iconB.hide()
-
-        self.grid_icon_ok = QtGui.QLabel(self.grid_box)
-        self.grid_icon_ok.setPixmap(QtGui.QPixmap(self.parent.objects.error_checker_ok))
-        self.grid_icon_ok.hide()
-
-        self.grid_icon_okB = QtGui.QLabel(self.grid_box)
-        self.grid_icon_okB.setPixmap(QtGui.QPixmap(self.parent.objects.error_checker_ok))
-        self.grid_icon_okB.hide()
 
         self.res_text = QtGui.QHBoxLayout()
         self.res_text.addWidget(self.grid_predef_text, 1)
         self.res_text.addWidget(self.checker_icon_ok)
         self.res_text.addWidget(self.checker_icon)
-        self.res_lay = QtGui.QVBoxLayout()
-        self.res_lay.addWidget(self.btnA_res, 0, QtCore.Qt.AlignCenter)
-        self.res_lay.addLayout(self.res_text)
 
         self.res_textB = QtGui.QHBoxLayout()
         self.res_textB.addWidget(self.grid_predef_textB, 1)
         self.res_textB.addWidget(self.checker_icon_okB, 0)
         self.res_textB.addWidget(self.checker_iconB, 0)
-        self.res_layB = QtGui.QVBoxLayout()
-        self.res_layB.addWidget(self.btnB_res, 0, QtCore.Qt.AlignCenter)
-        self.res_layB.addLayout(self.res_textB)
-
-        self.lig_lay = QtGui.QVBoxLayout()
-        self.lig_lay.addWidget(self.btnA_lig, 0, QtCore.Qt.AlignCenter)
-        self.lig_lay.addWidget(self.lig_list, 1)
-        self.lig_layB = QtGui.QVBoxLayout()
-        self.lig_layB.addWidget(self.btnB_lig, 0, QtCore.Qt.AlignCenter)
-        self.lig_layB.addWidget(self.lig_listB, 1)
 
         self.coor_box_layout = QtGui.QHBoxLayout()
-        self.coor_box_layout.addWidget(self.coor_box, 1)
-        self.coor_box_layout.addWidget(self.size_box, 1)
-        self.coor_box_layout.addWidget(self.grid_icon)
-        self.coor_box_layout.addWidget(self.grid_icon_ok)
-        self.coor_lay = QtGui.QVBoxLayout()
-        self.coor_lay.addWidget(self.btnA_user, 0, QtCore.Qt.AlignCenter)
-        self.coor_lay.addLayout(self.coor_box_layout)
+        self.coor_box_layout.addWidget(self.coor_box)
+        self.coor_box_layout.addWidget(self.size_box)
 
         self.coor_boxB_layout = QtGui.QHBoxLayout()
-        self.coor_boxB_layout.addWidget(self.coor_boxB, 1)
-        self.coor_boxB_layout.addWidget(self.size_boxB, 1)
-        self.coor_boxB_layout.addWidget(self.grid_iconB)
-        self.coor_boxB_layout.addWidget(self.grid_icon_okB)
+        self.coor_boxB_layout.addWidget(self.coor_boxB)
+        self.coor_boxB_layout.addWidget(self.size_boxB)
 
-        self.coor_layB = QtGui.QVBoxLayout()
-        self.coor_layB.addWidget(self.btnB_user, 0, QtCore.Qt.AlignCenter)
-        self.coor_layB.addLayout(self.coor_boxB_layout)
-
-        self.conf_buttons = QtGui.QHBoxLayout()
-        self.conf_buttons.addWidget(self.grid_pymol_button)
-        self.conf_buttons.addWidget(self.reset_grid_button)
-        self.conf_buttonsB = QtGui.QHBoxLayout()
-        self.conf_buttonsB.addWidget(self.grid_pymol_buttonB)
-        self.conf_buttonsB.addWidget(self.reset_grid_buttonB)
-
-        self.autoligand_table = QtGui.QTableWidget()
-        self.autoligand_table.setColumnCount(2)
-        self.autoligand_table.setHorizontalHeaderLabels(["Total Volume (A**3)","EPV (Kcal/mol A**3)"])
-        self.autoligand_table.setRowCount(10)
-        self.autoligand_table.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
+        self.autoligand_target = QtGui.QTableWidget()
+        self.autoligand_target.setObjectName('autoligand_target')
+        self.autoligand_target.setColumnCount(2)
+        self.autoligand_target.setHorizontalHeaderLabels(["Total Volume (A**3)", "EPV (Kcal/mol A**3)"])
+        self.autoligand_target.setMinimumHeight(150)
+        self.autoligand_target.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
+        self.autoligand_target.hide()
+        self.autoligand_target.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.autoligand_target.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.autoligand_target.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
+        self.autoligand_target.itemSelectionChanged.connect(lambda: self.fill_selection(self.autoligand_target))
 
         self.autolig_layout = QtGui.QHBoxLayout()
-        self.autolig_layout.addWidget(self.autoligand_table, 1)
+        self.autolig_layout.addWidget(self.autoligand_target, 1)
 
-        self.autoligand_tableB = QtGui.QTableWidget()
-        self.autoligand_tableB.setColumnCount(2)
-        self.autoligand_tableB.setHorizontalHeaderLabels(["Total Volume (A**3)","EPV (Kcal/mol A**3)"])
-        self.autoligand_tableB.setRowCount(10)
-        self.autoligand_tableB.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
+        self.autoligand_offtarget = QtGui.QTableWidget()
+        self.autoligand_offtarget.setObjectName('autoligand_offtarget')
+        self.autoligand_offtarget.setColumnCount(2)
+        self.autoligand_offtarget.setHorizontalHeaderLabels(["Total Volume (A**3)", "EPV (Kcal/mol A**3)"])
+        self.autoligand_offtarget.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
+        self.autoligand_offtarget.hide()
+        self.autoligand_offtarget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.autoligand_offtarget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.autoligand_offtarget.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
+        self.autoligand_offtarget.itemSelectionChanged.connect(lambda: self.fill_selection(self.autoligand_offtarget))
 
         self.autolig_layoutB = QtGui.QHBoxLayout()
-        self.autolig_layoutB.addWidget(self.autoligand_tableB, 1)
+        self.autolig_layoutB.addWidget(self.autoligand_offtarget, 1)
 
         self.all_options = QtGui.QGridLayout()
         self.all_options.setSizeConstraint(QtGui.QLayout.SetFixedSize)
 
         self.all_options.setColumnStretch(1, 1)  # make column 1 and 2 regular width
-        self.all_options.addItem(self.spacer, 0, 0)
-        self.all_options.addWidget(self.protein_column_label, 0, 1, 1, 1, QtCore.Qt.AlignCenter)
-        self.all_options.addWidget(self.protein1_column_label, 0, 2, 1, 1, QtCore.Qt.AlignCenter)
-        self.all_options.addItem(self.spacer, 0, 3)
+        self.all_options.addWidget(self.target_column_label, 0, 1, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addWidget(self.offtarget_column_label, 0, 2, 1, 1, QtCore.Qt.AlignCenter)
 
         self.all_options.addWidget(self.grid_auto_cr, 1, 0)
         self.all_options.addWidget(self.btnA_auto, 1, 1, 1, 1, QtCore.Qt.AlignCenter)
@@ -658,64 +590,93 @@ class Program_body(QtGui.QWidget):
         self.all_options.addLayout(self.autolig_layoutB, 2, 2, 1, 1, QtCore.Qt.AlignCenter)
 
         self.all_options.addWidget(self.grid_predef_cr, 3, 0)
-        self.all_options.addLayout(self.res_lay, 3, 1, 1, 1, QtCore.Qt.AlignCenter)
-        self.all_options.addLayout(self.res_layB, 3, 2, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addWidget(self.btnA_res, 3, 1, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addLayout(self.res_text, 4, 1, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addWidget(self.btnB_res, 3, 2, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addLayout(self.res_textB, 4, 2, 1, 1, QtCore.Qt.AlignCenter)
 
-        self.all_options.addWidget(self.grid_by_lig_cr, 4, 0)
-        self.all_options.addLayout(self.lig_lay, 4, 1, 1, 1, QtCore.Qt.AlignCenter)
-        self.all_options.addLayout(self.lig_layB, 4, 2, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addWidget(self.grid_by_lig_cr, 5, 0)
+        self.all_options.addWidget(self.btnA_lig, 5, 1, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addWidget(self.lig_list, 6, 1, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addWidget(self.btnB_lig, 5, 2, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addWidget(self.lig_listB, 6, 2, 1, 1, QtCore.Qt.AlignCenter)
 
-        self.all_options.addWidget(self.grid_user_cr, 5, 0)
-        self.all_options.addLayout(self.coor_lay, 5, 1, 1, 1, QtCore.Qt.AlignCenter)
-        self.all_options.addLayout(self.coor_layB, 5, 2, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addWidget(self.grid_user_cr, 7, 0)
+        self.all_options.addWidget(self.btnA_user, 7, 1, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addLayout(self.coor_box_layout, 8, 1, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addWidget(self.btnB_user, 7, 2, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addLayout(self.coor_boxB_layout, 8, 2, 1, 1, QtCore.Qt.AlignCenter)
 
-        self.all_options.addItem(self.spacer, 6, 0)
-        self.all_options.addLayout(self.conf_buttons, 6, 1, 1, 1, QtCore.Qt.AlignCenter)
-        self.all_options.addLayout(self.conf_buttonsB, 6, 2, 1, 1, QtCore.Qt.AlignCenter)
+        self.pymol_button_layout = QtGui.QHBoxLayout()
+        self.pymol_button_layout.addStretch(50)
+        self.pymol_button_layout.addWidget(self.grid_pymol_button)
+        self.pymol_button_layout.addStretch(48)
 
         self.binding_layout = QtGui.QVBoxLayout()
         self.binding_layout.addStretch(1)
         self.binding_layout.addWidget(self.bind_site_button)
         self.binding_layout.addStretch(1)
 
-        self.grid_content = QtGui.QHBoxLayout(self.grid_box)
-        self.grid_content.addLayout(self.all_options, 1)
-        self.grid_content.addLayout(self.binding_layout)
+        self.grid_subcontent = QtGui.QHBoxLayout()
+        self.grid_subcontent.addLayout(self.all_options, 1)
+        self.grid_subcontent.addLayout(self.binding_layout)
 
-        self.worker = Worker()
-        self.worker.readyReadStandardOutput.connect(self.readStdOutput)
-        self.worker.readyReadStandardError.connect(self.readStdError)
-        self.worker.prog_started.connect(self.prog_show)
-        self.worker.prog_finished.connect(self.process_progress)
-        self.worker.prog_finished.connect(self.run_queue)
-        self.worker.queue_finished.connect(self.check_queue)
+        self.grid_content = QtGui.QVBoxLayout(self.grid_box)
+        self.grid_content.addLayout(self.grid_subcontent, 1)
+        self.grid_content.addLayout(self.pymol_button_layout)
 
-        self.cross_reaction.toggled.connect(lambda: self.simulation_form(self.cross_reaction))
-        self.simple_docking.toggled.connect(lambda: self.simulation_form(self.simple_docking))
-        self.rescoring.toggled.connect(lambda: self.simulation_form(self.rescoring))
+        self.W = PROCESS()
+        # signals for programs
+        self.W.stoped.connect(self.process_stoped)
+        self.W.prog_finished.connect(self.for_finished)
+        # self.W.process.error.connect(self.output_error)
+        self.W.worker.signals.finished.connect(self.for_finished)
+        self.W.state.connect(self.check_state)
+        # self.W.worker.signals.result.connect(self.output_function)
+        self.W.queue_finished.connect(self.check_section)
+        self.W.process.readyReadStandardOutput.connect(self.readStdOutput)
+
+        self.offtarget_docking.pressed.connect(lambda: self.simulation_form(self.offtarget_docking))
+        self.simple_docking.pressed.connect(lambda: self.simulation_form(self.simple_docking))
+        self.rescoring.pressed.connect(lambda: self.simulation_form(self.rescoring))
         self.prep_rec_lig_button.clicked.connect(self.prepare_receptor)
         self.bind_site_button.clicked.connect(self.binding_site)
         self.run_button.clicked.connect(self.start_docking_prog)
-        self.run_scoring.clicked.connect(self.scoring)
-
-        self.pH_value.valueChanged.connect(lambda: self.values(self.pH_value))
 
         self.reset_button_layout = QtGui.QHBoxLayout()
         self.reset_button_layout.addStretch(1)
         self.reset_button_layout.addWidget(self.reset_button)
         self.reset_button_layout.addStretch(1)
 
-        self.progressbar_layout = QtGui.QVBoxLayout()
-        self.progressbar_layout.addLayout(self.label_prog)
-        self.progressbar_layout.addWidget(self.progressBar)
-        self.progressbar_layout.addLayout(self.reset_button_layout)
+        self.progressbar_layout = QtGui.QGridLayout()
+        self.progressbar_layout.addWidget(self.log_button, 0, 0)
+        self.progressbar_layout.addWidget(self.program_label, 0, 1, 1, -1)
+
+        self.progressbar_layout.addWidget(self.progressBar_global, 1, 0, 3, 3, QtCore.Qt.AlignCenter)
+        self.progressbar_layout.addWidget(self.progress_project_label, 4, 0, 3, 3, QtCore.Qt.AlignCenter)
+
+        self.progressbar_layout.addWidget(self.section_name, 1, 3, 1, 1, QtCore.Qt.AlignCenter)
+        self.progressbar_layout.addWidget(self.section_state, 2, 3, 1, 1, QtCore.Qt.AlignCenter)
+        self.progressbar_layout.addWidget(self.reset_button, 3, 3, 1, 1)
+        self.progressbar_layout.addItem(self.spacer, 1, 4, 3, 1)
+
+        self.progressbar_layout.addWidget(self.progressBar_section, 1, 5, 3, 3, QtCore.Qt.AlignCenter)
+        self.progressbar_layout.addWidget(self.progress_section_label, 4, 5, 3, 3, QtCore.Qt.AlignCenter)
+
+        self.progressbar_layout.addWidget(self.process_state_label, 1, 8, 1, 1, QtCore.Qt.AlignCenter)
+        self.progressbar_layout.addWidget(self.process_state, 2, 8, 1, 1, QtCore.Qt.AlignCenter)
+
+        self.progressbar_layout.addWidget(self.stop_button, 3, 8, 1, 1)
+        self.progressbar_layout.addItem(self.spacer, 1, 9, 3, 2)
+
+        self.run_layout = QtGui.QVBoxLayout()
+        self.run_layout.addStretch(1)
+        self.run_layout.addWidget(self.run_button, 2)
+        self.run_layout.addStretch(1)
 
         self.progress_layout = QtGui.QHBoxLayout()
-        self.progress_layout.addWidget(self.stop_button)
-        self.progress_layout.addWidget(self.non_button)
-        self.progress_layout.addLayout(self.progressbar_layout)
-        self.progress_layout.addWidget(self.run_button)
-        self.progress_layout.addWidget(self.run_scoring)
+        self.progress_layout.addLayout(self.progressbar_layout, 1)
+        self.progress_layout.addLayout(self.run_layout)
 
         self.sc_area_widget_layout = QtGui.QVBoxLayout(self.sc_area_widget)
         self.sc_area_widget_layout.addWidget(self.project_box)
@@ -732,73 +693,802 @@ class Program_body(QtGui.QWidget):
         self.body_layout.addWidget(self.sc_area, 1)
         self.body_layout.addLayout(self.progress_layout)
 
-    def reset_function(self):
-        if self.parent.v.WDIR is None:
-            self.parent.statusbar.showMessage("Version: %s" % __version__)
-            self.parent.main_window.setTabEnabled(0, True)
-            self.parent.main_window.setCurrentIndex(0)
-            self.parent.main_window.setTabEnabled(1, False)
+    def load_file(self, _file):  # ok
+        if _file.objectName() == 'create_project':
+            # check if exist any process in background
+            if self.AMDock.state == 2:
+                QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
+                                                                 'Please wait for these to end.',
+                                           QtGui.QMessageBox.Ok)
+                return
+            elif self.AMDock.section in [1, 2, 3]:
+                msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed '
+                                                                        'previously. Do you want to repeat it?\n Keep '
+                                                                        'in mind that this will eliminate all the '
+                                                                        'information contained in this project !!!',
+                                                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+                if msg == QtGui.QMessageBox.No:
+                    return
+                elif msg == QtGui.QMessageBox.Yes:
+                    self.reset_sections(0)
+
+            if not self.AMDock.project.location:
+                define_wdir_loc(self)
+                return
+
+            if self.AMDock.project.WDIR:
+                options = wdir2_warning(self)
+                if options == QtGui.QMessageBox.Yes:
+                    self.AMDock.output2file.conclude()
+                    os.chdir(self.AMDock.project.location)
+                    try:
+                        shutil.rmtree(self.AMDock.project.WDIR)
+                    except:
+                        QtGui.QMessageBox.critical(self.AMDock, 'Error',
+                                                   'The previous project directory could not be removed. Please '
+                                                   'remove it manually.', QtGui.QMessageBox.Ok)
+                    if not self.AMDock.loader.create_project_function():
+                        self.AMDock.project.WDIR = None
+                        self.project_text.clear()
+                        self.wdir_text.clear()
+                        self.AMDock.project.location = None
+                        self.proj_loc_label.hide()
+                    else:
+                        self.proj_loc_label.setText('Project: %s' % self.AMDock.project.WDIR)
+                        self.proj_loc_label.show()
+            else:
+                if not self.AMDock.loader.create_project_function():
+                    self.AMDock.project.WDIR = None
+                    self.project_text.clear()
+                    self.wdir_text.clear()
+                    self.AMDock.project.location = None
+                    self.proj_loc_label.hide()
+                    return
+                else:
+                    self.proj_loc_label.setText('Project: %s' % self.AMDock.project.WDIR)
+                    self.proj_loc_label.show()
+            self.AMDock.section = 0
+            self.progressBar_global.setValue(25)
+            self.highlight()
+            self.program_label.setText('Create project... Done.')
+            self.AMDock.log_widget.textedit.append(Ft('WDIR: %s' % self.AMDock.project.WDIR).definitions())
+
+        if _file.objectName() == "wdir_button":
+            loc_file = self.AMDock.loader.project_location()
+            self.AMDock.project.get_loc(loc_file)
+            if self.AMDock.project.location:
+                self.wdir_text.setText("%s" % self.AMDock.project.location)
+
+        if _file.objectName() == "target_button":
+            if self.AMDock.state == 2:
+                QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
+                                                                       'Please wait for these to end.',
+                                                 QtGui.QMessageBox.Ok)
+                return
+            elif self.AMDock.section == -1:
+                QtGui.QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
+                                                                       'completed. Please do all the steps sequentially.',
+                                                 QtGui.QMessageBox.Ok)
+                return
+            elif self.AMDock.section in [1, 2, 3]:
+                msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning',
+                                                'This step was successfully completed previously.'
+                                                ' Do you want to repeat it?',
+                                                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+                if msg == QtGui.QMessageBox.No:
+                    return
+                elif msg == QtGui.QMessageBox.Yes:
+                    self.reset_sections(1)
+
+            if self.AMDock.target.input is None:
+                self.AMDock.loader.load_protein()
+            else:
+                prot_opt = prot_warning(self)
+                if prot_opt == QtGui.QMessageBox.Yes:
+                    os.remove(self.AMDock.target.input)
+                    self.AMDock.target = BASE()
+                    self.target_label.clear()
+                    self.target_text.clear()
+                    self.target_label.hide()
+                    self.AMDock.loader.load_protein()
+            if self.AMDock.target.name:
+                self.target_label.show()
+
+        if _file.objectName() == "offtarget_button":
+            if self.AMDock.state == 2:
+                msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
+                                                                       'Please wait for these to end.',
+                                                 QtGui.QMessageBox.Ok)
+                return
+            elif self.AMDock.section == -1:
+                msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
+                                                                       'completed. Please do all the steps sequentially.',
+                                                 QtGui.QMessageBox.Ok)
+                return
+            if self.AMDock.offtarget.input is None:
+                self.AMDock.loader.load_proteinB()
+            else:
+                prot_opt = prot_warning(self)
+                if prot_opt == QtGui.QMessageBox.Yes:
+                    os.remove(self.AMDock.offtarget.input)
+                    self.AMDock.offtarget = BASE()
+                    self.offtarget_label.clear()
+                    self.offtarget_text.clear()
+                    self.offtarget_label.hide()
+                    self.AMDock.loader.load_proteinB()
+            if self.AMDock.offtarget.name:
+                self.offtarget_label.show()
+
+        if _file.objectName() == "ligand_button":
+            if self.AMDock.state == 2:
+                msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
+                                                                       'Please wait for these to end.',
+                                                 QtGui.QMessageBox.Ok)
+                return
+            elif self.AMDock.section == -1:
+                msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
+                                                                       'completed. Please do all the steps sequentially.',
+                                                 QtGui.QMessageBox.Ok)
+                return
+            if self.AMDock.ligand.input is None:
+                self.AMDock.loader.load_ligand()
+            else:
+                self.lig_opt = lig_warning(self)
+                if self.lig_opt == QtGui.QMessageBox.Yes:
+                    os.remove(self.AMDock.ligand.input)
+                    self.AMDock.ligand = BASE()
+                    self.ligand_text.clear()
+                    self.ligand_label.clear()
+                    self.ligand_label.hide()
+                    self.AMDock.loader.load_ligand()
+            if self.AMDock.ligand.name:
+                self.ligand_label.show()
+
+    def simulation_form(self, btn, reset=False):
+        if btn.isChecked():
+            return
+        else:
+            if not reset:
+                if self.AMDock.target.input or self.AMDock.offtarget.input or self.AMDock.ligand.input:
+                    msg = QtGui.QMessageBox.warning(self, 'Warning', "All data in this section and in Search Space will "
+                                                                     "be lost. Do you want to continue? ",
+                                                    QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+                    if msg == QtGui.QMessageBox.No:
+                        return
+        btn.setChecked(True)
+        target = offtarget = ligand = 0
+        if self.AMDock.target.input:
+            try:
+                os.remove(self.AMDock.target.input)
+            except:
+                target = 1
+        if self.AMDock.offtarget.input:
+            try:
+                os.remove(self.AMDock.offtarget.input)
+            except:
+                offtarget = 1
+        if self.AMDock.ligand.input:
+            try:
+                os.remove(self.AMDock.ligand.input)
+            except:
+                ligand = 1
+        if target or offtarget or ligand:
+            msg = QtGui.QMessageBox.warning(self, 'Warning', "Some files could not be eliminated, this could generate "
+                                                             "future problems. Please check that you have  writing "
+                                                             "rights in the project directory. You can continue the "
+                                                             "process without worrying.", QtGui.QMessageBox.Ok)
+        self.AMDock.target = BASE()
+        self.AMDock.offtarget = BASE()
+        self.AMDock.ligand = BASE()
+        self.target_label.clear()
+        self.target_label.hide()
+        self.offtarget_label.clear()
+        self.offtarget_label.hide()
+        self.ligand_label.clear()
+        self.ligand_label.hide()
+
+        self.target_text.clear()
+        self.offtarget_text.clear()
+        self.ligand_text.clear()
+
+        self.offtarget_button.hide()
+        self.offtarget_text.hide()
+        self.offtarget_column_label.hide()
+        self.btnB_auto.hide()
+        self.btnB_res.hide()
+        self.btnB_lig.hide()
+        self.btnB_user.hide()
+        self.btnA_auto.setChecked(True)
+        self.btnB_auto.setChecked(True)
+        self.lig_list.clear()
+        self.lig_listB.clear()
+
+        if btn.objectName() == 'offtarget_docking':
+            self.all_options.setColumnStretch(1, 1)
+            self.all_options.setColumnStretch(2, 1)
+            self.AMDock.scoring = False
+            self.AMDock.project.mode = 1
+            ## Input box
+            self.offtarget_button.show()
+            self.offtarget_text.show()
+            ### Grid definition box
+            self.offtarget_column_label.show()
+            self.btnB_auto.show()
+            self.btnB_res.show()
+            self.btnB_lig.show()
+            self.btnB_user.show()
+            self.grid_box.setEnabled(True)
+            self.align_prot.show()
+
+        elif btn.text() == 'Scoring':
+            self.all_options.setColumnStretch(2, 0)
+            self.AMDock.scoring = True
+            self.AMDock.project.mode = 2
+            self.grid_box.setEnabled(False)
+            self.align_prot.hide()
+        else:
+            self.all_options.setColumnStretch(2, 0)
+            self.AMDock.scoring = False
+            self.AMDock.project.mode = 0
+            self.grid_box.setEnabled(True)
+            self.align_prot.hide()
+
+    def align_proteins(self):
+        if self.AMDock.state == 2:
+            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
+                                                                   'Please wait for these to end.',
+                                             QtGui.QMessageBox.Ok)
+            return
+        elif self.AMDock.section == -1:
+            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
+                                                                   'completed. Please do all the steps sequentially.',
+                                             QtGui.QMessageBox.Ok)
+            return
+        elif self.AMDock.state in [1, 2, 3]:
+            msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed previously.'
+                                                                    ' Do you want to repeat it?',
+                                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+            if msg == QtGui.QMessageBox.No:
+                return
+        os.chdir(self.AMDock.project.input)
+        # check if target, (offtarget) and ligand are defined
+        if not self.AMDock.target.input or not self.AMDock.ligand.input or not self.AMDock.offtarget.input:
+            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Target, Ligand and Off-Target (if Off-target '
+                                                                   'Docking is selected) most be defined',
+                                             QtGui.QMessageBox.Ok)
+            return
+        # Align proteins
+        if self.AMDock.target.ext == 'pdbqt' or self.AMDock.offtarget.ext == 'pdbqt':
+            msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'Some of the proteins are PDBQT format, '
+                                                                    'which means that to align them, it will be '
+                                                                    'converted to PDB format and then again to PDBQT. '
+                                                                    'This can introduce unexpected errors. Do you wish'
+                                                                    ' to continue?',
+                                             QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+            if msg == QtGui.QMessageBox.Yes:
+                if self.AMDock.target.ext == 'pdbqt':
+                    conv = Convert(self.AMDock.target.input)
+                    if conv.get_path():
+                        self.AMDock.target.input = conv.get_path()
+                        self.AMDock.target.get_data(self.AMDock.target.input)
+                if self.AMDock.offtarget.ext == 'pdbqt':
+                    conv = Convert(self.AMDock.offtarget.input)
+                    if conv.get_path():
+                        self.AMDock.offtarget.input = conv.get_path()
+                        self.AMDock.offtarget.get_data(self.AMDock.offtarget.input)
+            else:
+                return
+
+        align = {'Align': [self.AMDock.this_python, [self.AMDock.pymol, '-c', self.AMDock.aln_pymol, '--', '-t',
+                                                     self.AMDock.target.input, '-o', self.AMDock.offtarget.input]]}
+
+        queue = Queue.Queue()
+        queue.name = 5
+        queue.put(align)
+        self.W.set_queue(queue)
+        self.W.start_process()
+
+    def prepare_receptor(self):
+
+        if self.AMDock.state == 2:
+            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
+                                                                   'Please wait for these to end.',
+                                             QtGui.QMessageBox.Ok)
+            return
+        elif self.AMDock.section == -1:
+            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
+                                                                   'completed. Please do all the steps sequentially.',
+                                             QtGui.QMessageBox.Ok)
+            return
+        elif self.AMDock.state in [1, 2, 3]:
+            msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed previously.'
+                                                                    ' Do you want to repeat it?',
+                                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+            if msg == QtGui.QMessageBox.No:
+                return
+        os.chdir(self.AMDock.project.input)
+        # check if target, (offtarget) and ligand are defined
+        if not self.AMDock.target.input or not self.AMDock.ligand.input:
+            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Target, Ligand and Off-Target (if Off-target '
+                                                                   'Docking is selected) most be defined',
+                                             QtGui.QMessageBox.Ok)
+            return
+        elif self.AMDock.project.mode == 1:
+            if not self.AMDock.offtarget.input:
+                msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Target, Ligand and Off-Target (if Off-target '
+                                                                       'Docking is selected) most be defined',
+                                                 QtGui.QMessageBox.Ok)
+                return
+        self.list_process = []
+
+
+        self.target_info = PDBINFO(self.AMDock.target.input)
+        self.AMDock.target.zn_atoms, self.AMDock.target.het = self.target_info.get_zn(), self.target_info.get_het()
+        self.offtarget_info = PDBINFO(self.AMDock.offtarget.input)
+        self.AMDock.offtarget.zn_atoms, self.AMDock.offtarget.het = self.offtarget_info.get_zn(), self.offtarget_info.get_het()
+        self.ligand_info = PDBINFO(self.AMDock.ligand.input)
+        self.AMDock.ligand.ha = self.ligand_info.get_ha()
+        self.lig_size = int(math.ceil(self.ligand_info.get_gyrate()))
+        self.size = [self.lig_size, self.lig_size, self.lig_size]  # this avoid bug in pymol visualization
+        self.sizeB = [self.lig_size, self.lig_size, self.lig_size]  # this avoid bug in pymol visualization
+
+        if self.AMDock.ligand.ha > 100:
+            wlig = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'The input ligand has more than 100 heavy.\n Do '
+                                                                     'you want to continue?',
+                                             QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+            if wlig == QtGui.QMessageBox.No:
+                self.reset_ligand()
+                self.AMDock.project.mode = 0
+                return
+        if self.AMDock.docking_program == 'AutoDockZn':
+            if self.AMDock.project.mode == 1:
+                self.check_opt, pt1, pt2 = self.AMDock.checker.autodockzn_check(self.AMDock.target,
+                                                                                self.AMDock.offtarget)
+                if self.check_opt == QtGui.QMessageBox.Ok:
+                    self.AMDock.main_window.setCurrentIndex(0)
+                    self.AMDock.main_window.setTabEnabled(1, False)
+                    self.AMDock.main_window.setTabEnabled(0, True)
+                    return
+                else:
+                    if not pt1:
+                        os.remove(self.AMDock.target.input)
+                        self.target_text.clear()
+                        self.target_label.clear()
+                        self.AMDock.target.input = None
+                    if not pt2:
+                        os.remove(self.AMDock.offtarget.input)
+                        self.offtarget_text.clear()
+                        self.offtarget_label.clear()
+                        self.AMDock.offtarget.input = None
+                    if self.AMDock.target.input == None and self.AMDock.offtarget.input == None:
+                        self.progress(2, self.AMDock.project.mode, 'Define Target and Off-Target', 1)
+                    elif not self.AMDock.target.input:
+                        self.progress(5, self.AMDock.project.mode, 'Define Target', 1)
+                    elif not self.AMDock.offtarget.input:
+                        self.progress(5, self.AMDock.project.mode, 'Define Off-Target', 1)
+                    return
+            else:
+                self.check_opt = self.AMDock.checker.autodockzn_check(self.AMDock.target)
+                if self.check_opt == QtGui.QMessageBox.Ok:
+                    self.AMDock.main_window.setCurrentIndex(0)
+                    self.AMDock.main_window.setTabEnabled(1, False)
+                    self.AMDock.main_window.setTabEnabled(0, True)
+                    return
+                elif self.check_opt == QtGui.QMessageBox.Cancel:
+                    os.remove(self.AMDock.target.input)
+                    self.target_text.clear()
+                    self.target_label.clear()
+                    self.AMDock.target.input = None
+                    self.progress(4, self.AMDock.project.mode, 'Define Target', 1)
+                    return
+        else:
+            if self.AMDock.project.mode == 1:
+                self.check_opt, pt1, pt2 = self.AMDock.checker.check_correct_prog(self.AMDock.target,
+                                                                                  self.AMDock.offtarget)
+                if self.check_opt == QtGui.QMessageBox.Yes:
+                    self.AMDock.docking_program = "AutoDockZn"
+                    self.AMDock.log_widget.textedit.append(Ft('DOCKING_PROGRAM: %s' %
+                                                              self.AMDock.docking_program).definitions())
+            else:
+                self.check_opt = self.AMDock.checker.check_correct_prog(self.AMDock.target)
+                if self.check_opt == QtGui.QMessageBox.Yes:
+                    self.AMDock.docking_program = "AutoDockZn"
+                    self.AMDock.log_widget.textedit.append(Ft('DOCKING_PROGRAM: %s' %
+                                                              self.AMDock.docking_program).definitions())
+            self.AMDock.statusbar.removeWidget(self.AMDock.mess)
+            self.AMDock.mess = QtGui.QLabel(self.AMDock.docking_program + " is selected")
+            self.AMDock.statusbar.addWidget(self.AMDock.mess)
+        # added ligands (if exist) to list in binding site box
+        if self.target_info.get_het():
+            for res in self.target_info.get_het():
+                self.lig_list.addItem('{}:{}:{}'.format(res[0], res[1][:3], res[1][3:]))
+        if self.AMDock.project.mode == 1 and self.offtarget_info.get_het():
+            for res in self.offtarget_info.get_het():
+                self.lig_listB.addItem('{}:{}:{}'.format(res[0], res[1][:3], res[1][3:]))
+        if self.AMDock.project.mode == 0:
+            self.AMDock.log_widget.textedit.append(Ft('MODE: SIMPLE').definitions())
+        elif self.AMDock.project.mode == 1:
+            self.AMDock.log_widget.textedit.append(Ft('MODE: OFF-TARGET').definitions())
+        else:
+            self.AMDock.log_widget.textedit.append(Ft('MODE: SCORING').definitions())
+
+        self.AMDock.log_widget.textedit.append(Ft('TARGET: %s' % self.AMDock.target.name).definitions())
+        self.AMDock.log_widget.textedit.append(Ft('TARGET (Hetero): %s' % self.target_info.get_het()).definitions())
+        self.AMDock.log_widget.textedit.append(Ft('TARGET (Zn atoms): %s' % self.target_info.get_zn()).definitions())
+        if self.AMDock.project.mode == 1:
+            self.AMDock.log_widget.textedit.append(Ft('OFF-TARGET: %s' % self.AMDock.offtarget.name).definitions())
+            self.AMDock.log_widget.textedit.append(Ft('OFF-TARGET (Hetero): %s' %
+                                                      self.offtarget_info.get_het()).definitions())
+            self.AMDock.log_widget.textedit.append(Ft('OFF-TARGET (Zn atoms): %s' %
+                                                      self.offtarget_info.get_zn()).definitions())
+        self.AMDock.log_widget.textedit.append(Ft('LIGAND: %s' % self.AMDock.ligand.name).definitions())
+        self.AMDock.log_widget.textedit.append(Ft('LIGAND (heavy_atoms): %s' %
+                                                  self.AMDock.ligand.ha).definitions())
+        self.AMDock.log_widget.textedit.append(Ft('Defining Initial Parameters... Done\n').section())
+        self.AMDock.log_widget.textedit.append(Ft('Prepare Initial Files...').section())
+        if self.AMDock.target.prepare:
+            pdb2pqr = {'PDB2PQR': [self.AMDock.this_python, [self.AMDock.pdb2pqr_py, '--ph-calc-method=propka',
+                                                             '--verbose', '--noopt', '--drop-water', '--chain',
+                                                             '--with-ph', str(self.pH_value.value()),
+                                                             '--ff=AMBER', self.AMDock.target.input,
+                                                             self.AMDock.target.pqr]]}
+            fix_pqr = {'Fix_PQR': [Fix_PQR, [self.AMDock.target.input, self.AMDock.target.pqr,
+                                             self.AMDock.target.zn_atoms]]}
+
+            prepare_receptor4 = {'Prepare_Receptor4': [self.AMDock.this_python, [self.AMDock.prepare_receptor4_py,
+                                                                                 '-r', self.AMDock.target.pdb, '-v',
+                                                                                 '-U',
+                                                                                 'nphs_lps_waters_nonstdres_deleteAltB']]}
+            self.list_process.append(pdb2pqr)
+            self.list_process.append(fix_pqr)
+            self.list_process.append(prepare_receptor4)
+        else:
+            self.AMDock.target.save_pdb(self.AMDock.target.input)
+        if self.AMDock.project.mode == 1:
+            if self.AMDock.offtarget.prepare:
+                pdb2pqrB = {'PDB2PQR B': [self.AMDock.this_python, [self.AMDock.pdb2pqr_py, '--ph-calc-method=propka',
+                                                                    '--verbose', '--noopt', '--drop-water', '--chain',
+                                                                    '--with-ph', str(self.pH_value.value()),
+                                                                    '--ff=AMBER',
+                                                                    self.AMDock.offtarget.input,
+                                                                    self.AMDock.offtarget.pqr]]}
+
+                fix_pqrB = {'Fix_PQR B': [Fix_PQR, [self.AMDock.offtarget.input, self.AMDock.offtarget.pqr,
+                                                    self.AMDock.offtarget.zn_atoms]]}
+                prepare_receptor4B = {'Prepare_Receptor4 B': [self.AMDock.this_python,
+                                                              [self.AMDock.prepare_receptor4_py, '-r',
+                                                               self.AMDock.offtarget.pdb, '-v', '-U',
+                                                               'nphs_lps_waters_nonstdres_deleteAltB']]}
+                self.list_process.append(pdb2pqrB)
+                self.list_process.append(fix_pqrB)
+                self.list_process.append(prepare_receptor4B)
+            else:
+                self.AMDock.offtarget.save_pdb(self.AMDock.offtarget.input)
+        if self.AMDock.ligand.prepare:
+            protonate_ligand = {'Protonate Ligand': [self.AMDock.openbabel, ['-i', 'pdb', self.AMDock.ligand.input,
+                                                                             '-opdb', '-O', self.AMDock.ligand.pdb,
+                                                                             '-h', '-p',
+                                                                             str(self.pH_value.value())]]}
+
+            prepare_ligand4 = {'Prepare_Ligand4': [self.AMDock.this_python, [self.AMDock.prepare_ligand4_py,
+                                                                             '-l', self.AMDock.ligand.pdb,
+                                                                             '-v', ]]}
+            self.list_process.append(protonate_ligand)
+            self.list_process.append(prepare_ligand4)
+        else:
+            self.AMDock.ligand.save_pdb(self.AMDock.ligand.input)
+
+        queue = Queue.Queue()
+        queue.name = 1
+        for process in self.list_process:
+            queue.put(process)
+        self.W.set_queue(queue)  # , 'Prepare Input Files')
+        self.W.start_process()
+
+    def binding_site(self):
+        queue = Queue.Queue()
+        queue.name = 2
+        if self.AMDock.state == 2:
+            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
+                                                                   'Please wait for these to end.',
+                                             QtGui.QMessageBox.Ok)
+            return
+        elif self.AMDock.section in [-1, 0]:
+            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
+                                                                   'completed. Please do all the steps sequentially.',
+                                             QtGui.QMessageBox.Ok)
+            return
+        elif self.AMDock.section in [2, 3]:
+            msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed previously.'
+                                                                    ' Do you want to repeat it?',
+                                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+            if msg == QtGui.QMessageBox.No:
+                return
+
+        if self.AMDock.project.bsd_mode_target == 0:
+            self.target_info.get_box()
+            prepare_gpf4 = {'Prepare_gpf4': [self.AMDock.this_python, [self.AMDock.prepare_gpf4_py, '-l',
+                                                                       self.AMDock.ligand.pdbqt, '-r',
+                                                                       self.AMDock.target.pdbqt, '-p',
+                                                                       'npts={0},{1},{2}'.format(
+                                                                           *self.target_info.size), '-p',
+                                                                       'gridcenter={0},{1},{2}'.format(
+                                                                           *self.target_info.center), '-p',
+                                                                       'spacing=%.3f' % self.AMDock.spacing_autoligand,
+                                                                       '-o', self.AMDock.target.auto_lig]]}
+            queue.put(prepare_gpf4)
+            autogrid4 = {'AutoGrid4': [self.AMDock.autogrid, ['-p', self.AMDock.target.auto_lig]]}
+            queue.put(autogrid4)
+            autoligand = {'AutoLigand': [self.AMDock.this_python, [self.AMDock.autoligand_py, '-r',
+                                                                   self.AMDock.target.pdbqt_name, '-a',
+                                                                   '{}'.format(self.AMDock.ligand.ha)]]}
+            queue.put(autoligand)
+        elif self.AMDock.project.bsd_mode_target == 1:
+            self.AMDock.target.selected = str(self.grid_predef_text.text())
+            self.target_info.get_box()
+            self.target_info.get_center_selection(self.AMDock.target.selected)
+
+            prepare_gpf4 = {'Prepare_gpf4': [self.AMDock.this_python, [self.AMDock.prepare_gpf4_py, '-l',
+                                                                       self.AMDock.ligand.pdbqt, '-r',
+                                                                       self.AMDock.target.pdbqt, '-p',
+                                                                       'npts={0},{1},{2}'.format(
+                                                                           *self.target_info.size), '-p',
+                                                                       'gridcenter={0},{1},{2}'.format(
+                                                                           *self.grid_center),
+                                                                       '-p',
+                                                                       'spacing=%.3f' % self.AMDock.spacing_autoligand,
+                                                                       '-o', self.AMDock.target.auto_lig]]}
+            queue.put(prepare_gpf4)
+            autogrid4 = {'AutoGrid4': [self.AMDock.autogrid, ['-p', self.AMDock.target.auto_lig]]}
+            queue.put(autogrid4)
+            autoligand = {'AutoLigand_point': [self.AMDock.this_python, [self.AMDock.autoligand_py, '-r',
+                                                                         self.AMDock.target.pdbqt_name, '-a',
+                                                                         '{}'.format(self.AMDock.ligand.ha), '-x',
+                                                                         self.target_info.selection_center[0], '-y',
+                                                                         self.target_info.selection_center[1], '-z',
+                                                                         self.target_info.selection_center[2], '-f',
+                                                                         '1']]}
+            queue.put(autoligand)
+        elif self.AMDock.project.bsd_mode_target == 2:
+            self.AMDock.target.selected = str(self.lig_list.currentText())
+            self.target_info.get_center_selection(self.AMDock.target.selected)
+            self.grid_center = self.target_info.selection_center
+        elif self.AMDock.project.bsd_mode_target == 3:
+            if self.need_grid:
+                self.grid_center = [str(self.coor_x.value()), str(self.coor_y.value()), str(self.coor_z.value())]
+                if self.size_x.value() < self.lig_size or self.size_y.value() < self.lig_size or self.size_z.value() < \
+                        self.lig_size:
+                    self.grid_opt, self.dim_list = smallbox_warning(self, {'x': self.size_x.value(),
+                                                                           'y': self.size_y.value(),
+                                                                           'z': self.size_z.value()}, self.lig_size,
+                                                                    self.AMDock.target.name)
+                    if self.grid_opt == QtGui.QMessageBox.Yes:
+                        if 'x' in self.dim_list:
+                            self.size_x.setValue(self.lig_size)
+                        if 'y' in self.dim_list:
+                            self.size_y.setValue(self.lig_size)
+                        if 'z' in self.dim_list:
+                            self.size_z.setValue(self.lig_size)
+                    self.size = [int(self.size_x.value()), int(self.size_y.value()), int(self.size_z.value())]
+
+
+        if self.AMDock.project.mode == 1:
+            if self.AMDock.project.bsd_mode_offtarget == 0:
+                self.offtarget_info.get_box()
+                prepare_gpf4B = {'Prepare_gpf4 B': [self.AMDock.this_python, [self.AMDock.prepare_gpf4_py, '-l',
+                                                                              self.AMDock.ligand.pdbqt, '-r',
+                                                                              self.AMDock.offtarget.pdbqt, '-p',
+                                                                              'npts={0},{1},{2}'.format(
+                                                                                  *self.offtarget_info.size), '-p',
+                                                                              'gridcenter={0},{1},{2}'.format(
+                                                                                  *self.offtarget_info.center),
+                                                                              '-p',
+                                                                              'spacing=%.3f' % self.AMDock.spacing_autoligand,
+                                                                              '-o', self.AMDock.offtarget.auto_lig]]}
+                queue.put(prepare_gpf4B)
+                autogrid4B = {'AutoGrid4 B': [self.AMDock.autogrid, ['-p', self.AMDock.offtarget.auto_lig]]}
+                queue.put(autogrid4B)
+                autoligandB = {'AutoLigand B': [self.AMDock.this_python, [self.AMDock.autoligand_py, '-r',
+                                                                          self.AMDock.offtarget.pdbqt_name, '-a',
+                                                                          '{}'.format(self.AMDock.ligand.ha)]]}
+                queue.put(autoligandB)
+            elif self.AMDock.project.bsd_mode_offtarget == 1:
+                self.AMDock.offtarget.selected = str(self.grid_predef_textB.text())
+                self.offtarget_info.get_box()
+                self.offtarget_info.get_center_selection(self.AMDock.offtarget.selected)
+                prepare_gpf4B = {'Prepare_gpf4 B': [self.AMDock.this_python, [self.AMDock.prepare_gpf4_py, '-l',
+                                                                              self.AMDock.ligand.pdbqt, '-r',
+                                                                              self.AMDock.offtarget.pdbqt, '-p',
+                                                                              'npts={0},{1},{2}'.format(
+                                                                                  *self.offtarget_info.size), '-p',
+                                                                              'gridcenter={0},{1},{2}'.format(
+                                                                                  *self.offtarget_info.center), '-p',
+                                                                              'spacing=%.3f' % self.AMDock.spacing_autoligand,
+                                                                              '-o', self.AMDock.offtarget.auto_lig]]}
+                queue.put(prepare_gpf4B)
+                autogrid4B = {'AutoGrid4 B': [self.AMDock.autogrid, ['-p', self.AMDock.offtarget.auto_lig]]}
+                queue.put(autogrid4B)
+                autoligandB = {'AutoLigand_point B': [self.AMDock.this_python, [self.AMDock.autoligand_py, '-r',
+                                                                                self.AMDock.offtarget.pdbqt_name, '-a',
+                                                                                '{}'.format(self.AMDock.ligand.ha),
+                                                                                '-x',
+                                                                                self.target_info.selection_center[0],
+                                                                                '-y',
+                                                                                self.target_info.selection_center[1],
+                                                                                '-z',
+                                                                                self.target_info.selection_center[2],
+                                                                                '-f',
+                                                                                '1']]}
+                queue.put(autoligandB)
+
+            elif self.AMDock.project.bsd_mode_offtarget == 2:
+                self.AMDock.offtarget.selected = str(self.lig_listB.currentText())
+                self.offtarget_info.get_center_selection(self.AMDock.offtarget.selected)
+                self.grid_centerB = self.offtarget_info.selection_center
+
+            elif self.AMDock.project.bsd_mode_offtarget == 3:
+                if self.need_gridB:
+                    self.grid_centerB = [str(self.coor_xB.value()), str(self.coor_yB.value()),
+                                         str(self.coor_zB.value())]
+                    if self.size_xB.value() < self.lig_size or self.size_yB.value() < self.lig_size or \
+                            self.size_zB.value() < self.lig_size:
+                        self.grid_optB, self.dim_listB = smallbox_warning(self, {'x': self.size_x.value(),
+                                                                                 'y': self.size_y.value(),
+                                                                                 'z': self.size_z.value()},
+                                                                          self.lig_size, self.AMDock.offtarget.name)
+                        if self.grid_optB == QtGui.QMessageBox.Yes:
+                            if 'x' in self.dim_listB:
+                                self.size_xB.setValue(self.lig_size)
+                            if 'y' in self.dim_listB:
+                                self.size_yB.setValue(self.lig_size)
+                            if 'z' in self.dim_listB:
+                                self.size_zB.setValue(self.lig_size)
+                        self.sizeB = [int(self.size_xB.value()), int(self.size_yB.value()), int(self.size_zB.value())]
+
+        self.W.set_queue(queue)  # , 'Prepare Input Files')
+        self.W.start_process()
+
+    def check_res(self, qlineedit):
+        inputtext = str(qlineedit.text()).upper()
+        qlineedit.setText(inputtext)
+        if qlineedit.objectName() == 'grid_predef_text':
+            if self.target_info.check_select(inputtext):
+                self.AMDock.target.bsd_ready = True
+                self.checker_icon_ok.show()
+                self.checker_icon.hide()
+            else:
+                self.AMDock.target.bsd_ready = False
+                self.checker_icon.show()
+                self.checker_icon_ok.hide()
+        else:
+            if self.offtarget_info.check_select(inputtext):
+                self.AMDock.offtarget.bsd_ready = True
+                self.checker_icon_okB.show()
+                self.checker_iconB.hide()
+            else:
+                self.AMDock.offtarget.bsd_ready = False
+                self.checker_iconB.show()
+                self.checker_icon_okB.hide()
+
+    def reset_input_section(self):
+        self.reset_ligand()
+        self.reset_target()
+        self.reset_offtarget()
+        # self.simulation_form()
+        self.progressBar_section.setValue(0)
+        self.progressBar_global.setValue(25)
+
+    def reset_grid_section(self, all=False):
+        self.grid_predef_text.clear()
+        self.grid_predef_textB.clear()
+        self.coor_x.setValue(0)
+        self.coor_y.setValue(0)
+        self.coor_z.setValue(0)
+        self.coor_xB.setValue(0)
+        self.coor_yB.setValue(0)
+        self.coor_zB.setValue(0)
+        self.size_x.setValue(30)
+        self.size_y.setValue(30)
+        self.size_z.setValue(30)
+        self.size_xB.setValue(30)
+        self.size_yB.setValue(30)
+        self.size_zB.setValue(30)
+        self.btnA_auto.setChecked(True)
+        self.btnB_auto.setChecked(True)
+        if all:
+            self.lig_list.clear()
+            self.lig_listB.clear()
+        self.progressBar_global.setValue(50)
+
+    def reset_sections(self, section):
+        if self.AMDock.state == 2:
+            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
+                                                                   'Please wait for these to end.',
+                                             QtGui.QMessageBox.Ok)
+            return
+        self.AMDock.section = section - 1
+        self.highlight()
+        if section == 0:
+            self.wdir_text.clear()
             self.project_text.clear()
+            self.proj_loc_label.clear()
+            self.AMDock.project = PROJECT()
+            self.reset_ligand()
+            self.reset_target()
+            self.reset_offtarget()
+            self.reset_grid_section(True)
+            self.pH_value.setValue(self.AMDock.pH)
+            # self.progressBar_section.setValue(0)
+            self.progressBar_global.setValue(0)
+        elif section == 1:
+            self.reset_ligand()
+            self.reset_target()
+            self.reset_offtarget()
+            self.reset_grid_section(True)
+            self.pH_value.setValue(self.AMDock.pH)
+            # self.progressBar_section.setValue(0)
+            self.progressBar_global.setValue(25)
+        elif section == 2:
+            self.reset_grid_section()
+        elif section == 3:
+            self.progressBar_global.setValue(75)
+
+    def reset_function(self):
+        if self.AMDock.state == 2:
+            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
+                                                                   'Please wait for these to end.',
+                                             QtGui.QMessageBox.Ok)
+            return
+
+        if self.AMDock.section == -1:
+            self.AMDock.main_window.setTabEnabled(0, True)
+            self.AMDock.main_window.setCurrentIndex(0)
+            self.AMDock.main_window.setTabEnabled(1, False)
+            self.program_label.setText('Resetting...Done.')
+            self.AMDock.statusbar.removeWidget(self.AMDock.mess)
+            return
         else:
             reset_opt = reset_warning(self)
             if reset_opt == QtGui.QMessageBox.Yes:
-                self.parent.statusbar.showMessage("Version: %s" % __version__)
-                self.parent.main_window.setTabEnabled(0, True)
-                self.parent.main_window.setCurrentIndex(0)
-                self.parent.main_window.setTabEnabled(1, False)
-                self.project_text.setEnabled(True)
-                self.wdir_button.setEnabled(True)
-                self.wdir_button.setEnabled(True)
-                self.project_text.clear()
-                self.wdir_text.clear()
-                self.input_box.setEnabled(False)
-                self.prep_rec_lig_button.setEnabled(False)
-                self.bind_site_button.setEnabled(True)
-                self.protein_text.clear()
-                self.protein_label.clear()
-                self.protein_textB.clear()
-                self.protein_labelB.clear()
-                self.ligand_text.clear()
-                self.ligand_label.clear()
-                self.grid_pymol_button.setText('Show in PyMol')
-                self.grid_pymol_buttonB.setText('Show in PyMol')
+                self.AMDock.section = -1
+                self.AMDock.statusbar.removeWidget(self.AMDock.mess)
+                self.program_label.setText('Resetting...Done.')
+                self.highlight()
+                self.AMDock.main_window.setTabEnabled(0, True)
+                self.AMDock.main_window.setCurrentIndex(0)
+                self.AMDock.main_window.setTabEnabled(1, False)
 
+                self.wdir_text.clear()
+                self.project_text.clear()
+                self.proj_loc_label.clear()
+                self.AMDock.project = PROJECT()
+                self.reset_ligand()
+                self.reset_target()
+                self.reset_offtarget()
+                self.reset_grid_section(True)
+                self.pH_value.setValue(self.AMDock.pH)
+                self.progressBar_global.setValue(0)
                 self.hide_all('all')
-                self.grid_box.setEnabled(False)
-                self.progressBar.setValue(0)
-                self.run_button.setEnabled(False)
-                self.stop_button.setEnabled(False)
-                try:
-                    self.b_pymol.__del__()
-                except:
-                    pass
-                try:
-                    self.b_pymolB.__del__()
-                except:
-                    pass
-                try:
-                    self.b_pymol_timer.stop()
-                except:
-                    pass
-                try:
-                    self.b_pymol_timerB.stop()
-                except:
-                    pass
-                if self.parent.v.WDIR is not None:
+                # self.simple_docking.setChecked(True)
+                self.simulation_form(self.simple_docking, True)
+                if self.AMDock.project.WDIR:
                     rm_folder = QtGui.QMessageBox.warning(self, 'Warning',
                                                           "Do you wish to delete the previous project's folder?.",
                                                           QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
                     if rm_folder == QtGui.QMessageBox.Yes:
                         try:
-                            self.parent.output2file.conclude()
-                            os.chdir(self.parent.v.loc_project)
-                            shutil.rmtree(self.parent.v.WDIR)
+                            self.AMDock.output2file.conclude()
+                            os.chdir(self.AMDock.project.location)
+                            shutil.rmtree(self.AMDock.project.WDIR)
                         except:
                             QtGui.QMessageBox.warning(self, 'Error',
                                                       "The directory cannot be deleted. Probably is being used by "
-                                                      "another program.", QtGui.QMessageBox.Ok)
-                self.parent.v = Variables()
-                self.parent.configuration_tab.initial_config()
+                                                      "another program. Please check this and delete it ",
+                                                      QtGui.QMessageBox.Ok)
+                self.AMDock.configuration_tab.initial_config()
+                self.AMDock.log_widget.textedit.append(Ft('\nRESETTING... Done.').resetting())
+                self.AMDock.log_widget.textedit.append(Ft(80 * '-' + '\n\n').separator())
+                return True
 
     def hide_all(self, l):
         if l == 'A':
@@ -808,8 +1498,6 @@ class Program_body(QtGui.QWidget):
             self.lig_list.hide()
             self.coor_box.hide()
             self.size_box.hide()
-            self.grid_icon_ok.hide()
-            self.grid_icon.hide()
         elif l == 'B':
             self.grid_predef_textB.hide()
             self.checker_iconB.hide()
@@ -817,8 +1505,6 @@ class Program_body(QtGui.QWidget):
             self.lig_listB.hide()
             self.coor_boxB.hide()
             self.size_boxB.hide()
-            self.grid_icon_okB.hide()
-            self.grid_iconB.hide()
         else:
             self.grid_predef_text.hide()
             self.checker_icon.hide()
@@ -832,2550 +1518,924 @@ class Program_body(QtGui.QWidget):
             self.lig_listB.hide()
             self.coor_boxB.hide()
             self.size_boxB.hide()
-            self.grid_icon_okB.hide()
-            self.grid_iconB.hide()
-            self.grid_icon_ok.hide()
-            self.grid_icon.hide()
-            self.btnA_auto.setChecked(True)
-            self.btnB_auto.setChecked(True)
+
+    def grid_sel_protection(self, id):
+        if self.AMDock.state == 2:
+            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
+                                                                   'Please wait for these to end.',
+                                             QtGui.QMessageBox.Ok)
+            return
+        elif self.AMDock.section in [-1, 0]:
+            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
+                                                                   'completed. Please do all the steps sequentially.',
+                                             QtGui.QMessageBox.Ok)
+            return
+        elif self.AMDock.section in [2, 3]:
+            msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed previously.'
+                                                                    ' Do you want to repeat it?',
+                                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+            if msg == QtGui.QMessageBox.No:
+                return
+            elif msg == QtGui.QMessageBox.Yes:
+                self.reset_sections(2)
+        self.AMDock.section = 1
+        id.setChecked(True)
+        self.grid_prot(id)
 
     def grid_prot(self, b):
-        if b.isChecked():
-            if self.protein_column_group_btnA.id(b) == 1:
-                self.hide_all('A')
-                self.parent.v.grid_def = 'auto'
-                self.grid_pymol_button.setEnabled(False)
-                self.grid_pymol_button.setText('Show in PyMol')
-            elif self.protein_column_group_btnA.id(b) == 2:
-                self.hide_all('A')
-                self.grid_predef_text.clear()
-                self.grid_predef_text.setReadOnly(False)
-                self.grid_predef_text.show()
-                self.checker_icon.show()
-                self.parent.v.grid_def = 'by_residues'
-                self.grid_pymol_button.setText('Show in PyMol')
-                self.grid_pymol_button.setEnabled(False)
-            elif self.protein_column_group_btnA.id(b) == 3:
-                self.hide_all('A')
-                self.lig_list.show()
-                self.parent.v.grid_def = 'by_ligand'
-                self.grid_pymol_button.setEnabled(False)
-                self.grid_pymol_button.setText('Show in PyMol')
-            elif self.protein_column_group_btnA.id(b) == 4:
-                self.hide_all('A')
-                self.parent.v.grid_def = 'by_user'
-                self.coor_box.show()
-                self.size_box.show()
-                self.coor_x.clear()
-                self.coor_y.clear()
-                self.coor_z.clear()
-                self.size_x.clear()
-                self.size_y.clear()
-                self.size_z.clear()
-                self.coor_x.setReadOnly(False)
-                self.coor_y.setReadOnly(False)
-                self.coor_z.setReadOnly(False)
-                self.size_x.setReadOnly(False)
-                self.size_y.setReadOnly(False)
-                self.size_z.setReadOnly(False)
-                self.grid_icon.show()
-                self.grid_pymol_button.setText('Build in PyMol')
-                self.grid_pymol_button.setEnabled(True)
-            if self.protein_column_group_btnB.id(b) == 1:
-                self.hide_all('B')
-                self.parent.v.analog_grid_def = 'auto'
-                self.grid_pymol_buttonB.setEnabled(False)
-                self.grid_pymol_buttonB.setText('Show in PyMol')
-            elif self.protein_column_group_btnB.id(b) == 2:
-                self.hide_all('B')
-                self.grid_predef_textB.clear()
-                self.grid_predef_textB.setReadOnly(False)
-                self.grid_predef_textB.show()
-                self.checker_iconB.show()
-                self.parent.v.analog_grid_def = 'by_residues'
-                self.grid_pymol_buttonB.setEnabled(False)
-                self.grid_pymol_buttonB.setText('Show in PyMol')
-            elif self.protein_column_group_btnB.id(b) == 3:
-                self.hide_all('B')
-                self.lig_listB.show()
-                self.parent.v.analog_grid_def = 'by_ligand'
-                self.grid_pymol_buttonB.setEnabled(False)
-                self.grid_pymol_buttonB.setText('Show in PyMol')
-            elif self.protein_column_group_btnB.id(b) == 4:
-                self.hide_all('B')
-                self.parent.v.analog_grid_def = 'by_user'
-                self.coor_boxB.show()
-                self.size_boxB.show()
-                self.coor_xB.clear()
-                self.coor_yB.clear()
-                self.coor_zB.clear()
-                self.size_xB.clear()
-                self.size_yB.clear()
-                self.size_zB.clear()
-                self.coor_xB.setReadOnly(False)
-                self.coor_yB.setReadOnly(False)
-                self.coor_zB.setReadOnly(False)
-                self.size_xB.setReadOnly(False)
-                self.size_yB.setReadOnly(False)
-                self.size_zB.setReadOnly(False)
-                self.grid_iconB.show()
-                self.grid_pymol_buttonB.setText('Build in PyMol')
-                self.grid_pymol_buttonB.setEnabled(True)
-
-            if (self.protein_column_group_btnA.id(b) == 1 and self.protein_column_group_btnB.id(
-                    self.protein_column_group_btnB.checkedButton()) == 2) or (
-                    self.protein_column_group_btnB.id(b) == 2 and self.protein_column_group_btnA.id(
-                self.protein_column_group_btnA.checkedButton()) == 1):
-                if self.parent.v.errorB == 1:
-                    self.checker_iconB.show()
-                    self.bind_site_button.setEnabled(False)
-                else:
-                    self.checker_icon_okB.show()
-                    self.bind_site_button.setEnabled(True)
-            elif (self.protein_column_group_btnA.id(b) == 1 and self.protein_column_group_btnB.id(
-                    self.protein_column_group_btnB.checkedButton()) == 4) or (
-                    self.protein_column_group_btnB.id(b) == 4 and self.protein_column_group_btnA.id(
-                self.protein_column_group_btnA.checkedButton()) == 1):
-                self.grid = 2
-                if self.parent.v.gerrorB == 1:
-                    self.grid_iconB.show()
-                    self.bind_site_button.setEnabled(False)
-                else:
-                    self.grid_icon_okB.show()
-                    self.bind_site_button.setEnabled(True)
-            elif (self.protein_column_group_btnA.id(b) == 2 and self.protein_column_group_btnB.id(
-                    self.protein_column_group_btnB.checkedButton()) == 1) or (
-                    self.protein_column_group_btnB.id(b) == 1 and self.protein_column_group_btnA.id(
-                self.protein_column_group_btnA.checkedButton()) == 2):
-                if self.parent.v.error == 1:
-                    self.checker_icon.show()
-                    self.bind_site_button.setEnabled(False)
-                else:
-                    self.checker_icon_ok.show()
-                    self.bind_site_button.setEnabled(True)
-            elif (self.protein_column_group_btnA.id(b) == 2 and self.protein_column_group_btnB.id(
-                    self.protein_column_group_btnB.checkedButton()) == 2) or (
-                    self.protein_column_group_btnB.id(b) == 2 and self.protein_column_group_btnA.id(
-                self.protein_column_group_btnA.checkedButton()) == 2):
-                if self.parent.v.errorB == 1:
-                    self.checker_iconB.show()
-                else:
-                    self.checker_icon_okB.show()
-                if self.parent.v.error == 1:
-                    self.checker_icon.show()
-                else:
-                    self.checker_icon_ok.show()
-                if self.parent.v.errorB == 0 and self.parent.v.error == 0:
-                    self.bind_site_button.setEnabled(True)
-                else:
-                    self.bind_site_button.setEnabled(False)
-            elif (self.protein_column_group_btnA.id(b) == 2 and self.protein_column_group_btnB.id(
-                    self.protein_column_group_btnB.checkedButton()) == 3) or (
-                    self.protein_column_group_btnB.id(b) == 3 and self.protein_column_group_btnA.id(
-                self.protein_column_group_btnA.checkedButton()) == 2):
-                if self.parent.v.error == 1:
-                    self.checker_icon.show()
-                    self.bind_site_button.setEnabled(False)
-                else:
-                    self.checker_icon_ok.show()
-                    self.bind_site_button.setEnabled(True)
-            elif (self.protein_column_group_btnA.id(b) == 2 and self.protein_column_group_btnB.id(
-                    self.protein_column_group_btnB.checkedButton()) == 4) or (
-                    self.protein_column_group_btnB.id(b) == 4 and self.protein_column_group_btnA.id(
-                self.protein_column_group_btnA.checkedButton()) == 2):
-                self.grid = 2
-                if self.parent.v.gerrorB == 1:
-                    self.grid_iconB.show()
-                else:
-                    self.grid_icon_okB.show()
-                if self.parent.v.error == 1:
-                    self.checker_icon.show()
-                else:
-                    self.checker_icon_ok.show()
-                if self.parent.v.gerrorB == 0 and self.parent.v.error == 0:
-                    self.bind_site_button.setEnabled(True)
-                else:
-                    self.bind_site_button.setEnabled(False)
-            elif (self.protein_column_group_btnA.id(b) == 3 and self.protein_column_group_btnB.id(
-                    self.protein_column_group_btnB.checkedButton()) == 2) or (
-                    self.protein_column_group_btnB.id(b) == 2 and self.protein_column_group_btnA.id(
-                self.protein_column_group_btnA.checkedButton()) == 3):
-                if self.parent.v.errorB == 1:
-                    self.checker_iconB.show()
-                    self.bind_site_button.setEnabled(False)
-                else:
-                    self.checker_icon_okB.show()
-                    self.bind_site_button.setEnabled(True)
-            elif (self.protein_column_group_btnA.id(b) == 3 and self.protein_column_group_btnB.id(
-                    self.protein_column_group_btnB.checkedButton()) == 4) or (
-                    self.protein_column_group_btnB.id(b) == 4 and self.protein_column_group_btnA.id(
-                self.protein_column_group_btnA.checkedButton()) == 3):
-                self.grid = 2
-                if self.parent.v.gerrorB == 1:
-                    self.grid_iconB.show()
-                    self.bind_site_button.setEnabled(False)
-                else:
-                    self.grid_icon_okB.show()
-                    self.bind_site_button.setEnabled(True)
-            elif (self.protein_column_group_btnA.id(b) == 4 and self.protein_column_group_btnB.id(
-                    self.protein_column_group_btnB.checkedButton()) == 1) or (
-                    self.protein_column_group_btnB.id(b) == 1 and self.protein_column_group_btnA.id(
-                self.protein_column_group_btnA.checkedButton()) == 4):
-                self.grid = 1
-                if self.parent.v.gerror == 1:
-                    self.grid_icon.show()
-                    self.grid_icon_ok.hide()
-                    self.bind_site_button.setEnabled(False)
-                else:
-                    self.grid_icon_ok.show()
-                    self.grid_icon.hide()
-                    self.bind_site_button.setEnabled(True)
-            elif (self.protein_column_group_btnA.id(b) == 4 and self.protein_column_group_btnB.id(
-                    self.protein_column_group_btnB.checkedButton()) == 2) or (
-                    self.protein_column_group_btnB.id(b) == 2 and self.protein_column_group_btnA.id(
-                self.protein_column_group_btnA.checkedButton()) == 4):
-                self.grid = 1
-                if self.parent.v.errorB == 1:
-                    self.checker_iconB.show()
-                else:
-                    self.checker_icon_okB.show()
-                if self.parent.v.gerror == 1:
-                    self.grid_icon.show()
-                else:
-                    self.grid_icon_ok.show()
-                if self.parent.v.errorB == 0 and self.parent.v.gerror == 0:
-                    self.bind_site_button.setEnabled(True)
-                else:
-                    self.bind_site_button.setEnabled(False)
-            elif (self.protein_column_group_btnA.id(b) == 4 and self.protein_column_group_btnB.id(
-                    self.protein_column_group_btnB.checkedButton()) == 3) or (
-                    self.protein_column_group_btnB.id(b) == 3 and self.protein_column_group_btnA.id(
-                self.protein_column_group_btnA.checkedButton()) == 4):
-                self.grid = 1
-                if self.parent.v.gerror == 1:
-                    self.grid_icon.show()
-                    self.bind_site_button.setEnabled(False)
-                else:
-                    self.grid_icon_ok.show()
-                    self.bind_site_button.setEnabled(True)
-            elif (self.protein_column_group_btnA.id(b) == 4 and self.protein_column_group_btnB.id(
-                    self.protein_column_group_btnB.checkedButton()) == 4) or (
-                    self.protein_column_group_btnB.id(b) == 4 and self.protein_column_group_btnA.id(
-                self.protein_column_group_btnA.checkedButton()) == 4):
-                self.grid = 3
-                if self.parent.v.gerrorB == 1:
-                    self.grid_iconB.show()
-                else:
-                    self.grid_icon_okB.show()
-                if self.parent.v.gerror == 1:
-                    self.grid_icon.show()
-                else:
-                    self.grid_icon_ok.show()
-                if self.parent.v.gerrorB == 0 and self.parent.v.gerror == 0:
-                    self.bind_site_button.setEnabled(True)
-                else:
-                    self.bind_site_button.setEnabled(False)
-            else:
-                self.bind_site_button.setEnabled(True)
-
-    def simulation_form(self, btn):
-        if btn.isChecked():
-            if btn.text() == 'Off-Target Docking':
-                self.grid_box.setEnabled(False)
-                self.all_options.setColumnStretch(1, 1)
-                self.all_options.setColumnStretch(2, 1)
-                self.prep_rec_lig_button.setEnabled(False)
-                self.parent.v.scoring = False
-                self.parent.v.cr = True
-                self.parent.v.program_mode = 'OFF-TARGET'
-                self.run_button.show()
-                self.stop_button.show()
-                self.run_scoring.hide()
-                self.non_button.hide()
-                self.progressBar.setValue(2)
-                ## Input box
-                self.protein_button.setText('Target')
-                self.protein_buttonB.show()
-                self.protein_textB.show()
-                # self.protein_labelB.show()
-                self.grid_pymol_buttonB.show()
-                self.reset_grid_buttonB.show()
-                ### Grid definition box
-                self.protein_column_label.show()
-                self.btnA_auto.show()
-                self.btnA_res.show()
-                self.btnA_lig.show()
-                self.btnA_user.show()
-                self.protein1_column_label.show()
-                self.btnB_auto.show()
-                self.btnB_res.show()
-                self.btnB_lig.show()
-                self.btnB_user.show()
-                if os.path.exists(`self.parent.v.input_offtarget`):
-                    try:
-                        os.remove(`self.parent.v.input_offtarget`)
-                    except:
-                        pass
-                self.parent.v.input_offtarget = None
-                self.parent.v.protein_name = None
-                self.parent.v.ligands = None
-                self.protein_text.clear()
-                self.protein_label.clear()
-                self.lig_list.hide()
-                if os.path.exists(`self.parent.v.input_lig`):
-                    try:
-                        os.remove(`self.parent.v.input_lig`)
-                    except:
-                        pass
-                self.parent.v.input_lig = None
-                self.ligand_text.clear()
-                self.ligand_label.clear()
-                self.parent.v.ligand_name = None
-                if os.path.exists(`self.parent.v.input_target`):
-                    try:
-                        os.remove(`self.parent.v.input_target`)
-                    except:
-                        pass
-                self.parent.v.input_target = None
-                self.parent.v.analog_protein_name = None
-                self.parent.v.analog_ligands = None
-                self.protein_textB.clear()
-                self.protein_labelB.clear()
-                self.lig_listB.hide()
-                self.lig_list.clear()
-                self.lig_listB.clear()
-                self.checker_icon.hide()
-                self.checker_icon_ok.hide()
-                self.grid_icon.hide()
-                self.grid_icon_ok.hide()
-                self.grid_predef_text.hide()
-                self.grid_auto_cr.show()
-                self.grid_predef_cr.show()
-                self.grid_by_lig_cr.show()
-                self.grid_user_cr.show()
-                self.coor_box.hide()
-                self.size_box.hide()
-                self.lig_list.hide()
-            elif btn.text() == 'Scoring':
-                self.all_options.setColumnStretch(2, 0)
-                self.grid_box.setEnabled(False)
-                self.run_button.hide()
-                self.prep_rec_lig_button.setEnabled(False)
-                self.parent.v.scoring = True
-                self.parent.v.cr = False
-                self.parent.v.program_mode = 'SCORING'
-                self.stop_button.hide()
-                self.run_scoring.show()
-                self.non_button.show()
-                self.progressBar.setValue(2)
-                if os.path.exists(`self.parent.v.input_offtarget`):
-                    try:
-                        os.remove(`self.parent.v.input_offtarget`)
-                    except:
-                        pass
-                self.parent.v.input_offtarget = None
-                self.parent.v.protein_name = None
-                self.parent.v.ligands = None
-                self.protein_text.clear()
-                self.protein_label.clear()
-                self.lig_list.hide()
-                if os.path.exists(`self.parent.v.input_lig`):
-                    try:
-                        os.remove(`self.parent.v.input_lig`)
-                    except:
-                        pass
-                self.parent.v.input_lig = None
-                self.parent.v.ligand_name = None
-                self.ligand_text.clear()
-                self.ligand_label.clear()
-                if os.path.exists(`self.parent.v.input_target`):
-                    try:
-                        os.remove(`self.parent.v.input_target`)
-                    except:
-                        pass
-                self.parent.v.input_target = None
-                self.parent.v.analog_protein_name = None
-                self.parent.v.analog_ligands = None
-                self.protein_textB.clear()
-                self.protein_labelB.clear()
-                self.lig_listB.hide()
-                self.lig_list.clear()
-                self.lig_listB.clear()
-                self.parent.v.cr = False
-                self.protein_button.setText('Protein')
+        if self.target_column_group_btnA.id(b) == 1:
+            self.hide_all('A')
+            self.AMDock.project.bsd_mode_target = 0
+        elif self.target_column_group_btnA.id(b) == 2:
+            self.hide_all('A')
+            self.grid_predef_text.clear()
+            self.grid_predef_text.setReadOnly(False)
+            self.grid_predef_text.show()
+            self.checker_icon.show()
+            self.AMDock.project.bsd_mode_target = 1
+        elif self.target_column_group_btnA.id(b) == 3:
+            if not self.lig_list.count():
+                msg = QtGui.QMessageBox.warning(self, 'Error', "There is no hetero to select this option",
+                                                QtGui.QMessageBox.Ok)
                 self.btnA_auto.setChecked(True)
-                self.btnB_auto.setChecked(True)
-                self.protein_buttonB.hide()
-                self.protein_textB.hide()
-                self.protein_labelB.hide()
-                self.protein1_column_label.hide()
-                self.btnB_auto.hide()
-                self.btnB_res.hide()
-                self.btnB_lig.hide()
-                self.btnB_user.hide()
-                self.grid_predef_text.hide()
-                self.grid_predef_textB.hide()
-                self.checker_icon.hide()
-                self.checker_iconB.hide()
-                self.checker_icon_ok.hide()
-                self.checker_icon_okB.hide()
-                self.grid_iconB.hide()
-                self.grid_icon.hide()
-                self.grid_icon_okB.hide()
-                self.grid_icon_ok.hide()
-                self.coor_box.hide()
-                self.coor_boxB.hide()
-                self.size_box.hide()
-                self.size_boxB.hide()
-                self.lig_listB.hide()
-                self.lig_list.hide()
-            else:
-                self.grid_box.setEnabled(False)
-                self.all_options.setColumnStretch(2, 0)
-                self.prep_rec_lig_button.setEnabled(False)
-                self.parent.v.scoring = False
-                self.parent.v.cr = False
-                self.parent.v.program_mode = 'SIMPLE'
-                self.run_button.show()
-                self.stop_button.show()
-                self.run_scoring.hide()
-                self.non_button.hide()
-                self.progressBar.setValue(2)
-                self.grid_pymol_buttonB.hide()
-                self.reset_grid_buttonB.hide()
-                if os.path.exists(`self.parent.v.input_offtarget`):
-                    try:
-                        os.remove(`self.parent.v.input_offtarget`)
-                    except:
-                        pass
-                self.parent.v.input_offtarget = None
-                self.parent.v.protein_name = None
-                self.parent.v.ligands = None
-                self.protein_text.clear()
-                self.protein_label.clear()
-                self.lig_list.hide()
-                if os.path.exists(`self.parent.v.input_lig`):
-                    try:
-                        os.remove(`self.parent.v.input_lig`)
-                    except:
-                        pass
-                self.parent.v.input_lig = None
-                self.parent.v.ligand_name = None
-                self.ligand_text.clear()
-                self.ligand_label.clear()
-                if os.path.exists(`self.parent.v.input_target`):
-                    try:
-                        os.remove(`self.parent.v.input_target`)
-                    except:
-                        pass
-                self.parent.v.input_target = None
-                self.parent.v.analog_protein_name = None
-                self.parent.v.analog_ligands = None
-                self.protein_textB.clear()
-                self.protein_labelB.clear()
-                self.lig_listB.hide()
-                self.lig_list.clear()
-                self.lig_listB.clear()
-                self.parent.v.cr = False
-                self.protein_button.setText('Protein')
-                self.btnA_auto.setChecked(True)
-                self.btnB_auto.setChecked(True)
-                self.protein_buttonB.hide()
-                self.protein_textB.hide()
-                self.protein_labelB.hide()
-                self.protein1_column_label.hide()
-                self.btnB_auto.hide()
-                self.btnB_res.hide()
-                self.btnB_lig.hide()
-                self.btnB_user.hide()
-                self.grid_predef_text.hide()
-                self.grid_predef_textB.hide()
-                self.checker_icon.hide()
-                self.checker_iconB.hide()
-                self.checker_icon_ok.hide()
-                self.checker_icon_okB.hide()
-                self.grid_iconB.hide()
-                self.grid_icon.hide()
-                self.grid_icon_okB.hide()
-                self.grid_icon_ok.hide()
-                self.coor_box.hide()
-                self.coor_boxB.hide()
-                self.size_box.hide()
-                self.size_boxB.hide()
-                self.lig_listB.hide()
-                self.lig_list.hide()
-
-    def info_pass(self, prot):
-        if prot == 'target':
-            if os.path.exists('user_target_dim.txt'):
-                tfile = open('user_target_dim.txt')
-                for line in tfile:
-                    line = line.strip('\n')
-                    self.dim_data_target = line.split()
-                tfile.close()
-                if self.dim_data_target != self.ttemp:
-                    if self.parent.v.cr:
-                        # self.btnA_user.setChecked(True)
-                        if self.need_gridB:
-                            self.progressBar.setValue(25)
-                        else:
-                            self.progressBar.setValue(37)
-                    else:
-                        # self.grid_user.setChecked(True)
-                        self.progressBar.setValue(25)
-                    self.btnA_user.setChecked(True)
-                    self.coor_x.setText(self.dim_data_target[0])
-                    self.coor_y.setText(self.dim_data_target[1])
-                    self.coor_z.setText(self.dim_data_target[2])
-                    self.size_x.setText(self.dim_data_target[3])
-                    self.size_y.setText(self.dim_data_target[4])
-                    self.size_z.setText(self.dim_data_target[5])
-                    self.ttemp = self.dim_data_target
-                    self.bind_site_button.setEnabled(True)
-                    self.run_button.setEnabled(False)
-                    self.need_grid = True
-                    os.remove('user_target_dim.txt')
-                    self.b_pymol_timer.stop()
-                    self.grid_pymol_button.setEnabled(False)
-        elif prot == 'target_build':
-            if os.path.exists('user_target_dim.txt'):
-                tfile = open('user_target_dim.txt')
-                for line in tfile:
-                    line = line.strip('\n')
-                    self.dim_data_target = line.split()
-                tfile.close()
-                if self.dim_data_target != self.bttemp:
-                    self.coor_x.setText(self.dim_data_target[0])
-                    self.coor_y.setText(self.dim_data_target[1])
-                    self.coor_z.setText(self.dim_data_target[2])
-                    self.size_x.setText(self.dim_data_target[3])
-                    self.size_y.setText(self.dim_data_target[4])
-                    self.size_z.setText(self.dim_data_target[5])
-                    self.bttemp = self.dim_data_target
-                    self.check_grid()
-                    self.run_button.setEnabled(False)
-                    self.need_grid = True
-                    os.remove('user_target_dim.txt')
-                    try:
-                        self.b_pymol_timer.stop()
-                    except:
-                        pass
-                    try:
-                        self.bld_pymol_timer.stop()
-                    except:
-                        pass
-        elif prot == 'offtarget':
-            if os.path.exists('user_off_target_dim.txt'):
-                cfile = open('user_off_target_dim.txt')
-                for line in cfile:
-                    line = line.strip('\n')
-                    self.dim_data_offtarget = line.split()
-                cfile.close()
-                if self.dim_data_offtarget != self.ttempB:
-                    if self.need_grid:
-                        self.progressBar.setValue(25)
-                    else:
-                        self.progressBar.setValue(37)
-                    self.btnB_user.setChecked(True)
-                    self.coor_xB.setText(self.dim_data_offtarget[0])
-                    self.coor_yB.setText(self.dim_data_offtarget[1])
-                    self.coor_zB.setText(self.dim_data_offtarget[2])
-                    self.size_xB.setText(self.dim_data_offtarget[3])
-                    self.size_yB.setText(self.dim_data_offtarget[4])
-                    self.size_zB.setText(self.dim_data_offtarget[5])
-                    self.ttempB = self.dim_data_offtarget
-                    self.bind_site_button.setEnabled(True)
-                    self.run_button.setEnabled(False)
-                    self.need_gridB = True
-                    os.remove('user_off_target_dim.txt')
-                    self.b_pymol_timerB.stop()
-                    self.grid_pymol_buttonB.setEnabled(False)
-        elif prot == 'offtarget_build':
-            if os.path.exists('user_off_target_dim.txt'):
-                cfile = open('user_off_target_dim.txt')
-                for line in cfile:
-                    line = line.strip('\n')
-                    self.dim_data_offtarget = line.split()
-                cfile.close()
-                if self.dim_data_offtarget != self.bttempB:
-                    self.btnB_user.setChecked(True)
-                    self.coor_xB.setText(self.dim_data_offtarget[0])
-                    self.coor_yB.setText(self.dim_data_offtarget[1])
-                    self.coor_zB.setText(self.dim_data_offtarget[2])
-                    self.size_xB.setText(self.dim_data_offtarget[3])
-                    self.size_yB.setText(self.dim_data_offtarget[4])
-                    self.size_zB.setText(self.dim_data_offtarget[5])
-                    self.bttempB = self.dim_data_offtarget
-                    self.check_grid()
-                    self.run_button.setEnabled(False)
-                    self.need_gridB = True
-                    os.remove('user_off_target_dim.txt')
-                    try:
-                        self.b_pymol_timerB.stop()
-                    except:
-                        pass
-                    try:
-                        self.bld_pymol_timerB.stop()
-                    except:
-                        pass
+                return
+            self.hide_all('A')
+            self.lig_list.show()
+            self.AMDock.project.bsd_mode_target = 2
+        elif self.target_column_group_btnA.id(b) == 4:
+            self.hide_all('A')
+            self.AMDock.project.bsd_mode_target = 3
+            self.coor_box.show()
+            self.size_box.show()
+        if self.offtarget_column_group_btnB.id(b) == 1:
+            self.hide_all('B')
+            self.AMDock.project.bsd_mode_offtarget = 0
+        elif self.offtarget_column_group_btnB.id(b) == 2:
+            self.hide_all('B')
+            self.grid_predef_textB.clear()
+            self.grid_predef_textB.setReadOnly(False)
+            self.grid_predef_textB.show()
+            self.checker_iconB.show()
+            self.AMDock.project.bsd_mode_offtarget = 1
+        elif self.offtarget_column_group_btnB.id(b) == 3:
+            self.hide_all('B')
+            self.lig_listB.show()
+            self.AMDock.project.bsd_mode_offtarget = 2
+        elif self.offtarget_column_group_btnB.id(b) == 4:
+            self.hide_all('B')
+            self.AMDock.project.bsd_mode_offtarget = 3
+            self.coor_boxB.show()
+            self.size_boxB.show()
 
     def grid_actions(self, btn):
-        if btn.objectName() == 'grid_pymol_button' and btn.text() == 'Show in PyMol':
-            visual_arg = [self.parent.v.protein_pdbqt, self.parent.ws.grid_pymol, '--', '-c',
-                          self.parent.v.obj_center, '-s', '%s,%s,%s' % (self._size_x, self._size_y, self._size_z), '-p',
-                          'target']
-            self.box_pymol = {'pymol_boxA': [self.parent.ws.pymol, visual_arg]}
-            self.b_pymol = Worker()
-            self.b_pymol.readyReadStandardOutput.connect(self.readStdOutput)
-            self.b_pymol.readyReadStandardError.connect(self.readStdError)
-            self.b_pymol.prog_started.connect(self.prog_show)
-            self.b_pymol.prog_finished.connect(self.process_progress)
-            self.b_pymol.queue_finished.connect(self.check_queue)
-            self.b_pymolq = Queue.Queue()
-            self.b_pymolq.put(self.box_pymol)
-            self.b_pymol.init(self.b_pymolq, 'Visualization')
+        if self.AMDock.state == 2:
+            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
+                                                                   'Please wait for these to end.',
+                                             QtGui.QMessageBox.Ok)
+            return
+        elif self.AMDock.section in [-1, 0, 1]:
+            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
+                                                                   'completed. Please do all the steps sequentially.',
+                                             QtGui.QMessageBox.Ok)
+            return
+        elif self.AMDock.section in [3]:
+            msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed previously.'
+                                                                    ' Do you want to repeat it?',
+                                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+            if msg == QtGui.QMessageBox.No:
+                return
+        visual_arg = [self.AMDock.pymol, self.AMDock.grid_pymol, '--', '--f_prot',
+                      os.path.join(self.AMDock.project.input, self.AMDock.target.pdb), '--f_prot_type', 'Target',
+                      '--f_center', self.grid_center[0], self.grid_center[1], self.grid_center[2], '--f_size',
+                      '%s' % self.size[0], '%s' % self.size[1], '%s' % self.size[2]]
+        if self.AMDock.project.bsd_mode_target == 3:
+            visual_arg.extend(['--f_rep_type', '3'])
+        if self.AMDock.project.bsd_mode_target == 2:
+            self.target_info.get_ligand(str(self.AMDock.target.selected), os.path.join(self.AMDock.project.input,
+                                                                                       "target_sel_lig.pdb"))
+            visual_arg.extend(['--f_rep_type', '2', '--f_ligands', os.path.join(self.AMDock.project.input,
+                                                                                "target_sel_lig.pdb")])
+        elif self.AMDock.project.bsd_mode_target == 1:
+            visual_arg.extend(['--f_rep_type', '1', '--f_ligands', os.path.join(self.AMDock.project.input,
+                                                                                "FILL_%s_%sout01.pdb" % (
+                                                                                    self.AMDock.target.pdbqt_name,
+                                                                                    self.AMDock.ligand.ha * 6)),
+                               '--f_residues', self.AMDock.target.selected])
+        elif self.AMDock.project.bsd_mode_target == 0:
+            if not len(self.autoligand_target.selectedItems()):
+                self.AMDock.target.selected = 1
+                selection_model = self.autoligand_target.selectionModel()
+                selection_model.select(self.autoligand_target.model().index(0, 0),
+                                       QtGui.QItemSelectionModel.ClearAndSelect)
+            visual_arg.extend(['--f_rep_type', '0', '--f_ligands'])
+            for fill in self.AMDock.target.fill_list:
+                visual_arg.append('%s' % os.path.join(self.AMDock.project.input, "FILL_%s_%sout%02d.pdb" % (
+                    self.AMDock.target.pdbqt_name, self.AMDock.ligand.ha * 6, int(fill))))
+
+        if self.AMDock.project.mode == 1:
+            visual_arg.extend(['--s_prot', os.path.join(self.AMDock.project.input, self.AMDock.offtarget.pdb),
+                               '--s_prot_type', 'Off-Target', '--s_center', self.grid_centerB[0], self.grid_centerB[1],
+                               self.grid_centerB[2], '--s_size', '%s' % self.sizeB[0], '%s' % self.sizeB[1],
+                               '%s' % self.sizeB[2]])
+
+            if self.AMDock.project.bsd_mode_offtarget == 3:
+                visual_arg.extend(['--s_rep_type', '3'])
+            if self.AMDock.project.bsd_mode_offtarget == 2:
+                self.offtarget_info.get_ligand(str(self.AMDock.offtarget.selected), os.path.join(
+                    self.AMDock.project.input, "offtarget_sel_lig.pdb"))
+                visual_arg.extend(['--s_rep_type', '2', '--s_ligands', os.path.join(self.AMDock.project.input,
+                                                                                    "offtarget_sel_lig.pdb")])
+            elif self.AMDock.project.bsd_mode_offtarget == 1:
+                visual_arg.extend(['--s_rep_type', '1', '--s_ligands', os.path.join(self.AMDock.project.input,
+                                                                                    "FILL_%s_%sout01.pdb" % (
+                                                                                        self.AMDock.offtarget.pdbqt_name,
+                                                                                        self.AMDock.ligand.ha * 6)),
+                                   '--s_residues', self.AMDock.offtarget.selected])
+            elif self.AMDock.project.bsd_mode_offtarget == 0:
+                if not len(self.autoligand_offtarget.selectedItems()):
+                    self.AMDock.offtarget.selected = 1
+                    selection_model = self.autoligand_offtarget.selectionModel()
+                    selection_model.select(self.autoligand_offtarget.model().index(0, 0),
+                                           QtGui.QItemSelectionModel.ClearAndSelect)
+                visual_arg.extend(['--s_rep_type', '0', '--s_ligands'])
+                for fill in self.AMDock.offtarget.fill_list:
+                    visual_arg.append('%s' % os.path.join(self.AMDock.project.input, "FILL_%s_%sout%02d.pdb" % (
+                        self.AMDock.offtarget.pdbqt_name, self.AMDock.ligand.ha * 6, int(fill))))
+        if visual_arg:
+            self.box_pymol = {'PyMol_box_Target': [self.AMDock.this_python, visual_arg]}
+            self.b_pymol = PROCESS()
+            self.b_pymol.process.readyReadStandardOutput.connect(self.pymol_readStdOutput)
+            self.b_pymol.process.readyReadStandardError.connect(self.readStdError)
+            self.b_pymol.prog_finished.connect(self.for_finished)
+            self.b_pymol.state.connect(self.check_state)
+            b_pymolq = Queue.Queue()
+            b_pymolq.name = -1
+            b_pymolq.put(self.box_pymol)
+            self.b_pymol.set_queue(b_pymolq)
             self.b_pymol.start_process()
-            if os.path.exists(self.parent.v.obj_center):
-                tf = open(self.parent.v.obj_center)
-                for line in tf:
-                    line = line.strip('\n')
-                    if re.search('center_x', line):
-                        self.center_x = line.split()[2]
-                    if re.search('center_y', line):
-                        self.center_y = line.split()[2]
-                    if re.search('center_z', line):
-                        self.center_z = line.split()[2]
-                tf.close()
-                self.ttemp = [self.center_x, self.center_y, self.center_z, `self._size_x`, `self._size_y`,
-                              `self._size_z`]
-            else:
-                self.ttemp = [0, 0, 0, 0, 0, 0]
-            self.b_pymol_timer = QtCore.QTimer()
-            self.b_pymol_timer.timeout.connect(lambda: self.info_pass('target'))
-            self.b_pymol_timer.start(15)
-        elif btn.objectName() == 'grid_pymol_buttonB' and btn.text() == 'Show in PyMol':
-            visual_arg = [self.parent.v.analog_protein_pdbqt, self.parent.ws.grid_pymol, '--', '-c',
-                          self.parent.v.obj_center1, '-s', '%s,%s,%s' % (self._size_xB, self._size_yB, self._size_zB),
-                          '-p', 'off-target']
-            self.box_pymolB = {'pymol_boxB': [self.parent.ws.this_python, visual_arg]}
-            self.b_pymolB = Worker()
-            self.b_pymolB.readyReadStandardOutput.connect(self.readStdOutput)
-            self.b_pymolB.readyReadStandardError.connect(self.readStdError)
-            self.b_pymolB.prog_started.connect(self.prog_show)
-            self.b_pymolB.prog_finished.connect(self.process_progress)
-            self.b_pymolB.queue_finished.connect(self.check_queue)
-            self.b_pymolqB = Queue.Queue()
-            self.b_pymolqB.put(self.box_pymolB)
-            self.b_pymolB.init(self.b_pymolqB, 'Visualization')
-            self.b_pymolB.start_process()
-            if os.path.exists(self.parent.v.obj_center1):
-                tf = open(self.parent.v.obj_center1)
-                for line in tf:
-                    line = line.strip('\n')
-                    if re.search('center_x', line):
-                        self.center_xB = line.split()[2]
-                    if re.search('center_y', line):
-                        self.center_yB = line.split()[2]
-                    if re.search('center_z', line):
-                        self.center_zB = line.split()[2]
-                self.ttempB = [self.center_xB, self.center_yB, self.center_zB, `self._size_xB`, `self._size_yB`,
-                               `self._size_zB`]
-            else:
-                self.ttempB = [0, 0, 0, 0, 0, 0]
-            self.b_pymol_timerB = QtCore.QTimer()
-            self.b_pymol_timerB.timeout.connect(lambda: self.info_pass('offtarget'))
-            self.b_pymol_timerB.start(15)
-        elif btn.objectName() == 'reset_grid_button':
-            self.hide_all('A')
-            self.reset_grid_button.setEnabled(False)
-            self.grid_pymol_button.setEnabled(False)
-            self.run_button.setEnabled(False)
-            self.bind_site_button.setEnabled(True)
-            self.ttemp = [0, 0, 0, 0, 0, 0]
-            self.need_grid = True
 
-            self.btnA_auto.setChecked(True)
-            self.btnA_auto.setEnabled(True)
-            self.btnA_res.setEnabled(True)
-            if self.parent.v.ligands is not None:
-                self.btnA_lig.setEnabled(True)
-                self.lig_list.setEnabled(True)
-            else:
-                self.btnA_lig.setEnabled(False)
-                # self.lig_list.setEnabled(False)
-            self.btnA_user.setEnabled(True)
-            files = []
-            dd = '%s*.map' % self.parent.v.protein_name
-            files.extend(glob.glob(dd))
-            dd = '%s*.fld' % self.parent.v.protein_name
-            files.extend(glob.glob(dd))
-            dd = '%s*.xyz' % self.parent.v.protein_name
-            files.extend(glob.glob(dd))
-            dd = '%s*.gpf' % self.parent.v.protein_name
-            files.extend(glob.glob(dd))
-            files.extend(['user_target_dim.txt', self.parent.v.FILL, self.parent.v.obj_center, self.parent.v.res_center,
-                        self.parent.v.gd])
-            for file in files:
-                try:
-                    os.remove(file)
-                except:
-                    pass
-            if self.parent.v.cr:
-                if self.need_gridB:
-                    self.progressBar.setValue(25)
-                else:
-                    self.progressBar.setValue(37)
-            else:
-                self.progressBar.setValue(25)
-        elif btn.objectName() == 'reset_grid_buttonB':
-            self.hide_all('B')
-            self.reset_grid_buttonB.setEnabled(False)
-            self.grid_pymol_buttonB.setEnabled(False)
-            self.run_button.setEnabled(False)
-            self.bind_site_button.setEnabled(True)
-            self.ttempB = [0, 0, 0, 0, 0, 0]
-            self.need_gridB = True
-            self.btnB_auto.setChecked(True)
-            self.btnB_auto.setEnabled(True)
-            self.btnB_res.setEnabled(True)
-            if self.parent.v.analog_ligands is not None:
-                self.btnB_lig.setEnabled(True)
-                self.lig_listB.setEnabled(True)
-            else:
-                self.btnB_lig.setEnabled(False)
-            self.btnB_user.setEnabled(True)
+    def autoligand_out(self, mol):
+        ofile = open('{}_{}Results.txt'.format(mol.pdbqt_name, self.AMDock.ligand.ha * 6))
+        fill = 1
+        for line in ofile:
+            line = line.strip('\n')
+            fill_info = PDBINFO('FILL_{}_{}out{:02d}.pdb'.format(mol.pdbqt_name, self.AMDock.ligand.ha * 6, fill))
+            if not fill_info.center:
+                msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'This FILL no exist or is not possible to open '
+                                                                        'pdb file', QtGui.QMessageBox.Ok)
+                continue
+            mol.fill_list[fill] = [int(float(line.split()[6].strip(','))), float(line.split()[13]), fill_info.center]
+            fill += 1
 
-            files = []
-            dd = '%s*.map' % self.parent.v.analog_protein_name
-            files.extend(glob.glob(dd))
-            dd = '%s*.fld' % self.parent.v.analog_protein_name
-            files.extend(glob.glob(dd))
-            dd = '%s*.xyz' % self.parent.v.analog_protein_name
-            files.extend(glob.glob(dd))
-            dd = '%s*.gpf' % self.parent.v.analog_protein_name
-            files.extend(glob.glob(dd))
-            files.extend(['user_off_target_dim.txt', self.parent.v.FILL, self.parent.v.obj_center1,
-                          self.parent.v.res_center1, self.parent.v.gd1])
-
-            for file in files:
-                try:
-                    os.remove(file)
-                except:
-                    pass
-            if self.need_grid:
-                self.progressBar.setValue(25)
+    def fill_selection(self, autoligand_table):
+        if autoligand_table.objectName() == 'autoligand_target':
+            items = self.autoligand_target.selectedItems()
+            row = self.autoligand_target.row(items[0]) + 1
+            fill_info = PDBINFO(
+                'FILL_{}_{}out{:02d}.pdb'.format(self.AMDock.target.pdbqt_name, self.AMDock.ligand.ha * 6, row))
+            if fill_info.center:
+                self.grid_center = [str(x) for x in fill_info.center]
             else:
-                self.progressBar.setValue(37)
-        elif btn.objectName() == 'grid_pymol_button' and btn.text() == 'Build in PyMol':
-            build_arg = [self.parent.v.protein_pdbqt, self.parent.ws.build_pymol, '--', '-s',
-                         '%s,%s,%s' % (self.parent.v.rg, self.parent.v.rg,
-                                       self.parent.v.rg), '-p', 'target']
-            self.box_pymol = {'pymol_buildA': [self.parent.ws.pymol, build_arg]}
-            self.bld_pymol = Worker()
-            self.bld_pymol.readyReadStandardOutput.connect(self.readStdOutput)
-            self.bld_pymol.readyReadStandardError.connect(self.readStdError)
-            self.bld_pymol.prog_started.connect(self.prog_show)
-            self.bld_pymol.prog_finished.connect(self.process_progress)
-            self.bld_pymol.queue_finished.connect(self.check_queue)
-            self.bld_pymolq = Queue.Queue()
-            self.bld_pymolq.put(self.box_pymol)
-            self.bld_pymol.init(self.bld_pymolq, 'Construction')
-            self.bld_pymol.start_process()
-            self.bttemp = [0, 0, 0, 0, 0, 0]
-            self.bld_pymol_timer = QtCore.QTimer()
-            self.bld_pymol_timer.timeout.connect(lambda: self.info_pass('target_build'))
-            self.bld_pymol_timer.start(15)
-        elif btn.objectName() == 'grid_pymol_buttonB' and btn.text() == 'Build in PyMol':
-            build_arg = [self.parent.v.analog_protein_pdbqt, self.parent.ws.build_pymol, '--', '-s',
-                         '%s,%s,%s' % (self.parent.v.rg, self.parent.v.rg,
-                                       self.parent.v.rg), '-p', 'off-target']
-            self.box_pymolB = {'pymol_buildB': [self.parent.ws.pymol, build_arg]}
-            self.bld_pymolB = Worker()
-            self.bld_pymolB.readyReadStandardOutput.connect(self.readStdOutput)
-            self.bld_pymolB.readyReadStandardError.connect(self.readStdError)
-            self.bld_pymolB.prog_started.connect(self.prog_show)
-            self.bld_pymolB.prog_finished.connect(self.process_progress)
-            self.bld_pymolB.queue_finished.connect(self.check_queue)
-            self.bld_pymolqB = Queue.Queue()
-            self.bld_pymolqB.put(self.box_pymolB)
-            self.bld_pymolB.init(self.bld_pymolqB, 'Construction')
-            self.bld_pymolB.start_process()
-            self.bttempB = [0, 0, 0, 0, 0, 0]
-            self.bld_pymol_timerB = QtCore.QTimer()
-            self.bld_pymol_timerB.timeout.connect(lambda: self.info_pass('offtarget_build'))
-            self.bld_pymol_timerB.start(15)
-
-    def check_queue(self, qname, finished):
-        if finished:
-            self.reset_button.setEnabled(True)
-            if qname == 'Prepare Input Files':
-                self.grid_pymol_button.setEnabled(False)
-                self.grid_pymol_buttonB.setEnabled(False)
-                self.reset_grid_button.setEnabled(False)
-                self.reset_grid_buttonB.setEnabled(False)
-                if self.parent.v.scoring:
-                    self.grid_box.setEnabled(False)
-                    self.input_box.setEnabled(False)
-                    self.run_scoring.setEnabled(True)
-                else:
-                    self.grid_box.setEnabled(True)
-                    self.input_box.setEnabled(False)
-                    self.grid_predef_text.setReadOnly(False)
-                    self.grid_predef_textB.setReadOnly(False)
-                    self.coor_xB.setReadOnly(False)
-                    self.coor_yB.setReadOnly(False)
-                    self.coor_zB.setReadOnly(False)
-                    self.size_xB.setReadOnly(False)
-                    self.size_yB.setReadOnly(False)
-                    self.size_zB.setReadOnly(False)
-                    self.coor_x.setReadOnly(False)
-                    self.coor_y.setReadOnly(False)
-                    self.coor_z.setReadOnly(False)
-                    self.size_x.setReadOnly(False)
-                    self.size_y.setReadOnly(False)
-                    self.size_z.setReadOnly(False)
-                if self.parent.v.cr:
-                    self.btnA_auto.setEnabled(True)
-                    self.btnA_res.setEnabled(True)
-                    self.btnA_user.setEnabled(True)
-                    self.btnA_lig.setEnabled(True)
-                    self.btnB_auto.setEnabled(True)
-                    self.btnB_res.setEnabled(True)
-                    self.btnB_user.setEnabled(True)
-                    self.btnB_lig.setEnabled(True)
-                    if self.parent.v.protein_pdbqt is not None and self.parent.v.analog_protein_pdbqt is not None and self.parent.v.ligand_pdbqt is not None:
-                        self.progressBar.setValue(25)
-                else:
-                    if self.parent.v.protein_pdbqt is not None and self.parent.v.ligand_pdbqt is not None:
-                        if self.parent.v.scoring:
-                            self.progressBar.setValue(50)
-                        else:
-                            self.progressBar.setValue(25)
-                self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IF Prepare Initial Files...Done\n')
-            elif qname == 'Binding Site Determination':
-                self.grid_box.setEnabled(True)
-                self.bind_site_button.setEnabled(False)
-                self.grid_pymol_button.setEnabled(True)
-                self.reset_grid_button.setEnabled(True)
-                self.reset_grid_buttonB.setEnabled(True)
-                self.grid_pymol_buttonB.setEnabled(True)
-                if self.parent.v.cr:
-                    self.btnA_user.setEnabled(False)
-                    self.btnA_auto.setEnabled(False)
-                    self.btnA_lig.setEnabled(False)
-                    self.btnA_res.setEnabled(False)
-                    self.btnB_user.setEnabled(False)
-                    self.btnB_auto.setEnabled(False)
-                    self.btnB_lig.setEnabled(False)
-                    self.btnB_res.setEnabled(False)
-                    self.grid_predef_textB.setReadOnly(True)
-                    self.lig_listB.setEnabled(False)
-                    self.coor_xB.setReadOnly(True)
-                    self.coor_yB.setReadOnly(True)
-                    self.coor_zB.setReadOnly(True)
-                    self.size_xB.setReadOnly(True)
-                    self.size_yB.setReadOnly(True)
-                    self.size_zB.setReadOnly(True)
-                    self.grid_pymol_buttonB.setText('Show in PyMol')
-                    self.need_gridB = False
-                self.grid_predef_text.setReadOnly(True)
-                self.lig_list.setEnabled(False)
-                self.coor_x.setReadOnly(True)
-                self.coor_y.setReadOnly(True)
-                self.coor_z.setReadOnly(True)
-                self.size_x.setReadOnly(True)
-                self.size_y.setReadOnly(True)
-                self.size_z.setReadOnly(True)
-
-                self.run_button.setEnabled(True)
-                self.need_grid = False
-                self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: BSD Binding Site Definition...Done\n')
-                self.grid_pymol_button.setText('Show in PyMol')
-                if self.parent.v.program_mode == 'SCORING':
-                    self.progressBar.setValue(10)
-                else:
-                    self.progressBar.setValue(50)
-
-            elif qname == 'Molecular Docking Simulation':
-                self.go_result()
-                self.parent.configuration_tab.log_wdw.textedit.append(
-                    'AMDOCK: MDS Molecular Docking Simulation...Done\n')
-            else:
-                self.grid_box.setEnabled(False)
-                self.progressBar.setValue(100)
-                self.go_scoring()
+                msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'This FILL no exist or is not possible to open '
+                                                                       'pdb file. Please, select a new FILL',
+                                                 QtGui.QMessageBox.Ok)
+                for item in items:
+                    item.setFlags(QtCore.Qt.NoItemFlags)
+                return
         else:
-            self.queue_name = qname
-
-    def prog_show(self, prog):
-        self.prog = prog
-        if self.queue_name == 'Prepare Input Files':
-            if self.parent.v.cr:
-                if prog == 'PDB2PQR':
-                    progress(self, 1, 1, 14, time=20, mess='Running PDB2PQR for Target...')
-                    self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: IF Running PDB2PQR for Target Protein...')
-                elif prog == 'PDB2PQR B':
-                    progress(self, 1, 1, 18, time=20, mess='Running PDB2PQR for Off-Target...')
-                    self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: IF Running PDB2PQR for Off-Target Protein...')
-                elif prog == 'Prepare_Receptor4':
-                    progress(self, 1, 1, 20, time=7, mess='Prepare receptor A...')
-                    self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IF Prepare Target Protein...')
-                elif prog == 'Prepare_Receptor4 B':
-                    progress(self, 1, 1, 22, time=7, mess='Prepare receptor B...')
-                    self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IF Prepare Off-Target Protein...')
-                elif prog == 'Prepare_Ligand4':
-                    progress(self, 1, 1, 25, time=5, mess='Prepare ligand...')
-                    self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IF Prepare Ligand...')
+            items = self.autoligand_offtarget.selectedItems()
+            row = self.autoligand_offtarget.row(items[0]) + 1
+            fill_info = PDBINFO('FILL_{}_{}out{:02d}.pdb'.format(self.AMDock.offtarget.pdbqt_name, self.AMDock.ligand.ha
+                                                                 * 6, row))
+            if fill_info.center:
+                self.grid_centerB = [str(x) for x in fill_info.center]
             else:
-                if prog == 'PDB2PQR':
-                    progress(self, 1, 1, 18, time=15, mess='Running %s...' % prog)
-                    self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IF Running PDB2PQR for Protein...')
-                elif prog == 'Prepare_Receptor4':
-                    progress(self, 1, 1, 22, time=7, mess='Prepare receptor...')
-                    self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IF Prepare Protein...')
-                elif prog == 'Prepare_Ligand4':
-                    progress(self, 1, 1, 25, time=5, mess='Prepare ligand...')
-                    self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IF Prepare Ligand...')
-        elif self.queue_name == 'Binding Site Determination':
-            if self.parent.v.cr:
-                if self.parent.v.grid_def == 'auto':
-                    if prog == 'function GridDefinition: Protein Center':
-                        progress(self, 0, 2, 25, mess='Determination of Target Center...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Determination of Target Protein Center...')
-                    if prog == 'Prepare_gpf4':
-                        progress(self, 0, 2, 25, mess='Generate GPF file...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Generate GPF file for Target Protein...')
-                    if prog == 'AutoGrid4':
-                        self.part = 0
-                        progress(self, 0, 2, 25, mess='Running AutoGrid4 for Target...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Running AutoGrid4 for Target Protein...')
-                    if prog == 'AutoLigand':
-                        progress(self, 1, 2, 37, time=1000, mess='Searching Ligand Binding Site in Target...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Searching Ligand Binding Site in Target Protein...')
-                    if prog == 'function GridDefinition: FILL Center':
-                        progress(self, 0, 2, 37, mess='FILL Center Determination...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Determination of Center for Search Space in Target Protein...')
-                elif self.parent.v.grid_def == 'by_residues':
-                    if prog == 'function GridDefinition: Selected Residues Center':
-                        progress(self, 0, 2, 25, mess='Determination of Selected Residues Center...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Determination of Selected Residues Center in Target Protein...')
-                    if prog == 'function GridDefinition: Protein Center':
-                        progress(self, 0, 2, 26, mess='Determination of Protein center...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Determination of Target Protein Center...')
-                    if prog == 'Prepare_gpf4':
-                        progress(self, 0, 2, 25, mess='Generate GPF file...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Generate GPF file for Target Protein...')
-                    if prog == 'AutoGrid4':
-                        self.part = 0
-                        progress(self, 0, 2, 25, mess='Running AutoGrid4 for proein A...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Running AutoGrid4 for Target Protein...')
-                    if prog == 'AutoLigand':
-                        progress(self, 0, 2, 30, mess='Searching Ligand Binding Site in Target...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Searching Ligand Binding Site in Target Protein...')
-                    if prog == 'function GridDefinition: FILL Center':
-                        progress(self, 0, 2, 37, mess='FILL Center Determination...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Determination of Center for Search Space in Target Protein...')
-                elif self.parent.v.grid_def == 'by_ligand':
-                    if prog == 'function GridDefinition: Previous Ligand Center':
-                        progress(self, 0, 2, 25, mess='Determination of Previous Ligand A Center...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Determination of Center of Previous Ligand in Target Protein...')
+                msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'This FILL no exist or is not possible to open '
+                                                                       'pdb file. Please, select a new FILL',
+                                                 QtGui.QMessageBox.Ok)
+                for item in items:
+                    item.setFlags(QtCore.Qt.NoItemFlags)
+                return
 
-                if self.parent.v.analog_grid_def == 'auto':
-                    if prog == 'function GridDefinition: Zn Center B':
-                        progress(self, 0, 2, 37, mess='Determination of Zn B center...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Determination of Zn Center...')
-                    if prog == 'function GridDefinition: Protein Center':
-                        progress(self, 0, 2, 25, mess='Determination of Protein center...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Determination of Off-Target Protein Center...')
-                    if prog == 'Prepare_gpf4 B':
-                        progress(self, 0, 2, 37, mess='Generate GPF file...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Generate GPF file for Off-Target Protein...')
-                    if prog == 'AutoGrid4 B':
-                        self.part = 0
-                        progress(self, 0, 2, 37, mess='Running AutoGrid4 for Off-Target...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Running AutoGrid4 for Off-Target Protein...')
-                    if prog == 'AutoLigand B':
-                        progress(self, 1, 2, 50, time=1000, mess='Searching Ligand Binding Site in Off-Target...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Searching Ligand Binding Site in Off-Target Protein...')
-                    if prog == 'function GridDefinition: FILL Center B':
-                        progress(self, 0, 2, 37, mess='FILL Center Determination...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Determination of Center for Search Space in Off-Target Protein...')
-                elif self.parent.v.analog_grid_def == 'by_residues':
-                    if prog == 'function GridDefinition: Selected Residues Center':
-                        progress(self, 0, 2, 25, mess='Determination of Selected Residues Center...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD SDetermination of Selected Residues Center in Off-Target Protein...')
-                    if prog == 'function GridDefinition: Protein Center B':
-                        progress(self, 0, 2, 37, mess='Determination of Off-Target Center...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Determination of Off-Target Protein Center...')
-                    if prog == 'Prepare_gpf4 B':
-                        progress(self, 0, 2, 38, mess='Generate GPF file...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Generate GPF file for Off-Target Protein...')
-                    if prog == 'AutoGrid4 B':
-                        self.part = 0
-                        progress(self, 0, 2, 38, mess='Running AutoGrid4 for Off-Target...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Running AutoGrid4 for Off-Target Protein...')
-                    if prog == 'AutoLigand B':
-                        progress(self, 0, 2, 43, mess='Searching Ligand Binding Site in Off-Target...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Searching Ligand Binding Site in Off-Target Protein...')
-                    if prog == 'function GridDefinition: FILL Center B':
-                        progress(self, 0, 2, 50, mess='FILL Center Determination...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Determination of Center for Search Space in Off-Target Protein...')
-                elif self.parent.v.analog_grid_def == 'by_ligand':
-                    if prog == 'function GridDefinition: Previous Ligand Center B':
-                        progress(self, 0, 2, 37, mess='Determination of Previous Ligand B Center...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Determination of Center of Previous Ligand in Off-Target Protein...')
+    def for_finished(self, info):
+        prog_name, exitcode, exitstatus = info
+        self.AMDock.project.part = 0
+        if exitcode:
+            self.progressBar_section.setValue(0)
+            error_message(self, prog_name, exitcode, exitstatus)
+            return
+        if prog_name == 'AutoLigand':
+            fill_list = self.autoligand_out(self.AMDock.target)
+            if self.AMDock.target.fill_list:
+                self.autoligand_target.setRowCount(len(self.AMDock.target.fill_list))
+                f = 0
+                for fill in self.AMDock.target.fill_list:
+                    c = 0
+                    for ele in self.AMDock.target.fill_list[fill][:2]:
+                        ele = str(ele)
+                        self.autoligand_target.setItem(f, c, QtGui.QTableWidgetItem(ele))
+                        self.autoligand_target.item(f, c).setTextAlignment(
+                            QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+                        c += 1
+                    f += 1
+                self.autoligand_target.selectRow(0)
+                self.autoligand_target.show()
+                self.grid_center = [str(x) for x in self.AMDock.target.fill_list[1][2]]
+        elif prog_name == 'AutoLigand_point':
+            fill_list = self.autoligand_out(self.AMDock.target)
+            if self.AMDock.target.fill_list:
+                self.grid_center = [str(x) for x in self.AMDock.target.fill_list[1][2]]
+        elif prog_name == 'AutoLigand B':
+            fill_list = self.autoligand_out(self.AMDock.offtarget)
+            if self.AMDock.offtarget.fill_list:
+                self.autoligand_offtarget.setRowCount(len(self.AMDock.offtarget.fill_list))
+                f = 0
+                for fill in self.AMDock.offtarget.fill_list:
+                    c = 0
+                    for ele in fill:
+                        ele = str(ele)
+                        self.autoligand_offtarget.setItem(f, c, QtGui.QTableWidgetItem(ele))
+                        self.autoligand_offtarget.item(f, c).setTextAlignment(
+                            QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+                        c += 1
+                    f += 1
+                self.autoligand_offtarget.selectRow(0)
+                self.autoligand_offtarget.show()
+                self.grid_centerB = [str(x) for x in self.AMDock.offtarget.fill_list[1][2]]
+        elif prog_name == 'AutoLigand_point B':
+            fill_list = self.autoligand_out(self.AMDock.offtarget)
+            if self.AMDock.offtarget.fill_list:
+                self.grid_centerB = [str(x) for x in self.AMDock.offtarget.fill_list[1][2]]
+
+        if prog_name == 'PDB2PQR':
+            if not exitcode:
+                self.progress(40, self.AMDock.project.mode, 'Running PDB2PQR for Target...Done.')
+                self.AMDock.log_widget.textedit.append(Ft('Running PDB2PQR for Target...Done.').process())
+        elif prog_name == 'PDB2PQR B':
+            if not exitcode:
+                self.progress(20, 0, 'Running PDB2PQR for Off-Target...Done')
+                self.AMDock.log_widget.textedit.append(Ft('Running PDB2PQR for Off-Target...Done.').process())
+        elif prog_name == 'Prepare_Receptor4':
+            if not exitcode:
+                self.progress(40, self.AMDock.project.mode, 'Prepare receptor (Target)...Done')
+                self.AMDock.log_widget.textedit.append(Ft('Prepare Target...Done.').process())
+        elif prog_name == 'Prepare_Receptor4 B':
+            if not exitcode:
+                self.progress(20, 0, 'Prepare receptor (Off-Target)...Done')
+                self.AMDock.log_widget.textedit.append(Ft('Prepare Off-Target...Done.').process())
+        elif prog_name == 'Prepare_Ligand4':
+            if not exitcode:
+                self.progress(20, 0, 'Prepare ligand...Done')
+                self.AMDock.log_widget.textedit.append(Ft('Prepare Ligand...Done.').process())
+        print self.AMDock.section, 'section'
+        if self.AMDock.section == 1:
+            if self.AMDock.project.bsd_mode_target in [0, 1]:
+                if prog_name == 'Prepare_gpf4':
+                    self.progress(10, self.AMDock.project.mode, 'Generate Target GPF file...', 1)
+                    self.AMDock.log_widget.textedit.append(Ft('Generate Target GPF file...Done.').process())
+                if prog_name == 'Prepare_gpf4zn':
+                    self.progress(10, self.AMDock.project.mode, 'Generate Target GPF file...', 1)
+                    self.AMDock.log_widget.textedit.append(Ft('Generate Target GPF file...Done.').process())
+                if prog_name == 'AutoGrid4':
+                    self.progress(50, self.AMDock.project.mode, 'Running AutoGrid4 for Target...', 1)
+                    self.AMDock.log_widget.textedit.append(
+                        Ft('Running AutoGrid4 for Target Protein... Done.').process())
+
+                if prog_name in ['AutoLigand', 'AutoLigand_point']:
+                    self.progress(100, self.AMDock.project.mode, 'Searching Ligand Binding Site in Target...', 1)
+
+                    self.AMDock.log_widget.textedit.append(Ft('Searching Ligand Binding Site in Target '
+                                                              'Protein... Done.').process())
+            if self.AMDock.project.bsd_mode_offtarget in [0, 1]:
+                if prog_name == 'Prepare_gpf4 B':
+                    self.progress(55, 0, 'Generate Off-Target GPF file...', 1)
+                    self.AMDock.log_widget.textedit.append(Ft('Generate GPF file for Off-Target Protein... '
+                                                              'Done.').process())
+                if prog_name == 'Prepare_gpf4zn B':
+                    self.progress(55, 0, 'Generate Off-Target GPF file...', 1)
+                    self.AMDock.log_widget.textedit.append(Ft('Generate GPF file for Off-Target Protein... '
+                                                              'Done.').process())
+                if prog_name == 'AutoGrid4 B':
+                    self.part = 0
+                    self.progress(75, 0, 'Running AutoGrid4 for Off-Target...', 1)
+                    self.AMDock.log_widget.textedit.append(Ft('Running AutoGrid4 for Off-Target '
+                                                              'Protein... Done.').process())
+                if prog_name in ['AutoLigand B', 'AutoLigand_point B']:
+                    self.progress(100, 0, 'Searching Ligand Binding Site in Off-Target...', 1)
+                    self.AMDock.log_widget.textedit.append(Ft('Running AutoLigand in Off-Target Protein... '
+                                                              'Done.').process())
+        elif self.AMDock.section == 2:
+            if prog_name == 'Prepare_gpf4':
+                if self.AMDock.project.bsd_mode_target == 0:
+                    self.progress(10 / len(self.AMDock.target.fill_list), self.AMDock.project.mode,
+                                  'Generate GPF file...')
+                else:
+                    self.progress(10, self.AMDock.project.mode, 'Generate GPF file...', 1)
+            if prog_name == 'Prepare_gpf4 B':
+                if self.AMDock.project.bsd_mode_offtarget == 0:
+                    self.progress(5 / len(self.AMDock.offtarget.fill_list), 0, 'Generate GPF file...')
+                else:
+                    self.progress(55, 0, 'Generate GPF file...', 1)
+            if prog_name == 'AutoGrid4':
+                if self.AMDock.project.bsd_mode_target == 0:
+                    self.progress(40 / len(self.AMDock.target.fill_list), self.AMDock.project.mode, 'Running AutoGrid4 '
+                                                                                                    'for Target...')
+                else:
+                    self.progress(50, self.AMDock.project.mode, 'Running AutoGrid4 for Target...', 1)
+            if prog_name == 'AutoGrid4 B':
+                if self.AMDock.project.bsd_mode_offtarget == 0:
+                    self.progress(40 / len(self.AMDock.offtarget.fill_list), 0, 'Running AutoGrid4 for Off-Target...')
+                else:
+                    self.progress(75, 0, 'Running AutoGrid4 for Off-Target...', 1)
+            if prog_name == 'Prepare_dpf4':
+                if self.AMDock.project.bsd_mode_target == 0:
+                    self.progress(10 / len(self.AMDock.target.fill_list), self.AMDock.project.mode,
+                                  'Generate DPF file...')
+                else:
+                    self.progress(60, self.AMDock.project.mode, 'Generate DPF file...', 1)
+            if prog_name == 'Prepare_dpf4 B':
+                if self.AMDock.project.bsd_mode_offtarget == 0:
+                    self.progress(5 / len(self.AMDock.offtarget.fill_list), 0, 'Generate DPF file...')
+                else:
+                    self.progress(80, 0, 'Generate DPF file...', 1)
+
+        if prog_name == 'AutoDock Vina':
+            if self.AMDock.project.bsd_mode_target == 0 and self.AMDock.project.mode != 2:
+                self.progress(100 / len(self.AMDock.target.fill_list), self.AMDock.project.mode,
+                              'Determining better poses for Target...')
             else:
-                if self.parent.v.grid_def == 'auto':
-
-                    if prog == 'function GridDefinition: Protein Center':
-                        progress(self, 0, 2, 25, mess='Determination of Protein center...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Determination of Protein Center...')
-
-                    if prog == 'Prepare_gpf4':
-                        progress(self, 0, 2, 26, mess='Generate GPF file...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Generate GPF file for Protein...')
-
-                    if prog == 'AutoGrid4':
-                        self.part = 0
-                        progress(self, 0, 2, 27, mess='Running AutoGrid4...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Running AutoGrid4 for Protein...')
-
-                    if prog == 'AutoLigand':
-                        progress(self, 1, 2, 50, time=1000, mess='Searching Ligand Binding Site...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Searching Ligand Binding Site in Protein...')
-                    if prog == 'function GridDefinition: FILL Center B':
-                        progress(self, 0, 2, 50, mess='FILL Center Determination...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Determination of Center for Search Space in Protein...')
-                elif self.parent.v.grid_def == 'by_residues':
-                    if prog == 'function GridDefinition: Selected Residues Center':
-                        progress(self, 0, 2, 25, mess='Determination of Selected Residues Center...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD SDetermination of Selected Residues Center in Protein...')
-                    if prog == 'function GridDefinition: Protein Center':
-                        progress(self, 0, 2, 26, mess='Determination of Protein center...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Determination of Protein Center...')
-                    if prog == 'Prepare_gpf4':
-                        progress(self, 0, 2, 27, mess='Generate GPF file...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Generate GPF file for Protein...')
-                    if prog == 'AutoGrid4':
-                        self.part = 0
-                        progress(self, 0, 2, 28, mess='Running AutoGrid4...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Running AutoGrid4 for Protein...')
-                    if prog == 'AutoLigand':
-                        progress(self, 0, 2, 38, mess='Searching Ligand Binding Site...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Searching Ligand Binding Site in Protein...')
-                    if prog == 'function GridDefinition: FILL Center':
-                        progress(self, 0, 2, 50, mess='FILL Center Determination...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Determination of Center for Search Space in Protein...')
-                elif self.parent.v.grid_def == 'by_ligand':
-                    if prog == 'function GridDefinition: Previous Ligand Center':
-                        progress(self, 0, 2, 25, mess='Determination of Previous Ligand Center...')
-                        self.parent.configuration_tab.log_wdw.textedit.append(
-                            'AMDOCK: BSD Determination of Center of Previous Ligand in Protein...')
-        elif self.queue_name == 'Molecular Docking Simulation':
-            if self.parent.v.cr:
-                if prog == 'AutoDock Vina':
-                    self.part = 0
-                    progress(self, 0, 2, 50, mess='Determining better poses for Target...')
-                    self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: MDS Determination of better poses for Target Protein...')
-                if prog == 'AutoDock Vina B':
-                    self.part = 0
-                    progress(self, 0, 2, 75, mess='Determining better poses for Off-Target...')
-                    self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: MDS Determination of better poses for Off-Target Protein...')
-                if prog == 'Prepare_gpf4':
-                    progress(self, 0, 2, 50, mess='Generate GPF file...')
-                    self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: MDS Generate GPF file for Target Protein...')
-                if prog == 'Prepare_gpf4 B':
-                    progress(self, 0, 2, 75, mess='Generate GPF file...')
-                    self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: MDS Generate GPF file for Off-Target Protein...')
-                if prog == 'AutoGrid4':
-                    self.part = 0
-                    progress(self, 0, 2, 50, mess='Running AutoGrid4 for Target...')
-                    self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: MDS Running AutoGrid4 for Target Protein...')
-                if prog == 'AutoGrid4 B':
-                    self.part = 0
-                    progress(self, 0, 2, 75, mess='Running AutoGrid4 for Off-Target...')
-                    self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: MDS Running AutoGrid4 for Off-Target Protein...')
-                if prog == 'Prepare_dpf4':
-                    progress(self, 0, 2, 55, mess='Generate DPF file...')
-                    self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: MDS Generate DPF file for Target Protein...')
-                if prog == 'Prepare_dpf4 B':
-                    progress(self, 0, 2, 80, mess='Generate DPF file...')
-                    self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: MDS Generate DPF file for Off-Target Protein...')
-                if prog == 'AutoDock4':
-                    self.part = 0
-                    progress(self, 0, 2, 55, mess='Determining better poses for Target...')
-                    self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: MDS Determination of better poses for Target Protein...')
-                    self.timerAD = QtCore.QTimer()
-                    self.timerAD.timeout.connect(self.autodock_output)
-                    self.timerAD.start(5000)
-                if prog == 'AutoDock4 B':
-                    self.part = 0
-                    progress(self, 0, 2, 80, mess='Determining better poses for Off-Target...')
-                    self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: MDS Determination of better poses for Off-Target Protein...')
-                    self.timerAD = QtCore.QTimer()
-                    self.timerAD.timeout.connect(self.autodock_output)
-                    self.timerAD.start(5000)
-                if prog == 'AutoDock4ZN':
-                    self.part = 0
-                    progress(self, 0, 2, 55, mess='Determining better poses for Target...')
-                    self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: MDS Determination of better poses for Target Protein...')
-                    self.timerAD = QtCore.QTimer()
-                    self.timerAD.timeout.connect(self.autodock_output)
-                    self.timerAD.start(5000)
-                if prog == 'AutoDock4ZN B':
-                    self.part = 0
-                    progress(self, 0, 2, 80, mess='Determining better poses for Off-Target...')
-                    self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: MDS Determination of better poses for Off-Target Protein...')
-                    self.timerAD = QtCore.QTimer()
-                    self.timerAD.timeout.connect(self.autodock_output)
-                    self.timerAD.start(5000)
+                self.progress(100, self.AMDock.project.mode, 'Determining better poses for Target...', 1)
+        if prog_name == 'AutoDock Vina B':
+            if self.AMDock.project.bsd_mode_target == 0:
+                self.progress(100 / len(self.AMDock.target.fill_list), 0,
+                              'Determining better poses for Target...')
             else:
-                if prog == 'AutoDock Vina':
-                    self.part = 0
-                    progress(self, 0, 2, 50, mess='Determining better poses...')
-                    self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: MDS Determination of better poses for Protein...')
-                if prog == 'Prepare_gpf4':
-                    progress(self, 0, 2, 50, mess='Generate GPF file...')
-                    self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: MDS Generate GPF file for Protein...')
-                if prog == 'AutoGrid4':
-                    self.part = 0
-                    progress(self, 0, 2, 51, mess='Running AutoGrid4...')
-                    self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: MDS Running AutoGrid4 for Protein...')
-                if prog == 'Prepare_dpf4':
-                    progress(self, 0, 2, 59, mess='Generate DPF file...')
-                    self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: MDS Generate DPF file for Protein...')
-                if prog == 'AutoDock4':
-                    self.part = 0
-                    progress(self, 0, 2, 60, mess='Determining better poses...')
-                    self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: MDS Determination of better poses for Protein...')
-                    self.timerAD = QtCore.QTimer()
-                    self.timerAD.timeout.connect(self.autodock_output)
-                    self.timerAD.start(5000)
-                if prog == 'AutoDock4ZN':
-                    self.part = 0
-                    progress(self, 0, 2, 60, mess='Determining better poses...')
-                    self.parent.configuration_tab.log_wdw.textedit.append(
-                        'AMDOCK: MDS Determination of better poses for Protein...')
-                    self.timerAD = QtCore.QTimer()
-                    self.timerAD.timeout.connect(self.autodock_output)
-                    self.timerAD.start(5000)
-        elif self.queue_name == 'Visualization':
-            if self.prog == 'pymol_boxA':
-                self.grid_pymol_buttonB.setEnabled(False)
-                self.reset_grid_buttonB.setEnabled(False)
-            elif self.prog == 'pymol_boxB':
-                self.grid_pymol_button.setEnabled(False)
-                self.reset_grid_button.setEnabled(False)
-        elif self.queue_name == 'Construction':
-            if self.prog == 'pymol_buildA':
-                self.reset_grid_buttonB.setEnabled(False)
-                self.reset_grid_buttonB.setEnabled(False)
-            elif self.prog == 'pymol_buildB':
-                self.reset_grid_button.setEnabled(False)
-                self.reset_grid_button.setEnabled(False)
-
-    def process_progress(self, prog, i, err):
-        if prog == 'pymol_boxA' or prog == 'pymol_boxB' or prog == 'pymol_buildA' or prog == 'pymol_buildB':
-            try:
-                os.remove('pymol_data.txt')
-            except:
-                pass
-        if prog in ['pymol_buildA', 'pymol_buildB', 'pymol_boxA', 'pymol_boxB']:
-            # TODO: change status for pymol buttons
-            self.grid_pymol_button.setEnabled(True)
-            self.grid_pymol_buttonB.setEnabled(True)
-            self.reset_grid_button.setEnabled(True)
-            self.reset_grid_buttonB.setEnabled(True)
-            # pass
-        if self.queue_name == 'Prepare Input Files':
-            if self.parent.v.cr:
-                if prog == 'PDB2PQR':
-                    if i == 0:
-                        progress(self, 1, 1, 14, finish=True, mess='Running PDB2PQR for Target...')
-                    else:
-                        progress(self, 1, 1, 10, reverse=True, mess='Running PDB2PQR for Target...')
-                elif prog == 'PDB2PQR B':
-                    if i == 0:
-                        progress(self, 1, 1, 18, finish=True, mess='Running PDB2PQR for Off-Target...')
-                    else:
-                        progress(self, 1, 1, 14, reverse=True, mess='Running PDB2PQR for Off-Target...')
-                elif prog == 'Prepare_Receptor4':
-                    if i == 0:
-                        progress(self, 1, 1, 20, finish=True, mess='Prepare receptor A...')
-                    else:
-                        progress(self, 1, 1, 18, reverse=True, mess='Prepare receptor A...')
-                elif prog == 'Prepare_Receptor4 B':
-                    if i == 0:
-                        progress(self, 1, 1, 22, finish=True, mess='Prepare receptor B...')
-                    else:
-                        progress(self, 1, 1, 20, reverse=True, mess='Prepare receptor B...')
-
-                elif prog == 'Prepare_Ligand4':
-                    if i == 0:
-                        progress(self, 1, 1, 25, finish=True, mess='Prepare ligand...')
-                    else:
-                        progress(self, 1, 1, 22, reverse=True, mess='Prepare ligand...')
+                self.progress(100, 0, 'Determining better poses for Target...', 1)
+        if prog_name == 'AutoDock4':
+            self.timerAD.stop()
+            self.autodock_output()
+            if self.AMDock.project.bsd_mode_target == 0 and self.AMDock.project.mode != 2:
+                self.progress(100 / len(self.AMDock.target.fill_list), self.AMDock.project.mode, 'Determining better '
+                                                                                                 'poses for Target...')
             else:
-                if prog == 'PDB2PQR':
-                    if i == 0:
-                        progress(self, 1, 1, 18, finish=True, mess='Running PDB2PQR...')
-                    else:
-                        progress(self, 1, 1, 10, reverse=True, mess='Running PDB2PQR...')
-                elif prog == 'Prepare_Receptor4':
-                    if i == 0:
-                        progress(self, 1, 1, 22, finish=True, mess='Prepare receptor...')
-                    else:
-                        progress(self, 1, 1, 18, reverse=True, mess='Prepare receptor...')
-                elif prog == 'Prepare_Ligand4':
-                    if i == 0:
-                        progress(self, 1, 1, 25, finish=True, mess='Prepare ligand...')
-                    else:
-                        progress(self, 1, 1, 22, reverse=True, mess='Prepare ligand...')
-        elif self.queue_name == 'Binding Site Determination':
-            if self.parent.v.cr:
-                if self.parent.v.grid_def == 'auto':
-                    if prog == 'Prepare_gpf4':
-                        if i == 0:
-                            progress(self, 0, 2, 25, finish=True, mess='Generate GPF file...')
-                        else:
-                            progress(self, 0, 2, 25, reverse=True, mess='Generate GPF file...')
-                    elif prog == 'AutoGrid4':
-                        if i == 0:
-                            progress(self, 0, 2, 30, finish=True, mess='Running AutoGrid4 for Target...')
-                        else:
-                            progress(self, 0, 2, 25, reverse=True, mess='Running AutoGrid4 for Target...')
-                    elif prog == 'AutoLigand':
-                        if i == 0:
-                            progress(self, 0, 2, 37, finish=True, mess='Searching Ligand Binding Site in Target...')
-                        else:
-                            progress(self, 0, 2, 30, reverse=True, mess='Searching Ligand Binding Site in Target...')
-                    elif prog == 'function GridDefinition: FILL Center':
-                        if i == 0:
-                            progress(self, 0, 2, 37, finish=True, mess='FILL Center Determination...')
-                        else:
-                            progress(self, 0, 2, 37, reverse=True, mess='FILL Center Determination...')
-                elif self.parent.v.grid_def == 'by_residues':
-                    if prog == 'function GridDefinition: Selected Residues Center':
-                        if i == 0:
-                            progress(self, 0, 2, 25, finish=True, mess='Determination of Selected Residues Center...')
-                        else:
-                            progress(self, 0, 2, 25, reverse=True, mess='Determination of Selected Residues Center...')
-                    elif prog == 'function GridDefinition: Protein Center':
-                        if i == 0:
-                            progress(self, 0, 2, 25, finish=True, mess='Determination of Target center...')
-                        else:
-                            progress(self, 0, 2, 25, reverse=True, mess='Determination of Target center...')
-                    elif prog == 'Prepare_gpf4':
-                        if i == 0:
-                            progress(self, 0, 2, 25, finish=True, mess='Generate GPF file...')
-                        else:
-                            progress(self, 0, 2, 25, reverse=True, mess='Generate GPF file...')
-                    elif prog == 'AutoGrid4':
-                        if i == 0:
-                            progress(self, 0, 2, 30, finish=True, mess='Running AutoGrid4 for Target...')
-                        else:
-                            progress(self, 0, 2, 25, reverse=True, mess='Running AutoGrid4 for Target...')
-                    elif prog == 'AutoLigand':
-                        if i == 0:
-                            progress(self, 0, 2, 37, finish=True, mess='Searching Ligand Binding Site in Target...')
-                        else:
-                            progress(self, 0, 2, 30, reverse=True, mess='Searching Ligand Binding Site in Target...')
-                    elif prog == 'function GridDefinition: FILL Center':
-                        if i == 0:
-                            progress(self, 0, 2, 37, finish=True, mess='FILL Center Determination...')
-                        else:
-                            progress(self, 0, 2, 37, reverse=True, mess='FILL Center Determination...')
-                elif self.parent.v.grid_def == 'by_ligand':
-                    if prog == 'function GridDefinition: Previous Ligand Center':
-                        if i == 0:
-                            progress(self, 0, 2, 37, finish=True, mess='Determination of Previous Ligand A Center...')
-                        else:
-                            progress(self, 0, 2, 25, reverse=True, mess='Determination of Previous Ligand A Center...')
+                self.progress(100, self.AMDock.project.mode, 'Determining better poses for Target...', 1)
 
-                if self.parent.v.analog_grid_def == 'auto':
-                    if prog == 'function GridDefinition: Zn Center B':
-                        if i == 0:
-                            progress(self, 0, 2, 50, finish=True, mess='Determination of Zn B Center...')
-                        else:
-                            progress(self, 0, 2, 37, reverse=True, mess='Determination of Zn B Center...')
-                    elif prog == 'Prepare_gpf4 B':
-                        if i == 0:
-                            progress(self, 0, 2, 38, finish=True, mess='Generate GPF file...')
-                        else:
-                            progress(self, 0, 2, 37, reverse=True, mess='Generate GPF file...')
-                    elif prog == 'AutoGrid4 B':
-                        if i == 0:
-                            progress(self, 0, 2, 43, finish=True, mess='Running AutoGrid4...')
-                        else:
-                            progress(self, 0, 2, 38, reverse=True, mess='Running AutoGrid4...')
-                    elif prog == 'AutoLigand B':
-                        if i == 0:
-                            progress(self, 1, 2, 50, finish=True, mess='Searching Ligand Binding Site...')
-                        else:
-                            progress(self, 1, 2, 43, reverse=True, mess='Searching Ligand Binding Site...')
-                    elif prog == 'function GridDefinition: FILL Center B':
-                        if i == 0:
-                            progress(self, 0, 2, 50, finish=True, mess='FILL Center Determination...')
-                        else:
-                            progress(self, 0, 2, 50, reverse=True, mess='FILL Center Determination...')
-                elif self.parent.v.analog_grid_def == 'by_residues':
-                    if prog == 'function GridDefinition: Selected Residues Center B':
-                        if i == 0:
-                            progress(self, 0, 2, 38, finish=True, mess='Determination of Selected Residues Center...')
-                        else:
-                            progress(self, 0, 2, 37, reverse=True, mess='Determination of Selected Residues Center...')
-                    elif prog == 'function GridDefinition: Protein Center B':
-                        if i == 0:
-                            progress(self, 0, 2, 38, finish=True, mess='Determination of Protein center...')
-                        else:
-                            progress(self, 0, 2, 38, reverse=True, mess='Determination of Protein center...')
-                    elif prog == 'Prepare_gpf4 B':
-                        if i == 0:
-                            progress(self, 0, 2, 38, finish=True, mess='Generate GPF file...')
-                        else:
-                            progress(self, 0, 2, 38, reverse=True, mess='Generate GPF file...')
-                    elif prog == 'AutoGrid4 B':
-                        if i == 0:
-                            progress(self, 0, 2, 43, finish=True, mess='Running AutoGrid4...')
-                        else:
-                            progress(self, 0, 2, 38, reverse=True, mess='Running AutoGrid4...')
-                    elif prog == 'AutoLigand B':
-                        if i == 0:
-                            progress(self, 0, 2, 50, finish=True, mess='Searching Ligand Binding Site...')
-                        else:
-                            progress(self, 0, 2, 43, reverse=True, mess='Searching Ligand Binding Site...')
-                    elif prog == 'function GridDefinition: FILL Center B':
-                        if i == 0:
-                            progress(self, 0, 2, 50, finish=True, mess='FILL Center Determination...')
-                        else:
-                            progress(self, 0, 2, 50, reverse=True, mess='FILL Center Determination...')
-                elif self.parent.v.analog_grid_def == 'by_ligand':
-                    if prog == 'function GridDefinition: Previous Ligand Center B':
-                        if i == 0:
-                            progress(self, 0, 2, 50, finish=True, mess='Determination of Previous Ligand Center...')
-                        else:
-                            progress(self, 0, 2, 37, reverse=True, mess='Determination of Previous Ligand Center...')
+            self.AMDock.log_widget.textedit.append(Ft('Running AutoDock4... Done.').process())
+        if prog_name == 'AutoDock4 B':
+            self.timerAD.stop()
+            self.autodock_output()
+            if self.AMDock.project.bsd_mode_offtarget == 0:
+                self.progress(100 / len(self.AMDock.offtarget.fill_list), 0, 'Determining better poses for '
+                                                                             'Off-Target...')
             else:
-                if self.parent.v.grid_def == 'auto':
-                    if prog == 'function GridDefinition: Protein Center':
-                        if i == 0:
-                            progress(self, 0, 2, 26, finish=True, mess='Determination of Protein Center...')
-                        else:
-                            progress(self, 0, 2, 25, reverse=True, mess='Determination of Protein Center...')
-                    elif prog == 'Prepare_gpf4':
-                        if i == 0:
-                            progress(self, 0, 2, 27, finish=True, mess='Generate GPF file...')
-                        else:
-                            progress(self, 0, 2, 26, reverse=True, mess='Generate GPF file...')
-                    elif prog == 'AutoGrid4':
-                        if i == 0:
-                            progress(self, 0, 2, 37, finish=True, mess='Running AutoGrid4...')
-                        else:
-                            progress(self, 0, 2, 27, reverse=True, mess='Running AutoGrid4...')
-                    elif prog == 'AutoLigand':
-                        if i == 0:
-                            progress(self, 0, 2, 50, finish=True, mess='Searching Ligand Binding Site...')
-                        else:
-                            progress(self, 0, 2, 37, reverse=True, mess='Searching Ligand Binding Site...')
-                    elif prog == 'function GridDefinition: FILL Center':
-                        if i == 0:
-                            progress(self, 0, 2, 50, finish=True, mess='FILL Center Determination...')
-                        else:
-                            progress(self, 0, 2, 50, reverse=True, mess='FILL Center Determination...')
-                elif self.parent.v.grid_def == 'by_residues':
-                    if prog == 'function GridDefinition: Selected Residues Center':
-                        if i == 0:
-                            progress(self, 0, 2, 25, finish=True, mess='Determination of Selected Residues Center...')
-                        else:
-                            progress(self, 0, 2, 25, reverse=True, mess='Determination of Selected Residues Center...')
-                    elif prog == 'function GridDefinition: Protein Center':
-                        if i == 0:
-                            progress(self, 0, 2, 26, finish=True, mess='Determination of Protein center...')
-                        else:
-                            progress(self, 0, 2, 25, reverse=True, mess='Determination of Protein center...')
-                    elif prog == 'Prepare_gpf4':
-                        if i == 0:
-                            progress(self, 0, 2, 27, finish=True, mess='Generate GPF file...')
-                        else:
-                            progress(self, 0, 2, 26, reverse=True, mess='Generate GPF file...')
-                    elif prog == 'AutoGrid4':
-                        if i == 0:
-                            progress(self, 0, 2, 37, finish=True, mess='Running AutoGrid4...')
-                        else:
-                            progress(self, 0, 2, 27, reverse=True, mess='Running AutoGrid4...')
-                    elif prog == 'AutoLigand':
-                        if i == 0:
-                            progress(self, 0, 2, 50, finish=True, mess='Searching Ligand Binding Site...')
-                        else:
-                            progress(self, 0, 2, 37, reverse=True, mess='Searching Ligand Binding Site...')
-                    elif prog == 'function GridDefinition: FILL Center':
-                        if i == 0:
-                            progress(self, 0, 2, 50, finish=True, mess='FILL Center Determination...')
-                        else:
-                            progress(self, 0, 2, 50, reverse=True, mess='FILL Center Determination...')
-                elif self.parent.v.grid_def == 'by_ligand':
-                    if prog == 'function GridDefinition: Previous Ligand Center':
-                        if i == 0:
-                            progress(self, 0, 2, 50, finish=True, mess='Determination of Previous Ligand Center...')
-                        else:
-                            progress(self, 0, 2, 25, reverse=True, mess='Determination of Previous Ligand Center...')
-        elif self.queue_name == 'Molecular Docking Simulation':
-            if self.parent.v.cr:
-                if prog == 'AutoDock Vina':
-                    if i == 0:
-                        progress(self, 0, 3, 75, finish=True, mess='Determining better poses for Target...')
-                    else:
-                        progress(self, 0, 2, 50, reverse=True, mess='Determining better poses for Target...')
-                if prog == 'AutoDock Vina B':
-                    if i == 0:
-                        progress(self, 0, 3, 100, finish=True, mess='Determining better poses for Off-Target...')
-                    else:
-                        progress(self, 0, 2, 50, reverse=True, mess='Determining better poses for Off-Target...')
-                if prog == 'Prepare_gpf4':
-                    if i == 0:
-                        progress(self, 0, 2, 51, finish=True, mess='Generate GPF file...')
-                    else:
-                        progress(self, 0, 2, 50, reverse=True, mess='Generate GPF file...')
-                if prog == 'Prepare_gpf4 B':
-                    if i == 0:
-                        progress(self, 0, 2, 76, finish=True, mess='Generate GPF file...')
-                    else:
-                        progress(self, 0, 2, 50, reverse=True, mess='Generate GPF file...')
-                if prog == 'AutoGrid4':
-                    if i == 0:
-                        progress(self, 0, 2, 55, finish=True, mess='Running AutoGrid4 for Target...')
-                    else:
-                        progress(self, 0, 2, 50, reverse=True, mess='Running AutoGrid4 for Target...')
-                if prog == 'AutoGrid4 B':
-                    if i == 0:
-                        progress(self, 0, 2, 80, finish=True, mess='Running AutoGrid4 for Off-Target...')
-                    else:
-                        progress(self, 0, 2, 50, reverse=True, mess='Running AutoGrid4 for Off-Target...')
-                if prog == 'Prepare_dpf4':
-                    if i == 0:
-                        progress(self, 0, 2, 56, finish=True, mess='Generate DPF file...')
-                    else:
-                        progress(self, 0, 2, 50, reverse=True, mess='Generate DPF file...')
-                if prog == 'Prepare_dpf4 B':
-                    if i == 0:
-                        progress(self, 0, 2, 81, finish=True, mess='Generate DPF file...')
-                    else:
-                        progress(self, 0, 2, 50, reverse=True, mess='Generate DPF file...')
-                if prog == 'AutoDock4':
-                    if i == 0:
-                        progress(self, 0, 2, 75, finish=True, mess='Determining better poses for Target...')
-                        self.part = 0
-                        self.timerAD.stop()
-                    else:
-                        progress(self, 0, 2, 50, reverse=True, mess='Determining better poses for Target...')
-                        self.timerAD.stop()
-                if prog == 'AutoDock4 B':
-                    if i == 0:
-                        progress(self, 0, 2, 100, finish=True, mess='Determining better poses for Off-Target...')
-                        self.part = 0
-                        self.timerAD.stop()
-                    else:
-                        progress(self, 0, 2, 50, reverse=True, mess='Determining better poses for Off-Target...')
-                        self.timerAD.stop()
+                self.progress(100, 0, 'Determining better poses for Target...', 1)
+        if prog_name == 'AutoDock4ZN':
+            self.timerAD.stop()
+            self.autodock_output()
+            if self.AMDock.project.bsd_mode_target == 0 and self.AMDock.project.mode != 2:
+                self.progress(100 / len(self.AMDock.target.fill_list), self.AMDock.project.mode,
+                              'Determining better poses for Target...')
             else:
-                if prog == 'AutoDock Vina':
-                    if i == 0:
-                        progress(self, 0, 3, 100, finish=True, mess='Determining better poses...')
-                    else:
-                        progress(self, 0, 2, 50, reverse=True, mess='Determining better poses...')
-                if prog == 'Prepare_gpf4':
-                    if i == 0:
-                        progress(self, 0, 2, 51, finish=True, mess='Generate GPF file...')
-                    else:
-                        progress(self, 0, 2, 50, reverse=True, mess='Generate GPF file...')
-                if prog == 'AutoGrid4':
-                    if i == 0:
-                        progress(self, 0, 2, 59, finish=True, mess='Running AutoGrid4...')
-                    else:
-                        progress(self, 0, 2, 50, reverse=True, mess='Running AutoGrid4...')
-                if prog == 'Prepare_dpf4':
-                    if i == 0:
-                        progress(self, 0, 2, 60, finish=True, mess='Generate DPF file...')
-                    else:
-                        progress(self, 0, 2, 50, reverse=True, mess='Generate DPF file...')
-                if prog == 'AutoDock4':
-                    if i == 0:
-                        progress(self, 0, 2, 100, finish=True, mess='Determining better poses...')
-                        self.part = 0
-                        self.timerAD.stop()
-                    else:
-                        progress(self, 0, 2, 50, reverse=True, mess='Determining better poses...')
-                        self.timerAD.stop()
+                self.progress(100, self.AMDock.project.mode, 'Determining better poses for Target...', 1)
+        if prog_name == 'AutoDock4ZN B':
+            self.timerAD.stop()
+            self.autodock_output()
+            if self.AMDock.project.bsd_mode_offtarget == 0:
+                self.progress(100 / len(self.AMDock.offtarget.fill_list), 0, 'Determining better poses for '
+                                                                             'Off-Target...')
+            else:
+                self.progress(100, 0, 'Determining better poses for Target...', 1)
 
-    def run_queue(self, prog, i, err):
+        if prog_name == 'Align':
+            self.AMDock.log_widget.textedit.append(Ft('Running proteins alignment... Done').process())
 
-        if i == 0:
-            self.worker.start_process()
-        elif i == -9999999999:
-            error_warning(self, prog, err)
-            self.reset_button.setEnabled(True)
+        if prog_name == 'PyMol_box_Target':
+            if hasattr(self, 'b_pymol'):
+                delattr(self, 'b_pymol')
+        elif prog_name == 'PyMol_box_Off-Target':
+            if hasattr(self, 'b_pymolB'):
+                delattr(self, 'b_pymolB')
         else:
-            if prog == 'AutoDock4' or prog == 'AutoDock4 B' or prog == 'AutoDock4ZN' or prog == 'AutoDock4ZN B':
-                error_warning(self, prog, 'The program was finalized manually or closed by the occurrence of an '
-                                          'internal error.')
-                self.reset_button.setEnabled(True)
-            elif prog == 'AutoLigand':
-                if self.parent.v.grid_def == 'by_residues':
-                    select_res = QtGui.QMessageBox.critical(self, 'Warning',
-                                                            'Autoligand has failed generating an object '
-                                                            'centered on the selected residue(s) (See the Manual). Now the box will be centered on the '
-                                                            'selected residues.\n Take into account that this could decrease the search space'
-                                                            ' considerably. Do you wish to continue?',
-                                                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-                    if select_res == QtGui.QMessageBox.Yes:
-                        os.rename(self.parent.v.res_center, self.parent.v.obj_center)
-                        self.run_button.setEnabled(True)
-                        self.reset_button.setEnabled(True)
-                        self.reset_grid_button.setEnabled(True)
-                        self.grid_pymol_button.setEnabled(True)
-                        self.grid_box.setEnabled(True)
-                        if self.parent.v.cr:
-                            self.progressBar.setValue(37)
-                        else:
-                            self.progressBar.setValue(50)
-                    else:
-                        self.grid_box.setEnabled(True)
-                        self.progressBar.setValue(25)
-                        self.reset_button.setEnabled(True)
-                        files = []
-                        dd = '%s*.map' % self.parent.v.protein_name
-                        files.extend(glob.glob(dd))
-                        dd = '%s*.fld' % self.parent.v.protein_name
-                        # files.extend(glob.glob('%s*.fld') % self.parent.v.protein_name)
-                        files.extend(glob.glob(dd))
-                        dd = '%s*.xyz' % self.parent.v.protein_name
-                        # files.extend(glob.glob('%s*.xyz') % self.parent.v.protein_name)
-                        # dd = '%s*.fld' % self.parent.v.protein_name
-                        files.extend(glob.glob(dd))
-                        # files.extend(glob.glob('%s*.gpf') % self.parent.v.protein_name)
-                        dd = '%s*.gpf' % self.parent.v.protein_name
-                        files.extend(glob.glob(dd))
-                        files.extend([self.parent.v.res_center, self.parent.v.obj_center])
-                        # os.get
-                        for file in files:
-                            try:
-                                os.remove(file)
-                            except:
-                                pass
-                else:
-                    error_warning(self, prog, 'The program was finalized manually or closed by the occurrence of an '
-                                              'internal error.')
-                    self.grid_box.setEnabled(True)
-                    self.reset_button.setEnabled(True)
-            elif prog == 'AutoLigand B':
-                if self.parent.v.analog_grid_def == 'by_residues':
-                    select_res = QtGui.QMessageBox.critical(self, 'Warning',
-                                                            'Autoligand has failed generating an object '
-                                                            'centered on the selected residue(s) (See the Manual). Now the box will be centered on the '
-                                                            'selected residues.\n Take into account that this could decrease the search space'
-                                                            'considerably. Do you wish to continue?',
-                                                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-                    if select_res == QtGui.QMessageBox.Yes:
-                        os.rename(self.parent.v.res_center1, self.parent.v.obj_center1)
-                        self.run_button.setEnabled(True)
-                        self.progressBar.setValue(50)
-                        self.reset_button.setEnabled(True)
-                        self.reset_grid_buttonB.setEnabled(True)
-                        self.grid_pymol_buttonB.setEnabled(True)
-                    else:
-                        try:
-                            os.remove(glob.glob('%s*.map') % self.parent.v.analog_protein_name)
-                        except:
-                            pass
-                        try:
-                            os.remove(glob.glob('%s*.fld') % self.parent.v.analog_protein_name)
-                        except:
-                            pass
-                        try:
-                            os.remove(glob.glob('%s*.xyz') % self.parent.v.analog_protein_name)
-                        except:
-                            pass
-                        try:
-                            os.remove(glob.glob('%s*.gpf') % self.parent.v.analog_protein_name)
-                        except:
-                            pass
-                        ##FIXME
-                        self.grid_box.setEnabled(True)
-                        self.progressBar.setValue(37)
-                        self.reset_button.setEnabled(True)
-                else:
-                    error_warning(self, prog, 'The program was finalized manually or closed by the occurrence of an '
-                                              'internal error.')
-                    self.reset_button.setEnabled(True)
-            else:
-                error_warning(self, prog, err)
-                self.reset_button.setEnabled(True)
+            self.W.start_process()
+
+    def progress(self, value, mode=0, mess=None, set=0):
+        if mode == 1 and value:
+            value = value / 2
+        if set:
+            self.progressBar_section.setValue(value)
+        else:
+            self.progressBar_section.setValue(self.progressBar_section.value() + value)
 
     def readStdOutput(self):
-        self.output = QtCore.QString(self.worker.readAllStandardOutput())
-        print self.output
-
+        self.output = QtCore.QString(self.W.process.readAllStandardOutput())
         self.out = str(self.output)
-        if self.prog == 'AutoGrid4':
+        thread = THREAD(self.AMDock, self.out)
+        thread.run()
+        print(self.out)
+        if self.AMDock.project.prog == 'AutoGrid4':
             if re.search('%', self.out):
-                if self.part == 0:
-                    try:
-                        self.total = (int(self.out.split()[20]) * -2) + 1
-                    except:
-                        self.total = 100
-                self.part += 1
-                if self.queue_name == 'Binding Site Determination':
-                    if self.parent.v.cr:
-                        if self.parent.v.grid_def == 'auto':
-                            try:
-                                progress(self, 3, 2, [25, (self.part * 5) / self.total],
-                                         mess='Running AutoGrid4 for Target...')
-                            except:
-                                pass
-                        elif self.parent.v.grid_def == 'by_residues':
-                            try:
-                                progress(self, 3, 2, [25, (self.part * 5) / self.total],
-                                         mess='Running AutoGrid4 for Target...')
-                            except:
-                                pass
-                    else:
-                        if self.parent.v.grid_def == 'auto':
-                            try:
-                                progress(self, 3, 2, [27, (self.part * 10) / self.total], mess='Running AutoGrid4...')
-                            except:
-                                pass
-                        elif self.parent.v.grid_def == 'by_residues':
-                            try:
-                                progress(self, 3, 2, [28, (self.part * 9) / self.total], mess='Running AutoGrid4...')
-                            except:
-                                pass
+                try:
+                    current = float(self.out.split()[2].strip('%')) * 0.4 - self.AMDock.project.part
+                except:
+                    return
+                if self.AMDock.project.bsd_mode_target == 0 and self.AMDock.section == 2:
+                    self.AMDock.program_body.progress(current / len(self.AMDock.target.fill_list),
+                                                      self.AMDock.project.mode)
                 else:
-                    if self.parent.v.cr:
-                        try:
-                            progress(self, 3, 2, [51, (self.part * 4) / self.total], mess='Running AutoGrid4...')
-                        except:
-                            pass
-                    else:
-                        try:
-                            progress(self, 3, 2, [51, (self.part * 8) / self.total], mess='Running AutoGrid4...')
-                        except:
-                            pass
-            if self.part == self.total:
-                self.part = 0
-        elif self.prog == 'AutoGrid4 B':
+                    self.AMDock.program_body.progress(current, self.AMDock.project.mode)
+                self.AMDock.project.part = float(self.out.split()[2].strip('%')) * 0.4
+        elif self.AMDock.project.prog == 'AutoGrid4 B':
             if re.search('%', self.out):
-                if self.part == 0:
-                    try:
-                        self.total = (int(self.out.split()[20]) * -2) + 1
-                    except:
-                        self.total = 100
-                self.part += 1
-                if self.queue_name == 'Binding Site Determination':
-                    if self.parent.v.analog_grid_def == 'auto':
-                        progress(self, 3, 2, [37, (self.part * 5) / self.total],
-                                 mess='Running AutoGrid4 for Off-Target...')
-                    elif self.parent.v.analog_grid_def == 'by_residues':
-                        progress(self, 3, 2, [37, (self.part * 5) / self.total],
-                                 mess='Running AutoGrid4 for Off-Target...')
+                try:
+                    current = float(self.out.split()[2].strip('%')) * 0.4 - self.AMDock.project.part
+                except:
+                    return
+                if self.AMDock.project.bsd_mode_offtarget == 0 and self.AMDock.section == 2:
+                    self.AMDock.program_body.progress(current / len(self.AMDock.offtarget.fill_list), 0)
                 else:
-                    progress(self, 3, 2, [76, (self.part * 4) / self.total], mess='Running AutoGrid4...')
-            if self.part == self.total:
-                self.part = 0
-        elif self.prog == 'AutoDock Vina':
-            v = 0
-            self.total = 51
-            if re.search('\*', self.out):
-                self.part += self.out.count('*')
-                if self.parent.v.cr:
-                    progress(self, 3, 3, [50, (self.part * 25) / self.total],
-                             mess='Running Molecular Docking Simulation...')
-                else:
-                    progress(self, 3, 3, [50, (self.part * 50) / self.total],
-                             mess='Running Molecular Docking Simulation...')
-            if self.part == self.total:
-                self.part = 0
-        elif self.prog == 'AutoDock Vina B':
-            v = 0
-            self.total = 51
-            if re.search('\*', self.out):
-                self.part += self.out.count('*')
-                progress(self, 3, 2, [75, (self.part * 25) / self.total],
-                         mess='Running Molecular Docking Simulation...')
-            if self.part == self.total:
-                self.part = 0
+                    self.AMDock.program_body.progress(current, 0)
+                self.AMDock.project.part = float(self.out.split()[2].strip('%')) * 0.4
 
-        if '*' in self.output:
-            try:
-                if v <= 50:
-                    cursor = self.parent.configuration_tab.log_wdw.textedit.textCursor()
-                    cursor.movePosition(cursor.PreviousWord)
-                    cursor.insertText(self.output)
-                else:
-                    cursor = self.parent.configuration_tab.log_wdw.textedit.textCursor()
-                    cursor.movePosition(cursor.End)
-                    cursor.insertText(self.output)
-                v += 1
-            except:
-                pass
-        else:
-            cursor = self.parent.configuration_tab.log_wdw.textedit.textCursor()
-            cursor.movePosition(cursor.End)
-            cursor.insertText(self.output)
+        elif self.AMDock.project.prog == 'AutoDock Vina':
+            current = self.out.count('*') * 2 * (50. / 51)
+            if self.AMDock.project.bsd_mode_target != 0:
+                self.progress(current, self.AMDock.project.mode, mess='Running Molecular Docking Simulation...')
+
+        elif self.AMDock.project.prog == 'AutoDock Vina B':
+            current = self.out.count('*') * (50. / 51)
+            if self.AMDock.project.bsd_mode_offtarget != 0:
+                self.AMDock.program_body.progress(current, 0)
+        elif self.AMDock.project.prog == 'AutoLigand':
+            if re.search('Progress:', self.out):
+                try:
+                    current = float(self.out.split()[1]) * 0.4 - self.AMDock.project.part
+                except:
+                    return
+                self.AMDock.program_body.progress(current, self.AMDock.project.mode)
+                self.AMDock.project.part = float(self.out.split()[1]) * 0.4
+        elif self.AMDock.project.prog == 'AutoLigand B':
+            if re.search('Progress:', self.out):
+                try:
+                    current = float(self.out.split()[1]) * 0.4 - self.AMDock.project.part
+                except:
+                    return
+                self.AMDock.program_body.progress(current, 0)
+                self.AMDock.project.part = float(self.out.split()[1]) * 0.4
 
     def readStdError(self):
         self.error = QtCore.QString(self.worker.readAllStandardError())
 
-    def autodock_output(self):
-        self.part_AD = 0
-        # try:
-        if self.parent.v.cr:
-            if self.prog == 'AutoDock4' or self.prog == 'AutoDock4ZN':
-                self.ADout_file = os.path.join(self.parent.v.result_dir, self.autodock_dlg)
-            elif self.prog == 'AutoDock4 B' or self.prog == 'AutoDock4ZN B':
-                self.ADout_file = os.path.join(self.parent.v.result_dir, self.autodock_dlgB)
+    def pymol_readStdOutput(self):
+        pymol_output = None
+        if hasattr(self, 'b_pymol'):
+            pymol_output = QtCore.QString(self.b_pymol.process.readAllStandardOutput())
+        if pymol_output:
+            self.pymol_out = str(pymol_output)
         else:
-            if self.prog == 'AutoDock4' or self.prog == 'AutoDock4ZN':
-                self.ADout_file = os.path.join(self.parent.v.result_dir, self.autodock_dlg)
+            return
+        print(self.pymol_out)
+        if re.search('AMDock INFO', self.pymol_out):
+            if len(self.pymol_out.split()) > 9:
+                a, i, prot, sx, sy, sz, cx, cy, cz, prot1, sx1, sy1, sz1, cx1, cy1, cz1 = self.pymol_out.split()
+                if prot1:
+                    self.btnB_user.setChecked(True)
+                    self.coor_xB.setValue(float(cx1))
+                    self.coor_yB.setValue(float(cy1))
+                    self.coor_zB.setValue(float(cz1))
+                    self.size_xB.setValue(int(float(sx1)))
+                    self.size_yB.setValue(int(float(sy1)))
+                    self.size_zB.setValue(int(float(sz1)))
+                    self.grid_centerB = [str(self.coor_xB.value()), str(self.coor_yB.value()),
+                                         str(self.coor_zB.value())]
+                    self.sizeB = [self.size_xB.value(), self.size_yB.value(), self.size_zB.value()]
+            else:
+                a, i, prot, sx, sy, sz, cx, cy, cz = self.pymol_out.split()
+
+            if prot == 'target':
+                self.btnA_user.setChecked(True)
+                self.coor_x.setValue(float(cx))
+                self.coor_y.setValue(float(cy))
+                self.coor_z.setValue(float(cz))
+                self.size_x.setValue(int(float(sx)))
+                self.size_y.setValue(int(float(sy)))
+                self.size_z.setValue(int(float(sz)))
+                self.grid_center = [str(self.coor_x.value()), str(self.coor_y.value()), str(self.coor_z.value())]
+                self.size = [self.size_x.value(), self.size_y.value(), self.size_z.value()]
+
+            elif prot == 'off-target':
+                self.btnB_user.setChecked(True)
+                self.coor_xB.setValue(float(cx))
+                self.coor_yB.setValue(float(cy))
+                self.coor_zB.setValue(float(cz))
+                self.size_xB.setValue(int(float(sx)))
+                self.size_yB.setValue(int(float(sy)))
+                self.size_zB.setValue(int(float(sz)))
+                self.grid_centerB = [str(self.coor_xB.value()), str(self.coor_yB.value()), str(self.coor_zB.value())]
+                self.sizeB = [self.size_xB.value(), self.size_yB.value(), self.size_zB.value()]
+
+            self.AMDock.section = 1
+            self.progressBar_global.setValue(50)
+
+    def autodock_output(self):
+        if self.AMDock.project.prog in ['AutoDock4', 'AutoDock4ZN']:
+            if self.AMDock.project.mode != 2:
+                self.ADout_file = os.path.join(self.AMDock.project.results, self.AMDock.ligand.pdbqt_name + '_' +
+                                               self.AMDock.target.dlg)
+        elif self.AMDock.project.prog in ['AutoDock4 B', 'AutoDock4ZN B']:
+            self.ADout_file = os.path.join(self.AMDock.project.results, self.AMDock.ligand.pdbqt_name + '_' +
+                                           self.AMDock.offtarget.dlg)
+
+        if self.AMDock.project.mode == 2:
+            return
         ADout = open(self.ADout_file)
-        try:
-            for line in ADout:
-                line = line.strip('\n')
-                if re.search('DOCKED: MODEL', line):
-                    self.part_AD += 1
-                else:
-                    continue
+        Ad_count = 0
+        local_line = 1
+        for line in ADout:
+            line = line.strip('\n')
+            if local_line > self.ad4_line:
+                self.AMDock.log_widget.textedit.append(line)
+                print(line)
+            local_line += 1
+            if re.search('DOCKED: MODEL', line):
+                Ad_count += 1
+            else:
+                continue
+        ADout.close()
+        self.ad4_line = local_line
 
-            if self.part != self.part_AD:
-                self.part = self.part_AD
-                if self.prog == 'AutoDock4' or self.prog == 'AutoDock4ZN':
-                    if self.parent.v.cr:
-                        progress(self, 3, 3, [54, self.part * 20 / self.parent.v.runs],
-                                 mess='Determining better poses for Target...')
-                    else:
-                        progress(self, 3, 3, [59, self.part * 40 / self.parent.v.runs],
-                                 mess='Determining better poses...')
-                elif self.prog == 'AutoDock4 B' or self.prog == 'AutoDock4ZN B':
-                    progress(self, 3, 3, [79, self.part * 20 / self.parent.v.runs],
-                             mess='Determining better poses for Off-Target...')
-            if self.part == self.parent.v.runs:
-                self.part = 0
-                self.timerAD.stop()
-
-            ADout.close()
-        except:
-            pass
-
-    def values(self, k):  # ok
-        self.parent.v.pH = str(self.pH_value.value())
+        if self.AMDock.ga_run <= 40:
+            current = float(Ad_count) / self.AMDock.ga_run * 40 - self.AMDock.project.part
+        else:
+            current = float(Ad_count) / self.AMDock.ga_run * 0.4 - self.AMDock.project.part
+        if current < 1:
+            return
+        self.progress(current, self.AMDock.project.mode)
+        if self.AMDock.ga_run <= 40:
+            self.AMDock.project.part = float(Ad_count) / self.AMDock.ga_run * 40
+        else:
+            self.AMDock.project.part = float(Ad_count) / self.AMDock.ga_run * 0.4
 
     def lig_select(self, lig):
         if lig.objectName() == 'lig_list':
-            self.parent.v.selected_ligand = str(self.lig_list.currentText())
+            self.AMDock.target.selected = str(self.lig_list.currentText())
         else:
-            self.parent.v.analog_selected_ligand = str(self.lig_listB.currentText())
-
-    def amdock_load(self):
-        elements = {0: 'Working Directory', 1: 'Input Directory', 2: 'Results Directory', 3: 'PDBQT of Target Protein',
-                    4: 'All Poses File of Target Result', 5: 'Best Pose File of Target Result',
-                    6: 'PDBQT of Off-Target Protein', 7: 'All Poses File of Off-Target Result',
-                    8: 'Best Pose File of Off-Target Result'}
-        elements_score = {0: 'Working Directory', 1: 'Input Directory', 2: 'Results Directory',
-                          3: 'PDBQT of Target Protein', 4: 'PDBQT of Ligand'}
-        self.parent.statusbar.showMessage(" Loading .amdock file...", 2000)
-        # if self.
-        self.data = self.parent.loader.load_amdock_file()
-        if self.data is not None:
-            if self.parent.v.cr:
-                self.table1 = self.data[0]
-                self.complete = self.data[1]
-                self.table2 = self.data[2]
-            else:
-                self.table1 = self.data[0]
-                self.complete = self.data[1]
-            errlist = ''
-            errlist2 = []
-            if self.parent.v.program_mode is not 'SCORING':
-                for index in range(0, len(self.complete)):
-                    if self.complete[index] == '1':
-                        errlist += '\n-%s' % elements[index]
-                if len(errlist) != 0:
-                    QtGui.QMessageBox.critical(self, 'Error', 'Some files defined in .amdock file were not found or '
-                                                              'they are inaccessible.\nMissing elements:%s' % errlist)
-                    self.parent.result_tab.import_text.clear()
-                    self.parent.v = Variables()
-                else:
-                    os.chdir(self.parent.v.result_dir)
-                    self.parent.result_tab.prot_label.setText('Target: %s' % self.parent.v.protein_name)
-                    self.parent.result_tab.prot_label_sel.setText('%s' % self.parent.v.protein_name)
-                    self.parent.result_tab.best_button.setEnabled(True)
-                    self.parent.result_tab.all_button.setEnabled(True)
-
-                    self.parent.result_tab.result_table.setRowCount(len(self.table1))
-                    self.parent.result_tab.sele1.setRange(1, len(self.table1))
-                    f = 0
-                    for x in self.table1:
-                        c = 0
-                        for item in x:
-                            item = str(item)
-                            self.parent.result_tab.result_table.setItem(f, c, QtGui.QTableWidgetItem(item))
-                            self.parent.result_tab.result_table.item(f, c).setTextAlignment(
-                                QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
-                            if c == 4:
-                                item_v = float(item)
-                                if item_v <= -0.3:
-                                    self.parent.result_tab.result_table.item(f, c).setBackgroundColor(
-                                        QtGui.QColor(0, 255, 128, 200))
-                            c += 1
-                        f += 1
-                    self.parent.result_tab.value1 = float(self.parent.result_tab.result_table.item(0, 1).text())
-                    self.parent.result_tab.result_table.item(0, 1).setBackgroundColor(QtGui.QColor('darkGray'))
-
-                    if self.parent.v.cr:
-                        self.parent.result_tab.prot_labelB.setText('Off-Target: %s' % self.parent.v.analog_protein_name)
-                        self.parent.result_tab.prot_label_selB.setText('%s' % self.parent.v.analog_protein_name)
-                        self.parent.result_tab.best_button.setText('Best Pose + Target')
-                        self.parent.result_tab.all_button.setText('All Poses + Target')
-                        self.parent.result_tab.best_buttonB.show()
-                        self.parent.result_tab.all_buttonB.show()
-                        self.parent.result_tab.result_tableB.show()
-                        self.parent.result_tab.selectivity_value_text.show()
-                        self.parent.result_tab.selectivity.show()
-                        self.parent.result_tab.sele1.show()
-                        self.parent.result_tab.sele2.show()
-                        self.parent.result_tab.prot_label_sel.show()
-                        self.parent.result_tab.prot_label_selB.show()
-                        self.parent.result_tab.minus.show()
-                        self.parent.result_tab.equal.show()
-                        self.parent.result_tab.prot_labelB.show()
-
-                        self.parent.result_tab.result_tableB.setRowCount(len(self.table2))
-                        self.parent.result_tab.sele2.setRange(1, len(self.table2))
-                        f = 0
-                        for x in self.table2:
-                            c = 0
-                            for item in x:
-                                item = str(item)
-                                self.parent.result_tab.result_tableB.setItem(f, c, QtGui.QTableWidgetItem(item))
-                                self.parent.result_tab.result_tableB.item(f, c).setTextAlignment(
-                                    QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
-                                if c == 4:
-                                    item_v = float(item)
-                                    if item_v <= -0.3:
-                                        self.parent.result_tab.result_tableB.item(f, c).setBackgroundColor(
-                                            QtGui.QColor(0, 255, 128, 200))
-                                c += 1
-                            f += 1
-                            self.parent.result_tab.value2 = float(
-                                self.parent.result_tab.result_tableB.item(0, 1).text())
-                        self.parent.result_tab.result_tableB.item(0, 1).setBackgroundColor(QtGui.QColor('darkGray'))
-                        self.parent.result_tab.selectivity_value = self.parent.result_tab.value1 - self.parent.result_tab.value2
-                        self.parent.result_tab.selectivity_value_text.setText(
-                            '%s kcal/mol' % self.parent.result_tab.selectivity_value)
-            else:
-                for index in range(0, len(self.complete)):
-                    if self.complete[index] == '1':
-                        errlist += '\n-%s' % elements_score[index]
-                        errlist2.append(index)
-                if len(errlist) != 0:
-                    QtGui.QMessageBox.critical(self, 'Error', 'Some files defined in .amdock file were not found or '
-                                                              'they are inaccessible.\nMissing elements:%s' % errlist)
-                    self.parent.result_tab.import_text.clear()
-                    self.parent.v = Variables()
-                else:
-                    os.chdir(self.parent.v.result_dir)
-                    self.parent.result_tab.prot_label.setText('Target: %s' % self.parent.v.protein_name)
-                    self.parent.result_tab.best_button.hide()
-                    self.parent.result_tab.all_button.hide()
-                    self.parent.result_tab.show_complex.show()
-
-                    self.parent.result_tab.result_table.setRowCount(len(self.table1))
-                    self.parent.result_tab.sele1.setRange(1, len(self.table1))
-                    f = 0
-                    for x in self.table1:
-                        c = 0
-                        for item in x:
-                            item = str(item)
-                            self.parent.result_tab.result_table.setItem(f, c, QtGui.QTableWidgetItem(item))
-                            self.parent.result_tab.result_table.item(f, c).setTextAlignment(
-                                QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
-                            if c == 4:
-                                item_v = float(item)
-                                if item_v <= -0.3:
-                                    self.parent.result_tab.result_table.item(f, c).setBackgroundColor(
-                                        QtGui.QColor(0, 255, 128, 200))
-                            c += 1
-                        f += 1
-                    self.parent.result_tab.result_table.item(0, 1).setBackgroundColor(QtGui.QColor('darkGray'))
-
-    def load_file(self, file):  # ok
-        if file.objectName() == 'create_project':
-            if not self.wdir_loc:
-                define_wdir_loc(self)
-            else:
-                if self.parent.v.WDIR:
-                    self.options = wdir2_warning(self)
-                    if self.options == QtGui.QMessageBox.Yes:
-                        progress(self, 0, 0, 0, reverse=True, mess='Working Directory Definition...')
-                        self.parent.output2file.conclude()
-                        os.chdir(self.parent.v.loc_project)
-                        shutil.rmtree(self.parent.v.WDIR)
-                        if not self.parent.loader.create_project_function():
-                            #TODO: poner un warning
-                            pass
-                        else:
-                            self.proj_loc_label.setText('Project: %s' % self.parent.v.WDIR)
-                            self.proj_loc_label.show()
-                else:
-                    if not self.parent.loader.create_project_function():
-                        # TODO: poner un warning
-                        pass
-                    else:
-                        self.proj_loc_label.setText('Project: %s' % self.parent.v.WDIR)
-                        self.proj_loc_label.show()
-
-        if file.text() == "Project Folder":
-            self.wdir_loc = self.parent.loader.project_location()
-            if self.wdir_loc:
-                self.wdir_text.setText("%s" % self.wdir_loc)
-                # self.create_project.setEnabled(True)
-
-        if file.text() == "Load Data":
-            if self.parent.v.amdock_file == None:
-                self.parent.statusbar.showMessage(" Loading amdock file...", 2000)
-                self.amdock_load()
-            else:
-                self.prot_opt = amdock_file_warning(self)
-                if self.prot_opt == QtGui.QMessageBox.Yes:
-                    self.parent.result_tab.clear_result_tab()
-                    self.amdock_load()
-
-        if file.objectName() == "protein_buttonA":
-            if self.parent.v.input_target is None:
-                self.parent.loader.load_protein()
-            else:
-                self.prot_opt = prot_warning(self)
-                if self.prot_opt == QtGui.QMessageBox.Yes:
-                    os.remove(self.parent.v.input_target)
-                    self.parent.v.input_target = None
-                    self.parent.v.metals = None
-                    self.parent.v.ligands = None
-                    self.parent.v.target_prepare = True
-                    self.lig_list.hide()
-                    self.lig_list.clear()
-                    self.protein_label.clear()
-                    self.protein_text.clear()
-                    if self.parent.v.cr:
-                        self.btnA_lig.show()
-                        if self.parent.v.input_lig == None and self.parent.v.input_target == None:
-                            progress(self, 0, 0, 2, reverse=True, mess='Target Definition...')
-                        elif self.parent.v.input_lig == None and self.parent.v.input_target != None:
-                            progress(self, 0, 0, 5, reverse=True, mess='Target Definition...')
-                        elif self.parent.v.input_lig != None and self.parent.v.input_target == None:
-                            progress(self, 0, 0, 4, reverse=True, mess='Target Definition...')
-                        else:
-                            progress(self, 0, 0, 7, reverse=True, mess='Target Definition...')
-                    else:
-                        if self.parent.v.input_lig is None:
-                            progress(self, 0, 0, 2, reverse=True, mess='Protein Definition...')
-                        else:
-                            progress(self, 0, 0, 6, reverse=True, mess='Protein Definition...')
-                    self.parent.loader.load_protein()
-            if self.parent.v.input_target:
-                if self.parent.v.docking_program == 'AutoDockZn':
-                    self.check_opt = self.parent.checker.autodockzn_check('A')
-                    if self.check_opt == QtGui.QMessageBox.Ok:
-                        os.remove(self.parent.v.input_target)
-                        self.parent.v.input_target = None
-                        self.parent.v.metals = None
-                        self.parent.v.ligands = None
-                        self.btnA_lig.show()
-                        self.protein_text.clear()
-                        self.protein_label.clear()
-                        if self.parent.v.cr:
-                            if self.parent.v.input_lig is None and self.parent.v.input_target == None:
-                                progress(self, 0, 0, 2, mess='Target Definition...')
-                            elif self.parent.v.input_lig is None and self.parent.v.input_target != None:
-                                progress(self, 0, 0, 5, mess='Target Definition...')
-                            elif self.parent.v.input_lig is not None and self.parent.v.input_target == None:
-                                progress(self, 0, 0, 4, mess='Target Definition...')
-                            else:
-                                progress(self, 0, 0, 7, mess='Target Definition...')
-                        else:
-                            if self.parent.v.input_lig is None:
-                                progress(self, 0, 0, 2, reverse=True, mess='Protein Definition...')
-                            else:
-                                progress(self, 0, 0, 6, reverse=True, mess='Protein Definition...')
-
-                    elif self.check_opt == QtGui.QMessageBox.Cancel:
-                        self.parent.main_window.setCurrentIndex(0)
-                        self.parent.main_window.setTabEnabled(1, False)
-                        self.parent.main_window.setTabEnabled(0, True)
-                else:
-                    self.check_opt = self.parent.checker.check_correct_prog('A')
-                    if self.check_opt == QtGui.QMessageBox.Yes:
-                        if self.parent.v.analog_metals is None and self.parent.v.input_target is not None:
-                            self.parent.v.input_target = None
-                            self.protein_text.clear()
-                            self.protein_text.clear()
-                            self.protein_label.clear()
-                            self.parent.loader.load_protein()
-                        else:
-                            self.parent.v.docking_program = "AutoDockZn"
-                            self.parent.statusbar.showMessage(self.parent.v.docking_program + " is selected")
-        if file.objectName() == "protein_buttonB":
-            if self.parent.v.input_offtarget is None:
-                self.parent.loader.load_proteinB()
-            else:
-                self.prot_opt = prot_warning(self)
-                if self.prot_opt == QtGui.QMessageBox.Yes:
-                    os.remove(self.parent.v.input_offtarget)
-                    self.parent.v.analog_metals = None
-                    self.parent.v.analog_ligands = None
-                    self.parent.v.offtarget_prepare = True
-                    self.lig_listB.clear()
-                    self.lig_listB.hide()
-                    self.btnB_lig.show()
-                    self.protein_labelB.clear()
-                    self.protein_textB.clear()
-                    if self.parent.v.input_lig is None and self.parent.v.input_offtarget is None:
-                        progress(self, 0, 0, 2, reverse=True, mess='Off-Target Definition...')
-                    elif self.parent.v.input_lig is None and self.parent.v.input_offtarget is None:
-                        progress(self, 0, 0, 5, reverse=True, mess='Off-Target Definition...')
-                    elif self.parent.v.input_lig is not None and self.parent.v.input_offtarget is None:
-                        progress(self, 0, 0, 4, reverse=True, mess='Off-Target Definition...')
-                    else:
-                        progress(self, 0, 0, 7, reverse=True, mess='Off-Target Definition...')
-                    self.parent.loader.load_proteinB()
-            if self.parent.v.input_offtarget:
-                if self.parent.v.docking_program == 'AutoDockZn':
-                    self.check_opt = self.parent.checker.autodockzn_check('B')
-                    if self.check_opt == QtGui.QMessageBox.Ok:
-                        os.remove(self.parent.v.input_offtarget)
-                        self.parent.v.input_offtarget = None
-                        self.btnB_lig.show()
-                        self.parent.v.analog_metals = None
-                        self.parent.v.analog_ligands = None
-                        self.protein_textB.clear()
-                        self.protein_labelB.clear()
-
-                        if self.parent.v.input_lig == '' and self.parent.v.input_offtarget == None:
-                            progress(self, 0, 0, 2, reverse=True, mess='Off-Target Definition...')
-                        elif self.parent.v.input_lig == '' and self.parent.v.input_offtarget != None:
-                            progress(self, 0, 0, 5, reverse=True, mess='Off-Target Definition...')
-                        elif self.parent.v.input_lig != '' and self.parent.v.input_offtarget == None:
-                            progress(self, 0, 0, 4, reverse=True, mess='Off-Target Definition...')
-                        else:
-                            progress(self, 0, 0, 7, reverse=True, mess='Off-Target Definition...')
-
-                    elif self.check_opt == QtGui.QMessageBox.Cancel:
-                        self.parent.main_window.setCurrentIndex(0)
-                        self.parent.main_window.setTabEnabled(1, False)
-                        self.parent.main_window.setTabEnabled(0, True)
-                else:
-                    self.check_opt = self.parent.checker.check_correct_prog('B')
-                    if self.check_opt == QtGui.QMessageBox.Yes:
-                        if self.parent.v.metals is None and self.parent.v.input_offtarget is not None:
-                            self.parent.v.input_offtarget = None
-                            self.btnB_lig.show()
-                            self.parent.v.analog_metals = None
-                            self.parent.v.analog_ligands = None
-                            self.protein_textB.clear()
-                            self.protein_labelB.clear()
-                            self.parent.loader.load_proteinB()
-                        else:
-                            self.parent.v.docking_program = "AutoDockZn"
-                            self.parent.statusbar.showMessage(self.parent.v.docking_program + " is selected")
-        if file.text() == "Ligand":
-            if self.parent.v.input_lig is None:
-                self.parent.loader.load_ligand()
-            else:
-                self.lig_opt = lig_warning(self)
-                if self.lig_opt == QtGui.QMessageBox.Yes:
-                    os.remove(self.parent.v.input_lig)
-                    self.parent.v.ligand_prepare = True
-                    self.parent.v.ligand_pdbqt = None
-                    self.ligand_text.clear()
-                    self.ligand_label.clear()
-                    if self.parent.v.cr:
-                        if self.parent.v.input_offtarget == None and self.parent.v.input_target == None:
-                            progress(self.parent.program_body, 0, 0, 2, reverse=True, mess='Ligand Definition...')
-                        elif self.parent.v.input_offtarget == None and self.parent.v.input_target != None:
-                            progress(self.parent.program_body, 0, 0, 5, reverse=True, mess='Ligand Definition...')
-                        elif self.parent.v.input_offtarget != None and self.parent.v.input_target == None:
-                            progress(self.parent.program_body, 0, 0, 5, reverse=True, mess='Ligand Definition...')
-                        else:
-                            progress(self.parent.program_body, 0, 0, 8, reverse=True, mess='Ligand Definition...')
-                    else:
-
-                        if self.parent.v.input_offtarget == None:
-                            progress(self, 0, 0, 2, reverse=True, mess='Ligand Definition...')
-                        else:
-                            progress(self, 0, 0, 6, reverse=True, mess='Ligand Definition...')
-                    self.parent.loader.load_ligand()
+            self.AMDock.offtarget.selected = str(self.lig_listB.currentText())
 
     def go_result(self):
-        self.parent.v.amdock_file = os.path.normpath(
-            os.path.join(self.parent.v.WDIR, self.parent.v.project_name + '.amdock'))
-
-        self.parent.result_tab.import_text.setText(self.parent.v.amdock_file)
-        self.parent.output2file.out2file('>> RESULT\n')
-        self.parent.statusbar.showMessage(" Go to Results Analysis", 2000)
-        self.parent.main_window.setTabEnabled(2, True)
-        self.parent.main_window.setCurrentIndex(2)
-        self.parent.main_window.setTabEnabled(1, False)
-        self.parent.main_window.setTabEnabled(0, False)
-        self.parent.result_tab.load_button.setEnabled(False)
-        os.chdir(self.parent.v.result_dir)
-        self.parent.result_tab.prot_label.setText('Target: %s' % self.parent.v.protein_name)
-        self.parent.result_tab.prot_labelB.setText('Off-Target: %s' % self.parent.v.analog_protein_name)
-        self.parent.result_tab.prot_label_sel.setText('%s' % self.parent.v.protein_name)
-        self.parent.result_tab.prot_label_selB.setText('%s' % self.parent.v.analog_protein_name)
-        self.parent.result_tab.best_button.setEnabled(True)
-        self.parent.result_tab.all_button.setEnabled(True)
-        self.parent.output2file.out2file('>  Target_Protein: %s\n' % self.parent.v.protein_name)
-        if self.parent.v.docking_program == 'AutoDock Vina':
-            self.parent.v.result_file = 'all_poses_target_ADV_result.pdb'
-            self.parent.v.best_result_file = 'best_pose_target_ADV_result.pdb'
-            vina_result = os.path.join(self.parent.v.result_dir, self.parent.v.ligand_name + '_h_out.pdbqt')
-            self.re = Result_Analysis(vina_result, 'all_poses_target_ADV_result.pdb',
-                                      os.path.join(self.parent.v.input_dir, self.parent.v.protein_pdbqt),
-                                      self.parent.v.heavy_atoms)
-            self.parent.output2file.out2file('>  all_poses_target_file: %s\n' % self.parent.v.result_file)
-            self.parent.output2file.out2file('>  best_pose_target_file: %s\n' % self.parent.v.best_result_file)
-        else:
-            autodock_result = os.path.join(self.parent.v.result_dir, self.autodock_dlg)
-            self.re = Result_Analysis(autodock_result, 'all_poses_target_AD4_result.pdb',
-                                      os.path.join(self.parent.v.input_dir, self.parent.v.protein_pdbqt),
-                                      self.parent.v.heavy_atoms)
-            self.parent.v.result_file = 'all_poses_target_AD4_result.pdb'
-            self.parent.v.best_result_file = 'best_pose_target_AD4_result.pdb'
-            self.parent.output2file.out2file('>  all_poses_target_file: %s\n' % self.parent.v.result_file)
-            self.parent.output2file.out2file('>  best_pose_target_file: %s\n' % self.parent.v.best_result_file)
-        self.results = self.re.result2table()
-
-        self.parent.output2file.out2file(
-            ' ______________________________________________________________________________ \n'
-            '|                                                                              |\n'
-            '|'.ljust(1) + (' Result for %s' % self.parent.v.protein_name).ljust(78) + '|\n'
-                                                                                       '|______________________________________________________________________________|\n'
-                                                                                       '|               |                |              |               |              |\n'
-                                                                                       '|     POSES     | BINDING ENERGY | ESTIMATED Ki |    Ki UNITS   |   LIGAND     |\n'
-                                                                                       '|               |   (KCAL/MOL)   |              |               |  EFFICIENCY  |\n'
-                                                                                       '|_______________|________________|______________|_______________|______________|\n')
-
-        self.parent.result_tab.result_table.setRowCount(len(self.results))
-        self.parent.result_tab.sele1.setRange(1, len(self.results))
+        self.AMDock.result_tab.import_text.setText(self.AMDock.project.output)
+        self.AMDock.statusbar.showMessage(" Go to Results Analysis", 2000)
+        self.AMDock.main_window.setTabEnabled(2, True)
+        self.AMDock.main_window.setCurrentIndex(2)
+        self.AMDock.main_window.setTabEnabled(1, False)
+        self.AMDock.main_window.setTabEnabled(0, False)
+        os.chdir(self.AMDock.project.results)
+        self.AMDock.result_tab.prot_label.setText('Target: %s' % self.AMDock.target.name)
+        self.AMDock.result_tab.prot_labelB.setText('Off-Target: %s' % self.AMDock.offtarget.name)
+        self.AMDock.result_tab.prot_label_sel.setText('%s' % self.AMDock.target.name)
+        self.AMDock.result_tab.prot_label_selB.setText('%s' % self.AMDock.offtarget.name)
+        self.re = Result_Analysis(self.AMDock.docking_program, self.AMDock.target, self.AMDock.ligand)
+        self.results = self.re.result2table(self.AMDock.target.all_poses)
+        self.AMDock.result_tab.result_table.setRowCount(len(self.results))
+        self.AMDock.result_tab.sele1.setRange(1, len(self.results))
+        self.result2out = ''
         f = 0
         for x in self.results:
             c = 0
-            out_line = '|' + ('%s' % x[0]).center(15) + '|' + ('%s' % x[1]).center(16) + '|' + ('%s' % x[2]).center(
-                14) + '|' + ('%s' % x[3]).center(15) + '|' + ('%s' % x[4]).center(14) + '|\n'
-            self.parent.output2file.out2file(out_line)
+            self.result2out += '|' + ('%s' % x[0]).center(15) + '|' + ('%s' % x[1]).center(16) + '|' + \
+                               ('%s' % x[2]).center(14) + '|' + ('%s' % x[3]).center(15) + '|' + \
+                               ('%s' % x[4]).center(14) + '|\n'
             for item in x:
-                item = str(item)
-                self.parent.result_tab.result_table.setItem(f, c, QtGui.QTableWidgetItem(item))
-                self.parent.result_tab.result_table.item(f, c).setTextAlignment(
+                item_table = QtGui.QTableWidgetItem(str(item))
+                item_table.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled)
+                self.AMDock.result_tab.result_table.setItem(f, c, item_table)
+                self.AMDock.result_tab.result_table.item(f, c).setTextAlignment(
                     QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
                 if c == 4:
                     item_v = float(item)
                     if item_v <= -0.3:
-                        self.parent.result_tab.result_table.item(f, c).setBackgroundColor(
+                        self.AMDock.result_tab.result_table.item(f, c).setBackgroundColor(
                             QtGui.QColor(0, 255, 128, 200))
                 c += 1
             f += 1
-            self.parent.result_tab.value1 = float(self.parent.result_tab.result_table.item(0, 1).text())
-        self.parent.result_tab.result_table.item(0, 1).setBackgroundColor(QtGui.QColor('darkGray'))
-        self.parent.output2file.out2file(
-            '|_______________|________________|______________|_______________|______________|\n\n\n')
-
-        if self.parent.v.cr:
-            self.parent.result_tab.best_button.setText('Best Pose + Target')
-            self.parent.result_tab.all_button.setText('All Poses + Target')
-            self.parent.result_tab.best_buttonB.show()
-            self.parent.result_tab.all_buttonB.show()
-            self.parent.result_tab.result_tableB.show()
-            self.parent.result_tab.selectivity_value_text.show()
-            self.parent.result_tab.selectivity.show()
-            self.parent.result_tab.sele1.show()
-            self.parent.result_tab.sele2.show()
-            self.parent.result_tab.prot_label_sel.show()
-            self.parent.result_tab.prot_label_selB.show()
-            self.parent.result_tab.minus.show()
-            self.parent.result_tab.equal.show()
-            self.parent.result_tab.prot_labelB.show()
-            self.parent.output2file.out2file('>  Off-Target_Protein: %s\n' % self.parent.v.analog_protein_name)
-            if self.parent.v.docking_program == 'AutoDock Vina':
-                vina_resultB = os.path.join(self.parent.v.result_dir, self.parent.v.ligand_name + '_h_out2.pdbqt')
-                self.reB = Result_Analysis(vina_resultB, 'all_poses_off-target_ADV_result.pdb',
-                                           os.path.join(self.parent.v.input_dir, self.parent.v.analog_protein_pdbqt),
-                                           self.parent.v.heavy_atoms)
-                self.parent.v.analog_result_file = 'all_poses_off-target_ADV_result.pdb'
-                self.parent.v.best_analog_result_file = 'best_pose_off-target_ADV_result.pdb'
-                self.parent.output2file.out2file('>  all_poses_off-target_file: all_poses_off-target_ADV_result.pdb\n')
-                self.parent.output2file.out2file('>  best_pose_off-target_file: best_pose_off-target_ADV_result.pdb\n')
-            else:
-                autodock_resultB = os.path.join(self.parent.v.result_dir, self.autodock_dlgB)
-                self.reB = Result_Analysis(autodock_resultB, 'all_poses_off-target_AD4_result.pdb',
-                                           os.path.join(self.parent.v.input_dir, self.parent.v.analog_protein_pdbqt),
-                                           self.parent.v.heavy_atoms)
-                self.parent.v.analog_result_file = 'all_poses_off-target_AD4_result.pdb'
-                self.parent.v.best_analog_result_file = 'best_pose_off-target_AD4_result.pdb'
-                self.parent.output2file.out2file('>  all_poses_off-target_file: all_poses_off-target_AD4_result.pdb\n')
-                self.parent.output2file.out2file('>  best_pose_off-target_file: best_pose_off-target_AD4_result.pdb\n')
-            self.resultsB = self.reB.result2table()
-
-            self.parent.output2file.out2file(
-                ' ______________________________________________________________________________ \n'
-                '|                                                                              |\n'
-                '|' + (' Result for %s' % self.parent.v.analog_protein_name).ljust(78) + '|\n'
-                                                                                         '|______________________________________________________________________________|\n'
-                                                                                         '|               |                |              |               |              |\n'
-                                                                                         '|     POSES     | BINDING ENERGY | ESTIMATED Ki |    Ki UNITS   |   LIGAND     |\n'
-                                                                                         '|               |   (KCAL/MOL)   |              |               |  EFFICIENCY  |\n'
-                                                                                         '|_______________|________________|______________|_______________|______________|\n')
-            self.parent.result_tab.result_tableB.setRowCount(len(self.resultsB))
-            self.parent.result_tab.sele2.setRange(1, len(self.resultsB))
+            self.AMDock.result_tab.value1 = float(self.AMDock.result_tab.result_table.item(0, 1).text())
+        self.AMDock.result_tab.result_table.item(0, 1).setBackgroundColor(QtGui.QColor('darkGray'))
+        selection_model = self.AMDock.result_tab.result_table.selectionModel()
+        selection_model.select(self.AMDock.result_tab.result_table.model().index(0, 0),
+                               QtGui.QItemSelectionModel.ClearAndSelect)
+        if self.AMDock.project.mode == 1:
+            self.AMDock.result_tab.result_tableB.show()
+            self.AMDock.result_tab.selectivity_value_text.show()
+            self.AMDock.result_tab.selectivity.show()
+            self.AMDock.result_tab.sele1.show()
+            self.AMDock.result_tab.sele2.show()
+            self.AMDock.result_tab.prot_label_sel.show()
+            self.AMDock.result_tab.prot_label_selB.show()
+            self.AMDock.result_tab.minus.show()
+            self.AMDock.result_tab.equal.show()
+            self.AMDock.result_tab.prot_labelB.show()
+            self.reB = Result_Analysis(self.AMDock.docking_program, self.AMDock.offtarget, self.AMDock.ligand)
+            self.resultsB = self.reB.result2table(self.AMDock.offtarget.all_poses)
+            self.AMDock.result_tab.result_tableB.setRowCount(len(self.resultsB))
+            self.AMDock.result_tab.sele2.setRange(1, len(self.resultsB))
             f = 0
+            self.result2outB = ''
             for x in self.resultsB:
                 c = 0
-                out_line = '|' + ('%s' % x[0]).center(15) + '|' + ('%s' % x[1]).center(16) + '|' + ('%s' % x[2]).center(
-                    14) + '|' + ('%s' % x[3]).center(15) + '|' + ('%s' % x[4]).center(14) + '|\n'
-                self.parent.output2file.out2file(out_line)
+                self.result2outB += '|' + ('%s' % x[0]).center(15) + '|' + ('%s' % x[1]).center(16) + '|' + \
+                                    ('%s' % x[2]).center(14) + '|' + ('%s' % x[3]).center(15) + '|' + \
+                                    ('%s' % x[4]).center(14) + '|\n'
                 for item in x:
-                    item = str(item)
-                    self.parent.result_tab.result_tableB.setItem(f, c, QtGui.QTableWidgetItem(item))
-                    self.parent.result_tab.result_tableB.item(f, c).setTextAlignment(
+                    item_table = QtGui.QTableWidgetItem(str(item))
+                    item_table.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled)
+                    self.AMDock.result_tab.result_tableB.setItem(f, c, item_table)
+                    self.AMDock.result_tab.result_tableB.item(f, c).setTextAlignment(
                         QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
                     if c == 4:
                         item_v = float(item)
                         if item_v <= -0.3:
-                            self.parent.result_tab.result_tableB.item(f, c).setBackgroundColor(
+                            self.AMDock.result_tab.result_tableB.item(f, c).setBackgroundColor(
                                 QtGui.QColor(0, 255, 128, 200))
                     c += 1
                 f += 1
-                self.parent.result_tab.value2 = float(self.parent.result_tab.result_tableB.item(0, 1).text())
-            self.parent.output2file.out2file(
-                '|_______________|________________|______________|_______________|______________|\n\n\n')
-            self.parent.result_tab.result_tableB.item(0, 1).setBackgroundColor(QtGui.QColor('darkGray'))
-            self.parent.result_tab.selectivity_value = self.parent.result_tab.value1 - self.parent.result_tab.value2
-            self.parent.result_tab.selectivity_value_text.setText(
-                '%s kcal/mol' % self.parent.result_tab.selectivity_value)
-            self.parent.output2file.out2file(
-                '   Selectivity                        #Using only the best pose(smallest energy)\n')
-            self.parent.output2file.out2file('   Target  -  Off-Target  =  selectivity\n')
-            self.parent.output2file.out2file('   ' + ('%s' % self.parent.result_tab.value1).center(6) + '  -  ' + (
-                    '%s' % self.parent.result_tab.value2).center(7) + '  =  ' + (
-                                                     '%s' % self.parent.result_tab.selectivity_value).center(
-                11) + 'kcal/mol\n')
+                self.AMDock.result_tab.value2 = float(self.AMDock.result_tab.result_tableB.item(0, 1).text())
 
+            self.AMDock.result_tab.result_tableB.item(0, 1).setBackgroundColor(QtGui.QColor('darkGray'))
+            selection_model = self.AMDock.result_tab.result_tableB.selectionModel()
+            selection_model.select(self.AMDock.result_tab.result_tableB.model().index(0, 0),
+                                   QtGui.QItemSelectionModel.ClearAndSelect)
+
+            self.AMDock.result_tab.selectivity_value = self.AMDock.result_tab.value1 - self.AMDock.result_tab.value2
+            self.AMDock.result_tab.selectivity_value_text.setText(
+                '%s kcal/mol' % self.AMDock.result_tab.selectivity_value)
         else:
-            self.parent.result_tab.result_tableB.hide()
-            self.parent.result_tab.selectivity_value_text.hide()
-            self.parent.result_tab.selectivity.hide()
-            self.parent.result_tab.sele1.hide()
-            self.parent.result_tab.sele2.hide()
-            self.parent.result_tab.prot_label_sel.hide()
-            self.parent.result_tab.prot_label_selB.hide()
-            self.parent.result_tab.minus.hide()
-            self.parent.result_tab.equal.hide()
-            self.parent.result_tab.prot_labelB.hide()
-            self.parent.result_tab.best_button.setText('Show Best Pose')
-            self.parent.result_tab.all_button.setText('Show All Poses')
-            self.parent.result_tab.best_buttonB.hide()
-            self.parent.result_tab.all_buttonB.hide()
-        self.parent.output2file.conclude()
+            self.AMDock.result_tab.result_tableB.hide()
+            self.AMDock.result_tab.selectivity_value_text.hide()
+            self.AMDock.result_tab.selectivity.hide()
+            self.AMDock.result_tab.sele1.hide()
+            self.AMDock.result_tab.sele2.hide()
+            self.AMDock.result_tab.prot_label_sel.hide()
+            self.AMDock.result_tab.prot_label_selB.hide()
+            self.AMDock.result_tab.minus.hide()
+            self.AMDock.result_tab.equal.hide()
+            self.AMDock.result_tab.prot_labelB.hide()
+        self.amdock_output_file()
 
-    def go_scoring(self):
-        self.parent.v.amdock_file = os.path.normpath(os.path.join(self.parent.v.WDIR, self.parent.v.project_name + '.amdock'))
-        self.parent.result_tab.import_text.setText(self.parent.v.amdock_file)
-        self.parent.output2file.out2file('>> RESULT\n')
-        self.parent.main_window.setTabEnabled(2, True)
-        self.parent.main_window.setCurrentIndex(2)
-        self.parent.main_window.setTabEnabled(1, False)
-        self.parent.main_window.setTabEnabled(0, False)
-        self.parent.result_tab.load_button.setEnabled(False)
-        os.chdir(self.parent.v.result_dir)
+    def amdock_output_file(self):
+        """make amdock output file"""
+        self.AMDock.output2file.file_header(self.AMDock.project.output)
+        self.AMDock.output2file.out2file('AMDOCK: DOCKING_PROGRAM'.ljust(24) + '%s\n' % self.AMDock.docking_program)
+        self.AMDock.output2file.out2file('AMDOCK: PROJECT'.ljust(24) + 56 * '-' + '\n')
+        self.AMDock.output2file.out2file('AMDOCK: PROJECT_NAME'.ljust(24) + '%s\n' % self.AMDock.project.name)
+        self.AMDock.output2file.out2file('AMDOCK: WORKING_DIR'.ljust(24) + '%s\n' % self.AMDock.project.WDIR)
+        # input section
+        self.AMDock.output2file.out2file('AMDOCK: INPUT'.ljust(24) + 56 * '-' + '\n')
+        if self.AMDock.project.mode == 0:
+            self.AMDock.output2file.out2file('AMDOCK: MODE'.ljust(24) + 'SIMPLE\n')
+        elif self.AMDock.project.mode == 1:
+            self.AMDock.output2file.out2file('AMDOCK: MODE'.ljust(24) + 'OFF-TARGET\n')
+        else:
+            self.AMDock.output2file.out2file('AMDOCK: MODE'.ljust(24) + 'SCORING\n')
+        self.AMDock.output2file.out2file('AMDOCK: TARGET'.ljust(24) + '%s\n' % self.AMDock.target.name)
+        if self.target_info.get_het():
+            het = ''
+            c = 0
+            for res in self.target_info.get_het():
+                if c == len(self.target_info.get_het()):
+                    het += '{}:{}:{}'.format(res[0], res[1][:3], res[1][3:])
+                else:
+                    het += '{}:{}:{}, '.format(res[0], res[1][:3], res[1][3:])
+                c += 1
+            self.AMDock.output2file.out2file('AMDOCK: TARGET_HET'.ljust(24) + '%s\n' % het)
+        if self.target_info.get_zn():
+            zn = ''
+            c = 0
+            for res in self.target_info.get_zn():
+                if c == len(self.target_info.get_zn()):
+                    zn += '{}:{}:{}'.format(res[0], res[1][:3], res[1][3:])
+                else:
+                    zn += '{}:{}:{}, '.format(res[0], res[1][:3], res[1][3:])
+                c += 1
+            self.AMDock.output2file.out2file('AMDOCK: TARGET_ZN'.ljust(24) + '%s\n' % zn)
+        if self.AMDock.project.mode == 1:
+            self.AMDock.output2file.out2file('AMDOCK: OFF-TARGET'.ljust(24) + '%s\n' % self.AMDock.offtarget.name)
+            if self.offtarget_info.get_het():
+                het = ''
+                c = 0
+                for res in self.offtarget_info.get_het():
+                    if c == len(self.offtarget_info.get_het()):
+                        het += '{}:{}:{}'.format(res[0], res[1][:3], res[1][3:])
+                    else:
+                        het += '{}:{}:{}, '.format(res[0], res[1][:3], res[1][3:])
+                    c += 1
+                self.AMDock.output2file.out2file('AMDOCK: OFF-TARGET_HET'.ljust(24) + '%s\n' % het)
+            if self.offtarget_info.get_zn():
+                zn = ''
+                c = 0
+                for res in self.offtarget_info.get_zn():
+                    if c == len(self.offtarget_info.get_zn()):
+                        zn += '{}:{}:{}'.format(res[0], res[1][:3], res[1][3:])
+                    else:
+                        zn += '{}:{}:{}, '.format(res[0], res[1][:3], res[1][3:])
+                    c += 1
+                self.AMDock.output2file.out2file('AMDOCK: OFF-TARGET_ZN'.ljust(24) + '%s\n' % zn)
+        self.AMDock.output2file.out2file('AMDOCK: LIGAND'.ljust(24) + '%s\n' % self.AMDock.ligand.name)
+        self.AMDock.output2file.out2file('AMDOCK: LIGAND_HA'.ljust(24) + '%s\n' % self.AMDock.ligand.ha)
+        # binding site definition section
+        self.AMDock.output2file.out2file('AMDOCK: SEARCH_SPACE'.ljust(24) + (56 * '-' + '\n'))
+        if self.AMDock.project.mode != 2:
+            if self.AMDock.project.bsd_mode_target == 0:
+                mode = 'AUTOMATIC'
+            elif self.AMDock.project.bsd_mode_target == 1:
+                mode = 'CENTERED_ON_RESIDUE(S)'
+            elif self.AMDock.project.bsd_mode_target == 2:
+                mode = 'CENTERED_ON_HETERO'
+            else:
+                mode = 'USER-DEFINED_BOX'
 
-        self.parent.result_tab.best_button.hide()
-        self.parent.result_tab.all_button.hide()
-        self.parent.result_tab.show_complex.show()
-        self.parent.result_tab.prot_label.setText('Target: %s' % self.parent.v.protein_name)
-        self.parent.output2file.out2file('>  Target_Protein: %s\n' % self.parent.v.protein_name)
+            self.AMDock.output2file.out2file('AMDOCK: T_BOX_MODE'.ljust(24) + '%s\n' % mode)
+            if self.AMDock.project.bsd_mode_target in [2, 3]:
+                self.AMDock.output2file.out2file('AMDOCK: TARGET_BOX'.ljust(24) + 'CENTER: {:7.02f} {:7.02f} {:7.02f} '
+                                                                                  'SIZE: {:2d} {:2d} {:2d}\n'.format(
+                    float(self.grid_center[0]), float(self.grid_center[1]), float(self.grid_center[2]), self.size[0],
+                    self.size[1], self.size[2]))
+            else:
+                for fill in self.AMDock.target.fill_list:
+                    self.AMDock.output2file.out2file('AMDOCK: TARGET_BOX'.ljust(24) + 'FILL: {:02d} CENTER: {:7.02f}'
+                                                                                      ' {:7.02f} {:7.02f} SIZE: {:2d} '
+                                                                                      '{:2d} {:2d}'.format(
+                        fill, self.AMDock.target.fill_list[fill][2][0], self.AMDock.target.fill_list[fill][2][1],
+                        self.AMDock.target.fill_list[fill][2][2], self.size[0], self.size[1], self.size[2]))
+            if self.AMDock.project.mode == 1:
+                if self.AMDock.project.bsd_mode_offtarget == 0:
+                    mode = 'AUTOMATIC'
+                elif self.AMDock.project.bsd_mode_offtarget == 1:
+                    mode = 'CENTERED_ON_RESIDUE(S)'
+                elif self.AMDock.project.bsd_mode_offtarget == 2:
+                    mode = 'CENTERED_ON_HETERO'
+                else:
+                    mode = 'USER-DEFINED_BOX'
 
-        self.parent.result_tab.result_table.setRowCount(1)
-        scoring_file = os.path.join(self.parent.v.result_dir, self.parent.v.ligand_name + '_score.log')
-        self.scoring_re = Scoring2table(scoring_file, ha=self.parent.v.heavy_atoms)
-        self.results = self.scoring_re.result2table()
+                self.AMDock.output2file.out2file('AMDOCK: O_BOX_MODE'.ljust(24) + '%s\n' % mode)
+                if self.AMDock.project.bsd_mode_offtarget in [2, 3]:
+                    self.AMDock.output2file.out2file(
+                        'AMDOCK: OFF-TARGET_BOX'.ljust(24) + 'CENTER: {:7.02f} {:7.02f} {:7.02f} SIZE: {:2d} {:2d} '
+                                                             '{:2d}\n'.format(float(self.grid_centerB[0]),
+                                                                              float(self.grid_centerB[1]),
+                                                                              float(self.grid_centerB[2]),
+                                                                              self.sizeB[0], self.sizeB[1],
+                                                                              self.sizeB[2]))
+                else:
+                    for fill in self.AMDock.offtarget.fill_list:
+                        self.AMDock.output2file.out2file(
+                            'AMDOCK: OFF-TARGET_BOX'.ljust(24) + 'FILL: {:02d} CENTER: {:7.02f} {:7.02f} {:7.02f} '
+                                                                 'SIZE: {:2d} {:2d} {:2d}'.format(
+                                fill, self.AMDock.offtarget.fill_list[fill][2][0],
+                                self.AMDock.offtarget.fill_list[fill][2][1],
+                                self.AMDock.offtarget.fill_list[fill][2][2], self.sizeB[0], self.sizeB[1],
+                                self.sizeB[2]))
 
-        self.parent.output2file.out2file(
+        # results section
+        self.AMDock.output2file.out2file('AMDOCK: RESULT'.ljust(24) + (56 * '-' + '\n'))
+        if self.AMDock.project.bsd_mode_target == 0:
+            self.AMDock.output2file.out2file('AMDOCK: RESULT_NOTE'.ljust(24) + 'EACH POSE IS THE BEST DOCKING RESULT '
+                                                                               'FOR EACH BINDING\n')
+            self.AMDock.output2file.out2file('AMDOCK: RESULT_NOTE'.ljust(24) + 'SITE PREDICTED BY AUTLIGAND (SEE '
+                                                                               'MANUAL) \n')
+        self.AMDock.output2file.out2file(
             ' ______________________________________________________________________________ \n'
             '|                                                                              |\n'
-            '|'.ljust(1) + (' Result for %s' % self.parent.v.protein_name).ljust(78) + '|\n'
-                                                                                       '|______________________________________________________________________________|\n'
-                                                                                       '|               |                |              |               |              |\n'
-                                                                                       '|     POSES     | BINDING ENERGY | ESTIMATED Ki |    Ki UNITS   |   LIGAND     |\n'
-                                                                                       '|               |   (KCAL/MOL)   |              |               |  EFFICIENCY  |\n'
-                                                                                       '|_______________|________________|______________|_______________|______________|\n')
+            '|' + (' RESULT FOR TARGET: %s' % self.AMDock.target.name).ljust(78) + '|\n'
+                                                                                   '|______________________________________________________________________________|\n'
+                                                                                   '|               |                |              |               |              |\n'
+                                                                                   '|     POSES     |    AFFINITY    | ESTIMATED Ki |    Ki UNITS   |   LIGAND     |\n'
+                                                                                   '|               |   (KCAL/MOL)   |              |               |  EFFICIENCY  |\n'
+                                                                                   '|_______________|________________|______________|_______________|______________|\n')
+        self.AMDock.output2file.out2file(self.result2out)  # added all result in table form
+        self.AMDock.output2file.out2file(
+            '|_______________|________________|______________|_______________|______________|\n\n')
+        if self.AMDock.project.mode == 1:
+            if self.AMDock.project.bsd_mode_offtarget == 0:
+                self.AMDock.output2file.out2file('AMDOCK: RESULT_NOTE'.ljust(24) + 'EACH POSE IS THE BEST DOCKING '
+                                                                                   'RESULT FOR EACH BINDING\n')
+                self.AMDock.output2file.out2file('AMDOCK: RESULT_NOTE'.ljust(24) + 'SITE PREDICTED BY AUTLIGAND (SEE '
+                                                                                   'MANUAL) \n')
+            self.AMDock.output2file.out2file(
+                ' ______________________________________________________________________________ \n'
+                '|                                                                              |\n'
+                '|' + (' RESULT FOR OFF-TARGET: %s' % self.AMDock.offtarget.name).ljust(78) + '|\n'
+                                                                                              '|______________________________________________________________________________|\n'
+                                                                                              '|               |                |              |               |              |\n'
+                                                                                              '|     POSES     |    AFFINITY    | ESTIMATED Ki |    Ki UNITS   |   LIGAND     |\n'
+                                                                                              '|               |   (KCAL/MOL)   |              |               |  EFFICIENCY  |\n'
+                                                                                              '|_______________|________________|______________|_______________|______________|\n')
+            self.AMDock.output2file.out2file(self.result2outB)  # added all result in table form
+            self.AMDock.output2file.out2file(
+                '|_______________|________________|______________|_______________|______________|\n\n')
+            if self.AMDock.project.bsd_mode_offtarget != 0 and self.AMDock.project.bsd_mode_target != 0:
+                self.AMDock.output2file.out2file('AMDOCK: SELECTIVITY'.ljust(24) + 'Using only the best pose '
+                                                                                   '(smallest energy)\n')
+                self.AMDock.output2file.out2file('AMDOCK: SELEC_NOTE'.ljust(24) + 'TARGET  -  OFF-TARGET  =  '
+                                                                                  'SELECTIVITY\n')
+                self.AMDock.output2file.out2file('AMDOCK: SELEC_VALUE'.ljust(24) + ('{:6.02f}'.format(
+                    self.results[0][1]).center(6)) + '  -  ' + ('{:10.02f}'.format(self.resultsB[0][1])).center(10) +
+                                                 '  =  ' + ('{:11.02f}'.format(self.results[0][1] -
+                                                                               self.resultsB[0][1])).center(11) +
+                                                 '   kcal/mol\n')
+        self.AMDock.output2file.conclude()
 
+    def go_scoring(self):
+        self.AMDock.result_tab.import_text.setText(self.AMDock.project.output)
+        self.AMDock.statusbar.showMessage(" Go to Results Analysis", 2000)
+        self.AMDock.main_window.setTabEnabled(2, True)
+        self.AMDock.main_window.setCurrentIndex(2)
+        self.AMDock.main_window.setTabEnabled(1, False)
+        self.AMDock.main_window.setTabEnabled(0, False)
+        os.chdir(self.AMDock.project.results)
+        self.AMDock.result_tab.prot_label.setText('Target: %s' % self.AMDock.target.name)
+        self.AMDock.result_tab.result_table.setRowCount(1)
+        self.scoring_re = Result_Analysis(self.AMDock.docking_program, self.AMDock.target, self.AMDock.ligand)
+        self.results = self.scoring_re.result2table(self.AMDock.target.score, True)
+        self.result2out = ''
         f = 0
         for x in self.results:
             c = 0
-            out_line = '|' + ('%s' % x[0]).center(15) + '|' + ('%s' % x[1]).center(16) + '|' + ('%s' % x[2]).center(
-                14) + '|' + ('%s' % x[3]).center(15) + '|' + ('%s' % x[4]).center(14) + '|\n'
-            self.parent.output2file.out2file(out_line)
+            self.result2out += '|' + ('%s' % x[0]).center(15) + '|' + ('%s' % x[1]).center(16) + '|' + \
+                               ('%s' % x[2]).center(14) + '|' + ('%s' % x[3]).center(15) + '|' + \
+                               ('%s' % x[4]).center(14) + '|\n'
             for item in x:
-                item = str(item)
-                self.parent.result_tab.result_table.setItem(f, c, QtGui.QTableWidgetItem(item))
-                self.parent.result_tab.result_table.item(f, c).setTextAlignment(
+                item_table = QtGui.QTableWidgetItem(str(item))
+                item_table.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled)
+                self.AMDock.result_tab.result_table.setItem(f, c, item_table)
+                self.AMDock.result_tab.result_table.item(f, c).setTextAlignment(
                     QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
                 if c == 4:
                     item_v = float(item)
                     if item_v <= -0.3:
-                        self.parent.result_tab.result_table.item(f, c).setBackgroundColor(
+                        self.AMDock.result_tab.result_table.item(f, c).setBackgroundColor(
                             QtGui.QColor(0, 255, 128, 200))
                 c += 1
             f += 1
-        self.parent.output2file.out2file(
-            '|_______________|________________|______________|_______________|______________|\n\n\n')
-        self.parent.output2file.conclude()
-
-    def check_res(self, text):  # OKOK
-        if text.objectName() == 'grid_predef_text':
-            try:
-                self.check = GridDefinition(self.parent.v.input_target, self.grid_predef_text.text())
-                self.parent.v.error = self.check.check_select()
-            except:
-                self.parent.v.error = 1
-            if self.parent.v.error == 0:
-                self.checker_icon_ok.show()
-                self.checker_icon.hide()
-                if self.parent.v.cr:
-                    if self.parent.v.analog_grid_def == 'auto':
-                        self.bind_site_button.setEnabled(True)
-                    elif self.parent.v.analog_grid_def == 'by_residues':
-                        if self.parent.v.errorB == 0:
-                            self.bind_site_button.setEnabled(True)
-                        else:
-                            self.bind_site_button.setEnabled(False)
-                    elif self.parent.v.analog_grid_def == 'by_ligand':
-                        self.bind_site_button.setEnabled(True)
-                    else:
-                        if self.parent.v.gerrorB == 0:
-                            self.bind_site_button.setEnabled(True)
-                        else:
-                            self.bind_site_button.setEnabled(False)
-                else:
-                    self.bind_site_button.setEnabled(True)
-            else:
-                self.checker_icon.show()
-                self.checker_icon_ok.hide()
-                self.bind_site_button.setEnabled(False)
-        else:
-            try:
-                self.check = GridDefinition(self.parent.v.input_offtarget, self.grid_predef_textB.text())
-                self.parent.v.errorB = self.check.check_select()
-            except:
-                self.parent.v.errorB = 1
-            if self.parent.v.errorB == 0:
-                self.checker_icon_okB.show()
-                self.checker_iconB.hide()
-
-                if self.parent.v.grid_def == 'auto':
-                    self.bind_site_button.setEnabled(True)
-                elif self.parent.v.grid_def == 'by_residues':
-                    if self.parent.v.error == 0:
-                        self.bind_site_button.setEnabled(True)
-                    else:
-                        self.bind_site_button.setEnabled(False)
-                elif self.parent.v.grid_def == 'by_ligand':
-                    self.bind_site_button.setEnabled(True)
-                else:
-                    if self.parent.v.gerror == 0:
-                        self.bind_site_button.setEnabled(True)
-                    else:
-                        self.bind_site_button.setEnabled(False)
-
-            else:
-                self.checker_iconB.show()
-                self.checker_icon_okB.hide()
-                self.bind_site_button.setEnabled(False)
-
-    def check_grid(self):
-        if self.parent.v.cr:
-            if self.coor_x.text() != "" and self.coor_y.text() != "" and self.coor_z.text() != "" and self.size_x.text() != "" and self.size_y.text() != "" \
-                    and self.size_z.text() != "" and self.coor_xB.text() != "" and self.coor_yB.text() != "" and self.coor_zB.text() != "" and self.size_xB.text() != "" and self.size_yB.text() != "" and self.size_zB.text() != "":
-                self.bind_site_button.setEnabled(True)
-            else:
-                self.bind_site_button.setEnabled(False)
-            if self.grid == 1:
-                if self.coor_x.text() != "" and self.coor_y.text() != "" and self.coor_z.text() != "" \
-                        and self.size_x.text() != "" and self.size_y.text() != "" \
-                        and self.size_z.text() != "":
-                    self.grid_icon_ok.show()
-                    self.grid_icon.hide()
-                    self.bind_site_button.setEnabled(True)
-                    self.parent.v.gerror = 0
-                else:
-                    self.parent.v.gerror = 1
-                    self.grid_icon.show()
-                    self.grid_icon_ok.hide()
-                    self.bind_site_button.setEnabled(False)
-            elif self.grid == 2:
-                if self.coor_xB.text() != "" and self.coor_yB.text() != "" and self.coor_zB.text() != "" and self.size_xB.text() != "" and self.size_yB.text() != "" and self.size_zB.text() != "":
-                    self.grid_icon_okB.show()
-                    self.grid_iconB.hide()
-                    self.bind_site_button.setEnabled(True)
-                    self.parent.v.gerrorB = 0
-                else:
-                    self.parent.v.gerrorB = 1
-                    self.grid_iconB.show()
-                    self.grid_icon_okB.hide()
-                    self.bind_site_button.setEnabled(False)
-            elif self.grid == 3:
-                if self.coor_x.text() != "" and self.coor_y.text() != "" and self.coor_z.text() != "" \
-                        and self.size_x.text() != "" and self.size_y.text() != "" and self.size_z.text() != "":
-                    self.grid_icon_ok.show()
-                    self.grid_icon.hide()
-                    self.parent.v.gerror = 0
-                else:
-                    self.parent.v.gerror = 1
-                    self.grid_icon.show()
-                    self.grid_icon_ok.hide()
-                if self.coor_xB.text() != "" and self.coor_yB.text() != "" and self.coor_zB.text() != "" \
-                        and self.size_xB.text() != "" and self.size_yB.text() != "" and self.size_zB.text() != "":
-                    self.grid_icon_okB.show()
-                    self.grid_iconB.hide()
-                    self.parent.v.gerrorB = 0
-                else:
-                    self.parent.v.gerrorB = 1
-                    self.grid_iconB.show()
-                    self.grid_icon_okB.hide()
-        else:
-            if self.coor_x.text() != "" and self.coor_y.text() != "" and self.coor_z.text() != "" \
-                    and self.size_x.text() != "" and self.size_y.text() != "" \
-                    and self.size_z.text() != "":
-                self.grid_icon_ok.show()
-                self.grid_icon.hide()
-                self.bind_site_button.setEnabled(True)
-            else:
-                self.grid_icon.show()
-                self.grid_icon_ok.hide()
-                self.bind_site_button.setEnabled(False)
+        selection_model = self.AMDock.result_tab.result_table.selectionModel()
+        selection_model.select(self.AMDock.result_tab.result_table.model().index(0, 0),
+                               QtGui.QItemSelectionModel.ClearAndSelect)
+        self.amdock_output_file()
 
     def scoring(self):
         '''scoring'''
-        self.reset_button.setEnabled(False)
-        self.run_scoring.setEnabled(False)
-        self.queue = Queue.Queue()
-        if self.parent.v.docking_program == 'AutoDock Vina':
-            scoring_vina_arg = ['--receptor', self.parent.v.protein_pdbqt, '--ligand', self.parent.v.ligand_pdbqt,
-                                '--score_only', "--log", os.path.join(self.parent.v.result_dir,
-                                                                      self.parent.v.ligand_name + '_score.log')]
-            self.vina_score = {'AutoDock Vina Scoring': [self.ws.vina_exec, scoring_vina_arg]}
-            self.queue.put(self.vina_score)
-        elif self.parent.v.docking_program == 'AutoDock4':
-            protein_gpf = str(self.parent.v.protein_pdbqt.split('.')[0] + '.gpf')
-            protein_dlg = str(self.parent.v.protein_pdbqt.split('.')[0] + '.dlg')
-            protein_dpf = str(self.parent.v.protein_pdbqt.split('.')[0] + '.dpf')
+        queue = Queue.Queue()
+        if self.AMDock.docking_program == 'AutoDock Vina':
+            pass
+        elif self.AMDock.docking_program == 'AutoDock4':
+            protein_gpf = str(self.AMDock.target.pdbqt.split('.')[0] + '.gpf')
+            protein_dlg = str(self.AMDock.target.pdbqt.split('.')[0] + '.dlg')
+            protein_dpf = str(self.AMDock.target.pdbqt.split('.')[0] + '.dpf')
 
-            prepare_gpf4_arg = [self.ws.prepare_gpf4_py, '-l', str(self.parent.v.ligand_pdbqt), '-r',
-                                str(self.parent.v.protein_pdbqt), '-f', self.parent.v.gd, '-p', 'spacing=%.3f' %
-                                self.parent.v.spacing_autodock, '-p', 'npts=%d,%d,%d' % (
-                                    self._size_x / self.parent.v.spacing_autodock,
-                                    self._size_y / self.parent.v.spacing_autodock,
-                                    self._size_z / self.parent.v.spacing_autodock)]
-            self.prepare_gpf4 = {'Prepare_gpf4': [self.ws.this_python, prepare_gpf4_arg]}
+            prepare_gpf4_arg = [self.AMDock.prepare_gpf4_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                                self.AMDock.target.pdbqt, '-f', self.AMDock.gd, '-p', 'spacing=%.3f' %
+                                self.AMDock.spacing_autodock, '-p', 'npts=%d,%d,%d' % (
+                                    self.size[0] / self.AMDock.spacing_autodock,
+                                    self.size[1] / self.AMDock.spacing_autodock,
+                                    self.size[2] / self.AMDock.spacing_autodock)]
+            self.prepare_gpf4 = {'Prepare_gpf4': [self.AMDock.this_python, prepare_gpf4_arg]}
             autogrid_arg = ['-p', protein_gpf]
-            self.autogrid4 = {'AutoGrid4': [self.ws.autogrid, autogrid_arg]}
-            prepare_dpf_arg = [self.ws.prepare_dpf_py, '-l', str(self.parent.v.ligand_pdbqt), '-r',
-                               str(self.parent.v.protein_pdbqt), '-e']
-            self.prepare_dpf4 = {'Prepare_dpf4': [self.ws.this_python, prepare_dpf_arg]}
-            self.autodock_dlg = str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + protein_dlg)
-            autodock_arg = ['-p', str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + protein_dpf), '-l',
-                            os.path.join(self.parent.v.result_dir, self.parent.v.ligand_name + '_score.log')]
-            self.autodock = {'AutoDock4': [self.ws.autodock, autodock_arg]}
+            self.autogrid4 = {'AutoGrid4': [self.AMDock.autogrid, autogrid_arg]}
+            prepare_dpf_arg = [self.AMDock.prepare_dpf_py, '-l', str(self.AMDock.ligand_pdbqt), '-r',
+                               str(self.AMDock.target.pdbqt), '-e']
+            self.prepare_dpf4 = {'Prepare_dpf4': [self.AMDock.this_python, prepare_dpf_arg]}
+            self.autodock_dlg = str(self.AMDock.ligand_pdbqt.split('.')[0] + '_' + protein_dlg)
+            autodock_arg = ['-p', str(self.AMDock.ligand_pdbqt.split('.')[0] + '_' + protein_dpf), '-l',
+                            os.path.join(self.AMDock.project.results,
+                                         self.AMDock.ligand.name + '_' + self.AMDock.target.name + '_score.log')]
+            self.autodock = {'AutoDock4': [self.AMDock.autodock, autodock_arg]}
             self.list_process = [self.prepare_gpf4, self.autogrid4, self.prepare_dpf4, self.autodock]
             for process in self.list_process:
                 self.queue.put(process)
         else:
-            shutil.copy(self.ws.zn_ff, os.getcwd())
-            protein_TZ = str(self.parent.v.protein_pdbqt.split('.')[0] + '_TZ.pdbqt')
-            protein_gpf = str(self.parent.v.protein_pdbqt.split('.')[0] + '_TZ.gpf')
-            protein_dlg = str(self.parent.v.protein_pdbqt.split('.')[0] + '_TZ.dlg')
-            protein_dpf = str(self.parent.v.protein_pdbqt.split('.')[0] + '_TZ.dpf')
-            pseudozn_arg = [self.ws.zinc_pseudo_py, '-r', str(self.parent.v.protein_pdbqt)]
-            self.pseudozn = {'PseudoZn': [self.ws.this_python, pseudozn_arg]}
-            prepare_gpf4zn_arg = [self.ws.prepare_gpf4zn_py, '-l', str(self.parent.v.ligand_pdbqt), '-r',
-                                  protein_TZ, '-f', self.parent.v.gd, '-p',
-                                  'spacing=%.3f' % self.parent.v.spacing_autodock, '-p', 'npts=%d,%d,%d' %
-                                  (self._size_x / self.parent.v.spacing_autodock,
-                                   self._size_y / self.parent.v.spacing_autodock,
-                                   self._size_z / self.parent.v.spacing_autodock), '-p',
+            shutil.copy(self.AMDock.zn_ff, os.getcwd())
+            protein_TZ = str(self.AMDock.target.pdbqt.split('.')[0] + '_TZ.pdbqt')
+            protein_gpf = str(self.AMDock.target.pdbqt.split('.')[0] + '_TZ.gpf')
+            protein_dlg = str(self.AMDock.target.pdbqt.split('.')[0] + '_TZ.dlg')
+            protein_dpf = str(self.AMDock.target.pdbqt.split('.')[0] + '_TZ.dpf')
+            pseudozn_arg = [self.AMDock.zinc_pseudo_py, '-r', str(self.AMDock.target.pdbqt)]
+            self.pseudozn = {'PseudoZn': [self.AMDock.this_python, pseudozn_arg]}
+            prepare_gpf4zn_arg = [self.AMDock.prepare_gpf4zn_py, '-l', str(self.AMDock.ligand_pdbqt), '-r',
+                                  protein_TZ, '-f', self.AMDock.gd, '-p',
+                                  'spacing=%.3f' % self.AMDock.spacing_autodock, '-p', 'npts=%d,%d,%d' %
+                                  (self.size[0] / self.AMDock.spacing_autodock,
+                                   self.size[1] / self.AMDock.spacing_autodock,
+                                   self.size[2] / self.AMDock.spacing_autodock), '-p',
                                   'parameter_file=AD4Zn.dat']
-            self.prepare_gpf4zn = {'Prepare_gpf4zn': [self.ws.this_python, prepare_gpf4zn_arg]}
+            self.prepare_gpf4zn = {'Prepare_gpf4zn': [self.AMDock.this_python, prepare_gpf4zn_arg]}
             autogridzn_arg = ['-p', protein_gpf]
-            self.autogrid4 = {'AutoGrid4': [self.ws.autogrid, autogridzn_arg]}
-            prepare_dpfzn_arg = [self.ws.prepare_dpf_py, '-l', str(self.parent.v.ligand_pdbqt), '-r', protein_TZ, '-e']
-            self.prepare_dfp4zn = {'Prepare_dpf4': [self.ws.this_python, prepare_dpfzn_arg]}
-            self.autodock_dlg = str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + protein_dlg)
-            autodockzn_arg = ['-p', str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + protein_dpf),
-                              '-l', os.path.join(self.parent.v.result_dir, self.parent.v.ligand_name + '_score.log')]
-            self.autodockzn = {'AutoDock4ZN': [self.ws.autodock, autodockzn_arg]}
+            self.autogrid4 = {'AutoGrid4': [self.AMDock.autogrid, autogridzn_arg]}
+            prepare_dpfzn_arg = [self.AMDock.prepare_dpf_py, '-l', str(self.AMDock.ligand_pdbqt), '-r', protein_TZ,
+                                 '-e']
+            self.prepare_dfp4zn = {'Prepare_dpf4': [self.AMDock.this_python, prepare_dpfzn_arg]}
+            self.autodock_dlg = str(self.AMDock.ligand_pdbqt.split('.')[0] + '_' + protein_dlg)
+            autodockzn_arg = ['-p', str(self.AMDock.ligand_pdbqt.split('.')[0] + '_' + protein_dpf),
+                              '-l', os.path.join(self.AMDock.project.results,
+                                                 self.AMDock.ligand.name + '_' + self.AMDock.target.name + '_score.log')]
+            self.autodockzn = {'AutoDock4ZN': [self.AMDock.autodock, autodockzn_arg]}
             self.list_process = [self.pseudozn, self.prepare_gpf4zn, self.autogrid4, self.prepare_dfp4zn,
                                  self.autodockzn]
             for process in self.list_process:
@@ -3383,510 +2443,720 @@ class Program_body(QtGui.QWidget):
         self.worker.init(self.queue, 'Scoring Process')
         self.worker.start_process()
 
-    def bind_site_by_user(self):
-        self.progressBar.setValue(50)
+    def stop_function(self):
+        if self.AMDock.state:
+            self.stop_opt = stop_warning(self)
+            if self.stop_opt == QtGui.QMessageBox.Yes:
+                self.W.force_finished()
 
-    def stop_docking(self):
-        self.stop_opt = stop_warning(self)
-        if self.stop_opt == QtGui.QMessageBox.Yes:
-            self.worker.__del__()
-            self.stop_button.setEnabled(False)
-            self.run_button.setEnabled(True)
-            self.reset_button.setEnabled(True)
-
-    def prepare_receptor(self):
-        self.reset_button.setEnabled(False)
-        self.parent.configuration_tab.log_wdw.textedit.append(
-            'AMDOCK: IP DOCKING_PROGRAM: %s' % self.parent.v.docking_program)
-        self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IP MODE: %s' % self.parent.v.program_mode)
-        self.parent.configuration_tab.log_wdw.textedit.append(
-            'AMDOCK: IP TARGET_PROTEIN: %s' % self.parent.v.protein_name)
-        self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IP    Ligands: %s' % self.parent.v.ligands)
-        self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IP    Metals(Zn): %s' % self.parent.v.metals)
-        self.parent.configuration_tab.log_wdw.textedit.append(
-            'AMDOCK: IP OFF-TARGET_PROTEIN: %s' % self.parent.v.analog_protein_name)
-        self.parent.configuration_tab.log_wdw.textedit.append(
-            'AMDOCK: IP    Ligands: %s' % self.parent.v.analog_ligands)
-        self.parent.configuration_tab.log_wdw.textedit.append(
-            'AMDOCK: IP    Metals(Zn): %s' % self.parent.v.analog_metals)
-        self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IP LIGAND: %s' % self.parent.v.ligand_name)
-        self.parent.configuration_tab.log_wdw.textedit.append(
-            'AMDOCK: IP    heavy_atoms: %s' % self.parent.v.heavy_atoms)
-        self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IP Defining Initial Parameters... Done\n')
-        self.parent.configuration_tab.log_wdw.textedit.append('AMDOCK: IF Prepare Initial Files...')
-
-        self.parent.output2file.out2file('>> DOCKING_PROGRAM: %s\n' % self.parent.v.docking_program)
-        self.parent.output2file.out2file('>> MODE: %s\n' % self.parent.v.program_mode)
-        self.parent.output2file.out2file('>> TARGET_PROTEIN: %s\n' % self.parent.v.protein_name)
-        self.parent.output2file.out2file('>  Target_Ligands: %s\n' % self.parent.v.ligands)
-        self.parent.output2file.out2file('>  Target_Metals(Zn): %s\n' % self.parent.v.metals)
-        if self.parent.v.cr:
-            self.parent.output2file.out2file('>> OFF-TARGET_PROTEIN: %s\n' % self.parent.v.analog_protein_name)
-            self.parent.output2file.out2file('>  Off-Target_Ligands: %s\n' % self.parent.v.analog_ligands)
-            self.parent.output2file.out2file('>  Off-Target_Metals(Zn): %s\n' % self.parent.v.analog_metals)
-        self.parent.output2file.out2file('>> LIGAND: %s\n' % self.parent.v.ligand_name)
-        self.parent.output2file.out2file('>  heavy_atoms: %s\n' % self.parent.v.heavy_atoms)
-
-        progress(self, 0, 1, 10, mess='')
-        os.chdir(self.parent.v.input_dir)
-        self.input_box.setEnabled(False)
-
-        if self.parent.v.target_prepare:
-            self.parent.v.protein_pqr = self.parent.v.protein_name + '_h.pqr'
-            self.parent.v.protein_h = self.parent.v.protein_name + '_h.pdb'
-            self.parent.v.protein_pdbqt = self.parent.v.protein_name + '_h.pdbqt'
-        if self.parent.v.ligand_prepare:
-            self.parent.v.ligand_h = self.parent.v.ligand_name + "_h.pdb"
-            self.parent.v.ligand_pdbqt = self.parent.v.ligand_name + '_h.pdbqt'
-        if self.parent.v.cr:
-            if self.parent.v.offtarget_prepare:
-                self.parent.v.analog_protein_pqr = self.parent.v.analog_protein_name + '_h.pqr'
-                self.parent.v.analog_protein_h = self.parent.v.analog_protein_name + '_h.pdb'
-                self.parent.v.analog_protein_pdbqt = self.parent.v.analog_protein_name + '_h.pdbqt'
-        self.list_process = []
-        if self.parent.v.target_prepare:
-            self.pdb2pqr = {'PDB2PQR': [self.ws.this_python, [self.ws.pdb2pqr_py, '--ph-calc-method=propka',
-                                                              '--verbose', '--noopt', '--drop-water', '--chain',
-                                                              '--with-ph', str(self.parent.v.pH),
-                                                              '--ff=%s' % self.parent.v.forcefield,
-                                                              self.parent.v.protein_file,
-                                                              self.parent.v.protein_pqr]]}
-            if self.parent.v.metals is not None:
-                fix_pqr_arg = [self.parent.v.protein_file, self.parent.v.protein_pqr, True]
-            else:
-                fix_pqr_arg = [self.parent.v.protein_file, self.parent.v.protein_pqr]
-            self.fix_pqr = {'function Fix_PQR': [Fix_PQR, fix_pqr_arg]}
-
-            prepare_receptor4_arg = [self.ws.prepare_receptor4_py, '-r', self.parent.v.protein_h, '-v', '-U',
-                                     'nphs_lps_waters_nonstdres_deleteAltB']
-            self.prepare_receptor4 = {'Prepare_Receptor4': [self.ws.this_python, prepare_receptor4_arg]}
-        if self.parent.v.offtarget_prepare:
-            self.pdb2pqrB = {'PDB2PQR B': [self.ws.this_python, [self.ws.pdb2pqr_py, '--ph-calc-method=propka',
-                                                                 '--verbose', '--noopt', '--drop-water', '--chain',
-                                                                 '--with-ph', str(self.parent.v.pH),
-                                                                 '--ff=%s' % self.parent.v.forcefield,
-                                                                 self.parent.v.analog_protein_file,
-                                                                 self.parent.v.analog_protein_pqr]]}
-            if self.parent.v.analog_metals:
-                fix_pqr_argB = [self.parent.v.analog_protein_file, self.parent.v.analog_protein_pqr, True]
-            else:
-                fix_pqr_argB = [self.parent.v.analog_protein_file, self.parent.v.analog_protein_pqr]
-
-            self.fix_pqrB = {'function Fix_PQR B': [Fix_PQR, fix_pqr_argB]}
-            prepare_receptor4_argB = [self.ws.prepare_receptor4_py, '-r', self.parent.v.analog_protein_h, '-v', '-U',
-                                      'nphs_lps_waters_nonstdres_deleteAltB']
-            self.prepare_receptor4B = {'Prepare_Receptor4 B': [self.ws.this_python, prepare_receptor4_argB]}
-        if self.parent.v.ligand_prepare:
-            protonate_ligand_arg = ['-i', 'pdb', self.parent.v.ligand_pdb, '-opdb', '-O', self.parent.v.ligand_h, '-h',
-                                    '-p', `self.parent.v.pH`]
-            self.protonate_ligand = {'Protonate Ligand': [self.parent.ws.openbabel, protonate_ligand_arg]}
-
-            prepare_ligand4_arg = [self.ws.prepare_ligand4_py, '-l', self.parent.v.ligand_h, '-v', '-o',
-                                   self.parent.v.ligand_pdbqt]
-            self.prepare_ligand4 = {'Prepare_Ligand4': [self.ws.this_python, prepare_ligand4_arg]}
-        if self.parent.v.cr:
-            if self.parent.v.target_prepare:
-                self.list_process.append(self.pdb2pqr)
-                self.list_process.append(self.fix_pqr)
-                self.list_process.append(self.prepare_receptor4)
-            if self.parent.v.offtarget_prepare:
-                self.list_process.append(self.pdb2pqrB)
-                self.list_process.append(self.fix_pqrB)
-                self.list_process.append(self.prepare_receptor4B)
-            if self.parent.v.ligand_prepare:
-                self.list_process.append(self.protonate_ligand)
-                self.list_process.append(self.prepare_ligand4)
+    def process_stoped(self, state, queue):
+        if state:
+            self.program_label.setText('Stopping process...')
         else:
-            if self.parent.v.target_prepare:
-                self.list_process.append(self.pdb2pqr)
-                self.list_process.append(self.fix_pqr)
-                self.list_process.append(self.prepare_receptor4)
-            if self.parent.v.ligand_prepare:
-                self.list_process.append(self.protonate_ligand)
-                self.list_process.append(self.prepare_ligand4)
-        if self.parent.v.scoring and self.parent.v.docking_program != 'AutoDock Vina':
-            prev_ligand_arg = [self.parent.v.protein_file, None, None, self.parent.v.gd, False]
-            self.previous_ligand = {'function GridDefinition: Previous Ligand Center': [GridDefinition,
-                                                                                        prev_ligand_arg]}
-            self.queue = Queue.Queue()
-            self.queue.put(self.previous_ligand)
-            self.worker.init(self.queue, 'Binding Site Determination')
-            self.worker.start_process()
-            self._size_x = self._size_y = self._size_z = self.parent.v.rg
-        self.queue = Queue.Queue()
-        for process in self.list_process:
-            self.queue.put(process)
-        self.worker.init(self.queue, 'Prepare Input Files')
-        self.worker.start_process()
-        self.need_grid = self.need_gridB = True
-
-    def binding_site(self):
-        """
-        mide las dimensiones de la proteina
-        prepare_gpf4
-        ejecuta auto grid
-        ejecuta autoligand
-        determina el centro del objeto
-        """
-        self.reset_button.setEnabled(False)
-        self.grid_box.setEnabled(False)
-        self._size_x = self._size_y = self._size_z = self._size_xB = self._size_yB = self._size_zB = self.parent.v.rg
-        self.parent.v.FILL = 'FILL_%dout1.pdb' % (6 * self.parent.v.heavy_atoms)
-        self.parent.v.selected_residues = self.grid_predef_text.text()
-        self.parent.v.analog_selected_residues = self.grid_predef_textB.text()
-        process_list = []
-        if self.parent.v.grid_def == 'auto':
-            prot_dimension_arg = [self.parent.v.protein_pdbqt, None, None, self.parent.v.gd, False]
-            self.prot_center = {'function GridDefinition: Protein Center': [GridDefinition, prot_dimension_arg]}
-            prepare_gpf4_arg = [self.ws.prepare_gpf4_py, '-l', str(self.parent.v.ligand_pdbqt), '-r',
-                                str(self.parent.v.protein_pdbqt), '-f', self.parent.v.gd, '-p',
-                                'spacing=%.3f' % self.parent.v.spacing_autoligand, '-o',
-                                str(self.parent.v.protein_name + '_autolig.gpf')]
-            self.prepare_gpf4 = {'Prepare_gpf4': [self.ws.this_python, prepare_gpf4_arg]}
-            autogrid_arg = ['-p', str(self.parent.v.protein_name + '_autolig.gpf')]
-            self.autogrid4 = {'AutoGrid4': [self.ws.autogrid, autogrid_arg]}
-            autoligand_arg = [str(self.ws.autoligand_py), '-r', str(self.parent.v.protein_pdbqt[:-6]), '-a',
-                              str(self.parent.v.heavy_atoms)]
-            self.autoligand = {'AutoLigand': [self.ws.this_python, autoligand_arg]}
-            # dimension_FILL = [self.parent.v.FILL, None, None, self.parent.v.obj_center, False]
-            # TODO: realizar el paso de la info del autoligand a la tabla
-            # self.FILL_center = {'function GridDefinition: FILL Center': [GridDefinition, dimension_FILL]}
-            self.list_process = [self.prot_center, self.prepare_gpf4, self.autogrid4, self.autoligand]#,self.FILL_center]
-            if self.need_grid:
-                process_list.extend(self.list_process)
-        elif self.parent.v.grid_def == "by_residues":
-            res_center_arg = [self.parent.v.protein_pdbqt, str(self.parent.v.selected_residues), None,
-                              self.parent.v.res_center, False]
-            self.res_center = {'function GridDefinition: Selected Residues Center': [GridDefinition, res_center_arg]}
-            prot_dimension_arg = [self.parent.v.protein_pdbqt, None, None, self.parent.v.gd, False]
-            self.prot_center = {'function GridDefinition: Protein Center': [GridDefinition, prot_dimension_arg]}
-            prepare_gpf4_arg = [self.ws.prepare_gpf4_py, '-l', str(self.parent.v.ligand_pdbqt), '-r',
-                                str(self.parent.v.protein_pdbqt), '-f', self.parent.v.gd, '-p',
-                                'spacing=%.3f' % self.parent.v.spacing_autoligand, '-o',
-                                str(self.parent.v.protein_name + '_autolig.gpf')]
-            self.prepare_gpf4 = {'Prepare_gpf4': [self.ws.this_python, prepare_gpf4_arg]}
-            autogrid_arg = ['-p', str(self.parent.v.protein_name + '_autolig.gpf')]
-            self.autogrid4 = {'AutoGrid4': [self.ws.autogrid, autogrid_arg]}
-            autoligand_arg = [str(self.ws.autoligand_py), '-r', str(self.parent.v.protein_pdbqt[:-6]), '-a',
-                              str(self.parent.v.heavy_atoms), '-h', self.parent.v.res_center]
-            self.autoligand = {'AutoLigand': [self.ws.this_python, autoligand_arg]}
-            # TODO: realizar el paso de la info del autoligand a la tabla
-            # dimension_FILL = [self.parent.v.FILL, None, None, self.parent.v.obj_center, False]
-            # self.FILL_center = {'function GridDefinition: FILL Center': [GridDefinition, dimension_FILL]}
-            self.list_process = [self.res_center, self.prot_center, self.prepare_gpf4, self.autogrid4, self.autoligand]
-                #,self.FILL_center]
-            if self.need_grid:
-                process_list.extend(self.list_process)
-        elif self.parent.v.grid_def == "by_ligand":
-            prev_ligand_arg = [self.parent.v.input_target, None, str(self.parent.v.selected_ligand),
-                               self.parent.v.obj_center, True]
-            self.previous_ligand = {
-                'function GridDefinition: Previous Ligand Center': [GridDefinition, prev_ligand_arg]}
-            self.list_process = [self.previous_ligand]
-            if self.need_grid:
-                process_list.extend(self.list_process)
-        elif self.parent.v.grid_def == 'by_user':
-            if self.need_grid:
-                obj = open(self.parent.v.obj_center, 'w')
-                obj.write('center_x = ' + self.coor_x.text() + '\n')
-                obj.write('center_y = ' + self.coor_y.text() + '\n')
-                obj.write('center_z = ' + self.coor_z.text() + '\n')
-                obj.close()
-                self.siz_x = int(self.size_x.text())
-                self.siz_y = int(self.size_y.text())
-                self.siz_z = int(self.size_z.text())
-                if self.siz_x < self.parent.v.rg or self.siz_y < self.parent.v.rg or self.siz_z < self.parent.v.rg:
-                    self.grid_opt, self.dim_list = smallbox_warning(self, {'x': self.siz_x, 'y': self.siz_y,
-                                                                           'z': self.siz_z}, self.parent.v.rg,
-                                                                    self.parent.v.protein_name)
-                    if self.grid_opt == QtGui.QMessageBox.Yes:
-                        if 'x' in self.dim_list:
-                            self.siz_x = self.parent.v.rg
-                            self.size_x.setText(str(self.parent.v.rg))
-                        if 'y' in self.dim_list:
-                            self.siz_y = self.parent.v.rg
-                            self.size_y.setText(str(self.parent.v.rg))
-                        if 'z' in self.dim_list:
-                            self.siz_z = self.parent.v.rg
-                            self.size_z.setText(str(self.parent.v.rg))
-                self._size_x = self.siz_x
-                self._size_y = self.siz_y
-                self._size_z = self.siz_z
-
-                if self.parent.v.cr:
-                    if self.need_gridB:
-                        self.progressBar.setValue(37)
-                    else:
-                        self.progressBar.setValue(50)
-                else:
-                    self.progressBar.setValue(50)
-        if self.parent.v.cr:
-            if self.parent.v.analog_grid_def == 'auto':
-                prot_dimension_argB = [self.parent.v.analog_protein_pdbqt, None, None, self.parent.v.gd1, False]
-                self.prot_centerB = {'function GridDefinition: Protein Center B': [GridDefinition, prot_dimension_argB]}
-                prepare_gpf4_argB = [self.ws.prepare_gpf4_py, '-l', str(self.parent.v.ligand_pdbqt), '-r',
-                                     str(self.parent.v.analog_protein_pdbqt), '-f', self.parent.v.gd1, '-p',
-                                     'spacing=%.3f' % self.parent.v.spacing_autoligand, '-o',
-                                     str(self.parent.v.analog_protein_name + '_autolig.gpf')]
-                self.prepare_gpf4B = {'Prepare_gpf4 B': [self.ws.this_python, prepare_gpf4_argB]}
-
-                autogrid_argB = ['-p', str(self.parent.v.analog_protein_name + '_autolig.gpf')]
-                self.autogrid4B = {'AutoGrid4 B': [self.ws.autogrid, autogrid_argB]}
-
-                autoligand_argB = [str(self.ws.autoligand_py), '-r', str(self.parent.v.analog_protein_pdbqt[:-6]), '-a',
-                                   str(self.parent.v.heavy_atoms)]
-                self.autoligandB = {'AutoLigand B': [self.ws.this_python, autoligand_argB]}
-                # TODO: realizar el paso de la info del autoligand a la tabla
-                # dimension_FILLB = [self.parent.v.FILL, None, None, self.parent.v.obj_center1, False]
-                # self.FILL_centerB = {'function GridDefinition: FILL Center B': [GridDefinition, dimension_FILLB]}
-                self.list_process = [self.prot_centerB, self.prepare_gpf4B, self.autogrid4B, self.autoligandB]
-                #self.FILL_centerB]
-                if self.need_gridB:
-                    process_list.extend(self.list_process)
-            elif self.parent.v.analog_grid_def == "by_residues":
-                res_center_arg = [self.parent.v.analog_protein_pdbqt, str(self.parent.v.analog_selected_residues), None,
-                                  self.parent.v.res_center1, None]
-                self.res_center = {
-                    'function GridDefinition: Selected Residues Center B': [GridDefinition, res_center_arg]}
-                prot_dimension_arg = [self.parent.v.analog_protein_pdbqt, None, None, self.parent.v.gd1, False]
-                self.prot_center = {'function GridDefinition: Protein Center B': [GridDefinition, prot_dimension_arg]}
-                prepare_gpf4_arg = [self.ws.prepare_gpf4_py, '-l', str(self.parent.v.ligand_pdbqt), '-r',
-                                    str(self.parent.v.analog_protein_pdbqt), '-f', self.parent.v.gd1, '-p',
-                                    'spacing=%.3f' % self.parent.v.spacing_autoligand, '-o',
-                                    str(self.parent.v.analog_protein_name + '_autolig.gpf')]
-                self.prepare_gpf4 = {'Prepare_gpf4 B': [self.ws.this_python, prepare_gpf4_arg]}
-                autogrid_arg = ['-p', str(self.parent.v.analog_protein_name + '_autolig.gpf')]
-                self.autogrid4 = {'AutoGrid4 B': [self.ws.autogrid, autogrid_arg]}
-                autoligand_arg = [str(self.ws.autoligand_py), '-r', str(self.parent.v.analog_protein_pdbqt[:-6]), '-a',
-                                  str(self.parent.v.heavy_atoms), '-h', self.parent.v.res_center1]
-
-                self.autoligand = {'AutoLigand B': [self.ws.this_python, autoligand_arg]}
-                # TODO: realizar el paso de la info del autoligand a la tabla
-                # dimension_FILL = [self.parent.v.FILL, None, None, self.parent.v.obj_center1, False]
-                # self.FILL_center = {'function GridDefinition: FILL Center B': [GridDefinition, dimension_FILL]}
-                self.list_process = [self.res_center, self.prot_center, self.prepare_gpf4, self.autogrid4,
-                                     self.autoligand]#, self.FILL_center]
-                if self.need_gridB:
-                    process_list.extend(self.list_process)
-            elif self.parent.v.analog_grid_def == "by_ligand":
-                prev_ligand_arg = [self.parent.v.input_offtarget, None, str(self.parent.v.analog_selected_ligand),
-                                   self.parent.v.obj_center1, True]
-                self.previous_ligandB = {
-                    'function GridDefinition: Previous Ligand Center B': [GridDefinition, prev_ligand_arg]}
-                self.list_process = [self.previous_ligandB]
-                if self.need_gridB:
-                    process_list.extend(self.list_process)
-            elif self.parent.v.analog_grid_def == 'by_user':
-                if self.need_gridB:
-                    obj = open(self.parent.v.obj_center1, 'w')
-                    obj.write('center_x = ' + self.coor_xB.text() + '\n')
-                    obj.write('center_y = ' + self.coor_yB.text() + '\n')
-                    obj.write('center_z = ' + self.coor_zB.text() + '\n')
-                    obj.close()
-                    self.siz_xB = int(self.size_xB.text())
-                    self.siz_yB = int(self.size_yB.text())
-                    self.siz_zB = int(self.size_zB.text())
-                    if self.siz_xB < self.parent.v.rg or self.siz_yB < self.parent.v.rg or self.siz_zB < self.parent.v.rg:
-                        self.grid_optB, self.dim_listB = smallbox_warning(self, {'x': self.siz_xB, 'y': self.siz_yB,
-                                                                                 'z': self.siz_zB}, self.parent.v.rg,
-                                                                          self.parent.v.analog_protein_name)
-                        if self.grid_optB == QtGui.QMessageBox.Yes:
-                            if 'x' in self.dim_listB:
-                                self.siz_xB = self.parent.v.rg
-                                self.size_xB.setText(str(self.parent.v.rg))
-                            if 'y' in self.dim_listB:
-                                self.siz_yB = self.parent.v.rg
-                                self.size_yB.setText(str(self.parent.v.rg))
-                            if 'z' in self.dim_listB:
-                                self.siz_zB = self.parent.v.rg
-                                self.size_zB.setText(str(self.parent.v.rg))
-                    self.progressBar.setValue(50)
-                    self._size_xB = self.siz_xB
-                    self._size_yB = self.siz_yB
-                    self._size_zB = self.siz_zB
-        self.queue = Queue.Queue()
-        for process in process_list:
-            self.queue.put(process)
-        self.worker.init(self.queue, 'Binding Site Determination')
-        self.worker.start_process()
+            try:
+                self.timerAD.stop()  # stop timer for AutoDock
+            except:
+                pass
+            self.program_label.setText('Stopping process... Done.')
+            self.AMDock.log_widget.textedit.append(Ft('Stopping process... Done.').error())
 
     def start_docking_prog(self):
-        try:
-            self.b_pymol.__del__()
-        except:
-            pass
-        try:
-            self.b_pymolB.__del__()
-        except:
-            pass
-        try:
-            self.b_pymol_timerB.stop()
-        except:
-            pass
-        try:
-            self.b_pymol_timer.stop()
-        except:
-            pass
+
         self.need_grid = self.need_gridB = True
+        queue = Queue.Queue()
+        if self.AMDock.state == 2:
+            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
+                                                                   'Please wait for these to end.',
+                                             QtGui.QMessageBox.Ok)
+            return
+        elif self.AMDock.section in [-1, 0, 1]:
+            if self.AMDock.project.mode == 2:
+                pass
+            else:
+                msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
+                                                                       'completed. Please do all the steps sequentially.',
+                                                 QtGui.QMessageBox.Ok)
+                return
+        elif self.AMDock.section in [3]:
+            msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed previously.'
+                                                                    ' Do you want to repeat it?',
+                                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+            if msg == QtGui.QMessageBox.No:
+                return
 
-        self.reset_button.setEnabled(False)
-        self.stop_button.setEnabled(True)
-        self.run_button.setEnabled(False)
-        self.grid_box.setEnabled(False)
+        if self.AMDock.docking_program == 'AutoDock Vina':
+            if self.AMDock.project.mode == 2:
+                queue.name = 4
+                self.AMDock.target.score = os.path.join(self.AMDock.project.results,
+                                                        self.AMDock.ligand.name + '_' + self.AMDock.target.name + '_score.log')
+                vina_score = {'AutoDock Vina Scoring': [self.AMDock.vina_exec, ['--receptor', self.AMDock.target.pdbqt,
+                                                                                '--ligand', self.AMDock.ligand.pdbqt,
+                                                                                '--score_only', "--log",
+                                                                                self.AMDock.target.score]]}
+                queue.put(vina_score)
+            else:
+                queue.name = 3
+                if self.AMDock.project.bsd_mode_target == 0:
+                    for nfill in range(len(self.AMDock.target.fill_list)):
+                        fill_info = PDBINFO('FILL_{}_{}out{:02d}.pdb'.format(self.AMDock.target.pdbqt_name,
+                                                                             self.AMDock.ligand.ha * 6, nfill + 1))
+                        if not fill_info.center:
+                            msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning',
+                                                            'This FILL no exist or is not possible to open '
+                                                            'pdb file', QtGui.QMessageBox.Ok)
 
-        if self.parent.v.docking_program == 'AutoDock Vina':
-            vina_arg = ['--receptor', self.parent.v.protein_pdbqt, '--ligand', self.parent.v.ligand_pdbqt,
-                        '--config', `self.parent.v.obj_center`, '--size_x', '%d' % self._size_x, '--size_y',
-                        '%d' % self._size_y, '--size_z', '%d' % self._size_z, '--cpu', `self.parent.v.ncpu`,
-                        '--num_modes', `self.parent.v.poses_vina`, '--exhaustiveness',
-                        `self.parent.v.exhaustiveness`, "--out", os.path.join(self.parent.v.result_dir,
-                                                                              self.parent.v.ligand_name + '_h_out.pdbqt'),
-                        "--log", os.path.join(self.parent.v.result_dir, self.parent.v.ligand_name + '_h_out.log')]
-            vina_argB = ['--receptor', self.parent.v.analog_protein_pdbqt, '--ligand', self.parent.v.ligand_pdbqt,
-                         '--config', `self.parent.v.obj_center1`, '--size_x', '%d' % self._size_xB, '--size_y',
-                         '%d' % self._size_yB, '--size_z', '%d' % self._size_zB, '--cpu', `self.parent.v.ncpu`,
-                         '--num_modes', `self.parent.v.poses_vina`, '--exhaustiveness', `self.parent.v.exhaustiveness`,
-                         "--out", os.path.join(self.parent.v.result_dir, self.parent.v.ligand_name + '_h_out2.pdbqt'),
-                         "--log", os.path.join(self.parent.v.result_dir, self.parent.v.ligand_name + '_h_out2.log')]
+                        vina_output = os.path.join(self.AMDock.project.results, self.AMDock.ligand.pdbqt_name + '_' +
+                                                   self.AMDock.target.name + '_out{:02d}.pdbqt'.format(
+                            nfill + 1))
+                        self.AMDock.target.vina_log = os.path.join(self.AMDock.project.results,
+                                                                   self.AMDock.ligand.pdbqt_name + '_' +
+                                                                   self.AMDock.target.name + '_out{}.log'.format(
+                                                                       nfill + 1))
+                        vina_arg = ['--receptor', self.AMDock.target.pdbqt, '--ligand', self.AMDock.ligand.pdbqt,
+                                    '--center_x', '{}'.format(fill_info.center[0]), '--center_y', '{}'.format(
+                                fill_info.center[1]), '--center_z', '{}'.format(fill_info.center[2]), '--size_x',
+                                    '{}'.format(self.size[0]), '--size_y', '{}'.format(self.size[1]), '--size_z',
+                                    '{}'.format(self.size[2]), '--cpu', str(self.AMDock.ncpu), '--num_modes', '1',
+                                    '--exhaustiveness', str(self.AMDock.exhaustiveness), '--out',
+                                    vina_output, "--log", self.AMDock.target.vina_log]
+                        vina = {'AutoDock Vina': [self.AMDock.vina_exec, vina_arg]}
+                        queue.put(vina)
 
-            self.vina = {'AutoDock Vina': [self.ws.vina_exec, vina_arg]}
-            self.vinaB = {'AutoDock Vina B': [self.ws.vina_exec, vina_argB]}
-            self.queue = Queue.Queue()
-            self.queue.put(self.vina)
-            if self.parent.v.cr:
-                self.queue.put(self.vinaB)
-            self.worker.init(self.queue, 'Molecular Docking Simulation')
-            self.worker.start_process()
-        elif self.parent.v.docking_program == 'AutoDock4':
-            protein_gpf = str(self.parent.v.protein_pdbqt.split('.')[0] + '.gpf')
-            protein_dlg = str(self.parent.v.protein_pdbqt.split('.')[0] + '.dlg')
-            protein_dpf = str(self.parent.v.protein_pdbqt.split('.')[0] + '.dpf')
-            prepare_gpf4_arg = [self.ws.prepare_gpf4_py, '-l', str(self.parent.v.ligand_pdbqt), '-r',
-                                str(self.parent.v.protein_pdbqt), '-f', self.parent.v.obj_center, '-p', 'spacing=%.3f' %
-                                self.parent.v.spacing_autodock, '-p', 'npts=%d,%d,%d' % (
-                                    self._size_x / self.parent.v.spacing_autodock,
-                                    self._size_y / self.parent.v.spacing_autodock,
-                                    self._size_z / self.parent.v.spacing_autodock)]
-            self.prepare_gpf4 = {'Prepare_gpf4': [self.ws.this_python, prepare_gpf4_arg]}
-            autogrid_arg = ['-p', protein_gpf]
-            self.autogrid4 = {'AutoGrid4': [self.ws.autogrid, autogrid_arg]}
-            prepare_dpf_arg = [self.ws.prepare_dpf_py, '-l', str(self.parent.v.ligand_pdbqt), '-r',
-                               str(self.parent.v.protein_pdbqt), '-p', 'rmstol=%s' % self.parent.v.rmsd, '-p',
-                               'ga_num_evals=%s' % self.parent.v.eval, '-p', 'ga_run=%s' % self.parent.v.runs]
-            self.prepare_dpf4 = {'Prepare_dpf4': [self.ws.this_python, prepare_dpf_arg]}
+                else:
+                    self.AMDock.target.vina_output = os.path.join(self.AMDock.project.results,
+                                                                  self.AMDock.ligand.pdbqt_name + '_' +
+                                                                  self.AMDock.target.name + '_out.pdbqt')
+                    self.AMDock.target.vina_log = os.path.join(self.AMDock.project.results,
+                                                               self.AMDock.ligand.pdbqt_name + '_' +
+                                                               self.AMDock.target.name + '_out.log')
+                    vina_arg = ['--receptor', self.AMDock.target.pdbqt, '--ligand', self.AMDock.ligand.pdbqt,
+                                '--center_x', '{}'.format(self.grid_center[0]), '--center_y',
+                                '{}'.format(self.grid_center[1]), '--center_z', '{}'.format(self.grid_center[2]),
+                                '--size_x', '{}'.format(self.size[0]), '--size_y', '{}'.format(self.size[1]),
+                                '--size_z', '{}'.format(self.size[2]), '--cpu', str(self.AMDock.ncpu), '--num_modes',
+                                str(self.AMDock.poses_vina), '--exhaustiveness', str(self.AMDock.exhaustiveness),
+                                '--out', self.AMDock.target.vina_output, "--log", self.AMDock.target.vina_log]
+                    vina = {'AutoDock Vina': [self.AMDock.vina_exec, vina_arg]}
+                    queue.put(vina)
+                if self.AMDock.project.mode == 1:
+                    if self.AMDock.project.bsd_mode_offtarget == 0:
+                        for nfill in range(len(self.AMDock.offtarget.fill_list)):
+                            fill_info = PDBINFO('FILL_{}_{}out{:02d}.pdb'.format(self.AMDock.offtarget.pdbqt_name,
+                                                                                 self.AMDock.ligand.ha * 6, nfill + 1))
+                            if not fill_info.center:
+                                msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning',
+                                                                'This FILL no exist or is not possible to open '
+                                                                'pdb file', QtGui.QMessageBox.Ok)
+                            vina_output = os.path.join(self.AMDock.project.results,
+                                                       self.AMDock.ligand.pdbqt_name + '_' +
+                                                       self.AMDock.offtarget.name +
+                                                       '_out{:02d}.pdbqt'.format(nfill + 1))
+                            self.AMDock.offtarget.vina_log = os.path.join(self.AMDock.project.results,
+                                                                          self.AMDock.ligand.pdbqt_name + '_' +
+                                                                          self.AMDock.offtarget.name + '_out{}.log'.format(
+                                                                              nfill + 1))
+                            vina_arg = ['--receptor', self.AMDock.offtarget.pdbqt, '--ligand', self.AMDock.ligand.pdbqt,
+                                        '--center_x', '{}'.format(fill_info.center[0]), '--center_y', '{}'.format(
+                                    fill_info.center[1]), '--center_z', '{}'.format(fill_info.center[2]), '--size_x',
+                                        '{}'.format(self.size[0]), '--size_y', '{}'.format(self.size[1]), '--size_z',
+                                        '{}'.format(self.size[2]), '--cpu', str(self.AMDock.ncpu), '--num_modes', '1',
+                                        '--exhaustiveness', str(self.AMDock.exhaustiveness), '--out',
+                                        vina_output, "--log", self.AMDock.offtarget.vina_log]
+                            vina = {'AutoDock Vina': [self.AMDock.vina_exec, vina_arg]}
+                            queue.put(vina)
 
-            self.autodock_dlg = str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + protein_dlg)
-            autodock_arg = ['-p', str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + protein_dpf), '-l',
-                            os.path.join(self.parent.v.result_dir, self.autodock_dlg)]
-            self.autodock = {'AutoDock4': [self.ws.autodock, autodock_arg]}
-            self.list_process = [self.prepare_gpf4, self.autogrid4, self.prepare_dpf4, self.autodock]
-            if self.parent.v.cr:
-                proteinB_gpf = str(self.parent.v.analog_protein_pdbqt.split('.')[0] + '.gpf')
-                proteinB_dlg = str(self.parent.v.analog_protein_pdbqt.split('.')[0] + '.dlg')
-                proteinB_dpf = str(self.parent.v.analog_protein_pdbqt.split('.')[0] + '.dpf')
+                    else:
+                        self.AMDock.offtarget.vina_output = os.path.join(self.AMDock.project.results,
+                                                                         self.AMDock.ligand.pdbqt_name + '_' +
+                                                                         self.AMDock.offtarget.name + '_out.pdbqt')
+                        self.AMDock.offtarget.vina_log = os.path.join(self.AMDock.project.results,
+                                                                      self.AMDock.ligand.pdbqt_name + '_' +
+                                                                      self.AMDock.offtarget.name + '_out.log')
+                        vina_argB = ['--receptor', self.AMDock.offtarget.pdbqt, '--ligand', self.AMDock.ligand.pdbqt,
+                                     '--center_x', '{}'.format(self.grid_centerB[0]), '--center_y', '{}'.format(
+                                self.grid_centerB[1]), '--center_z', '{}'.format(self.grid_centerB[2]), '--size_x',
+                                     '{}'.format(self.size[0]), '--size_y', '{}'.format(self.size[0]), '--size_z',
+                                     '{}'.format(self.size[2]), '--cpu', str(self.AMDock.ncpu), '--num_modes',
+                                     str(self.AMDock.poses_vina), '--exhaustiveness', str(self.AMDock.exhaustiveness),
+                                     '--out', self.AMDock.offtarget.vina_output, "--log",
+                                     self.AMDock.offtarget.vina_log]
+                        vinaB = {'AutoDock Vina B': [self.AMDock.vina_exec, vina_argB]}
+                        queue.put(vinaB)
 
-                prepare_gpf4_argB = [self.ws.prepare_gpf4_py, '-l', str(self.parent.v.ligand_pdbqt), '-r',
-                                     str(self.parent.v.analog_protein_pdbqt), '-f', self.parent.v.obj_center1, '-p',
-                                     'spacing=%.3f' % self.parent.v.spacing_autodock, '-p', 'npts=%d,%d,%d' % (
-                                         self._size_xB / self.parent.v.spacing_autodock,
-                                         self._size_yB / self.parent.v.spacing_autodock,
-                                         self._size_zB / self.parent.v.spacing_autodock)]
-                self.prepare_gpf4B = {'Prepare_gpf4 B': [self.ws.this_python, prepare_gpf4_argB]}
+        elif self.AMDock.docking_program == 'AutoDock4':
+            if self.AMDock.project.mode == 2:
+                queue.name = 4
+                self.AMDock.target.score = os.path.join(self.AMDock.project.results,
+                                                        self.AMDock.ligand.name + '_' + self.AMDock.target.name + '_score.log')
+                prepare_gpf4_arg = [self.AMDock.prepare_gpf4_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                                    self.AMDock.target.pdbqt, '-p', 'spacing=%.3f' % self.AMDock.spacing_autodock, '-p',
+                                    'npts=%d,%d,%d' % (self.size[0] / self.AMDock.spacing_autodock,
+                                                       self.size[1] / self.AMDock.spacing_autodock, self.size[2] /
+                                                       self.AMDock.spacing_autodock),
+                                    '-p', 'gridcenter={0},{1},{2}'.format(*self.ligand_info.center)]
+                prepare_gpf4 = {'Prepare_gpf4': [self.AMDock.this_python, prepare_gpf4_arg]}
+                queue.put(prepare_gpf4)
+                autogrid4 = {'AutoGrid4': [self.AMDock.autogrid, ['-p', self.AMDock.target.gpf]]}
+                queue.put(autogrid4)
+                prepare_dpf_arg = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                                   self.AMDock.target.pdbqt, '-e']
+                prepare_dpf4 = {'Prepare_dpf4': [self.AMDock.this_python, prepare_dpf_arg]}
+                queue.put(prepare_dpf4)
+                autodock_arg = ['-p', self.AMDock.ligand.pdbqt_name + '_' + self.AMDock.target.dpf, '-l',
+                                self.AMDock.target.score]
+                autodock = {'AutoDock4': [self.AMDock.autodock, autodock_arg]}
+                queue.put(autodock)
+            else:
+                queue.name = 3
+                if self.AMDock.project.bsd_mode_target == 0:
+                    for nfill in range(len(self.AMDock.target.fill_list)):
+                        fill_info = PDBINFO('FILL_{}_{}out{:02d}.pdb'.format(self.AMDock.target.pdbqt_name,
+                                                                             self.AMDock.ligand.ha * 6, nfill + 1))
+                        if not fill_info.center:
+                            msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'This FILL no exist or is not '
+                                                                                    'possible to open pdb file',
+                                                            QtGui.QMessageBox.Ok)
+                        ad4_output = os.path.join(self.AMDock.project.results, self.AMDock.ligand.pdbqt_name + '_' +
+                                                  self.AMDock.target.name + '_{:02d}.dlg'.format(
+                            nfill + 1))
+                        prepare_gpf4_arg = [self.AMDock.prepare_gpf4_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                                            self.AMDock.target.pdbqt, '-p', 'spacing=%.3f' %
+                                            self.AMDock.spacing_autodock, '-p', 'npts=%d,%d,%d' % (
+                                                self.size[0] / self.AMDock.spacing_autodock,
+                                                self.size[1] / self.AMDock.spacing_autodock,
+                                                self.size[2] / self.AMDock.spacing_autodock),
+                                            '-p', 'gridcenter={0},{1},{2}'.format(*fill_info.center)]
+                        prepare_gpf4 = {'Prepare_gpf4': [self.AMDock.this_python, prepare_gpf4_arg]}
+                        queue.put(prepare_gpf4)
+                        autogrid4 = {'AutoGrid4': [self.AMDock.autogrid, ['-p', self.AMDock.target.gpf]]}
+                        queue.put(autogrid4)
+                        prepare_dpf_arg = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                                           self.AMDock.target.pdbqt, '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
+                                           'ga_num_evals=%s' % self.AMDock.ga_num_eval, '-p', 'ga_run=%s' % self.AMDock.ga_run]
+                        prepare_dpf4 = {'Prepare_dpf4': [self.AMDock.this_python, prepare_dpf_arg]}
+                        queue.put(prepare_dpf4)
+                        autodock_arg = ['-p', self.AMDock.ligand.pdbqt_name + '_' + self.AMDock.target.dpf, '-l',
+                                        ad4_output]
+                        autodock = {'AutoDock4': [self.AMDock.autodock, autodock_arg]}
+                        queue.put(autodock)
 
-                autogrid_argB = ['-p', proteinB_gpf]
-                self.autogrid4B = {'AutoGrid4 B': [self.ws.autogrid, autogrid_argB]}
+                else:
+                    self.AMDock.target.ad4_output = os.path.join(self.AMDock.project.results,
+                                                                 self.AMDock.ligand.pdbqt_name + '_' +
+                                                                 self.AMDock.target.name + '_out.dlg')
+                    prepare_gpf4_arg = [self.AMDock.prepare_gpf4_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                                        self.AMDock.target.pdbqt, '-p', 'spacing=%.3f' % self.AMDock.spacing_autodock,
+                                        '-p',
+                                        'npts=%d,%d,%d' % (self.size[0] / self.AMDock.spacing_autodock, self.size[1] /
+                                                           self.AMDock.spacing_autodock, self.size[2] /
+                                                           self.AMDock.spacing_autodock), '-p', 'gridcenter={0},{1},'
+                                                                                                '{2}'.format(
+                            *self.grid_center)]
+                    prepare_gpf4 = {'Prepare_gpf4': [self.AMDock.this_python, prepare_gpf4_arg]}
+                    queue.put(prepare_gpf4)
+                    autogrid4 = {'AutoGrid4': [self.AMDock.autogrid, ['-p', self.AMDock.target.gpf]]}
+                    queue.put(autogrid4)
+                    prepare_dpf_arg = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                                       self.AMDock.target.pdbqt, '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
+                                       'ga_num_evals=%s' % self.AMDock.ga_num_eval, '-p', 'ga_run=%s' % self.AMDock.ga_run]
+                    prepare_dpf4 = {'Prepare_dpf4': [self.AMDock.this_python, prepare_dpf_arg]}
+                    queue.put(prepare_dpf4)
+                    autodock_arg = ['-p', self.AMDock.ligand.pdbqt_name + '_' + self.AMDock.target.dpf, '-l',
+                                    self.AMDock.target.ad4_output]
+                    autodock = {'AutoDock4': [self.AMDock.autodock, autodock_arg]}
+                    queue.put(autodock)
 
-                prepare_dpf_argB = [self.ws.prepare_dpf_py, '-l', str(self.parent.v.ligand_pdbqt), '-r',
-                                    str(self.parent.v.analog_protein_pdbqt), '-p', 'rmstol=%s' % self.parent.v.rmsd,
-                                    '-p', 'ga_num_evals=%s' % self.parent.v.eval, '-p',
-                                    'ga_run=%s' % self.parent.v.runs]
-                self.prepare_dpf4B = {'Prepare_dpf4 B': [self.ws.this_python, prepare_dpf_argB]}
+                if self.AMDock.project.mode == 1:
+                    if self.AMDock.project.bsd_mode_offtarget == 0:
+                        for nfill in range(len(self.AMDock.offtarget.fill_list)):
+                            fill_info = PDBINFO('FILL_{}_{}out{:02d}.pdb'.format(self.AMDock.offtarget.pdbqt_name,
+                                                                                 self.AMDock.ligand.ha * 6, nfill + 1))
+                            if not fill_info.center:
+                                msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning',
+                                                                'This FILL no exist or is not possible to open '
+                                                                'pdb file', QtGui.QMessageBox.Ok)
+                            ad4_output = os.path.join(self.AMDock.project.results, self.AMDock.ligand.pdbqt_name + '_' +
+                                                      self.AMDock.offtarget.name +
+                                                      '_out{:02d}.dlg'.format(nfill + 1))
+                            prepare_gpf4_argB = [self.AMDock.prepare_gpf4_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                                                 self.AMDock.offtarget.pdbqt, '-p',
+                                                 'spacing=%.3f' % self.AMDock.spacing_autodock, '-p',
+                                                 'npts=%d,%d,%d' % (
+                                                     self.size[0] / self.AMDock.spacing_autodock, self.size[1] /
+                                                     self.AMDock.spacing_autodock, self.size[2] /
+                                                     self.AMDock.spacing_autodock), '-p', 'gridcenter={0},{1},'
+                                                                                          '{2}'.format(
+                                    *fill_info.center)]
+                            prepare_gpf4B = {'Prepare_gpf4 B': [self.AMDock.this_python, prepare_gpf4_argB]}
+                            queue.put(prepare_gpf4B)
 
-                self.autodock_dlgB = str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + proteinB_dlg)
-                autodock_argB = ['-p', str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + proteinB_dpf),
-                                 '-l', os.path.join(self.parent.v.result_dir, self.autodock_dlgB)]
-                self.autodockB = {'AutoDock4 B': [self.ws.autodock, autodock_argB]}
+                            autogrid4B = {'AutoGrid4 B': [self.AMDock.autogrid, ['-p', self.AMDock.offtarget.gpf]]}
+                            queue.put(autogrid4B)
 
-                self.list_processB = [self.prepare_gpf4B, self.autogrid4B, self.prepare_dpf4B, self.autodockB]
-                self.list_process.extend(self.list_processB)
+                            prepare_dpf_argB = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                                                self.AMDock.offtarget.pdbqt,
+                                                '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
+                                                'ga_num_evals=%s' % self.AMDock.ga_num_eval,
+                                                '-p', 'ga_run=%s' % self.AMDock.ga_run]
+                            prepare_dpf4B = {'Prepare_dpf4 B': [self.AMDock.this_python, prepare_dpf_argB]}
+                            queue.put(prepare_dpf4B)
 
-            self.queue = Queue.Queue()
-            for process in self.list_process:
-                self.queue.put(process)
-            self.worker.init(self.queue, 'Molecular Docking Simulation')
-            self.worker.start_process()
-        elif self.parent.v.docking_program == 'AutoDockZn':
-            shutil.copy(self.ws.zn_ff, os.getcwd())
+                            autodock_argB = ['-p', self.AMDock.ligand.pdbqt_name + '_' + self.AMDock.offtarget.dpf,
+                                             '-l', ad4_output]
+                            autodockB = {'AutoDock4 B': [self.AMDock.autodock, autodock_argB]}
+                            queue.put(autodockB)
+                    else:
+                        self.AMDock.offtarget.ad4_output = os.path.join(self.AMDock.project.results,
+                                                                        self.AMDock.ligand.pdbqt_name + '_' +
+                                                                        self.AMDock.offtarget.name + '_out.dlg')
+                        prepare_gpf4_argB = [self.AMDock.prepare_gpf4_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                                             self.AMDock.offtarget.pdbqt, '-p',
+                                             'spacing=%.3f' % self.AMDock.spacing_autodock, '-p',
+                                             'npts=%d,%d,%d' % (
+                                                 self.size[0] / self.AMDock.spacing_autodock, self.size[1] /
+                                                 self.AMDock.spacing_autodock, self.size[2] /
+                                                 self.AMDock.spacing_autodock), '-p', 'gridcenter={0},{1},'
+                                                                                      '{2}'.format(*self.grid_centerB)]
+                        prepare_gpf4B = {'Prepare_gpf4 B': [self.AMDock.this_python, prepare_gpf4_argB]}
+                        queue.put(prepare_gpf4B)
 
-            protein_TZ = str(self.parent.v.protein_pdbqt.split('.')[0] + '_TZ.pdbqt')
-            protein_gpf = str(self.parent.v.protein_pdbqt.split('.')[0] + '_TZ.gpf')
-            protein_dlg = str(self.parent.v.protein_pdbqt.split('.')[0] + '_TZ.dlg')
-            protein_dpf = str(self.parent.v.protein_pdbqt.split('.')[0] + '_TZ.dpf')
+                        autogrid4B = {'AutoGrid4 B': [self.AMDock.autogrid, ['-p', self.AMDock.offtarget.gpf]]}
+                        queue.put(autogrid4B)
 
-            pseudozn_arg = [self.ws.zinc_pseudo_py, '-r', str(self.parent.v.protein_pdbqt)]
-            self.pseudozn = {'PseudoZn': [self.ws.this_python, pseudozn_arg]}
+                        prepare_dpf_argB = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                                            self.AMDock.offtarget.pdbqt,
+                                            '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
+                                            'ga_num_evals=%s' % self.AMDock.ga_num_eval,
+                                            '-p', 'ga_run=%s' % self.AMDock.ga_run]
+                        prepare_dpf4B = {'Prepare_dpf4 B': [self.AMDock.this_python, prepare_dpf_argB]}
+                        queue.put(prepare_dpf4B)
 
-            prepare_gpf4zn_arg = [self.ws.prepare_gpf4zn_py, '-l', str(self.parent.v.ligand_pdbqt), '-r',
-                                  protein_TZ, '-f', self.parent.v.obj_center, '-p',
-                                  'spacing=%.3f' % self.parent.v.spacing_autodock, '-p', 'npts=%d,%d,%d' %
-                                  (self._size_x / self.parent.v.spacing_autodock,
-                                   self._size_y / self.parent.v.spacing_autodock,
-                                   self._size_z / self.parent.v.spacing_autodock), '-p',
-                                  'parameter_file=AD4Zn.dat']
-            self.prepare_gpf4zn = {'Prepare_gpf4zn': [self.ws.this_python, prepare_gpf4zn_arg]}
+                        autodock_argB = ['-p', self.AMDock.ligand.pdbqt_name + '_' + self.AMDock.offtarget.dpf, '-l',
+                                         self.AMDock.offtarget.ad4_output]
+                        autodockB = {'AutoDock4 B': [self.AMDock.autodock, autodock_argB]}
+                        queue.put(autodockB)
 
-            autogridzn_arg = ['-p', protein_gpf]
-            self.autogrid4 = {'AutoGrid4': [self.ws.autogrid, autogridzn_arg]}
+        elif self.AMDock.docking_program == 'AutoDockZn':
+            shutil.copy(self.AMDock.zn_ff, os.getcwd())
+            self.AMDock.target.score = os.path.join(self.AMDock.project.results,
+                                                    self.AMDock.ligand.name + '_' + self.AMDock.target.name + '_score.log')
+            if self.AMDock.project.mode == 2:
+                queue.name = 4
+                pseudozn = {'PseudoZn': [self.AMDock.this_python, [self.AMDock.zinc_pseudo_py, '-r',
+                                                                   self.AMDock.target.pdbqt]]}
+                queue.put(pseudozn)
+                prepare_gpf4zn_arg = [self.AMDock.prepare_gpf4zn_py, '-l', str(self.AMDock.ligand.pdbqt), '-r',
+                                      self.AMDock.target.tzpdbqt, '-p', 'spacing=%.3f' % self.AMDock.spacing_autodock,
+                                      '-p',
+                                      'npts=%d,%d,%d' % (self.size[1] / self.AMDock.spacing_autodock, self.size[1] /
+                                                         self.AMDock.spacing_autodock,
+                                                         self.size[2] / self.AMDock.spacing_autodock), '-p',
+                                      'gridcenter={0},{1},{2}'.format(*self.ligand_info.center), '-p',
+                                      'parameter_file=AD4Zn.dat']
+                prepare_gpf4zn = {'Prepare_gpf4zn': [self.AMDock.this_python, prepare_gpf4zn_arg]}
+                queue.put(prepare_gpf4zn)
+                autogrid4 = {'AutoGrid4': [self.AMDock.autogrid, ['-p', self.AMDock.target.tzgpf]]}
+                queue.put(autogrid4)
+                prepare_dpf_arg = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                                   self.AMDock.target.tzpdbqt, '-p', 'parameter_file=AD4Zn.dat', '-e']
+                prepare_dpf4 = {'Prepare_dpf4': [self.AMDock.this_python, prepare_dpf_arg]}
 
-            prepare_dpfzn_arg = [self.ws.prepare_dpf_py, '-l', str(self.parent.v.ligand_pdbqt), '-r', protein_TZ, '-p',
-                                 'rmstol=%s' % self.parent.v.rmsd,
-                                 '-p', 'ga_num_evals=%s' % self.parent.v.eval, '-p', 'ga_run=%s' % self.parent.v.runs]
-            self.prepare_dfp4zn = {'Prepare_dpf4': [self.ws.this_python, prepare_dpfzn_arg]}
+                queue.put(prepare_dpf4)
+                autodockzn_arg = ['-p', self.AMDock.ligand.pdbqt_name + '_' + self.AMDock.target.tzdpf, '-l',
+                                  self.AMDock.target.score]
+                autodockzn = {'AutoDock4ZN': [self.AMDock.autodock, autodockzn_arg]}
+                queue.put(autodockzn)
+            else:
+                queue.name = 3
+                if self.AMDock.project.bsd_mode_target == 0:
+                    for nfill in range(len(self.AMDock.target.fill_list)):
+                        fill_info = PDBINFO('FILL_{}_{}out{:02d}.pdb'.format(self.AMDock.target.pdbqt_name,
+                                                                             self.AMDock.ligand.ha * 6, nfill + 1))
+                        if not fill_info.center:
+                            msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'This FILL no exist or is not '
+                                                                                    'possible to open pdb file',
+                                                            QtGui.QMessageBox.Ok)
+                        ad4_output = os.path.join(self.AMDock.project.results, self.AMDock.ligand.pdbqt_name + '_' +
+                                                  self.AMDock.target.name + '_{:02d}.dlg'.format(
+                            nfill + 1))
+                        pseudozn = {'PseudoZn': [self.AMDock.this_python, [self.AMDock.zinc_pseudo_py, '-r',
+                                                                           self.AMDock.target.pdbqt]]}
+                        queue.put(pseudozn)
+                        prepare_gpf4zn_arg = [self.AMDock.prepare_gpf4zn_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                                              self.AMDock.target.tzpdbqt, '-p', 'spacing=%.3f' %
+                                              self.AMDock.spacing_autodock, '-p', 'npts=%d,%d,%d' %
+                                              (self.size[0] / self.AMDock.spacing_autodock,
+                                               self.size[1] / self.AMDock.spacing_autodock,
+                                               self.size[2] / self.AMDock.spacing_autodock),
+                                              '-p', 'gridcenter={0},{1},{2}'.format(*fill_info.center),
+                                              '-p', 'parameter_file=AD4Zn.dat']
+                        prepare_gpf4zn = {'Prepare_gpf4zn': [self.AMDock.this_python, prepare_gpf4zn_arg]}
+                        queue.put(prepare_gpf4zn)
+                        autogrid4 = {'AutoGrid4': [self.AMDock.autogrid, ['-p', self.AMDock.target.tzgpf]]}
+                        queue.put(autogrid4)
+                        prepare_dpf_arg = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                                           self.AMDock.target.tzpdbqt, '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
+                                           'ga_num_evals=%s' % self.AMDock.ga_num_eval, '-p', 'ga_run=%s' % self.AMDock.ga_run]
+                        prepare_dpf4 = {'Prepare_dpf4': [self.AMDock.this_python, prepare_dpf_arg]}
+                        queue.put(prepare_dpf4)
+                        autodockzn_arg = ['-p', self.AMDock.ligand.pdbqt_name + '_' + self.AMDock.target.tzdpf, '-l',
+                                          ad4_output]
+                        autodockzn = {'AutoDock4ZN': [self.AMDock.autodock, autodockzn_arg]}
+                        queue.put(autodockzn)
 
-            self.autodock_dlg = str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + protein_dlg)
-            autodockzn_arg = ['-p', str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + protein_dpf),
-                              '-l', os.path.join(self.parent.v.result_dir, self.autodock_dlg)]
-            self.autodockzn = {'AutoDock4ZN': [self.ws.autodock, autodockzn_arg]}
-            self.list_process = [self.pseudozn, self.prepare_gpf4zn, self.autogrid4, self.prepare_dfp4zn,
-                                 self.autodockzn]
-            if self.parent.v.cr:
-                proteinB_TZ = str(self.parent.v.analog_protein_pdbqt.split('.')[0] + '_TZ.pdbqt')
-                proteinB_gpf = str(self.parent.v.analog_protein_pdbqt.split('.')[0] + '_TZ.gpf')
-                proteinB_dlg = str(self.parent.v.analog_protein_pdbqt.split('.')[0] + '_TZ.dlg')
-                proteinB_dpf = str(self.parent.v.analog_protein_pdbqt.split('.')[0] + '_TZ.dpf')
+                else:
+                    self.AMDock.target.ad4_output = os.path.join(self.AMDock.project.results,
+                                                                 self.AMDock.ligand.pdbqt_name + '_' +
+                                                                 self.AMDock.target.name + '_out.dlg')
+                    pseudozn = {'PseudoZn': [self.AMDock.this_python, [self.AMDock.zinc_pseudo_py, '-r',
+                                                                       self.AMDock.target.pdbqt]]}
+                    queue.put(pseudozn)
+                    prepare_gpf4zn_arg = [self.AMDock.prepare_gpf4zn_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                                          self.AMDock.target.tzpdbqt, '-p',
+                                          'spacing=%.3f' % self.AMDock.spacing_autodock, '-p',
+                                          'npts=%d,%d,%d' % (self.size[0] / self.AMDock.spacing_autodock, self.size[1] /
+                                                             self.AMDock.spacing_autodock, self.size[2] /
+                                                             self.AMDock.spacing_autodock), '-p', 'gridcenter={0},{1},'
+                                                                                                  '{2}'.format(
+                            *self.grid_center), '-p', 'parameter_file=AD4Zn.dat']
+                    prepare_gpf4zn = {'Prepare_gpf4zn': [self.AMDock.this_python, prepare_gpf4zn_arg]}
+                    queue.put(prepare_gpf4zn)
+                    autogrid4 = {'AutoGrid4': [self.AMDock.autogrid, ['-p', self.AMDock.target.tzgpf]]}
+                    queue.put(autogrid4)
+                    prepare_dpf_arg = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                                       self.AMDock.target.tzpdbqt, '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
+                                       'ga_num_evals=%s' % self.AMDock.ga_num_eval, '-p', 'ga_run=%s' % self.AMDock.ga_run]
+                    prepare_dpf4 = {'Prepare_dpf4': [self.AMDock.this_python, prepare_dpf_arg]}
+                    queue.put(prepare_dpf4)
+                    autodockzn_arg = ['-p', self.AMDock.ligand.pdbqt_name + '_' + self.AMDock.target.tzdpf, '-l',
+                                      self.AMDock.target.ad4_output]
+                    autodockzn = {'AutoDock4ZN': [self.AMDock.autodock, autodockzn_arg]}
+                    queue.put(autodockzn)
 
-                pseudozn_argB = [self.ws.zinc_pseudo_py, '-r', str(self.parent.v.analog_protein_pdbqt)]
-                self.pseudoznB = {'PseudoZn B': [self.ws.this_python, pseudozn_argB]}
+                if self.AMDock.project.mode == 1:
+                    if self.AMDock.project.bsd_mode_offtarget == 0:
+                        for nfill in range(len(self.AMDock.offtarget.fill_list)):
+                            fill_info = PDBINFO('FILL_{}_{}out{:02d}.pdb'.format(self.AMDock.offtarget.pdbqt_name,
+                                                                                 self.AMDock.ligand.ha * 6, nfill + 1))
+                            if not fill_info.center:
+                                msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning',
+                                                                'This FILL no exist or is not possible to open '
+                                                                'pdb file', QtGui.QMessageBox.Ok)
+                            ad4_output = os.path.join(self.AMDock.project.results, self.AMDock.ligand.pdbqt_name + '_' +
+                                                      self.AMDock.offtarget.name +
+                                                      '_out{:02d}.dlg'.format(nfill + 1))
+                            pseudoznB = {'PseudoZn B': [self.AMDock.this_python, [self.AMDock.zinc_pseudo_py, '-r',
+                                                                                  self.AMDock.offtarget.pdbqt]]}
+                            queue.put(pseudoznB)
 
-                prepare_gpf4zn_argB = [self.ws.prepare_gpf4zn_py, '-l', str(self.parent.v.ligand_pdbqt), '-r',
-                                       proteinB_TZ, '-f', self.parent.v.obj_center1, '-p',
-                                       'spacing=%.3f' % self.parent.v.spacing_autodock, '-p', 'npts=%d,%d,%d' %
-                                       (self._size_xB / self.parent.v.spacing_autodock,
-                                        self._size_yB / self.parent.v.spacing_autodock,
-                                        self._size_zB / self.parent.v.spacing_autodock), '-p',
-                                       'parameter_file=AD4Zn.dat']
-                self.prepare_gpf4znB = {'Prepare_gpf4zn B': [self.ws.this_python, prepare_gpf4zn_argB]}
+                            prepare_gpf4zn_argB = [self.AMDock.prepare_gpf4zn_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                                                   self.AMDock.offtarget.tzpdbqt, '-p', 'spacing=%.3f' %
+                                                   self.AMDock.spacing_autodock, '-p', 'npts=%d,%d,%d' % (
+                                                       self.size[0] / self.AMDock.spacing_autodock,
+                                                       self.size[1] / self.AMDock.spacing_autodock,
+                                                       self.size[2] / self.AMDock.spacing_autodock),
+                                                   '-p', 'gridcenter={0},{1},{2}'.format(*fill_info.center), '-p',
+                                                   'parameter_file=AD4Zn.dat']
+                            prepare_gpf4znB = {'Prepare_gpf4zn B': [self.AMDock.this_python, prepare_gpf4zn_argB]}
+                            queue.put(prepare_gpf4znB)
 
-                autogridzn_argB = ['-p', proteinB_gpf]
-                self.autogrid4B = {'AutoGrid4 B': [self.ws.autogrid, autogridzn_argB]}
+                            autogrid4B = {'AutoGrid4 B': [self.AMDock.autogrid, ['-p', self.AMDock.offtarget.tzgpf]]}
+                            queue.put(autogrid4B)
 
-                prepare_dpfzn_argB = [self.ws.prepare_dpf_py, '-l', str(self.parent.v.ligand_pdbqt), '-r', proteinB_TZ,
-                                      '-p', 'rmstol=%s' % self.parent.v.rmsd,
-                                      '-p', 'ga_num_evals=%s' % self.parent.v.eval, '-p',
-                                      'ga_run=%s' % self.parent.v.runs]
-                self.prepare_dfp4znB = {'Prepare_dpf4 B': [self.ws.this_python, prepare_dpfzn_argB]}
+                            prepare_dpf_argB = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                                                self.AMDock.offtarget.tzpdbqt,
+                                                '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
+                                                'ga_num_evals=%s' % self.AMDock.ga_num_eval,
+                                                '-p', 'ga_run=%s' % self.AMDock.ga_run]
+                            prepare_dpf4B = {'Prepare_dpf4 B': [self.AMDock.this_python, prepare_dpf_argB]}
+                            queue.put(prepare_dpf4B)
 
-                self.autodock_dlgB = str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + proteinB_dlg)
-                autodockzn_argB = ['-p', str(self.parent.v.ligand_pdbqt.split('.')[0] + '_' + proteinB_dpf),
-                                   '-l', os.path.join(self.parent.v.result_dir, self.autodock_dlgB)]
-                self.autodockznB = {'AutoDock4ZN B': [self.ws.autodock, autodockzn_argB]}
+                            autodockzn_argB = ['-p', self.AMDock.ligand.pdbqt_name + '_' + self.AMDock.offtarget.tzdpf,
+                                               '-l', ad4_output]
+                            autodockznB = {'AutoDock4ZN B': [self.AMDock.autodock, autodockzn_argB]}
+                            queue.put(autodockznB)
+                    else:
+                        self.AMDock.offtarget.ad4_output = os.path.join(self.AMDock.project.results,
+                                                                        self.AMDock.ligand.pdbqt_name + '_' +
+                                                                        self.AMDock.offtarget.name + '_out.dlg')
+                        pseudoznB = {'PseudoZn B': [self.AMDock.this_python, [self.AMDock.zinc_pseudo_py, '-r',
+                                                                              self.AMDock.offtarget.pdbqt]]}
+                        queue.put(pseudoznB)
 
-                self.list_processB = [self.pseudoznB, self.prepare_gpf4znB, self.autogrid4B, self.prepare_dfp4znB,
-                                      self.autodockznB]
-                self.list_process.extend(self.list_processB)
+                        prepare_gpf4zn_argB = [self.AMDock.prepare_gpf4zn_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                                               self.AMDock.offtarget.tzpdbqt, '-p',
+                                               'spacing=%.3f' % self.AMDock.spacing_autodock, '-p',
+                                               'npts=%d,%d,%d' % (
+                                                   self.size[0] / self.AMDock.spacing_autodock, self.size[1] /
+                                                   self.AMDock.spacing_autodock,
+                                                   self.size[2] / self.AMDock.spacing_autodock),
+                                               '-p', 'gridcenter={0},{1},{2}'.format(*self.grid_centerB), '-p',
+                                               'parameter_file=AD4Zn.dat']
+                        prepare_gpf4znB = {'Prepare_gpf4zn B': [self.AMDock.this_python, prepare_gpf4zn_argB]}
+                        queue.put(prepare_gpf4znB)
 
-            self.queue = Queue.Queue()
-            for process in self.list_process:
-                self.queue.put(process)
-            self.worker.init(self.queue, 'Molecular Docking Simulation')
-            self.worker.start_process()
+                        autogrid4B = {'AutoGrid4 B': [self.AMDock.autogrid, ['-p', self.AMDock.offtarget.tzgpf]]}
+                        queue.put(autogrid4B)
+
+                        prepare_dpf_argB = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                                            self.AMDock.offtarget.tzpdbqt,
+                                            '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
+                                            'ga_num_evals=%s' % self.AMDock.ga_num_eval,
+                                            '-p', 'ga_run=%s' % self.AMDock.ga_run]
+                        prepare_dpf4B = {'Prepare_dpf4 B': [self.AMDock.this_python, prepare_dpf_argB]}
+                        queue.put(prepare_dpf4B)
+
+                        autodockzn_argB = ['-p', self.AMDock.ligand.pdbqt_name + '_' + self.AMDock.offtarget.tzdpf,
+                                           '-l',
+                                           self.AMDock.offtarget.ad4_output]
+                        autodockznB = {'AutoDock4ZN B': [self.AMDock.autodock, autodockzn_argB]}
+                        queue.put(autodockznB)
+
+        self.W.set_queue(queue)  # , 'Molecular Docking Simulation')
+        self.W.start_process()
+
+    def check_state(self, state, prog):
+        self.AMDock.state = state
+        if self.AMDock.state == 2:
+            self.process_state.setText('RUNNING')
+            self.process_state.setStyleSheet("QLabel {font-weight: bold; color: red;}")
+            self.init_prog(prog)
+        elif self.AMDock.state == 1:
+            self.process_state.setText('STARTING')
+            self.process_state.setStyleSheet("QLabel {font-weight: bold; color: blue;}")
+        else:
+            self.process_state.setText('NOT RUNNING')
+            self.process_state.setStyleSheet("QLabel {font-weight: bold; color: green;}")
+
+    def check_section(self, qname):
+        self.AMDock.project.previous = 0
+        self.AMDock.section = qname
+        self.highlight()
+        if self.AMDock.section == 1:
+            self.progressBar_global.setValue(50)
+            self.progressBar_section.setValue(0)
+            self.program_label.setText('Processing Input Files...Done.')
+            self.size_x.setValue(self.lig_size)
+            self.size_y.setValue(self.lig_size)
+            self.size_z.setValue(self.lig_size)
+            self.size_xB.setValue(self.lig_size)
+            self.size_yB.setValue(self.lig_size)
+            self.size_zB.setValue(self.lig_size)
+            self.AMDock.log_widget.textedit.append(Ft('Prepare Initial Files...Done.\n').section())
+        elif self.AMDock.section == 2:
+            self.progressBar_global.setValue(75)
+            self.progressBar_section.setValue(0)
+            if self.AMDock.project.bsd_mode_target == 0:
+                self.AMDock.log_widget.textedit.append(Ft('Binding site determination mode for Target: Automatic '
+                                                          'Mode').definitions())
+            elif self.AMDock.project.bsd_mode_target == 1:
+                self.AMDock.log_widget.textedit.append(Ft('Binding site determination mode for Target: Centered on '
+                                                          'Residue(s)').definitions())
+            elif self.AMDock.project.bsd_mode_target == 2:
+                self.AMDock.log_widget.textedit.append(Ft('Binding site determination mode for Target: Centered on'
+                                                          'Hetero').definitions())
+            else:
+                self.AMDock.log_widget.textedit.append(Ft('Binding site determination mode for Target: User-defined Box'
+                                                          ).definitions())
+            if self.AMDock.project.bsd_mode_target in [2, 3]:
+                self.coor_x.setValue(float(self.grid_center[0]))
+                self.coor_y.setValue(float(self.grid_center[1]))
+                self.coor_z.setValue(float(self.grid_center[2]))
+                self.AMDock.log_widget.textedit.append(Ft('Target BOX: Center: {:7.02f} {:7.02f} {:7.02f}  Size: {:4d}'
+                                                          '{:4d} {:4d}'.format(float(self.grid_center[0]),
+                                                                               float(self.grid_center[1]),
+                                                                               float(self.grid_center[2]),
+                                                                               self.size[0], self.size[1], self.size[2]
+                                                                               )).definitions())
+            else:
+                for fill in self.AMDock.target.fill_list:
+                    self.AMDock.log_widget.textedit.append(Ft('Target Box at FILL: {:02d} Center: {:7.02f} {:7.02f} '
+                                                              '{:7.02f} Size: {:4d} {:4d} {:4d}'.format(
+                        fill, self.AMDock.target.fill_list[fill][2][0], self.AMDock.target.fill_list[fill][2][1],
+                        self.AMDock.target.fill_list[fill][2][2], self.size[0], self.size[1],
+                        self.size[2])).definitions())
+            if self.AMDock.project.mode == 1:
+                if self.AMDock.project.bsd_mode_target == 0:
+                    self.AMDock.log_widget.textedit.append(Ft('Binding site determination mode for Off-Target: '
+                                                              'Automatic Mode').definitions())
+                elif self.AMDock.project.bsd_mode_target == 1:
+                    self.AMDock.log_widget.textedit.append(Ft('Binding site determination mode for Off-Target: '
+                                                              'Centered on Residue(s)').definitions())
+                elif self.AMDock.project.bsd_mode_target == 2:
+                    self.AMDock.log_widget.textedit.append(Ft('Binding site determination mode for Off-Target: '
+                                                              'Centered on Hetero').definitions())
+                else:
+                    self.AMDock.log_widget.textedit.append(Ft('Binding site determination mode for Off-Target: '
+                                                              'User-defined Box').definitions())
+
+                if self.AMDock.project.bsd_mode_offtarget in [2, 3]:
+                    self.coor_xB.setValue(float(self.grid_centerB[0]))
+                    self.coor_yB.setValue(float(self.grid_centerB[1]))
+                    self.coor_zB.setValue(float(self.grid_centerB[2]))
+                    self.AMDock.log_widget.textedit.append(Ft('Off-Target BOX: Center: {:8.02f} {:8.02f} {:8.02f} '
+                                                              'Size: {:4d} {:4d} {:4d}'.format(
+                        float(self.grid_centerB[0]), float(self.grid_centerB[1]), float(self.grid_centerB[2]),
+                        self.sizeB[0], self.sizeB[1], self.sizeB[2]
+                    )).definitions())
+                else:
+                    for fill in self.AMDock.offtarget.fill_list:
+                        self.AMDock.log_widget.textedit.append(Ft('Off-Target Box at FILL: {:02d} Center: {:7.02f} '
+                                                                  '{:7.02f} {:7.02f} Size: {:4d} {:4d} {:4d}'.format(
+                            fill, self.AMDock.offtarget.fill_list[fill][2][0],
+                            self.AMDock.offtarget.fill_list[fill][2][1],
+                            self.AMDock.offtarget.fill_list[fill][2][2],
+                            self.sizeB[0], self.sizeB[1], self.sizeB[2])).definitions())
+            self.program_label.setText('Binding Site Definition...Done.')
+            self.AMDock.log_widget.textedit.append(Ft('Binding Site Definition...Done.\n').section())
+        elif self.AMDock.section == 3:
+            self.progressBar_global.setValue(100)
+            self.progressBar_section.setValue(0)
+            self.program_label.setText('Molecular Docking...Done.')
+            self.AMDock.log_widget.textedit.append(Ft('Molecular Docking...Done.\n').section())
+            self.go_result()
+        elif self.AMDock.section == 4:
+            ADout = open(self.AMDock.target.score)
+            for line in ADout:
+                line = line.strip('\n')
+                self.AMDock.log_widget.textedit.append(line)
+            ADout.close()
+            self.progressBar_global.setValue(100)
+            self.progressBar_section.setValue(0)
+            self.program_label.setText('Scoring...Done.')
+            self.AMDock.log_widget.textedit.append(Ft('Scoring...Done.\n').section())
+            self.go_scoring()
+
+    def reset_ligand(self):
+        try:
+            os.remove(self.AMDock.ligand.input)
+        except:
+            pass
+        self.ligand_label.clear()
+        self.ligand_text.clear()
+        self.ligand_label.hide()
+        self.AMDock.ligand = BASE()
+
+    def reset_target(self):
+        try:
+            os.remove(self.AMDock.target.input)
+        except:
+            pass
+        self.target_label.clear()
+        self.target_text.clear()
+        self.target_label.hide()
+        self.AMDock.target = BASE()
+
+    def reset_offtarget(self):
+        try:
+            os.remove(self.AMDock.offtarget.input)
+        except:
+            pass
+        self.offtarget_label.clear()
+        self.offtarget_text.clear()
+        self.offtarget_label.hide()
+        self.AMDock.offtarget = BASE()
+
+    def init_prog(self, prog):
+        self.AMDock.project.prog = prog
+        self.program_label.setText('Running {}...'.format(prog))
+        print type(prog), type(str(prog)), prog
+        prog = str(prog)
+        if prog == 'Align':
+            self.AMDock.log_widget.textedit.append(Ft('Running proteins alignment...').process())
+        else:
+            if prog[-1] == 'B':
+                self.AMDock.log_widget.textedit.append(Ft('Running {} for Off-Target...'.format(prog[:-2])).process())
+            else:
+                if prog in ['Prepare_Ligand4', 'Protonate Ligand']:
+                    self.AMDock.log_widget.textedit.append(Ft('Running {} for Ligand...'.format(prog)).process())
+                else:
+                    self.AMDock.log_widget.textedit.append(Ft('Running {} for Target...'.format(prog)).process())
+            if prog in ['AutoDock4', 'AutoDock4 B', 'AutoDock4ZN', 'AutoDock4ZN B']:
+                self.timerAD = QtCore.QTimer()
+                self.timerAD.timeout.connect(self.autodock_output)
+                self.timerAD.start(200)
+                self.ad4_line = 0  # for check line number in autodock output
+
+        # if prog == 'PDB2PQR':
+        #     self.AMDock.log_widget.textedit.append(Ft('Running PDB2PQR for Target...').process())
+        # elif prog == 'Prepare_Receptor4':
+        #     self.AMDock.log_widget.textedit.append(Ft('Prepare Target...').process())
+        # elif prog == 'Prepare_Ligand4':
+        #     self.AMDock.log_widget.textedit.append(Ft('Prepare Ligand...').process())
+        # elif prog == 'PDB2PQR B':
+        #     self.AMDock.log_widget.textedit.append(Ft('Running PDB2PQR for Off-Target...').process())
+        # elif prog == 'Prepare_Receptor4 B':
+        #     self.AMDock.log_widget.textedit.append(Ft('Prepare Off-Target...').process())
+        # elif prog == 'AutoDock4':
+        #     self.AMDock.log_widget.textedit.append(Ft('Determination of better poses for Target Protein...').process())
+        #     self.AMDock.log_widget.textedit.append(Ft('Running AutoDock4...').process())
+        #     self.timerAD = QtCore.QTimer()
+        #     self.timerAD.timeout.connect(self.autodock_output)
+        #     self.timerAD.start(200)
+        #     self.ad4_line = 0  # for check line number in autodock output
+        # if prog == 'AutoDock4 B':
+        #     self.AMDock.log_widget.textedit.append(
+        #         Ft('Determination of better poses for Off-Target Protein...').process())
+        #     self.AMDock.log_widget.textedit.append(Ft('Running AutoDock4...').process())
+        #     self.timerAD = QtCore.QTimer()
+        #     self.timerAD.timeout.connect(self.autodock_output)
+        #     self.timerAD.start(200)
+        #     self.ad4_line = 0  # for check line number in autodock output
+        # if prog == 'AutoDock4ZN':
+        #     self.AMDock.log_widget.textedit.append(Ft('Determination of better poses for Target Protein...').process())
+        #     self.AMDock.log_widget.textedit.append(Ft('Running AutoDock4 Zn...').process())
+        #     self.timerAD = QtCore.QTimer()
+        #     self.timerAD.timeout.connect(self.autodock_output)
+        #     self.timerAD.start(200)
+        #     self.ad4_line = 0  # for check line number in autodock output
+        # if prog == 'AutoDock4ZN B':
+        #     self.part = 0
+        #     self.AMDock.log_widget.textedit.append(Ft('Determination of better poses for Off-Target '
+        #                                               'Protein...').process())
+        #     self.AMDock.log_widget.textedit.append(Ft('Running AutoDock4 Zn...').process())
+        #     self.timerAD = QtCore.QTimer()
+        #     self.timerAD.timeout.connect(self.autodock_output)
+        #     self.timerAD.start(200)
+        #     self.ad4_line = 0  # for check line number in autodock output
+        # if prog == 'AutoDock Vina':
+        #     self.AMDock.log_widget.textedit.append(Ft('Determination of better poses for Target '
+        #                                               'Protein...').process())
+        #     self.AMDock.log_widget.textedit.append(Ft('Running AutoDock Vina...\n').process())
+        # if prog == 'AutoDock Vina B':
+        #     self.AMDock.log_widget.textedit.append(Ft('Determination of better poses for Off-Target '
+        #                                               'Protein...').process())
+        #     self.AMDock.log_widget.textedit.append(Ft('Running AutoDock Vina...\n').process())
+        # if prog == 'AutoGrid4':
+        #     if self.AMDock.section == 1:
+        #         self.AMDock.log_widget.textedit.append(Ft('Running AutoGrid4 for Target Protein...').process())
+        #     else:
+        #         self.AMDock.log_widget.textedit.append(Ft('Running AutoGrid4 for Target Protein...').process())
+        # if prog == 'AutoGrid4 B':
+        #     self.AMDock.log_widget.textedit.append(Ft('Running AutoGrid4 for Off-Target Protein...').process())
+        # if prog == 'AutoLigand':
+        #     self.AMDock.log_widget.textedit.append(Ft('Running AutoLigand for Target Protein...').process())
+        # if prog == 'AutoLigand B':
+        #     self.AMDock.log_widget.textedit.append(Ft('Running AutoLigand for Off-Target Protein...').process())
+        # if prog == 'Prepare_gpf4':
+        #     self.AMDock.log_widget.textedit.append(Ft('Running Prepare_gpf for Target Protein...').process())
+        # if prog == 'Prepare_gpf4 B':
+        #     self.AMDock.log_widget.textedit.append(Ft('Running Prepare_gpf for Off-Target Protein...').process())
+
+    def log_toggle(self):
+        if self.AMDock.log_widget.isVisible():
+            self.AMDock.log_widget.hide()
+        else:
+            self.AMDock.log_widget.show()
+
+    def highlight(self):
+        if self.AMDock.section == -1:
+            self.section_state.setText('PROJECT')
+        if self.AMDock.section == 0:
+            self.section_state.setText('INPUT FILES')
+        elif self.AMDock.section == 1:
+            if self.AMDock.project.mode == 2:
+                self.section_state.setText('SCORING')
+            else:
+                self.section_state.setText('SEARCH SPACE')
+        elif self.AMDock.section == 2:
+            self.section_state.setText('DOCKING')

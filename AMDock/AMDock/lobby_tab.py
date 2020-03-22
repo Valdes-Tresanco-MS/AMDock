@@ -1,21 +1,23 @@
 from PyQt4 import QtGui, QtCore
-from variables import Objects
+from tools import FormatedText as Ft
 
 
 class FRAME(QtGui.QFrame):
     def __init__(self, parent=None):
         QtGui.QFrame.__init__(self, parent=parent)
+        self.parent = parent
 
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)
-        painter.drawPixmap(self.rect(), QtGui.QPixmap(Objects.presentation))
+        painter.drawPixmap(self.rect(), QtGui.QPixmap(self.parent.presentation))
         QtGui.QFrame.paintEvent(self, event)
 
 
 class Lobby(FRAME):
     def __init__(self, parent=None):
+        super(Lobby, self).__init__(parent)
         QtGui.QFrame.__init__(self, parent)
-        self.parent = parent
+        self.AMDock = parent
         self.setObjectName("tab_lobby")
         self.dock_vina_button = QtGui.QPushButton(self)
         self.dock_vina_button.setObjectName("dock_vina_button")
@@ -45,7 +47,7 @@ class Lobby(FRAME):
         self.results_button.setMaximumSize(180, 70)
         self.results_button.setObjectName("results_button")
         self.results_button.setText("Analize Results")
-        self.results_button.clicked.connect(lambda: self.result_select(self.results_button))
+        self.results_button.clicked.connect(self.result_select)
         self.results_button.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
 
         self.comment_vina_dock = QtGui.QLabel(self)
@@ -127,16 +129,16 @@ class Lobby(FRAME):
         self.cont_layout.addStretch(6)
 
         self.lobby_layout = QtGui.QVBoxLayout(self)
-        self.lobby_layout.addStretch(2)
+        self.lobby_layout.addStretch(1)
         self.lobby_layout.addLayout(self.cont_layout)
         self.lobby_layout.addStretch(10)
 
         self.timer12 = QtCore.QTimer(self)
         self.timer12.start(10)
-        self.timer12.timeout.connect(self.Hover)
+        self.timer12.timeout.connect(self.hover)
 
-    def Hover(self):
-        ''' change propety of object'''
+    def hover(self):
+        """ change propety of object"""
         if self.dock_vina_button.underMouse():
             self.comment_vina_dock.show()
         else:
@@ -156,22 +158,27 @@ class Lobby(FRAME):
 
     def program_select(self, b):
         if b.objectName() == 'adock_button':
-            self.parent.v.docking_program = 'AutoDock4'
+            self.AMDock.docking_program = 'AutoDock4'
         elif b.objectName() == 'adockZn_button':
-            self.parent.v.docking_program = 'AutoDockZn'
+            self.AMDock.docking_program = 'AutoDockZn'
         elif b.objectName() == 'dock_vina_button':
-            self.parent.v.docking_program = 'AutoDock Vina'
-        self.parent.statusbar.addWidget(QtGui.QLabel("| " + self.parent.v.docking_program + " is selected"))
-        self.parent.main_window.setCurrentIndex(1)
-        self.parent.main_window.setTabEnabled(1, True)
-        self.parent.main_window.setTabEnabled(0, False)
+            self.AMDock.docking_program = 'AutoDock Vina'
+        self.AMDock.mess = QtGui.QLabel(self.AMDock.docking_program + " is selected")
+        self.AMDock.statusbar.addWidget(self.AMDock.mess)
+        self.AMDock.log_widget.textedit.append(Ft('Defining Initial Parameters...').section())
+        self.AMDock.log_widget.textedit.append(Ft('DOCKING_PROGRAM: %s' % self.AMDock.docking_program).definitions())
+        self.AMDock.main_window.setCurrentIndex(1)
+        self.AMDock.main_window.setTabEnabled(1, True)
+        self.AMDock.main_window.setTabEnabled(0, False)
 
-    def result_select(self, b):
-        if b.objectName() == 'vina_result_button':
-            self.parent.statusbar.showMessage(b.text() + " is selected")
-        else:
-            self.parent.statusbar.showMessage(b.text() + " is selected")
-        self.parent.main_window.setCurrentIndex(2)
-        self.parent.main_window.setTabEnabled(1, False)
-        self.parent.main_window.setTabEnabled(0, False)
-        self.parent.main_window.setTabEnabled(2, True)
+    def result_select(self):
+        self.AMDock.statusbar.showMessage("Analyze Results is selected")
+        self.AMDock.main_window.setCurrentIndex(2)
+        self.AMDock.main_window.setTabEnabled(1, False)
+        self.AMDock.main_window.setTabEnabled(0, False)
+        self.AMDock.main_window.setTabEnabled(2, True)
+
+    def paintEvent(self, event):
+        painter = QtGui.QPainter(self)
+        painter.drawPixmap(self.rect(), QtGui.QPixmap(self.AMDock.presentation))
+        QtGui.QFrame.paintEvent(self, event)

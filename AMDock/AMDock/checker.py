@@ -1,4 +1,5 @@
-from warning import metal_no_ADzn_warning, prot_with_metal_warning, metal_no_ADzn_warning1, prot_with_metal_warning1
+from warning import (prot_with_metal_warning, metal_no_ADzn_warning1,
+                     prot_with_metal_warning1, metal_no_ADzn_od_warning)
 
 
 class Checker():
@@ -6,44 +7,38 @@ class Checker():
         self.parent = parent
         self.resp1 = self.resp2 = self.resp3 = 0
 
-    def autodockzn_check(self, prot):
-        if prot == 'A':
-            if self.parent.v.metals is None:
-                if self.parent.v.cr:
-                    if self.parent.v.analog_metals is not None:
-                        self.out1 = metal_no_ADzn_warning1(self.parent)
-                    else:
-                        self.out1 = metal_no_ADzn_warning(self.parent)
-                else:
-                    self.out1 = metal_no_ADzn_warning(self.parent)
-                return self.out1
+    def autodockzn_check(self, prot1, prot2=None):
+        pt1 = pt2 = True
+        text = {}
+        if prot2:
+            if not prot2.zn_atoms:
+                text['Off-Target'] = prot2
+                pt2 = False
+        if not prot1.zn_atoms:
+            text['Target'] =  prot1
+            pt1 = False
+        if not pt1 or not pt2:
+            self.out1 = metal_no_ADzn_od_warning(self.parent, text)
+            if prot2:
+                return self.out1, pt1, pt2
             else:
-                return 0
-        else:
-            if self.parent.v.analog_metals is None:
-                if self.parent.v.cr:
-                    if self.parent.v.metals is not None:
-                        self.out1 = metal_no_ADzn_warning1(self.parent)
-                    else:
-                        self.out1 = metal_no_ADzn_warning(self.parent)
-                else:
-                    self.out1 = metal_no_ADzn_warning(self.parent)
                 return self.out1
-            else:
-                return 0
+        return
 
-    def check_correct_prog(self, prot):
-        if prot == 'A':
-            if self.parent.v.metals is not None:
-                if self.parent.v.analog_metals is None and self.parent.v.analog_protein_file is not "":
-                    resp = prot_with_metal_warning1(self.parent, 'B')
-                else:
-                    resp = prot_with_metal_warning(self.parent)
-                return resp
-        else:
-            if self.parent.v.analog_metals is not None:
-                if self.parent.v.metals is None:
-                    resp = prot_with_metal_warning1(self.parent, 'A')
-                else:
-                    resp = prot_with_metal_warning(self.parent)
-                return resp
+    def check_correct_prog(self, prot1, prot2=None):
+        pt1 = pt2 = False
+        text = {}
+        if prot2:
+            if prot2.zn_atoms:
+                text['Off-Target'] = prot2
+                pt2 = True
+        if prot1.zn_atoms:
+            text['Target'] = prot1
+            pt1 = True
+        if pt1 or pt2:
+            self.out1 = prot_with_metal_warning(self.parent, text)
+            if prot2:
+                return self.out1, pt1, pt2
+            else:
+                return self.out1
+        return None, None, None

@@ -1,17 +1,17 @@
-from PyQt4 import QtGui, QtCore
-import os, subprocess
+import os
+from PyQt4 import QtGui
 
 
 class Help(QtGui.QWidget):
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         super(Help, self).__init__(parent)
-        self.parent = parent
+        self.AMDock = parent
         self.setObjectName("help_tab")
 
         self.version_box = QtGui.QGroupBox(self)
         self.version_box.setTitle("Version")
         self.version_label = QtGui.QLabel(self.version_box)
-        self.version_label.setText('Build 1.1.2')
+        self.version_label.setText(self.AMDock.version)
 
         self.documentation_box = QtGui.QGroupBox(self)
         self.documentation_box.setTitle("Documentation")
@@ -21,13 +21,14 @@ class Help(QtGui.QWidget):
 
         self.documentation_button = QtGui.QPushButton(self.documentation_box)
         self.documentation_button.setText('Documentation')
-        self.documentation_button.clicked.connect(lambda : subprocess.call(['xdg-open',self.parent.ws.manual]))
+        self.documentation_button.clicked.connect(lambda : subprocess.call(['xdg-open',self.AMDock.manual]))
 
         self.citing_box = QtGui.QGroupBox(self)
         self.citing_box.setTitle("Cite Us")
 
         self.citing_label = QtGui.QLabel(self.citing_box)
-        self.citing_label.setText('AMDock: a graphical tool for assisting molecular docking with Autodock-Vina and Autodock4')
+        self.citing_label.setText('AMDock: a graphical tool for assisting molecular docking with Autodock-Vina and '
+                                  'Autodock4')
 
         self.reference_box = QtGui.QGroupBox(self)
         self.reference_box.setTitle("References")
@@ -37,7 +38,7 @@ class Help(QtGui.QWidget):
         self.reference_label.setFrameStyle(QtGui.QFrame.NoFrame)
         self.reference_label.setLineWrapMode(QtGui.QTextEdit.WidgetWidth)
         self.reference_label.setWordWrapMode(QtGui.QTextOption.WordWrap)
-        self.reference_label.setText(self.parent.tt.reference)
+        self.reference_label.setText(self.AMDock.reference)
 
         self.reference_sarea = QtGui.QScrollArea(self.reference_box)
         self.reference_sarea.setWidget(self.reference_label)
@@ -62,4 +63,3 @@ class Help(QtGui.QWidget):
         self.info_tab_layout.addWidget(self.documentation_box)
         self.info_tab_layout.addWidget(self.citing_box)
         self.info_tab_layout.addWidget(self.reference_box)
-
