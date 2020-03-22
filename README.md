@@ -29,6 +29,8 @@ PyMOL should automatically have:
 
 `~/.pymol/startup or /home/user_name/.pymol/startup`
 
+after this you must restart PyMol
+
 if not, please select the previous address<br>
 
 ***Automatically, a file (AMDock.desktop) must be generated that allows its execution from the start menu. if you use a linux version where it doesn't appear, you can run it through the terminal:
