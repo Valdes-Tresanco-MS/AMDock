@@ -14,7 +14,7 @@ A manual and the folders containing the files for each of one of the tutorials i
 -unzip the *.zip file<br>
 -execute `./install.sh` and follow instructions
 
-*if `./install.sh` is not running, change the execution permissions. To do this press 
+*If `./install.sh` is not running, change the execution permissions. To do this press 
 `right click > permissions > Allow execute this file as a program`*
 
 
@@ -31,7 +31,8 @@ PyMOL should automatically have:
 
 after this you must restart PyMol
 
-***Automatically, a file (AMDock.desktop) must be generated that allows its execution from the start menu. if you use a linux version where it doesn't appear, you can run it through the terminal:
+***Automatically, a file (AMDock.desktop) must be generated that allows its execution from the start menu. If you use
+ a linux version where it doesn't appear, you can run it through the terminal:
 `installation folder> right click> run a terminal here> (in terminal) ./AMDock.sh`***
 
 **UNINSTALLATION**
