@@ -37,14 +37,13 @@ class AMDock(QtGui.QMainWindow, Variables):
         self.offtarget = BASE()
         self.ligand = BASE()
         self.log_thread = QtCore.QThreadPool()
-        self.numeric_version = [1, 4, 79]
+        self.numeric_version = [1, 4, 91]
         self.version = "{}.{}.{} For Windows and Linux".format(*self.numeric_version)
         self.spacing_autoligand = 1.0
         self.spacing_autodock = 0.375
         self.pH = 7.40
         self.state = 0  # 0 not running, 2 running
         self.section = -1  # -1 only PD selected, 0 project, 1 input files, 2 bsd, 3 docking
-        self.log_level = 2
 
         with open(self.style_file) as f:
             self.setStyleSheet(f.read())

@@ -67,9 +67,19 @@ class Loader:
             rt = wdir3_warning(self.AMDock)
             if rt == QtGui.QMessageBox.Yes:
                 try:
-                    os.rename(self.AMDock.project.name, self.AMDock.project.name + '_old_{:04d}_{:02d}_{:02d}_{:02d}_'
-                                                                                   '{:02d}_{:02d}'.format(
-                        *time.localtime(os.path.getmtime(self.AMDock.project.name))[0:6]))
+                    new_name = self.AMDock.project.name + '_old_{:04d}{:02d}{:02d}_{:02d}{:02d}{:02d}'.format(
+                        *time.localtime(os.path.getmtime(self.AMDock.project.name))[0:6])
+                    os.rename(self.AMDock.project.name, new_name)
+                    if os.path.exists(os.path.join(new_name, self.AMDock.project.name + '.amdock')):
+                        old_file = open(os.path.join(new_name, self.AMDock.project.name + '.amdock')).readlines()
+
+                        new_file = open(os.path.join(new_name, self.AMDock.project.name + '.amdock'), 'w')
+                        for line in old_file:
+                            if line[:19] == 'AMDOCK: WORKING_DIR':
+                                new_file.write('AMDOCK: WORKING_DIR'.ljust(24) + '%s\n' % os.path.abspath(new_name))
+                            else:
+                                new_file.write(line)
+                        new_file.close()
                 except:
                     msg = QtGui.QMessageBox.critical(self.AMDock, 'Error',
                                                      'The directory could not be renamed. Please check that you have '
@@ -195,6 +205,7 @@ class Loader:
             filenames = data_file.selectedFiles()
             self.AMDock.project.output = str(filenames[0])
             self.AMDock.result_tab.import_text.setText(self.AMDock.project.output)
+            self.AMDock.section = 3 # for reset
             amdock_file = open(self.AMDock.project.output)
             self.AMDock.log_widget.textedit.append(Ft('Opening AMDock File (*.amdock)...').process())
             alltable = []
@@ -206,6 +217,10 @@ class Loader:
                     alltable.append(line)
                 if not re.search('AMDOCK:', line):
                     continue
+                if line[:23] == 'AMDOCK: DOCKING_PROGRAM':
+                    self.AMDock.docking_program = (line[24:]).strip()
+                    self.AMDock.mess = QtGui.QLabel(self.AMDock.docking_program + " is selected")
+                    self.AMDock.statusbar.addWidget(self.AMDock.mess)
                 if line[:20] == 'AMDOCK: PROJECT_NAME':
                     self.AMDock.project.name = (line.split()[2]).strip()
                 elif line[:19] == 'AMDOCK: WORKING_DIR':

@@ -3,7 +3,7 @@ AMDock (Assisted Molecular Docking) is a user-friendly graphical tool to assist 
 complexes using Autodock-Vina or AutoDock4. This tool integrates several external programs for processing docking input 
 files, define the search space (box) and perform docking under user’s supervision.
 
-**Version 1.4.x** (**Build 1.4.80**)
+**Version 1.4.x** (**Build 1.4.91**)
 
 **DOCUMENTATION**
 

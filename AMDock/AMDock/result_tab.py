@@ -14,7 +14,7 @@ class Results(QtGui.QWidget):
         self.AMDock = parent
         self.setObjectName("result_tab")
 
-        self.rfile_show = Result_File(self)
+        self.rfile_show = Result_File(self.AMDock)
         self.rfile_show.close()
 
         self.import_box = QtGui.QGroupBox(self)
@@ -228,6 +228,9 @@ class Results(QtGui.QWidget):
                         f += 1
                     self.value1 = float(self.result_table.item(0, 1).text())
                     self.result_table.item(0, 1).setBackgroundColor(QtGui.QColor('darkGray'))
+                    selection_model = self.result_table.selectionModel()
+                    selection_model.select(self.result_table.model().index(0, 0),
+                                           QtGui.QItemSelectionModel.ClearAndSelect)
 
                     if self.AMDock.project.mode == 1:
                         self.prot_labelB.setText('Off-Target: %s' % self.AMDock.offtarget.name)
@@ -263,6 +266,9 @@ class Results(QtGui.QWidget):
                             self.value2 = float(
                                 self.result_tableB.item(0, 1).text())
                         self.result_tableB.item(0, 1).setBackgroundColor(QtGui.QColor('darkGray'))
+                        selection_model = self.result_tableB.selectionModel()
+                        selection_model.select(self.result_tableB.model().index(0, 0),
+                                               QtGui.QItemSelectionModel.ClearAndSelect)
                         self.selectivity_value = self.value1 - self.value2
                         self.selectivity_value_text.setText(
                             '%s kcal/mol' % self.selectivity_value)
@@ -298,10 +304,14 @@ class Results(QtGui.QWidget):
                             c += 1
                         f += 1
                     self.result_table.item(0, 1).setBackgroundColor(QtGui.QColor('darkGray'))
-
+                    selection_model = self.result_table.selectionModel()
+                    selection_model.select(self.result_table.model().index(0, 0),
+                                           QtGui.QItemSelectionModel.ClearAndSelect)
             # open log if exit
             if os.path.exists(os.path.join(self.AMDock.project.WDIR, self.AMDock.project.name + '.log')):
                 self.AMDock.project.log = os.path.join(self.AMDock.project.WDIR, self.AMDock.project.name + '.log')
+            if not self.AMDock.project.log:
+                return
             if os.path.exists(self.AMDock.project.log):
                 msg = QtGui.QMessageBox.information(self.AMDock, 'Information', 'This project has a log file.'
                                                 ' Do you want to open it?', QtGui.QMessageBox.Yes |
@@ -337,10 +347,10 @@ class Results(QtGui.QWidget):
             Variables.__init__(self.AMDock)
             self.prot_label.setText('Target: ')
             self.prot_labelB.setText('Off-Target: ')
-            try:
-                self.AMDock.output2file.conclude()
-            except:
-                pass
+            # try:
+            #     self.AMDock.output2file.conclude()
+            # except:
+            #     pass
             try:
                 os.chdir(self.AMDock.loc_project)
             except:
@@ -367,63 +377,68 @@ class Results(QtGui.QWidget):
         self.prot_labelB.hide()
 
     def show_inPyMol(self):
-        # check if exist items
-        poses = {'target': [], 'offtarget': []}
-        for titem in self.result_table.selectedItems():
-            if not titem.row() + 1 in poses['target']:
-                poses['target'].append(titem.row() + 1)
+        # check if exit any structure
+        if self.AMDock.target.pdb:
+            # check if exist items
+            poses = {'target': [], 'offtarget': []}
+            for titem in self.result_table.selectedItems():
+                if not titem.row() + 1 in poses['target']:
+                    poses['target'].append(titem.row() + 1)
 
 
-        for oitem in self.result_tableB.selectedItems():
-            if not oitem.row() + 1 in poses['offtarget']:
-                poses['offtarget'].append(oitem.row() + 1)
-        # makes at least one selected item always exist
-        if not len(self.result_table.selectedItems() + self.result_tableB.selectedItems()):
-            poses['target'] = [1]
-            selection_model = self.result_table.selectionModel()
-            selection_model.select(self.result_table.model().index(0, 0), QtGui.QItemSelectionModel.ClearAndSelect)
+            for oitem in self.result_tableB.selectedItems():
+                if not oitem.row() + 1 in poses['offtarget']:
+                    poses['offtarget'].append(oitem.row() + 1)
+            # makes at least one selected item always exist
+            if not len(self.result_table.selectedItems() + self.result_tableB.selectedItems()):
+                poses['target'] = [1]
+                selection_model = self.result_table.selectionModel()
+                selection_model.select(self.result_table.model().index(0, 0), QtGui.QItemSelectionModel.ClearAndSelect)
 
-        visual_arg = [self.AMDock.pymol, self.AMDock.lig_site_pymol, '--']
+            visual_arg = [self.AMDock.pymol, self.AMDock.lig_site_pymol, '--']
 
-        if poses['target']:
-            poses['target'].sort()
-            target_arg = '%s,Target,' % os.path.join(self.AMDock.project.input,self.AMDock.target.pdb)
-            ligands = ''
-            c = 1
-            for num in poses['target']:
-                if self.AMDock.project.mode == 2:
-                    ligands += '%s' % self.AMDock.ligand.input
-                else:
-                    ligands += '%s_%s_out%02d.pdb' % (self.AMDock.ligand.name, self.AMDock.target.name, num)
-                if c < len(poses['target']):
-                    ligands += ','
-                    c += 1
-            target_arg += ligands
-            visual_arg.append(target_arg)
+            if poses['target']:
+                poses['target'].sort()
+                target_arg = '%s,Target,' % os.path.join(self.AMDock.project.input,self.AMDock.target.pdb)
+                ligands = ''
+                c = 1
+                for num in poses['target']:
+                    if self.AMDock.project.mode == 2:
+                        ligands += '%s' % self.AMDock.ligand.input
+                    else:
+                        ligands += os.path.join(self.AMDock.project.results, '%s_%s_out%02d.pdb' % (
+                            self.AMDock.ligand.name, self.AMDock.target.name, num))
+                    if c < len(poses['target']):
+                        ligands += ','
+                        c += 1
+                target_arg += ligands
+                visual_arg.append(target_arg)
 
-        if poses['offtarget']:
-            poses['offtarget'].sort()
-            offtarget_arg = '%s,Off-Target,'% os.path.join(self.AMDock.project.input,self.AMDock.offtarget.pdb)
-            ligands = ''
-            c = 1
-            for num in poses['offtarget']:
-                ligands += '%s_%s_out%02d.pdb' % (self.AMDock.ligand.name, self.AMDock.offtarget.name, num)
-                if c < len(poses['offtarget']):
-                    ligands += ','
-                    c += 1
-            offtarget_arg += ligands
-            visual_arg.append(offtarget_arg)
+            if poses['offtarget']:
+                poses['offtarget'].sort()
+                offtarget_arg = '%s,Off-Target,'% os.path.join(self.AMDock.project.input,self.AMDock.offtarget.pdb)
+                ligands = ''
+                c = 1
+                for num in poses['offtarget']:
+                    ligands += os.path.join(self.AMDock.project.results, '%s_%s_out%02d.pdb' % (self.AMDock.ligand.name,
+                                                                                                self.AMDock.offtarget.name,
+                                                                                                num))
+                    if c < len(poses['offtarget']):
+                        ligands += ','
+                        c += 1
+                offtarget_arg += ligands
+                visual_arg.append(offtarget_arg)
 
-        pymol_command = {'PyMol': [self.AMDock.this_python, visual_arg]}
-        self.pymol = PROCESS()
-        self.pymol.state.connect(self.AMDock.program_body.check_state)
-        self.pymol.process.readyReadStandardOutput.connect(self.pymol_output)
-        self.pymol.process.readyReadStandardError.connect(self.AMDock.program_body.readStdError)
-        pymolq = Queue.Queue()
-        pymolq.name = -3
-        pymolq.put(pymol_command)
-        self.pymol.set_queue(pymolq)
-        self.pymol.start_process()
+            pymol_command = {'PyMol': [self.AMDock.this_python, visual_arg]}
+            self.pymol = PROCESS()
+            self.pymol.state.connect(self.AMDock.program_body.check_state)
+            self.pymol.process.readyReadStandardOutput.connect(self.pymol_output)
+            self.pymol.process.readyReadStandardError.connect(self.AMDock.program_body.readStdError)
+            pymolq = Queue.Queue()
+            pymolq.name = -3
+            pymolq.put(pymol_command)
+            self.pymol.set_queue(pymolq)
+            self.pymol.start_process()
 
     def pymol_output(self):
         pymol_output = None

@@ -129,8 +129,8 @@ class Result_Analysis():
                         ofile.write('MODEL' + ('%d' % models).rjust(9) + '\n')
                         models += 1
                     elif re.search('ATOM', line[:5]) or re.search('HETATM', line[:6]):
-                        output_file.write('HETATM' + line[7:67] + line[13:14].rjust(11) + '\n')
-                        ofile.write('HETATM' + line[7:67] + line[13:14].rjust(11) + '\n')
+                        output_file.write('HETATM' + line[7:67] + line[12:14].rjust(11) + '\n')
+                        ofile.write('HETATM' + line[7:67] + line[12:14].rjust(11) + '\n')
                     elif re.search('ENDMDL', line[:6]):
                         output_file.write(line + '\n')
                         ofile.write(line + '\n')

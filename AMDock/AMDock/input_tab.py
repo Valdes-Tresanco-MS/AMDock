@@ -1000,7 +1000,7 @@ class Program_body(QtGui.QWidget):
                                                                    'completed. Please do all the steps sequentially.',
                                              QtGui.QMessageBox.Ok)
             return
-        elif self.AMDock.state in [1, 2, 3]:
+        elif self.AMDock.section in [1, 2, 3]:
             msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed previously.'
                                                                     ' Do you want to repeat it?',
                                             QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
@@ -1165,15 +1165,24 @@ class Program_body(QtGui.QWidget):
             else:
                 self.AMDock.offtarget.save_pdb(self.AMDock.offtarget.input)
         if self.AMDock.ligand.prepare:
-            protonate_ligand = {'Protonate Ligand': [self.AMDock.openbabel, ['-i', 'pdb', self.AMDock.ligand.input,
-                                                                             '-opdb', '-O', self.AMDock.ligand.pdb,
-                                                                             '-h', '-p',
-                                                                             str(self.pH_value.value())]]}
+            prepare_lig_arg = [self.AMDock.prepare_ligand4_py, '-l']
+            if self.AMDock.protonation:
+                if self.AMDock.protonation_program == 'obabel':
+                    protonate_ligand = {'Protonate Ligand': [self.AMDock.openbabel, ['-i', 'pdb',
+                                                             self.AMDock.ligand.input, '-opdb', '-O',
+                                                             self.AMDock.ligand.pdb, '-h', '-p',
+                                                             str(self.pH_value.value())]
+                                                             ]}
+                    prepare_lig_arg += [self.AMDock.ligand.pdb, '-v']
+                    self.list_process.append(protonate_ligand)
+                else:
+                    prepare_lig_arg += [self.AMDock.ligand.input, '-A', 'hydorgens', '-v']
+            else:
+                prepare_lig_arg += [self.AMDock.ligand.input, '-v']
+                self.AMDock.ligand.pdbqt = self.AMDock.ligand.name + '.pdbqt'
+                self.AMDock.ligand.pdbqt_name = self.AMDock.ligand.name
 
-            prepare_ligand4 = {'Prepare_Ligand4': [self.AMDock.this_python, [self.AMDock.prepare_ligand4_py,
-                                                                             '-l', self.AMDock.ligand.pdb,
-                                                                             '-v', ]]}
-            self.list_process.append(protonate_ligand)
+            prepare_ligand4 = {'Prepare_Ligand4': [self.AMDock.this_python, prepare_lig_arg]}
             self.list_process.append(prepare_ligand4)
         else:
             self.AMDock.ligand.save_pdb(self.AMDock.ligand.input)
@@ -1398,6 +1407,14 @@ class Program_body(QtGui.QWidget):
         if all:
             self.lig_list.clear()
             self.lig_listB.clear()
+            self.autoligand_target.clear()
+            self.autoligand_target.setHorizontalHeaderLabels(["Total Volume (A**3)", "EPV (Kcal/mol A**3)"])
+            self.autoligand_target.hide()
+            self.autoligand_offtarget.clear()
+            self.autoligand_offtarget.setHorizontalHeaderLabels(["Total Volume (A**3)", "EPV (Kcal/mol A**3)"])
+            self.autoligand_offtarget.hide()
+            self.grid_predef_text.clear()
+            self.grid_predef_textB.clear()
         self.progressBar_global.setValue(50)
 
     def reset_sections(self, section):
@@ -1445,8 +1462,11 @@ class Program_body(QtGui.QWidget):
             self.AMDock.main_window.setCurrentIndex(0)
             self.AMDock.main_window.setTabEnabled(1, False)
             self.program_label.setText('Resetting...Done.')
-            self.AMDock.statusbar.removeWidget(self.AMDock.mess)
-            return
+            try:
+                self.AMDock.statusbar.removeWidget(self.AMDock.mess)
+            except:
+                pass
+            # return
         else:
             reset_opt = reset_warning(self)
             if reset_opt == QtGui.QMessageBox.Yes:
@@ -1787,7 +1807,6 @@ class Program_body(QtGui.QWidget):
             if not exitcode:
                 self.progress(20, 0, 'Prepare ligand...Done')
                 self.AMDock.log_widget.textedit.append(Ft('Prepare Ligand...Done.').process())
-        print self.AMDock.section, 'section'
         if self.AMDock.section == 1:
             if self.AMDock.project.bsd_mode_target in [0, 1]:
                 if prog_name == 'Prepare_gpf4':
@@ -2122,6 +2141,7 @@ class Program_body(QtGui.QWidget):
         selection_model = self.AMDock.result_tab.result_table.selectionModel()
         selection_model.select(self.AMDock.result_tab.result_table.model().index(0, 0),
                                QtGui.QItemSelectionModel.ClearAndSelect)
+
         if self.AMDock.project.mode == 1:
             self.AMDock.result_tab.result_tableB.show()
             self.AMDock.result_tab.selectivity_value_text.show()
@@ -2179,6 +2199,11 @@ class Program_body(QtGui.QWidget):
             self.AMDock.result_tab.equal.hide()
             self.AMDock.result_tab.prot_labelB.hide()
         self.amdock_output_file()
+        amdock_file = open(self.AMDock.project.output)
+        for line in amdock_file:
+            line = line.strip('\n')
+            self.AMDock.result_tab.rfile_show.textedit.append(line)
+        amdock_file.close()
 
     def amdock_output_file(self):
         """make amdock output file"""
@@ -2379,6 +2404,11 @@ class Program_body(QtGui.QWidget):
         selection_model.select(self.AMDock.result_tab.result_table.model().index(0, 0),
                                QtGui.QItemSelectionModel.ClearAndSelect)
         self.amdock_output_file()
+        amdock_file = open(self.AMDock.project.output)
+        for line in amdock_file:
+            line = line.strip('\n')
+            self.AMDock.result_tab.rfile_show.textedit.append(line)
+        amdock_file.close()
 
     def scoring(self):
         '''scoring'''
@@ -3059,7 +3089,7 @@ class Program_body(QtGui.QWidget):
     def init_prog(self, prog):
         self.AMDock.project.prog = prog
         self.program_label.setText('Running {}...'.format(prog))
-        print type(prog), type(str(prog)), prog
+        # print type(prog), type(str(prog)), prog
         prog = str(prog)
         if prog == 'Align':
             self.AMDock.log_widget.textedit.append(Ft('Running proteins alignment...').process())

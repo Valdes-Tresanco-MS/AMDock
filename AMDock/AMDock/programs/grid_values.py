@@ -17,7 +17,7 @@ parser.add_argument('--f_center', type=float, default=None, nargs='+')
 parser.add_argument('--f_size', type=int, default=None, nargs='+')
 # rep_type == 3: None, rep_type == 2: lig, rep_type == 1: fill, # rep_type == 0: fill.pdb; ...; filln.pdb
 parser.add_argument('--f_ligands', default=None, nargs='+')
-parser.add_argument('--f_residues', default=None)  # only rep_type == 2
+parser.add_argument('--f_residues', default=None)  # only rep_type == 1
 parser.add_argument('--s_prot', default=None)
 parser.add_argument('--s_prot_type', default=None)
 parser.add_argument('--s_rep_type', type=int, default=3)
@@ -47,8 +47,10 @@ def calculate_box(x, y, z, xpts, ypts, zpts, prot):
     box_coords = [box_edge_x, box_edge_y, box_edge_z]
 
     cmd.delete('%s_ref_box' % prot[0].upper())
+    cmd.delete('%s_ref_center' % prot[0].upper())
     display_box(box_coords, cylinder_size, prot)
     crisscross(x, y, z, 0.5, '%s_ref_center' % prot[0].upper())
+    cmd.zoom('%s_ref_box'  % prot[0].upper(), 15) # zoom to box
 
 
 def display_box(box, cylinder_size, prot):
@@ -141,7 +143,6 @@ def load_rep(prot):
         prot['ligands'].sort()
         for lig in prot['ligands']:
             cmd.load(lig, '%s_FILL_%s' % (prot['prot_type'][0], lign))  # load ligand
-            cmd.color(prot['colors'][lign], '%s_FILL_%s' % (prot['prot_type'][0], lign))
             if lign < len(prot['ligands']):
                 pymol_sel += '%s_FILL_%s or ' % (prot['prot_type'][0], lign)
             else:
@@ -153,13 +154,15 @@ def load_rep(prot):
         cmd.show('cartoon', prot['prot_type'])
         cmd.delete('polar_contacts')
         cmd.color(prot['colors'][0], prot['prot_type'])  # redundant? is needed because ligand_sites_trans
+        for lign in range(len(prot['ligands'])):
+            cmd.color(prot['colors'][lign + 1], '%s_FILL_%s' % (prot['prot_type'][0], lign + 1))
+        # cmd.zoom('%s_ref_center'  % prot['prot_type'][0].upper(), 15, animate=1) # zoom to selected fill
 
     elif prot['rep_type'] == 1:
         cmd.load(prot['ligands'][0], '%s_FILL' % prot['prot_type'][0])  # load ligand
-        cmd.zoom('%s_FILL' % prot['prot_type'][0], 3, animate=1)
         cmd.color('cyan', '%s_FILL' % prot['prot_type'][0])
-        cmd.show('sticks', '%s_FILL' % prot['prot_type'][0])
-        cmd.set('stick_transparency', 0.6, '%s_FILL' % prot['prot_type'][0])
+        cmd.hide('lines', '%s_FILL' % prot['prot_type'][0])
+        cmd.show('dots', '%s_FILL' % prot['prot_type'][0])
         res_list = []
         for x in prot['residues'].split(';'):
             x = str(x).strip()
@@ -172,15 +175,16 @@ def load_rep(prot):
                 util.cbag('chain %s and resi %s' % (chain, num))
             else:
                 util.cbam('chain %s and resi %s' % (chain, num))
+        # cmd.zoom('%s_FILL' % prot['prot_type'][0], 15, animate=1)
+
     elif prot['rep_type'] == 2:
         cmd.load(prot['ligands'][0], '%s_ligand' % prot['prot_type'][0])
-        cmd.zoom('%s_ligand' % prot['prot_type'][0], 3, animate=1)
         cmd.show('sticks', '%s_ligand' % prot['prot_type'][0])
         if prot['colors'][-1] == 'green':
             util.cbag('%s_ligand' % prot['prot_type'][0])
         else:
             util.cbam('%s_ligand' % prot['prot_type'][0])
-
+        # cmd.zoom('%s_ligand' % prot['prot_type'][0], 15, animate=1)
     calculate_box(prot['center'][0], prot['center'][1], prot['center'][2], prot['size'][0], prot['size'][1],
                   prot['size'][2], prot['prot_type'])
 

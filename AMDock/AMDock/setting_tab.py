@@ -139,6 +139,30 @@ class Configuration_tab(QtGui.QWidget):
         self.log_layout.addWidget(self.log_view)
         self.log_layout.addWidget(self.log_output_group)
 
+        self.protonation_config = QtGui.QGroupBox('Protonation')
+
+        self.protonation_view = QtGui.QCheckBox(self)
+        self.protonation_view.setObjectName("protonation")
+        self.protonation_view.setText("Ligand Protonation")
+        self.protonation_view.setFixedWidth(200)
+
+        self.openbabel = QtGui.QRadioButton('OpenBabel')
+        self.openbabel.setChecked(True)
+        self.adtools = QtGui.QRadioButton('AutoDockTools')
+        self.program_group = QtGui.QGroupBox('Program')
+
+        self.prog_group = QtGui.QButtonGroup()
+        self.prog_group.addButton(self.openbabel, 1)
+        self.prog_group.addButton(self.adtools, 2)
+        self.prog_group.buttonClicked.connect(self.prot_prog_sel)
+        self.prot_prog_layout = QtGui.QHBoxLayout(self.program_group)
+        self.prot_prog_layout.addWidget(self.openbabel)
+        self.prot_prog_layout.addWidget(self.adtools)
+
+        self.prto_layout = QtGui.QHBoxLayout(self.protonation_config)
+        self.prto_layout.addWidget(self.protonation_view)
+        self.prto_layout.addWidget(self.program_group)
+
         self.unsaved_config = QtGui.QLabel(self)
         self.unsaved_config.setText('Some parameters were modified!\n'
                                     'If you want you can save these settings permanently.')
@@ -190,6 +214,7 @@ class Configuration_tab(QtGui.QWidget):
         self.conf_tab_layout.addWidget(self.vina_config_box)
         self.conf_tab_layout.addWidget(self.AD4_config_box)
         self.conf_tab_layout.addWidget(self.log_config)
+        self.conf_tab_layout.addWidget(self.protonation_config)
         self.conf_tab_layout.addStretch(1)
         self.conf_tab_layout.addWidget(self.unsaved_config)
         self.conf_tab_layout.addStretch(1)
@@ -229,6 +254,11 @@ class Configuration_tab(QtGui.QWidget):
         self.horizontalSlider.setValue(self.AMDock.ncpu)
         self.log_view.setChecked(self.AMDock.log)
         self.log_group.button(self.AMDock.log_level).setChecked(True)
+        self.protonation_view.setChecked(self.AMDock.protonation)
+        if self.AMDock.protonation_program == 'obabel':
+            self.prog_group.button(1).setChecked(True)
+        else:
+            self.prog_group.button(2).setChecked(True)
 
     def values(self, k):  # ok
         if k.objectName() == 'horizontalSlider':
@@ -247,6 +277,9 @@ class Configuration_tab(QtGui.QWidget):
 
     def log_level_sel(self, btn):
         self.AMDock.log_level = self.log_group.id(btn)
+
+    def prot_prog_sel(self, btn):
+        self.AMDock.prot_prog = self.prog_group.id(btn)
 
     def data_view(self, cb):
         if cb.isChecked():
@@ -275,6 +308,9 @@ class Configuration_tab(QtGui.QWidget):
         config_file.write('[LOG]\n')
         config_file.write('log %s\n' % self.AMDock.log)
         config_file.write('log_level %s\n' % self.AMDock.log_level)
+        config_file.write('[PROTONATION]\n')
+        config_file.write('protonation %s\n' % self.AMDock.protonation)
+        config_file.write('protonation_program %s\n' % self.AMDock.protonation_program)
         config_file.close()
         # time.sleep(3)
         self.AMDock.statusbar.showMessage(msg)
@@ -303,6 +339,10 @@ class Configuration_tab(QtGui.QWidget):
         config_file.write('[LOG]\n')
         config_file.write('log True\n')
         config_file.write('log_level 2\n')
+        config_file.write('[PROTONATION]\n')
+        config_file.write('protonation False\n')
+        config_file.write('protonation_program obabel\n')
+
         config_file.close()
 
     def initial_config(self):
@@ -335,6 +375,13 @@ class Configuration_tab(QtGui.QWidget):
                         self.log = self.AMDock.log = True
                 elif line.split()[0] == 'log_level':
                     self.log_level = self.AMDock.log_level = int(line.split()[1])
+                elif line.split()[0] == 'protonation':
+                    if line.split()[1] == 'False':
+                        self.protonation = self.AMDock.protonation = False
+                    else:
+                        self.protonation = self.AMDock.protonation = True
+                elif line.split()[0] == 'protonation_program':
+                    self.protonation_program = self.AMDock.protonation_program = line.split()[1].strip()
         cfile.close()
 
     def check_changes(self):

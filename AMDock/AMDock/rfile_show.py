@@ -5,10 +5,10 @@ from PyQt4.QtCore import *
 class Result_File(QDialog):
     def __init__(self, parent=None):
         QDialog.__init__(self,parent)
-        self.parent = parent
+        self.AMDock = parent
 
         self.setWindowTitle('AMDock: File Result')
-        self.setWindowIcon(QIcon(QPixmap("amdock_icon.png")))
+        self.setWindowIcon(QIcon(QPixmap(self.AMDock.app_icon)))
 
         layout = QVBoxLayout()
         self.label = QLabel(self)
@@ -35,4 +35,4 @@ class Result_File(QDialog):
         self.finished.connect(self.finish)
 
     def finish(self):
-        self.parent.only_one = 0
+        self.AMDock.only_one = 0

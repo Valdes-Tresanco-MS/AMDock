@@ -29,7 +29,8 @@ class OutputFile:
                          '#                                                                              #\n'
                          '################################################################################\n'
                          '                 ____________________________________________                   \n'
-                         '                |              AMDock v.{}.{:02d}.{:02d}              |                  \n'
+                         '                |'  + ('AMDock v.{:d}.{:d}.{:d}'.format(*self.AMDock.numeric_version)
+                                                 ).center(44) + '|                  \n'
                          '                |         Assisted Molecular Docking         |                  \n'
                          '                |      with AutoDock4 and AutoDock Vina      |                  \n'
                          '                |                                            |                  \n'
@@ -40,7 +41,7 @@ class OutputFile:
                          '                | For help or suggestion, please contact us  |                  \n'
                          '                |       mariosergiovaldes145@gmail.com       |                  \n'
                          '                |____________________________________________|                  \n'
-                         '\n\n'.format(*self.AMDock.numeric_version))
+                         '\n\n')
 
     def out2file(self, info):
         self.ofile.write(info)

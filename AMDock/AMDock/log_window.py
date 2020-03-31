@@ -92,10 +92,18 @@ class LogWindow(QtGui.QDockWidget):
         self.setWidget(self.container)
 
     def file_save(self):
-        wfile = open(self.AMDock.project.log, 'w')
-        text = self.textedit.toPlainText()
-        wfile.write(text)
-        wfile.close()
+        if self.AMDock.project.log:
+            wfile = open(self.AMDock.project.log, 'w')
+            text = self.textedit.toPlainText()
+            wfile.write(text)
+            wfile.close()
+        else:
+            name = QtGui.QFileDialog.getSaveFileName(self.AMDock, 'Save File', '.', "Log *.log")
+            if name:
+                file = open(name, 'w')
+                text = self.textEdit.toPlainText()
+                file.write(text)
+                file.close()
 
     def clear_log(self):
         msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'This Log contains important information. Do you '
