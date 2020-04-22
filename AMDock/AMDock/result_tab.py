@@ -232,6 +232,14 @@ class Results(QtGui.QWidget):
                     selection_model = self.result_table.selectionModel()
                     selection_model.select(self.result_table.model().index(0, 0),
                                            QtGui.QItemSelectionModel.ClearAndSelect)
+                    if self.AMDock.project.bsd_mode_target == 0:
+                        self.result_table.setHorizontalHeaderLabels(
+                            QtCore.QString(
+                                "Binding Site;Affinity(kcal/mol);Estimated Ki;Ki Units;Ligand Efficiency").split(";"))
+                    else:
+                        self.result_table.setHorizontalHeaderLabels(
+                            QtCore.QString(
+                                "Pose;Affinity(kcal/mol);Estimated Ki;Ki Units;Ligand Efficiency").split(";"))
 
                     if self.AMDock.project.mode == 1:
                         self.prot_labelB.setText('Off-Target: %s' % self.AMDock.offtarget.name)
@@ -270,7 +278,17 @@ class Results(QtGui.QWidget):
                         selection_model = self.result_tableB.selectionModel()
                         selection_model.select(self.result_tableB.model().index(0, 0),
                                                QtGui.QItemSelectionModel.ClearAndSelect)
-                        self.selectivity_value = self.value1 - self.value2
+                        if self.AMDock.project.bsd_mode_offtarget == 0:
+                            self.result_tableB.setHorizontalHeaderLabels(
+                                QtCore.QString(
+                                    "Binding Site;Affinity(kcal/mol);Estimated Ki;Ki Units;Ligand Efficiency").split(
+                                    ";"))
+                        else:
+                            self.result_tableB.setHorizontalHeaderLabels(
+                                QtCore.QString(
+                                    "Pose;Affinity(kcal/mol);Estimated Ki;Ki Units;Ligand Efficiency").split(
+                                    ";"))
+                        self.selectivity_value = math.exp((self.value2 - self.value1)/(0.001987207 * 298))
                         self.selectivity_value_text.setText(
                             '%.01f' % self.selectivity_value)
             else:
