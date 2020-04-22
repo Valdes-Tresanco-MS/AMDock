@@ -74,6 +74,8 @@ class Result_Analysis():
             ligand_efficiency = energy / self.ligand.ha
             modes_info = [pose, energy, '%.2f' % Ki, unit, '%.2f' % ligand_efficiency]
             modes.append(modes_info)
+        # improve blind docking output
+        modes.sort(key=lambda x: x[1])
         return modes
 
     def result2pdb(self):
