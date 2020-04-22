@@ -464,5 +464,5 @@ class Results(QtGui.QWidget):
             self.current_poseB = sele.value()
             self.result_tableB.item(self.current_poseB - 1, 1).setBackgroundColor(QtGui.QColor('darkGray'))
             self.value2 = float(self.result_tableB.item(self.current_poseB - 1, 1).text())
-        self.selectivity_value = self.value1 - self.value2
-        self.selectivity_value_text.setText('%s kcal/mol' % self.selectivity_value)
+        self.selectivity_value = math.exp((self.value2 - self.value1)/(0.001987207 * 298))
+        self.selectivity_value_text.setText('%.01f' % self.selectivity_value)
