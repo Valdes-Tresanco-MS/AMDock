@@ -6,6 +6,7 @@ from rfile_show import Result_File
 from tools import FormatedText as Ft
 from variables import Variables
 from warning import amdock_file_warning
+import math
 
 
 class Results(QtGui.QWidget):
@@ -56,13 +57,13 @@ class Results(QtGui.QWidget):
         self.prot_label_selB.setAlignment(QtCore.Qt.AlignCenter)
         self.prot_label_selB.hide()
 
-        self.minus = QtGui.QLabel(self)
-        self.minus.setText('-')
+        self.div = QtGui.QLabel(self)
+        self.div.setText(':')
         font = QtGui.QFont()
         font.setPointSize(14)
         font.setBold(True)
-        self.minus.setFont(font)
-        self.minus.hide()
+        self.div.setFont(font)
+        self.div.hide()
 
         self.equal = QtGui.QLabel(self)
         self.equal.setText('=')
@@ -144,7 +145,7 @@ class Results(QtGui.QWidget):
         self.rest_layout.addWidget(self.prot_label_selB, 0, 3)
         self.rest_layout.addWidget(self.selectivity, 1, 0)
         self.rest_layout.addWidget(self.sele1, 1, 1)
-        self.rest_layout.addWidget(self.minus, 1, 2, QtCore.Qt.AlignCenter)
+        self.rest_layout.addWidget(self.div, 1, 2, QtCore.Qt.AlignCenter)
         self.rest_layout.addWidget(self.sele2, 1, 3)
         self.rest_layout.addWidget(self.equal, 1, 4, QtCore.Qt.AlignCenter)
         self.rest_layout.addWidget(self.selectivity_value_text, 1, 5, QtCore.Qt.AlignCenter)
@@ -242,7 +243,7 @@ class Results(QtGui.QWidget):
                         self.sele2.show()
                         self.prot_label_sel.show()
                         self.prot_label_selB.show()
-                        self.minus.show()
+                        self.div.show()
                         self.equal.show()
                         self.prot_labelB.show()
 
@@ -271,7 +272,7 @@ class Results(QtGui.QWidget):
                                                QtGui.QItemSelectionModel.ClearAndSelect)
                         self.selectivity_value = self.value1 - self.value2
                         self.selectivity_value_text.setText(
-                            '%s kcal/mol' % self.selectivity_value)
+                            '%.01f' % self.selectivity_value)
             else:
                 for index in range(0, len(self.complete)):
                     if self.complete[index] == '1':
@@ -368,7 +369,7 @@ class Results(QtGui.QWidget):
         self.selectivity.hide()
         self.sele1.hide()
         self.sele2.hide()
-        self.minus.hide()
+        self.div.hide()
         self.equal.hide()
         self.import_text.clear()
         self.selectivity_value_text.hide()
@@ -383,22 +384,24 @@ class Results(QtGui.QWidget):
             poses = {'target': [], 'offtarget': []}
             for titem in self.result_table.selectedItems():
                 if not titem.row() + 1 in poses['target']:
-                    poses['target'].append(titem.row() + 1)
-
+                    poses['target'].append([int(self.result_table.item(titem.row(), 0).text()),
+                                            float(self.result_table.item(titem.row(), 1).text())])
 
             for oitem in self.result_tableB.selectedItems():
                 if not oitem.row() + 1 in poses['offtarget']:
-                    poses['offtarget'].append(oitem.row() + 1)
+                    poses['offtarget'].append([int(self.result_tableB.item(oitem.row(), 0).text()),
+                                               float(self.result_tableB.item(oitem.row(), 1).text())])
             # makes at least one selected item always exist
             if not len(self.result_table.selectedItems() + self.result_tableB.selectedItems()):
-                poses['target'] = [1]
+                poses['target'] = [self.result_table.item(0, 0)]
                 selection_model = self.result_table.selectionModel()
                 selection_model.select(self.result_table.model().index(0, 0), QtGui.QItemSelectionModel.ClearAndSelect)
 
             visual_arg = [self.AMDock.pymol, self.AMDock.lig_site_pymol, '--']
 
             if poses['target']:
-                poses['target'].sort()
+                # order by affinity
+                poses['target'].sort(key=lambda x: x[1])
                 target_arg = '%s,Target,' % os.path.join(self.AMDock.project.input,self.AMDock.target.pdb)
                 ligands = ''
                 c = 1
@@ -407,7 +410,7 @@ class Results(QtGui.QWidget):
                         ligands += '%s' % self.AMDock.ligand.input
                     else:
                         ligands += os.path.join(self.AMDock.project.results, '%s_%s_out%02d.pdb' % (
-                            self.AMDock.ligand.name, self.AMDock.target.name, num))
+                            self.AMDock.ligand.name, self.AMDock.target.name, num[0]))
                     if c < len(poses['target']):
                         ligands += ','
                         c += 1
@@ -415,14 +418,14 @@ class Results(QtGui.QWidget):
                 visual_arg.append(target_arg)
 
             if poses['offtarget']:
-                poses['offtarget'].sort()
+                # order by affinity
+                poses['offtarget'].sort(key=lambda x: x[1])
                 offtarget_arg = '%s,Off-Target,'% os.path.join(self.AMDock.project.input,self.AMDock.offtarget.pdb)
                 ligands = ''
                 c = 1
                 for num in poses['offtarget']:
-                    ligands += os.path.join(self.AMDock.project.results, '%s_%s_out%02d.pdb' % (self.AMDock.ligand.name,
-                                                                                                self.AMDock.offtarget.name,
-                                                                                                num))
+                    ligands += os.path.join(self.AMDock.project.results, '%s_%s_out%02d.pdb' %
+                                            (self.AMDock.ligand.name, self.AMDock.offtarget.name, num[0]))
                     if c < len(poses['offtarget']):
                         ligands += ','
                         c += 1
