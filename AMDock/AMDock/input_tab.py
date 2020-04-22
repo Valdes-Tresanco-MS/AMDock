@@ -2150,7 +2150,7 @@ class Program_body(QtGui.QWidget):
             self.AMDock.result_tab.sele2.show()
             self.AMDock.result_tab.prot_label_sel.show()
             self.AMDock.result_tab.prot_label_selB.show()
-            self.AMDock.result_tab.minus.show()
+            self.AMDock.result_tab.div.show()
             self.AMDock.result_tab.equal.show()
             self.AMDock.result_tab.prot_labelB.show()
             self.reB = Result_Analysis(self.AMDock.docking_program, self.AMDock.offtarget, self.AMDock.ligand)
@@ -2195,7 +2195,7 @@ class Program_body(QtGui.QWidget):
             self.AMDock.result_tab.sele2.hide()
             self.AMDock.result_tab.prot_label_sel.hide()
             self.AMDock.result_tab.prot_label_selB.hide()
-            self.AMDock.result_tab.minus.hide()
+            self.AMDock.result_tab.div.hide()
             self.AMDock.result_tab.equal.hide()
             self.AMDock.result_tab.prot_labelB.hide()
         self.amdock_output_file()
@@ -2313,7 +2313,7 @@ class Program_body(QtGui.QWidget):
                     for fill in self.AMDock.offtarget.fill_list:
                         self.AMDock.output2file.out2file(
                             'AMDOCK: OFF-TARGET_BOX'.ljust(24) + 'FILL: {:02d} CENTER: {:7.02f} {:7.02f} {:7.02f} '
-                                                                 'SIZE: {:2d} {:2d} {:2d}'.format(
+                                                                 'SIZE: {:2d} {:2d} {:2d}\n'.format(
                                 fill, self.AMDock.offtarget.fill_list[fill][2][0],
                                 self.AMDock.offtarget.fill_list[fill][2][1],
                                 self.AMDock.offtarget.fill_list[fill][2][2], self.sizeB[0], self.sizeB[1],
