@@ -2184,7 +2184,8 @@ class Program_body(QtGui.QWidget):
             selection_model.select(self.AMDock.result_tab.result_tableB.model().index(0, 0),
                                    QtGui.QItemSelectionModel.ClearAndSelect)
 
-            self.AMDock.result_tab.selectivity_value = self.AMDock.result_tab.value1 - self.AMDock.result_tab.value2
+            self.AMDock.result_tab.selectivity_value = math.exp((self.AMDock.result_tab.value2 -
+                                                                 self.AMDock.result_tab.value1) /(0.001987207 * 298))
             self.AMDock.result_tab.selectivity_value_text.setText(
                 '%s kcal/mol' % self.AMDock.result_tab.selectivity_value)
         else:
@@ -2359,13 +2360,13 @@ class Program_body(QtGui.QWidget):
             if self.AMDock.project.bsd_mode_offtarget != 0 and self.AMDock.project.bsd_mode_target != 0:
                 self.AMDock.output2file.out2file('AMDOCK: SELECTIVITY'.ljust(24) + 'Using only the best pose '
                                                                                    '(smallest energy)\n')
-                self.AMDock.output2file.out2file('AMDOCK: SELEC_NOTE'.ljust(24) + 'TARGET  -  OFF-TARGET  =  '
+                self.AMDock.output2file.out2file('AMDOCK: SELEC_NOTE'.ljust(24) + 'EXP( [OFF-TARGET  -  TARGET] / RT ) '
+                                                                                  '=  '
                                                                                   'SELECTIVITY\n')
-                self.AMDock.output2file.out2file('AMDOCK: SELEC_VALUE'.ljust(24) + ('{:6.02f}'.format(
-                    self.results[0][1]).center(6)) + '  -  ' + ('{:10.02f}'.format(self.resultsB[0][1])).center(10) +
-                                                 '  =  ' + ('{:11.02f}'.format(self.results[0][1] -
-                                                                               self.resultsB[0][1])).center(11) +
-                                                 '   kcal/mol\n')
+                self.AMDock.output2file.out2file('AMDOCK: SELEC_VALUE'.ljust(24) + 'EXP( [' + ('{:10.02f}'.format(
+                    self.resultsB[0][1])).center(10) + '  -  ' + ('{:6.02f}]'.format(self.results[0][1])).center(6)
+                                                 + ' / RT ) =  ' + '{:11.02f}'.format(
+                    self.AMDock.result_tab.selectivity_value))
         self.AMDock.output2file.conclude()
 
     def go_scoring(self):
