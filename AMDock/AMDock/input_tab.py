@@ -2141,6 +2141,9 @@ class Program_body(QtGui.QWidget):
         selection_model = self.AMDock.result_tab.result_table.selectionModel()
         selection_model.select(self.AMDock.result_tab.result_table.model().index(0, 0),
                                QtGui.QItemSelectionModel.ClearAndSelect)
+        if self.AMDock.project.bsd_mode_target == 0:
+            self.AMDock.result_tab.result_table.setHorizontalHeaderLabels(
+                QtCore.QString("Binding Site;Affinity(kcal/mol);Estimated Ki;Ki Units;Ligand Efficiency").split(";"))
 
         if self.AMDock.project.mode == 1:
             self.AMDock.result_tab.result_tableB.show()
@@ -2187,7 +2190,11 @@ class Program_body(QtGui.QWidget):
             self.AMDock.result_tab.selectivity_value = math.exp((self.AMDock.result_tab.value2 -
                                                                  self.AMDock.result_tab.value1) /(0.001987207 * 298))
             self.AMDock.result_tab.selectivity_value_text.setText(
-                '%s kcal/mol' % self.AMDock.result_tab.selectivity_value)
+                '%.01f' % self.AMDock.result_tab.selectivity_value)
+            if self.AMDock.project.bsd_mode_offtarget == 0:
+                self.AMDock.result_tab.result_tableB.setHorizontalHeaderLabels(
+                    QtCore.QString("Binding Site;Affinity(kcal/mol);Estimated Ki;Ki Units;Ligand Efficiency").split(
+                        ";"))
         else:
             self.AMDock.result_tab.result_tableB.hide()
             self.AMDock.result_tab.selectivity_value_text.hide()
