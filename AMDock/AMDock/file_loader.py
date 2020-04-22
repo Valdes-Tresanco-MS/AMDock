@@ -238,6 +238,12 @@ class Loader:
                     self.AMDock.offtarget.name = (line.split()[2]).strip()
                 elif line[:15] == 'AMDOCK: LIGAND ':
                     self.AMDock.ligand.name = (line.split()[2]).strip()
+                elif line[:18] == 'AMDOCK: T_BOX_MODE':
+                    if (line.split()[2]).strip() == 'AUTOMATIC':
+                        self.AMDock.project.bsd_mode_target = 0
+                elif line[:18] == 'AMDOCK: O_BOX_MODE':
+                    if (line.split()[2]).strip() == 'AUTOMATIC':
+                        self.AMDock.project.bsd_mode_offtarget = 0
             amdock_file.close()
             self.AMDock.log_widget.textedit.append(Ft('Opening AMDock File (*.amdock)... Done.').process())
             complete = ''
