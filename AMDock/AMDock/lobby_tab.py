@@ -59,7 +59,8 @@ class Lobby(QtGui.QFrame):
         self.comment_vina_dock.setMargin(5)
         self.comment_vina_dock.setIndent(5)
         self.comment_vina_dock.setObjectName("comment_vina_dock")
-        self.comment_vina_dock.setText("1-Molecular Docking Simulation\n2-Cross Docking with \n     Autodock Vina.")
+        self.comment_vina_dock.setText("1-Molecular Docking\n2-Off-Target Docking with \n     AutoDock "
+                                       "Vina.\n3-Scoring")
 
         self.comment_adock = QtGui.QLabel(self)
         self.comment_adock.setMinimumSize(180, 60)
@@ -70,7 +71,7 @@ class Lobby(QtGui.QFrame):
         self.comment_adock.setMargin(5)
         self.comment_adock.setIndent(5)
         self.comment_adock.setObjectName("comment_adock")
-        self.comment_adock.setText("1-Molecular Docking Simulation\n2-Cross Docking with\n     Autodock4.")
+        self.comment_adock.setText("1-Molecular Docking\n2-Off-Target Docking with\n     AutoDock4.\n3-Scoring")
 
         self.comment_adockZn = QtGui.QLabel(self)
         self.comment_adockZn.setMinimumSize(180, 60)
@@ -81,7 +82,7 @@ class Lobby(QtGui.QFrame):
         self.comment_adockZn.setMargin(5)
         self.comment_adockZn.setIndent(5)
         self.comment_adockZn.setObjectName("comment_adockZn")
-        self.comment_adockZn.setText("1-Molecular Docking Simulation\n2-Cross Docking with\n     Autodock4Zn.")
+        self.comment_adockZn.setText("1-Molecular Docking\n2-Off-Target Docking with\n     AutoDock4Zn.\n3-Scoring")
 
         self.comment_results = QtGui.QLabel(self)
         self.comment_results.setMinimumSize(180, 60)
