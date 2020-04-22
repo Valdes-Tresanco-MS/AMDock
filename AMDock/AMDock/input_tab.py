@@ -2136,7 +2136,7 @@ class Program_body(QtGui.QWidget):
                             QtGui.QColor(0, 255, 128, 200))
                 c += 1
             f += 1
-            self.AMDock.result_tab.value1 = float(self.AMDock.result_tab.result_table.item(0, 1).text())
+        self.AMDock.result_tab.value1 = float(self.AMDock.result_tab.result_table.item(0, 1).text())
         self.AMDock.result_tab.result_table.item(0, 1).setBackgroundColor(QtGui.QColor('darkGray'))
         selection_model = self.AMDock.result_tab.result_table.selectionModel()
         selection_model.select(self.AMDock.result_tab.result_table.model().index(0, 0),
@@ -2180,7 +2180,7 @@ class Program_body(QtGui.QWidget):
                                 QtGui.QColor(0, 255, 128, 200))
                     c += 1
                 f += 1
-                self.AMDock.result_tab.value2 = float(self.AMDock.result_tab.result_tableB.item(0, 1).text())
+            self.AMDock.result_tab.value2 = float(self.AMDock.result_tab.result_tableB.item(0, 1).text())
 
             self.AMDock.result_tab.result_tableB.item(0, 1).setBackgroundColor(QtGui.QColor('darkGray'))
             selection_model = self.AMDock.result_tab.result_tableB.selectionModel()
@@ -2295,7 +2295,7 @@ class Program_body(QtGui.QWidget):
                 for fill in self.AMDock.target.fill_list:
                     self.AMDock.output2file.out2file('AMDOCK: TARGET_BOX'.ljust(24) + 'FILL: {:02d} CENTER: {:7.02f}'
                                                                                       ' {:7.02f} {:7.02f} SIZE: {:2d} '
-                                                                                      '{:2d} {:2d}'.format(
+                                                                                      '{:2d} {:2d}\n'.format(
                         fill, self.AMDock.target.fill_list[fill][2][0], self.AMDock.target.fill_list[fill][2][1],
                         self.AMDock.target.fill_list[fill][2][2], self.size[0], self.size[1], self.size[2]))
             if self.AMDock.project.mode == 1:
