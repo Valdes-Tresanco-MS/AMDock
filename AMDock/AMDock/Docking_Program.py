@@ -139,7 +139,7 @@ class AMDock(QtGui.QMainWindow, Variables):
             event.ignore()
 
 from splash_screen import SplashScreen
-from variables import Objects as ob
+# from variables import Objects as ob
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
