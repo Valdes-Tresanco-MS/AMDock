@@ -55,11 +55,8 @@ install_directory=`zenity --file-selection --title="Select directory for AMDock 
 ## check that AMDock files not exits in destiny
 pymol_plugin=$HOME/.pymol/startup
 if [ ! -d "~/.pymol/$pymol_plugin" ]
-    then
-      if [ ! -d "~/.pymol/" ]
-        then
-          mkdir $HOME/.pymol
-      fi
+  then
+    mkdir $HOME/.pymol
     mkdir $pymol_plugin
 fi
 # change permissions of directory
