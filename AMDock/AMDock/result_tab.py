@@ -377,7 +377,7 @@ class Results(QtGui.QWidget):
 
             self.clear_result_tab()
             self.AMDock.log_widget.textedit.append(80 * '#')
-            self.AMDock.log_widget.textedit.append(Ft('AMDOCK: NEW PROJECT...\n\n').resetting())
+            self.AMDock.log_widget.textedit.append(Ft('NEW PROJECT...\n\n').resetting())
 
     def clear_result_tab(self):
         self.import_text.clear()
