@@ -6,7 +6,7 @@ then
     exit 0
 fi
 
-./module_checker.py
+python module_checker.py
 if [ $? -ne 0 ]; then
     exit 0
 fi
@@ -45,14 +45,14 @@ fi
 script_path=`readlink -f $SCRIPT_LOCATION`
 AMDock_InstallDir=`dirname $script_path`
 
-install_confirmation=`zenity --question --title="AMDock Installer" --text="The AMDock program will be intalled in your computer.\n Do you wish to continue?"`
+install_confirmation=`zenity --question --title="AMDock Installer" --text="The AMDock program will be intalled in your computer.\n Do you wish to continue?" --width=400 --height=100`
 if [ $? -ne 0 ]; then
     exit 0
 fi
 
 install_directory=`zenity --file-selection --title="Select directory for AMDock installation" --directory`
 
-## check that AMDock files not exits in destinity
+## check that AMDock files not exits in destiny
 pymol_plugin=$HOME/.pymol/startup
 if [ ! -d "~/.pymol" ]
     then
@@ -69,20 +69,42 @@ if [ ! -d "$install_directory/AMDock" ];then
         cp -p "$AMDock_InstallDir/grid_amdock.py" $pymol_plugin
     fi
 else    
-    zenity --error --title="AMDock Installer" --text="AMDock already exits in select directory.\n Please select a new directory for installation."
+    zenity --error --title="AMDock Installer" --text="AMDock already exits in select directory.\n Please select a new directory for installation." --width=400 --height=100
     exit 1
 fi 
 
-# if [ -f "$install_directory/AMDock/AMDock.sh" ] && [ -f "$install_directory/AMDock/uninstall.sh" ]
-#     then
-#     chmod 755 $install_directory/AMDock/*.sh
-# fi
+if [ -f "$install_directory/AMDock/AMDock.sh" ] && [ -f "$install_directory/AMDock/uninstall.sh" ]
+then
+  chmod 755 "$install_directory"/AMDock/*.sh
+fi
+
+# check permission of docking programs
+if [ -f "$install_directory/AMDock/AMDock/programs/vina" ]
+then
+  chmod 755 "$install_directory"/AMDock/AMDock/programs/vina
+fi
+if [ -f "$install_directory/AMDock/AMDock/programs/autodock4" ]
+then
+  chmod 755 "$install_directory"/AMDock/AMDock/programs/autodock4
+fi
+if [ -f "$install_directory/AMDock/AMDock/programs/autogrid4" ]
+then
+  chmod 755 "$install_directory"/AMDock/AMDock/programs/autogrid4
+fi
 
 
-desktop_apps=$HOME/.local/share/applications
+desktop_apps=/usr/share/applications
 if [ ! -f "$desktop_apps/AMDock.desktop" ]
   then
-  echo -e '[Desktop Entry]\nVersion=1.0\nType=Application\nName=AMDock\nIcon='$install_directory'/AMDock/AMDock/images/amdock_icon.png\nExec="'$install_directory'/AMDock/AMDock.sh" %f\nComment=Program for performace a Assited Molecular Docking with AutoDock4 and AutoDock Vina\nCategories=Science\nTerminal=false' >> $desktop_apps/AMDock.desktop
+  echo -e '[Desktop Entry]\n
+          Version=1.4.96\n
+          Type=Application\n
+          Name=AMDock\n
+          Icon='"$install_directory"'/AMDock/AMDock/images/amdock_icon.png\n
+          Exec="'"$install_directory"'/AMDock/AMDock.sh" %f\n
+          Comment=Program for performace a Assited Molecular Docking with AutoDock4 and AutoDock Vina\n
+          Categories=Science\n
+          Terminal=false' >> $desktop_apps/AMDock.desktop
 
 else
   message "Already exist various version of AMDock application launcher. PLease check this."
