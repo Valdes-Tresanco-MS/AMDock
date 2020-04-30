@@ -17,7 +17,7 @@ fi
 script_path=`readlink -f $SCRIPT_LOCATION`
 AMDock_InstallDir=`dirname $script_path`
 
-install_confirmation=`zenity --question --title="AMDock Uninstaller" --text="The AMDock program will be uninstalled.\n Do you wish to continue?"`
+install_confirmation=`zenity --question --title="AMDock Uninstaller" --text="The AMDock program will be uninstalled.\n Do you wish to continue?" --width=400 --height=100`
 
 if [ $? -ne 0 ]; then
     exit 0
@@ -33,26 +33,26 @@ if [ -d "$AMDock_InstallDir" ];then
         rm $HOME/.pymol/startup/grid_amdock.pyc
     fi
 else    
-    zenity --error --title="AMDock Uninstaller" --text="AMDock cann't be deleted.\n Delete all files manually."
+    zenity --error --title="AMDock Uninstaller" --text="AMDock cann't be deleted.\n Remove all files manually." --width=400 --height=100
     exit 1
 fi 
 
-desktop_apps=$HOME/.local/share/applications
+desktop_apps=/usr/share/applications
 if [ -f "$desktop_apps/AMDock.desktop" ]
   then
   rm $desktop_apps/AMDock.desktop
 else
-  message "AMDock application launcher cann't be deleted. Delete manually."
+  zenity --error --title="AMDock Uninstaller" --text="AMDock application launcher cann't be deleted. Remove manually." --width=400 --height=100
   
 fi
 
-if [ -f "$desktop_apps/AMDock_Uninstaller.desktop" ]
-  then
-  rm $desktop_apps/AMDock_Uninstaller.desktop
-else
-  message "AMDock application launcher cann't be deleted. Delete manually."
-  
-fi
+#if [ -f "$desktop_apps/AMDock_Uninstaller.desktop" ]
+#  then
+#  rm $desktop_apps/AMDock_Uninstaller.desktop
+#else
+#  message "AMDock application launcher cann't be deleted. Delete manually."
+#
+#fi
 
 zenity --info --title="AMDock Installer" --text="Done!!!"
 
