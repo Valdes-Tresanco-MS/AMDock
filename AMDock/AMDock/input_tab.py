@@ -499,7 +499,8 @@ class Program_body(QtGui.QWidget):
         self.progressBar_global = QRoundProgressBar(self)
         self.progressBar_global.setValue(0)
         self.progressBar_global.setObjectName("progressBar_global")
-        self.progressBar_global.setMinimumSize(120, 120)
+        # self.progressBar_global.setMinimumSize(120, 120)
+        self.progressBar_global.setFixedSize(120, 120)
 
         self.progress_section_label = QtGui.QLabel('Section Progress')
 
@@ -1946,15 +1947,19 @@ class Program_body(QtGui.QWidget):
             self.progressBar_section.setValue(self.progressBar_section.value() + value)
 
     def readStdOutput(self):
-        self.output = QtCore.QString(self.W.process.readAllStandardOutput())
-        self.out = str(self.output)
-        thread = THREAD(self.AMDock, self.out)
-        thread.run()
-        print(self.out)
+        self.codec = QtCore.QTextCodec.codecForName('UTF-8')
+        self.output = self.codec.toUnicode(self.W.process.readAllStandardOutput())
+        # self.output = str(self.output)
+        if not self.AMDock.project.prog in ['AutoLigand', 'AutoLigand B']:
+            if self.AMDock.log_level ==2:
+                self.AMDock.log_widget.textedit.insertPlainText(self.output)
+        # thread = THREAD(self.AMDock, self.output)
+        # thread.run()
+        print(self.output)
         if self.AMDock.project.prog == 'AutoGrid4':
-            if re.search('%', self.out):
+            if re.search('%', self.output):
                 try:
-                    current = float(self.out.split()[2].strip('%')) * 0.4 - self.AMDock.project.part
+                    current = float(self.output.split()[2].strip('%')) * 0.4 - self.AMDock.project.part
                 except:
                     return
                 if self.AMDock.project.bsd_mode_target == 0 and self.AMDock.section == 2:
@@ -1962,44 +1967,44 @@ class Program_body(QtGui.QWidget):
                                                       self.AMDock.project.mode)
                 else:
                     self.AMDock.program_body.progress(current, self.AMDock.project.mode)
-                self.AMDock.project.part = float(self.out.split()[2].strip('%')) * 0.4
+                self.AMDock.project.part = float(self.output.split()[2].strip('%')) * 0.4
         elif self.AMDock.project.prog == 'AutoGrid4 B':
-            if re.search('%', self.out):
+            if re.search('%', self.output):
                 try:
-                    current = float(self.out.split()[2].strip('%')) * 0.4 - self.AMDock.project.part
+                    current = float(self.output.split()[2].strip('%')) * 0.4 - self.AMDock.project.part
                 except:
                     return
                 if self.AMDock.project.bsd_mode_offtarget == 0 and self.AMDock.section == 2:
                     self.AMDock.program_body.progress(current / len(self.AMDock.offtarget.fill_list), 0)
                 else:
                     self.AMDock.program_body.progress(current, 0)
-                self.AMDock.project.part = float(self.out.split()[2].strip('%')) * 0.4
+                self.AMDock.project.part = float(self.output.split()[2].strip('%')) * 0.4
 
         elif self.AMDock.project.prog == 'AutoDock Vina':
-            current = self.out.count('*') * 2 * (50. / 51)
+            current = self.output.count('*') * 2 * (50. / 51)
             if self.AMDock.project.bsd_mode_target != 0:
                 self.progress(current, self.AMDock.project.mode, mess='Running Molecular Docking Simulation...')
 
         elif self.AMDock.project.prog == 'AutoDock Vina B':
-            current = self.out.count('*') * (50. / 51)
+            current = self.output.count('*') * (50. / 51)
             if self.AMDock.project.bsd_mode_offtarget != 0:
                 self.AMDock.program_body.progress(current, 0)
         elif self.AMDock.project.prog == 'AutoLigand':
-            if re.search('Progress:', self.out):
+            if re.search('Progress:', self.output):
                 try:
-                    current = float(self.out.split()[1]) * 0.4 - self.AMDock.project.part
+                    current = float(self.output.split()[1]) * 0.4 - self.AMDock.project.part
                 except:
                     return
                 self.AMDock.program_body.progress(current, self.AMDock.project.mode)
-                self.AMDock.project.part = float(self.out.split()[1]) * 0.4
+                self.AMDock.project.part = float(self.output.split()[1]) * 0.4
         elif self.AMDock.project.prog == 'AutoLigand B':
-            if re.search('Progress:', self.out):
+            if re.search('Progress:', self.output):
                 try:
-                    current = float(self.out.split()[1]) * 0.4 - self.AMDock.project.part
+                    current = float(self.output.split()[1]) * 0.4 - self.AMDock.project.part
                 except:
                     return
                 self.AMDock.program_body.progress(current, 0)
-                self.AMDock.project.part = float(self.out.split()[1]) * 0.4
+                self.AMDock.project.part = float(self.output.split()[1]) * 0.4
 
     def readStdError(self):
         self.error = QtCore.QString(self.worker.readAllStandardError())
