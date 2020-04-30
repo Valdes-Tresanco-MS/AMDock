@@ -3113,7 +3113,9 @@ class Program_body(QtGui.QWidget):
                 if prog in ['Prepare_Ligand4', 'Protonate Ligand']:
                     self.AMDock.log_widget.textedit.append(Ft('Running {} for Ligand...'.format(prog)).process())
                 else:
-                    self.AMDock.log_widget.textedit.append(Ft('Running {} for Target...'.format(prog)).process())
+                    self.AMDock.log_widget.textedit.append(
+                        Ft('Running {} for Target...'.format(prog)).process())
+                    self.AMDock.log_widget.textedit.insertPlainText('\n')
             if prog in ['AutoDock4', 'AutoDock4 B', 'AutoDock4ZN', 'AutoDock4ZN B']:
                 self.timerAD = QtCore.QTimer()
                 self.timerAD.timeout.connect(self.autodock_output)
