@@ -101,7 +101,7 @@ class LogWindow(QtGui.QDockWidget):
             name = QtGui.QFileDialog.getSaveFileName(self.AMDock, 'Save File', '.', "Log *.log")
             if name:
                 file = open(name, 'w')
-                text = self.textEdit.toPlainText()
+                text = self.textedit.toPlainText()
                 file.write(text)
                 file.close()
 
