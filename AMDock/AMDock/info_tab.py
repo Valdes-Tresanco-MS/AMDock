@@ -1,5 +1,6 @@
 import os
 from PyQt4 import QtGui
+import subprocess
 
 
 class Help(QtGui.QWidget):
