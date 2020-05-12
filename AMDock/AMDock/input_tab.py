@@ -7,7 +7,6 @@ import shutil
 from PyQt4 import QtGui, QtCore
 from command_runner import PROCESS, THREAD
 from result2tab import Result_Analysis
-from roundprogressbar import QRoundProgressBar
 from qradialbar import QRadialBar
 from tools import Fix_PQR, PDBINFO, BASE, PROJECT, Convert
 from tools import FormatedText as Ft
