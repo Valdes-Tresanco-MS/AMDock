@@ -9,7 +9,7 @@ files, define the search space (box) and perform docking under user’s supervis
 
 A manual and the folders containing the files for each of one of the tutorials in the manual are located in Doc folder
 
-**INSTALLATION**
+**INSTALL**
 
 -unzip the *.zip file<br>
 -execute `./install.sh` and follow instructions
@@ -35,7 +35,7 @@ after this you must restart PyMol
  a linux version where it doesn't appear, you can run it through the terminal:
 `installation folder> right click> run a terminal here> (in terminal) ./AMDock.sh`***
 
-**UNINSTALLATION**
+**UNINSTALL**
 
 Just search the installation directory and execute `./uninstall.sh` in a terminal and follow instructions
 
