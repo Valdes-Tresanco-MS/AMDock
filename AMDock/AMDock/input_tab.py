@@ -8,6 +8,7 @@ from PyQt4 import QtGui, QtCore
 from command_runner import PROCESS, THREAD
 from result2tab import Result_Analysis
 from roundprogressbar import QRoundProgressBar
+from qradialbar import QRadialBar
 from tools import Fix_PQR, PDBINFO, BASE, PROJECT, Convert
 from tools import FormatedText as Ft
 from warning import (wdir2_warning, prot_warning, lig_warning, stop_warning, smallbox_warning,
@@ -496,7 +497,7 @@ class Program_body(QtGui.QWidget):
 
         self.progress_project_label = QtGui.QLabel('Project Progress')
 
-        self.progressBar_global = QRoundProgressBar(self)
+        self.progressBar_global = QRadialBar(self)
         self.progressBar_global.setValue(0)
         self.progressBar_global.setObjectName("progressBar_global")
         # self.progressBar_global.setMinimumSize(120, 120)
@@ -504,8 +505,8 @@ class Program_body(QtGui.QWidget):
 
         self.progress_section_label = QtGui.QLabel('Section Progress')
 
-        self.progressBar_section = QRoundProgressBar(self)
-        self.progressBar_section.setAutoFillBackground(True)
+        self.progressBar_section = QRadialBar(self)
+        # self.progressBar_section.setAutoFillBackground(True)
         self.progressBar_section.setValue(0)
         self.progressBar_section.setObjectName("progressBar_section")
         self.progressBar_section.setMinimumSize(120, 120)
@@ -3115,7 +3116,7 @@ class Program_body(QtGui.QWidget):
                 else:
                     self.AMDock.log_widget.textedit.append(
                         Ft('Running {} for Target...'.format(prog)).process())
-                    self.AMDock.log_widget.textedit.insertPlainText('\n')
+                    self.AMDock.log_widget.textedit.append('\n')
             if prog in ['AutoDock4', 'AutoDock4 B', 'AutoDock4ZN', 'AutoDock4ZN B']:
                 self.timerAD = QtCore.QTimer()
                 self.timerAD.timeout.connect(self.autodock_output)
