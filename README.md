@@ -43,4 +43,4 @@ To view the update history, please check Changes_History file
 
 **TUTORIALS**
 
-Please, check wiki https://github.com/Valdes-Tresanco-MS/AMDock-win/wiki
+Please, check the wiki https://github.com/Valdes-Tresanco-MS/AMDock-win/wiki
