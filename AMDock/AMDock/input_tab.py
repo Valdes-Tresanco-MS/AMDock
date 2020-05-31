@@ -2020,20 +2020,20 @@ class Program_body(QtGui.QWidget):
         print(self.pymol_out)
         if re.search('AMDock INFO', self.pymol_out):
             if len(self.pymol_out.split()) > 9:
-                a, i, prot, sx, sy, sz, cx, cy, cz, prot1, sx1, sy1, sz1, cx1, cy1, cz1 = self.pymol_out.split()
+                a, i, prot, cx, cy, cz, sx, sy, sz, prot1, cx1, cy1, cz1, sx1, sy1, sz1 = self.pymol_out.split()
                 if prot1:
                     self.btnB_user.setChecked(True)
                     self.coor_xB.setValue(float(cx1))
                     self.coor_yB.setValue(float(cy1))
                     self.coor_zB.setValue(float(cz1))
-                    self.size_xB.setValue(int(float(sx1)))
-                    self.size_yB.setValue(int(float(sy1)))
-                    self.size_zB.setValue(int(float(sz1)))
+                    self.size_xB.setValue(int(sx1))
+                    self.size_yB.setValue(int(sy1))
+                    self.size_zB.setValue(int(sz1))
                     self.grid_centerB = [str(self.coor_xB.value()), str(self.coor_yB.value()),
                                          str(self.coor_zB.value())]
                     self.sizeB = [self.size_xB.value(), self.size_yB.value(), self.size_zB.value()]
             else:
-                a, i, prot, sx, sy, sz, cx, cy, cz = self.pymol_out.split()
+                a, i, prot, cx, cy, cz, sx, sy, sz  = self.pymol_out.split()
 
             if prot == 'target':
                 self.btnA_user.setChecked(True)
