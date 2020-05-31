@@ -37,8 +37,8 @@ class AMDockPlugin:
     def __init__(self, app):
         parent = app.root
         self.parent = parent
-        self.target_data = [None, 30, 30, 30, 0, 0, 0]
-        self.offtarget_data = [None, 30, 30, 30, 0, 0, 0]
+        self.target_data = [None, 0, 0, 0, 30, 30, 30]
+        self.offtarget_data = [None, 0, 0, 0, 30, 30, 30]
         self.build = False
         self.read_data()
         self.saved = True
@@ -436,43 +436,45 @@ class AMDockPlugin:
         ofile = open('pymol_data.txt', 'w')
         if savet and saveo:
             info = 'AMDock INFO: {} {} {} {} {} {} {} {} {} {} {} {} {} {}'.format(self.target_data[0],
-                                                                                   self.target_grid_size[0].get(),
-                                                                                   self.target_grid_size[1].get(),
-                                                                                   self.target_grid_size[2].get(),
                                                                                    self.target_grid_center[0].get(),
                                                                                    self.target_grid_center[1].get(),
                                                                                    self.target_grid_center[2].get(),
+                                                                                   self.target_grid_size[0].get(),
+                                                                                   self.target_grid_size[1].get(),
+                                                                                   self.target_grid_size[2].get(),
                                                                                    self.offtarget_data[0],
-                                                                                   self.offtarget_grid_size[0].get(),
-                                                                                   self.offtarget_grid_size[1].get(),
-                                                                                   self.offtarget_grid_size[2].get(),
                                                                                    self.offtarget_grid_center[0].get(),
                                                                                    self.offtarget_grid_center[1].get(),
-                                                                                   self.offtarget_grid_center[2].get()
+                                                                                   self.offtarget_grid_center[2].get(),
+                                                                                   self.offtarget_grid_size[0].get(),
+                                                                                   self.offtarget_grid_size[1].get(),
+                                                                                   self.offtarget_grid_size[2].get()
                                                                                    )
             print(info)
             ofile.write('{} {} {} {} {} {} {}\n'.format(*info.split()[2:9]))
             ofile.write('{} {} {} {} {} {} {}\n'.format(*info.split()[9:]))
         elif savet:
             info = 'AMDock INFO: {} {} {} {} {} {} {}'.format(self.target_data[0],
-                                                              self.target_grid_size[0].get(),
-                                                              self.target_grid_size[1].get(),
-                                                              self.target_grid_size[2].get(),
                                                               self.target_grid_center[0].get(),
                                                               self.target_grid_center[1].get(),
-                                                              self.target_grid_center[2].get())
+                                                              self.target_grid_center[2].get(),
+                                                              self.target_grid_size[0].get(),
+                                                              self.target_grid_size[1].get(),
+                                                              self.target_grid_size[2].get()
+                                                              )
             print(info)
             ofile.write(info[13:] + '\n')
             if self.offtarget_data[0]:
                 ofile.write('{} {} {} {} {} {} {}\n'.format(*self.offtarget_data))
         else:
             info = 'AMDock INFO: {} {} {} {} {} {} {}'.format(self.offtarget_data[0],
-                                                              self.offtarget_grid_size[0].get(),
-                                                              self.offtarget_grid_size[1].get(),
-                                                              self.offtarget_grid_size[2].get(),
                                                               self.offtarget_grid_center[0].get(),
                                                               self.offtarget_grid_center[1].get(),
-                                                              self.offtarget_grid_center[2].get())
+                                                              self.offtarget_grid_center[2].get(),
+                                                              self.offtarget_grid_size[0].get(),
+                                                              self.offtarget_grid_size[1].get(),
+                                                              self.offtarget_grid_size[2].get()
+                                                              )
             print(info)
             ofile.write(info[13:] + '\n')
             if self.target_data[0]:
