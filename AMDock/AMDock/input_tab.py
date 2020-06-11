@@ -1956,6 +1956,7 @@ class Program_body(QtGui.QWidget):
         # thread = THREAD(self.AMDock, self.output)
         # thread.run()
         print(self.output)
+        self.output = str(self.output)
         if self.AMDock.project.prog == 'AutoGrid4':
             if re.search('%', self.output):
                 try:
@@ -1963,10 +1964,9 @@ class Program_body(QtGui.QWidget):
                 except:
                     return
                 if self.AMDock.project.bsd_mode_target == 0 and self.AMDock.section == 2:
-                    self.AMDock.program_body.progress(current / len(self.AMDock.target.fill_list),
-                                                      self.AMDock.project.mode)
+                    self.progress(current / len(self.AMDock.target.fill_list), self.AMDock.project.mode)
                 else:
-                    self.AMDock.program_body.progress(current, self.AMDock.project.mode)
+                    self.progress(current, self.AMDock.project.mode)
                 self.AMDock.project.part = float(self.output.split()[2].strip('%')) * 0.4
         elif self.AMDock.project.prog == 'AutoGrid4 B':
             if re.search('%', self.output):
@@ -1975,9 +1975,9 @@ class Program_body(QtGui.QWidget):
                 except:
                     return
                 if self.AMDock.project.bsd_mode_offtarget == 0 and self.AMDock.section == 2:
-                    self.AMDock.program_body.progress(current / len(self.AMDock.offtarget.fill_list), 0)
+                    self.progress(current / len(self.AMDock.offtarget.fill_list), 0)
                 else:
-                    self.AMDock.program_body.progress(current, 0)
+                    self.progress(current, 0)
                 self.AMDock.project.part = float(self.output.split()[2].strip('%')) * 0.4
 
         elif self.AMDock.project.prog == 'AutoDock Vina':
@@ -1988,14 +1988,14 @@ class Program_body(QtGui.QWidget):
         elif self.AMDock.project.prog == 'AutoDock Vina B':
             current = self.output.count('*') * (50. / 51)
             if self.AMDock.project.bsd_mode_offtarget != 0:
-                self.AMDock.program_body.progress(current, 0)
+                self.progress(current, 0)
         elif self.AMDock.project.prog == 'AutoLigand':
             if re.search('Progress:', self.output):
                 try:
                     current = float(self.output.split()[1]) * 0.4 - self.AMDock.project.part
                 except:
                     return
-                self.AMDock.program_body.progress(current, self.AMDock.project.mode)
+                self.progress(current, self.AMDock.project.mode)
                 self.AMDock.project.part = float(self.output.split()[1]) * 0.4
         elif self.AMDock.project.prog == 'AutoLigand B':
             if re.search('Progress:', self.output):
@@ -2003,7 +2003,7 @@ class Program_body(QtGui.QWidget):
                     current = float(self.output.split()[1]) * 0.4 - self.AMDock.project.part
                 except:
                     return
-                self.AMDock.program_body.progress(current, 0)
+                self.progress(current, 0)
                 self.AMDock.project.part = float(self.output.split()[1]) * 0.4
 
     def readStdError(self):
