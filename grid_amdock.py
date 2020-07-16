@@ -491,7 +491,7 @@ class AMDockPlugin:
                 [x.get() for x in self.target_grid_center] != [float(x) for x in self.target_data[1:4]] or \
                 [x.get() for x in self.offtarget_grid_size] != [int(x) for x in self.offtarget_data[4:]] or \
                 [x.get() for x in self.offtarget_grid_center] != [float(x) for x in self.offtarget_data[1:4]]:
-                res = tkMessageBox.askyesnocancel('Warning', "Some changes have not been saved. Do you want to save "
+                res = tkMessageBox.askyesno('Warning', "Some changes have not been saved. Do you want to save "
                                                              "them before exit?")
                 if res == YES:
                     self.save_info()
