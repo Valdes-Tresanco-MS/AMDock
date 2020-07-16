@@ -1177,7 +1177,7 @@ class Program_body(QtGui.QWidget):
                     prepare_lig_arg += [self.AMDock.ligand.pdb, '-v']
                     self.list_process.append(protonate_ligand)
                 else:
-                    prepare_lig_arg += [self.AMDock.ligand.input, '-A', 'hydorgens', '-v']
+                    prepare_lig_arg += [self.AMDock.ligand.input, '-A', 'hydrogens', '-v']
             else:
                 prepare_lig_arg += [self.AMDock.ligand.input, '-v']
                 self.AMDock.ligand.pdbqt = self.AMDock.ligand.name + '.pdbqt'
@@ -3109,12 +3109,12 @@ class Program_body(QtGui.QWidget):
         else:
             if prog[-1] == 'B':
                 self.AMDock.log_widget.textedit.append(Ft('Running {} for Off-Target...'.format(prog[:-2])).process())
+                self.AMDock.log_widget.textedit.append('\n')
             else:
                 if prog in ['Prepare_Ligand4', 'Protonate Ligand']:
                     self.AMDock.log_widget.textedit.append(Ft('Running {} for Ligand...'.format(prog)).process())
                 else:
-                    self.AMDock.log_widget.textedit.append(
-                        Ft('Running {} for Target...'.format(prog)).process())
+                    self.AMDock.log_widget.textedit.append(Ft('Running {} for Target...'.format(prog)).process())
                     self.AMDock.log_widget.textedit.append('\n')
             if prog in ['AutoDock4', 'AutoDock4 B', 'AutoDock4ZN', 'AutoDock4ZN B']:
                 self.timerAD = QtCore.QTimer()
