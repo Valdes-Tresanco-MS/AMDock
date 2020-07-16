@@ -23,25 +23,27 @@ class Result_Analysis():
         exponente = 0
         base = pow(10, exponente)
         out_number = number * base
-        while out_number < 1 or out_number > 10:
-            exponente += 1
-            base = pow(10, exponente)
-            out_number = number * base
-        if exponente in [0, 1]:
-            rep_number = number
-            return rep_number, units[0]
-        elif exponente in [2, 3, 4]:
-            rep_number = number * 1000
-            return rep_number, units[1]
-        elif exponente in [5, 6]:
-            rep_number = number * 1000000
-            return rep_number, units[2]
-        elif exponente in [7, 8, 9, 10]:
-            rep_number = number * 1000000000
-            return rep_number, units[3]
-        else:
-            rep_number = number
-            return rep_number, '-'
+        if float(number) < 1:
+            while out_number < 1 or out_number > 10:
+                exponente += 1
+                base = pow(10, exponente)
+                out_number = number * base
+            if exponente in [0, 1]:
+                rep_number = number
+                return rep_number, units[0]
+            elif exponente in [2, 3, 4]:
+                rep_number = number * 1000
+                return rep_number, units[1]
+            elif exponente in [5, 6]:
+                rep_number = number * 1000000
+                return rep_number, units[2]
+            elif exponente in [7, 8, 9, 10]:
+                rep_number = number * 1000000000
+                return rep_number, units[3]
+            else:
+                rep_number = number
+                return rep_number, '-'
+        return number, '-'
 
     def result2table(self, p_file, score=False):
         file = open(p_file, 'r')
