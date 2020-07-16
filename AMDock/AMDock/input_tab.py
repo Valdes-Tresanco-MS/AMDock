@@ -1279,7 +1279,7 @@ class Program_body(QtGui.QWidget):
                             self.size_y.setValue(self.lig_size)
                         if 'z' in self.dim_list:
                             self.size_z.setValue(self.lig_size)
-                    self.size = [int(self.size_x.value()), int(self.size_y.value()), int(self.size_z.value())]
+                self.size = [int(self.size_x.value()), int(self.size_y.value()), int(self.size_z.value())]
 
 
         if self.AMDock.project.mode == 1:
