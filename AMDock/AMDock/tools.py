@@ -208,7 +208,7 @@ class PDBINFO:
                 # exclude water residues
                 if res.name[:3] in ['WAT', 'HOH', 'SOL']:
                     continue
-                if res.name[:3] == ' ZN':
+                if res.name[:3].strip() == 'ZN':
                     self.zn_atoms.append([chain, res])
                 elif res.hetatm():
                     self.het.append([chain, res])
