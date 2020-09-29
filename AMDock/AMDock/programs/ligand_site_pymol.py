@@ -48,6 +48,7 @@ def load_rep(target, offtarget):
         util.cbam('(O_poses or Off-Target)')
     # cmd.bg_color('white')
     # representation(rep)
+    cmd.remove("all & hydro & not nbr. (don.|acc.)")
 
 
 load_rep(target, offtarget)
