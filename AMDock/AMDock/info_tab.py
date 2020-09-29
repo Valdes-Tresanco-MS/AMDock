@@ -1,7 +1,7 @@
 import os
 from PyQt4 import QtGui
 import subprocess
-
+from PyQt4 import QtCore
 
 class Help(QtGui.QWidget):
     def __init__(self, parent=None):
@@ -28,8 +28,11 @@ class Help(QtGui.QWidget):
         self.citing_box.setTitle("Cite Us")
 
         self.citing_label = QtGui.QLabel(self.citing_box)
-        self.citing_label.setText('AMDock: a graphical tool for assisting molecular docking with Autodock-Vina and '
-                                  'Autodock4')
+        self.citing_label.setText('Valdes-Tresanco, M.S., Valdes-Tresanco, M.E., Valiente, P.A. and Moreno E. AMDock: a '
+                                  'versatile graphical tool for assisting molecular docking with Autodock Vina and '
+                                  'Autodock4. Biol Direct 15, 12 (2020). https://doi.org/10.1186/s13062-020-00267-2')
+        self.citing_label.setWordWrap(True)
+        self.citing_label.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
 
         self.reference_box = QtGui.QGroupBox(self)
         self.reference_box.setTitle("References")
