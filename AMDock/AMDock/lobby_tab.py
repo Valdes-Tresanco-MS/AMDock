@@ -160,10 +160,16 @@ class Lobby(QtGui.QFrame):
     def program_select(self, b):
         if b.objectName() == 'adock_button':
             self.AMDock.docking_program = 'AutoDock4'
+            self.AMDock.program_body.new_para_btn.show()
+            self.AMDock.program_body.new_para_text.show()
         elif b.objectName() == 'adockZn_button':
             self.AMDock.docking_program = 'AutoDockZn'
+            self.AMDock.program_body.new_para_btn.show()
+            self.AMDock.program_body.new_para_text.show()
         elif b.objectName() == 'dock_vina_button':
             self.AMDock.docking_program = 'AutoDock Vina'
+            self.AMDock.program_body.new_para_btn.hide()
+            self.AMDock.program_body.new_para_text.hide()
         self.AMDock.mess = QtGui.QLabel(self.AMDock.docking_program + " is selected")
         self.AMDock.statusbar.addWidget(self.AMDock.mess)
         self.AMDock.log_widget.textedit.append(Ft('Defining Initial Parameters...').section())
