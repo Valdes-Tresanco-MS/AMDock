@@ -1089,9 +1089,13 @@ class Program_body(QtGui.QWidget):
 
 
         self.target_info = PDBINFO(self.AMDock.target.input)
-        self.AMDock.target.zn_atoms, self.AMDock.target.het = self.target_info.get_zn(), self.target_info.get_het()
+        self.AMDock.target.zn_atoms = self.target_info.get_zn()
+        self.AMDock.target.metals = self.target_info.get_metals()
+        self.AMDock.target.het = self.target_info.get_het()
         self.offtarget_info = PDBINFO(self.AMDock.offtarget.input)
-        self.AMDock.offtarget.zn_atoms, self.AMDock.offtarget.het = self.offtarget_info.get_zn(), self.offtarget_info.get_het()
+        self.AMDock.offtarget.zn_atoms = self.offtarget_info.get_zn()
+        self.AMDock.offtarget.metals = self.offtarget_info.get_metals()
+        self.AMDock.offtarget.het = self.offtarget_info.get_het()
         self.ligand_info = PDBINFO(self.AMDock.ligand.input)
         self.AMDock.ligand.ha = self.ligand_info.get_ha()
         self.lig_size = int(math.ceil(self.ligand_info.get_gyrate()))
@@ -1198,13 +1202,25 @@ class Program_body(QtGui.QWidget):
                                                              '--with-ph', str(self.pH_value.value()),
                                                              '--ff=AMBER', self.AMDock.target.input,
                                                              self.AMDock.target.pqr]]}
-            fix_pqr = {'Fix_PQR': [Fix_PQR, [self.AMDock.target.input, self.AMDock.target.pqr,
-                                             self.AMDock.target.zn_atoms]]}
+            metals = []
+            metals_text = None
+            if self.keep_ions_btn.isChecked():
+                if self.ions_text.text():
+                    metals_text = str(self.ions_text.text())
+                    metals = [['', '%s ' % x.split(':')[0], float(x.split(':')[1])] for x in metals_text.split(',')]
+                else:
+                    metals = self.AMDock.target.metals
+            if self.AMDock.target.zn_atoms:
+                metals = metals + self.AMDock.target.zn_atoms
 
-            prepare_receptor4 = {'Prepare_Receptor4': [self.AMDock.this_python, [self.AMDock.prepare_receptor4_py,
-                                                                                 '-r', self.AMDock.target.pdb, '-v',
-                                                                                 '-U',
-                                                                                 'nphs_lps_waters_nonstdres_deleteAltB']]}
+            fix_pqr = {'Fix_PQR': [Fix_PQR, [self.AMDock.target.input, self.AMDock.target.pqr,
+                                             metals]]}
+            args = [self.AMDock.prepare_receptor4_py, '-r', self.AMDock.target.pdb, '-v', '-U',
+                    'nphs_lps_waters_nonstdres_deleteAltB']
+            if metals:
+                args = args + ['-p', metals_text]
+
+            prepare_receptor4 = {'Prepare_Receptor4': [self.AMDock.this_python, args]}
             self.list_process.append(pdb2pqr)
             self.list_process.append(fix_pqr)
             self.list_process.append(prepare_receptor4)
@@ -1218,13 +1234,26 @@ class Program_body(QtGui.QWidget):
                                                                     '--ff=AMBER',
                                                                     self.AMDock.offtarget.input,
                                                                     self.AMDock.offtarget.pqr]]}
+                metals = []
+                metals_text = None
+                if self.keep_ions_btn.isChecked():
+                    if self.ions_text.text():
+                        metals_text = str(self.ions_text.text())
+                        metals = [['', '%s ' % x.split(':')[0], float(x.split(':')[1])] for x in metals_text.split(',')]
+                    else:
+                        metals = self.AMDock.offtarget.metals
+                if self.AMDock.offtarget.zn_atoms:
+                    metals = metals + self.AMDock.offtarget.zn_atoms
 
                 fix_pqrB = {'Fix_PQR B': [Fix_PQR, [self.AMDock.offtarget.input, self.AMDock.offtarget.pqr,
-                                                    self.AMDock.offtarget.zn_atoms]]}
-                prepare_receptor4B = {'Prepare_Receptor4 B': [self.AMDock.this_python,
-                                                              [self.AMDock.prepare_receptor4_py, '-r',
-                                                               self.AMDock.offtarget.pdb, '-v', '-U',
-                                                               'nphs_lps_waters_nonstdres_deleteAltB']]}
+                                                    metals]]}
+
+                args = [self.AMDock.prepare_receptor4_py, '-r', self.AMDock.offtarget.pdb, '-v', '-U',
+                        'nphs_lps_waters_nonstdres_deleteAltB']
+                if metals:
+                    args = args + ['-p', metals_text]
+
+                prepare_receptor4B = {'Prepare_Receptor4 B': [self.AMDock.this_python, args]}
                 self.list_process.append(pdb2pqrB)
                 self.list_process.append(fix_pqrB)
                 self.list_process.append(prepare_receptor4B)
