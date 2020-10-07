@@ -50,7 +50,7 @@ To view the update history, please check Changes_History file
 
 Please, check the wiki https://github.com/Valdes-Tresanco-MS/AMDock-win/wiki
 
-[<img src="./Lib/site-packages/AMDock/images/jetbrains-variant-4.png" height="100" align="right" />](https://www.jetbrains.com/?from=https://github.com/Valdes-Tresanco-MS/AMDock)
+[<img src="./AMDock/AMDock/images/jetbrains-variant-4.png" height="100" align="right" />](https://www.jetbrains.com/?from=https://github.com/Valdes-Tresanco-MS/AMDock)
 
 ## Support
 This project is possible thanks to the Open Source license of the 
