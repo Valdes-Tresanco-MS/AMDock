@@ -143,18 +143,28 @@ if __name__ == '__main__':
     if verbose: print 'read ', receptor_filename
     mol = mols[0]
     preserved = {}
+    charge = None
     if charges_to_add is not None and preserve_charge_types is not None:
         preserved_types = preserve_charge_types.split(',') 
         if verbose: print "preserved_types=", preserved_types
         for t in preserved_types:
-            if verbose: print 'preserving charges on type->', t
-            if not len(t): continue
-            ats = mol.allAtoms.get(lambda x: x.autodock_element==t)
-            ats = mol.allAtoms.get(lambda x: x.autodock_element==Zn)
-            if verbose: print "preserving charges on ", ats.name
+            if len(t.split(':')) > 1:
+                atom, charge = t.split(':')
+            else:
+                atom = t
+            if not len(atom):
+                continue
+            ats = mol.allAtoms.get(lambda x: x.element == atom)
+            # ats = mol.allAtoms.get(lambda x: x.element == 'Zn')
+            if verbose:
+                if charge:
+                    print 'add charge (%s) to atom:' % float(charge), atom
+                else:
+                    print 'preserving charges on type->', atom
             for a in ats:
+                a.chargeSet = 'gasteiger'
                 if a.chargeSet is not None:
-                    preserved[a] = [a.chargeSet, a.charge]
+                    preserved[a] = [a.chargeSet, float(charge)]
 
     if len(mols)>1:
         if verbose: print "more than one molecule in file"
@@ -184,6 +194,7 @@ if __name__ == '__main__':
         for atom, chargeList in preserved.items():
             atom._charges[chargeList[0]] = chargeList[1]
             atom.chargeSet = chargeList[0]
+            print 'Assign user charge (%s) to atom type %s' % (atom.charge, atom.element)
 
 
 # To execute this command type:
