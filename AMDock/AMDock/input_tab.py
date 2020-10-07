@@ -1311,15 +1311,13 @@ class Program_body(QtGui.QWidget):
 
         if self.AMDock.project.bsd_mode_target == 0:
             self.target_info.get_box()
-            prepare_gpf4 = {'Prepare_gpf4': [self.AMDock.this_python, [self.AMDock.prepare_gpf4_py, '-l',
-                                                                       self.AMDock.ligand.pdbqt, '-r',
-                                                                       self.AMDock.target.pdbqt, '-p',
-                                                                       'npts={0},{1},{2}'.format(
-                                                                           *self.target_info.size), '-p',
-                                                                       'gridcenter={0},{1},{2}'.format(
-                                                                           *self.target_info.center), '-p',
-                                                                       'spacing=%.3f' % self.AMDock.spacing_autoligand,
-                                                                       '-o', self.AMDock.target.auto_lig]]}
+            args = [self.AMDock.prepare_gpf4_py, '-l', self.AMDock.ligand.pdbqt, '-r', self.AMDock.target.pdbqt, '-p',
+                    'npts={0},{1},{2}'.format(*self.target_info.size), '-p', 'gridcenter={0},{1},{2}'.format(
+                    *self.target_info.center), '-p', 'spacing=%.3f' % self.AMDock.spacing_autoligand, '-o',
+                    self.AMDock.target.auto_lig]
+            if self.AMDock.para_file:
+                args = args + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
+            prepare_gpf4 = {'Prepare_gpf4': [self.AMDock.this_python, args]}
             queue.put(prepare_gpf4)
             autogrid4 = {'AutoGrid4': [self.AMDock.autogrid, ['-p', self.AMDock.target.auto_lig]]}
             queue.put(autogrid4)
@@ -1332,16 +1330,13 @@ class Program_body(QtGui.QWidget):
             self.target_info.get_box()
             self.target_info.get_center_selection(self.AMDock.target.selected)
 
-            prepare_gpf4 = {'Prepare_gpf4': [self.AMDock.this_python, [self.AMDock.prepare_gpf4_py, '-l',
-                                                                       self.AMDock.ligand.pdbqt, '-r',
-                                                                       self.AMDock.target.pdbqt, '-p',
-                                                                       'npts={0},{1},{2}'.format(
-                                                                           *self.target_info.size), '-p',
-                                                                       'gridcenter={0},{1},{2}'.format(
-                                                                           *self.grid_center),
-                                                                       '-p',
-                                                                       'spacing=%.3f' % self.AMDock.spacing_autoligand,
-                                                                       '-o', self.AMDock.target.auto_lig]]}
+            args = [self.AMDock.prepare_gpf4_py, '-l', self.AMDock.ligand.pdbqt, '-r', self.AMDock.target.pdbqt, '-p',
+                    'npts={0},{1},{2}'.format(*self.target_info.size), '-p', 'gridcenter={0},{1},{2}'.format(
+                    *self.grid_center), '-p', 'spacing=%.3f' % self.AMDock.spacing_autoligand, '-o',
+                    self.AMDock.target.auto_lig]
+            if self.AMDock.para_file:
+                args = args + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
+            prepare_gpf4 = {'Prepare_gpf4': [self.AMDock.this_python, args]}
             queue.put(prepare_gpf4)
             autogrid4 = {'AutoGrid4': [self.AMDock.autogrid, ['-p', self.AMDock.target.auto_lig]]}
             queue.put(autogrid4)
@@ -1379,16 +1374,14 @@ class Program_body(QtGui.QWidget):
         if self.AMDock.project.mode == 1:
             if self.AMDock.project.bsd_mode_offtarget == 0:
                 self.offtarget_info.get_box()
-                prepare_gpf4B = {'Prepare_gpf4 B': [self.AMDock.this_python, [self.AMDock.prepare_gpf4_py, '-l',
-                                                                              self.AMDock.ligand.pdbqt, '-r',
-                                                                              self.AMDock.offtarget.pdbqt, '-p',
-                                                                              'npts={0},{1},{2}'.format(
-                                                                                  *self.offtarget_info.size), '-p',
-                                                                              'gridcenter={0},{1},{2}'.format(
-                                                                                  *self.offtarget_info.center),
-                                                                              '-p',
-                                                                              'spacing=%.3f' % self.AMDock.spacing_autoligand,
-                                                                              '-o', self.AMDock.offtarget.auto_lig]]}
+                args = [self.AMDock.prepare_gpf4_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                        self.AMDock.offtarget.pdbqt, '-p', 'npts={0},{1},{2}'.format(*self.offtarget_info.size), '-p',
+                        'gridcenter={0},{1},{2}'.format(*self.offtarget_info.center), '-p', 'spacing=%.3f' %
+                        self.AMDock.spacing_autoligand, '-o', self.AMDock.offtarget.auto_lig]
+                if self.AMDock.para_file:
+                    args = args + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
+
+                prepare_gpf4B = {'Prepare_gpf4 B': [self.AMDock.this_python, args]}
                 queue.put(prepare_gpf4B)
                 autogrid4B = {'AutoGrid4 B': [self.AMDock.autogrid, ['-p', self.AMDock.offtarget.auto_lig]]}
                 queue.put(autogrid4B)
@@ -1400,15 +1393,14 @@ class Program_body(QtGui.QWidget):
                 self.AMDock.offtarget.selected = str(self.grid_predef_textB.text())
                 self.offtarget_info.get_box()
                 self.offtarget_info.get_center_selection(self.AMDock.offtarget.selected)
-                prepare_gpf4B = {'Prepare_gpf4 B': [self.AMDock.this_python, [self.AMDock.prepare_gpf4_py, '-l',
-                                                                              self.AMDock.ligand.pdbqt, '-r',
-                                                                              self.AMDock.offtarget.pdbqt, '-p',
-                                                                              'npts={0},{1},{2}'.format(
-                                                                                  *self.offtarget_info.size), '-p',
-                                                                              'gridcenter={0},{1},{2}'.format(
-                                                                                  *self.offtarget_info.center), '-p',
-                                                                              'spacing=%.3f' % self.AMDock.spacing_autoligand,
-                                                                              '-o', self.AMDock.offtarget.auto_lig]]}
+                args = [self.AMDock.prepare_gpf4_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                        self.AMDock.offtarget.pdbqt, '-p', 'npts={0},{1},{2}'.format(*self.offtarget_info.size), '-p',
+                        'gridcenter={0},{1},{2}'.format(*self.offtarget_info.center), '-p', 'spacing=%.3f' %
+                        self.AMDock.spacing_autoligand, '-o', self.AMDock.offtarget.auto_lig]
+                if self.AMDock.para_file:
+                    args = args + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
+
+                prepare_gpf4B = {'Prepare_gpf4 B': [self.AMDock.this_python, args]}
                 queue.put(prepare_gpf4B)
                 autogrid4B = {'AutoGrid4 B': [self.AMDock.autogrid, ['-p', self.AMDock.offtarget.auto_lig]]}
                 queue.put(autogrid4B)
