@@ -124,6 +124,7 @@ class BASE:
         self.tzpdbqt = None
         self.het = None
         self.zn_atoms = None
+        self.metals = None
         self.all_poses = None
         self.best_pose = None
         self.vina_output = None
@@ -180,6 +181,7 @@ class PDBINFO:
             self.exception = inst  # the exception instance
         self.het = []
         self.zn_atoms = []
+        self.metals = []
         self.size = None
         self.center = None
         self.selection_center = None
@@ -210,6 +212,9 @@ class PDBINFO:
                     continue
                 if res.name[:3].strip() == 'ZN':
                     self.zn_atoms.append([chain, res])
+                    self.metals.append([chain, res])
+                elif res.name[:3].strip().lower() in ['mn', 'mg', 'ca', 'fe']:
+                    self.metals.append([chain, res])
                 elif res.hetatm():
                     self.het.append([chain, res])
                 elif res.name[:3] in aa:
@@ -228,8 +233,22 @@ class PDBINFO:
             return
         zn = []
         for lst in self.zn_atoms:
-            zn.append([lst[0].name, lst[1].name])
+            c = 0.0
+            if lst[1].atoms[0].chargeSet:
+                c = lst[1].atoms[0].charge
+            zn.append([lst[0].name, lst[1].name, c])
         return zn
+
+    def get_metals(self):
+        if self.exception:
+            return
+        metals = []
+        for lst in self.metals:
+            c = 0.0
+            if lst[1].atoms[0].chargeSet:
+                c = lst[1].atoms[0].charge
+            metals.append([lst[0].name, lst[1].name, c])
+        return metals
 
     def get_ha(self):
         if self.exception:
@@ -475,20 +494,28 @@ class Fix_PQR:
     '''
     Add metal atom to PDB2PQR output
     '''
-    def __init__(self, original_pdb, pqr_file, metal):
+    def __init__(self, original_pdb, pqr_file, metals):
         self.ori_pdb = Read(original_pdb)[0]
         self.pqr = Read(pqr_file)[0]
-        self.metal = metal
+        self.metals = metals
         self.new_pdb = pqr_file.split('.')[0] + '.pdb'
 
-        if self.metal:
-            zn = self.ori_pdb.allAtoms.get(lambda x: x.element == 'Zn')
-            # remove hydrogens added to HYS residues near ZN atoms
-            close_atoms = self.pqr.closerThan(zn[0].coords, self.pqr.allAtoms, 2.3)
-            # FIXME: only take the first atoms in list
+        uniq_list = {} # to avoid redundancy
+        if self.metals:
+            for met in self.metals:
+                ele = met[1][:3].strip().lower()
+                if ele not in uniq_list.keys():
+                    uniq_list[ele] = met[2]
+                else:
+                    continue
+            met_atoms = self.ori_pdb.allAtoms.get(lambda x: x.element.lower() in uniq_list)
+            for atm in met_atoms:
+                atm.charge = uniq_list[atm.element.lower()]
+                print 'atoms charge', atm.element, uniq_list[atm.element.lower()]
+            for met_atm in met_atoms:
+                close_atoms = self.pqr.closerThan(met_atm.coords, self.pqr.allAtoms, 2.8)
             for a in close_atoms:
                 if a.element == 'H':
-                    # print a.name
                     for b in a.bonds:
                         at2 = b.atom1
                         if at2 == a: at2 = b.atom2
@@ -496,7 +523,8 @@ class Fix_PQR:
                         a.bonds.remove(b)
                     a.parent.remove(a)
                     del a
-            self.pqr.allAtoms = self.pqr.chains.residues.atoms + zn
+                self.pqr.allAtoms = self.pqr.chains.residues.atoms
+            self.pqr.allAtoms = self.pqr.chains.residues.atoms + met_atoms
         writer = PdbWriter()
         writer.write(self.new_pdb, self.pqr.allAtoms, records=['ATOM', 'HETATM'])
 
