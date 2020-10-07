@@ -42,6 +42,7 @@ class AMDock(QtGui.QMainWindow, Variables):
         self.spacing_autoligand = 1.0
         self.spacing_autodock = 0.375
         self.pH = 7.40
+        self.para_file = None
         self.state = 0  # 0 not running, 2 running
         self.section = -1  # -1 only PD selected, 0 project, 1 input files, 2 bsd, 3 docking
 
