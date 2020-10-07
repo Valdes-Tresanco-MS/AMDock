@@ -106,6 +106,24 @@ class Loader:
             filenames = data_file.selectedFiles()
             return filenames
 
+    def load_parameters(self):
+        data_file = QtGui.QFileDialog()
+        data_file.setFileMode(QtGui.QFileDialog.AnyFile)
+        data_file.setFilter("AD4 parameter file (*.dat)")
+        if data_file.exec_():
+            openfile = data_file.selectedFiles()[0]
+            print str(openfile)
+            filename = os.path.split(str(openfile))[1]
+            try:
+                shutil.copy(str(openfile), self.AMDock.project.input)
+                self.AMDock.para_file = filename
+            except IOError, e:
+                nowdir = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Error: %s' % e,
+                                                    QtGui.QMessageBox.Ok)
+                return False
+            return True
+        return
+
     def load_protein(self):
         data_file = QtGui.QFileDialog()
         data_file.setFileMode(QtGui.QFileDialog.AnyFile)
