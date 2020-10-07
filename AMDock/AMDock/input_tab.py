@@ -167,6 +167,17 @@ class Program_body(QtGui.QWidget):
         self.align_prot.clicked.connect(self.align_proteins)
         self.align_prot.hide()
 
+        self.new_para_btn = QtGui.QPushButton('+')
+        self.new_para_btn.setFixedSize(25, 25)
+        self.new_para_btn.clicked.connect(self.addNewParameters)
+        self.new_para_btn.hide()
+        self.new_para_text = QtGui.QLineEdit()
+        self.new_para_text.setReadOnly(True)
+        self.new_para_text.setPlaceholderText('New AD4 Parameter file')
+        self.new_para_text.hide()
+        self.new_para_layout = QtGui.QHBoxLayout()
+        self.new_para_layout.addWidget(self.new_para_btn)
+        self.new_para_layout.addWidget(self.new_para_text)
 
         self.flags_layout = QtGui.QHBoxLayout()
         self.flags_layout.addWidget(self.pH_label)
@@ -175,9 +186,28 @@ class Program_body(QtGui.QWidget):
         self.flags_layout.addWidget(self.offtarget_docking)
         self.flags_layout.addWidget(self.rescoring)
         self.flags_layout.addStretch(1)
-        self.flags_layout.addWidget(self.align_prot)
+        self.flags_layout.addLayout(self.new_para_layout)
+        self.flags_layout.addStretch(1)
+        # self.flags_layout.addWidget(self.align_prot)
         # self.flags_layout.addStretch(1)/
 
+        self.keep_ions_btn = QtGui.QCheckBox('Keep Metals in Receptors:')
+        self.keep_ions_btn.stateChanged.connect(self.enableMetals)
+
+        r = QtCore.QRegExp("([A-Z][a-z]{0,1}:(\+|\-){0,1}[0-9](\.[0-9]){0,1},)*")
+        v = QtGui.QRegExpValidator(r)
+
+        self.ions_text = QtGui.QLineEdit()
+        self.ions_text.setEnabled(False)
+        self.ions_text.setPlaceholderText('Comma separated values, ie metal:charge (Fe:2, Ca:2). Default: Mg, Ca, Fe, '
+                                          'Mn with charge = 0.0')
+        self.ions_text.setValidator(v)
+        self.ions_layout = QtGui.QHBoxLayout()
+        self.ions_layout.addWidget(self.keep_ions_btn)
+        self.ions_layout.addWidget(self.ions_text)
+
+        line = QtGui.QFrame()
+        line.setFrameShape(QtGui.QFrame.HLine)
 
         self.input_layout = QtGui.QGridLayout()
         self.input_layout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
@@ -192,16 +222,19 @@ class Program_body(QtGui.QWidget):
         self.input_layout.addWidget(self.ligand_text, 4, 1)
         self.input_layout.addWidget(self.ligand_label, 5, 1)
 
-        # self.input_btn_layout = QtGui.QVBoxLayout()
-        # self.input_btn_layout.addWidget(self.align_prot)
-        # self.input_btn_layout.addWidget(self.prep_rec_lig_button)
+        self.input_btn_layout = QtGui.QVBoxLayout()
+        self.input_btn_layout.addWidget(self.align_prot)
+        self.input_btn_layout.addStretch(1)
+        self.input_btn_layout.addWidget(self.prep_rec_lig_button)
 
         self.content_layout = QtGui.QHBoxLayout()
         self.content_layout.addLayout(self.input_layout)
-        self.content_layout.addWidget(self.prep_rec_lig_button)
+        self.content_layout.addLayout(self.input_btn_layout)
 
         self.input_box_layout = QtGui.QVBoxLayout(self.input_box)
         self.input_box_layout.addLayout(self.flags_layout)
+        self.input_box_layout.addLayout(self.ions_layout)
+        self.input_box_layout.addWidget(line)
         self.input_box_layout.addLayout(self.content_layout)
 
         # **Grid_box
