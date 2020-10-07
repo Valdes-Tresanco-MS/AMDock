@@ -1569,6 +1569,10 @@ class Program_body(QtGui.QWidget):
                 self.project_text.clear()
                 self.proj_loc_label.clear()
                 self.AMDock.project = PROJECT()
+                self.AMDock.para_file = None
+                self.new_para_text.clear()
+                self.new_para_btn.setText('+')
+                self.keep_ions_btn.setChecked(False)
                 self.reset_ligand()
                 self.reset_target()
                 self.reset_offtarget()
@@ -2525,11 +2529,16 @@ class Program_body(QtGui.QWidget):
                                     self.size[0] / self.AMDock.spacing_autodock,
                                     self.size[1] / self.AMDock.spacing_autodock,
                                     self.size[2] / self.AMDock.spacing_autodock)]
+            if self.AMDock.para_file:
+                prepare_gpf4_arg = prepare_gpf4_arg + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
+
             self.prepare_gpf4 = {'Prepare_gpf4': [self.AMDock.this_python, prepare_gpf4_arg]}
             autogrid_arg = ['-p', protein_gpf]
             self.autogrid4 = {'AutoGrid4': [self.AMDock.autogrid, autogrid_arg]}
             prepare_dpf_arg = [self.AMDock.prepare_dpf_py, '-l', str(self.AMDock.ligand_pdbqt), '-r',
                                str(self.AMDock.target.pdbqt), '-e']
+            if self.AMDock.para_file:
+                prepare_dpf_arg = prepare_dpf_arg + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
             self.prepare_dpf4 = {'Prepare_dpf4': [self.AMDock.this_python, prepare_dpf_arg]}
             self.autodock_dlg = str(self.AMDock.ligand_pdbqt.split('.')[0] + '_' + protein_dlg)
             autodock_arg = ['-p', str(self.AMDock.ligand_pdbqt.split('.')[0] + '_' + protein_dpf), '-l',
@@ -2540,7 +2549,7 @@ class Program_body(QtGui.QWidget):
             for process in self.list_process:
                 self.queue.put(process)
         else:
-            shutil.copy(self.AMDock.zn_ff, os.getcwd())
+
             protein_TZ = str(self.AMDock.target.pdbqt.split('.')[0] + '_TZ.pdbqt')
             protein_gpf = str(self.AMDock.target.pdbqt.split('.')[0] + '_TZ.gpf')
             protein_dlg = str(self.AMDock.target.pdbqt.split('.')[0] + '_TZ.dlg')
@@ -2553,12 +2562,24 @@ class Program_body(QtGui.QWidget):
                                   (self.size[0] / self.AMDock.spacing_autodock,
                                    self.size[1] / self.AMDock.spacing_autodock,
                                    self.size[2] / self.AMDock.spacing_autodock), '-p',
-                                  'parameter_file=AD4Zn.dat']
+                                  ]
+            if self.AMDock.para_file:
+                prepare_gpf4zn_arg = prepare_gpf4zn_arg + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
+
+            else:
+                shutil.copy(self.AMDock.zn_ff, os.getcwd())
+                prepare_gpf4zn_arg = prepare_gpf4zn_arg + ['-p', 'parameter_file=AD4Zn.dat']
+
             self.prepare_gpf4zn = {'Prepare_gpf4zn': [self.AMDock.this_python, prepare_gpf4zn_arg]}
             autogridzn_arg = ['-p', protein_gpf]
             self.autogrid4 = {'AutoGrid4': [self.AMDock.autogrid, autogridzn_arg]}
             prepare_dpfzn_arg = [self.AMDock.prepare_dpf_py, '-l', str(self.AMDock.ligand_pdbqt), '-r', protein_TZ,
                                  '-e']
+            if self.AMDock.para_file:
+                prepare_dpfzn_arg = prepare_dpfzn_arg + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
+            else:
+                prepare_dpfzn_arg = prepare_dpfzn_arg + ['-p', 'parameter_file=AD4Zn.dat']
+
             self.prepare_dfp4zn = {'Prepare_dpf4': [self.AMDock.this_python, prepare_dpfzn_arg]}
             self.autodock_dlg = str(self.AMDock.ligand_pdbqt.split('.')[0] + '_' + protein_dlg)
             autodockzn_arg = ['-p', str(self.AMDock.ligand_pdbqt.split('.')[0] + '_' + protein_dpf),
@@ -2723,12 +2744,17 @@ class Program_body(QtGui.QWidget):
                                                        self.size[1] / self.AMDock.spacing_autodock, self.size[2] /
                                                        self.AMDock.spacing_autodock),
                                     '-p', 'gridcenter={0},{1},{2}'.format(*self.ligand_info.center)]
+                if self.AMDock.para_file:
+                    prepare_gpf4_arg = prepare_gpf4_arg + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
                 prepare_gpf4 = {'Prepare_gpf4': [self.AMDock.this_python, prepare_gpf4_arg]}
                 queue.put(prepare_gpf4)
                 autogrid4 = {'AutoGrid4': [self.AMDock.autogrid, ['-p', self.AMDock.target.gpf]]}
                 queue.put(autogrid4)
                 prepare_dpf_arg = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
                                    self.AMDock.target.pdbqt, '-e']
+                if self.AMDock.para_file:
+                    prepare_dpf_arg = prepare_dpf_arg + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
+
                 prepare_dpf4 = {'Prepare_dpf4': [self.AMDock.this_python, prepare_dpf_arg]}
                 queue.put(prepare_dpf4)
                 autodock_arg = ['-p', self.AMDock.ligand.pdbqt_name + '_' + self.AMDock.target.dpf, '-l',
@@ -2755,6 +2781,8 @@ class Program_body(QtGui.QWidget):
                                                 self.size[1] / self.AMDock.spacing_autodock,
                                                 self.size[2] / self.AMDock.spacing_autodock),
                                             '-p', 'gridcenter={0},{1},{2}'.format(*fill_info.center)]
+                        if self.AMDock.para_file:
+                            prepare_gpf4_arg = prepare_gpf4_arg + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
                         prepare_gpf4 = {'Prepare_gpf4': [self.AMDock.this_python, prepare_gpf4_arg]}
                         queue.put(prepare_gpf4)
                         autogrid4 = {'AutoGrid4': [self.AMDock.autogrid, ['-p', self.AMDock.target.gpf]]}
@@ -2762,6 +2790,9 @@ class Program_body(QtGui.QWidget):
                         prepare_dpf_arg = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
                                            self.AMDock.target.pdbqt, '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
                                            'ga_num_evals=%s' % self.AMDock.ga_num_eval, '-p', 'ga_run=%s' % self.AMDock.ga_run]
+                        if self.AMDock.para_file:
+                            prepare_dpf_arg = prepare_dpf_arg + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
+
                         prepare_dpf4 = {'Prepare_dpf4': [self.AMDock.this_python, prepare_dpf_arg]}
                         queue.put(prepare_dpf4)
                         autodock_arg = ['-p', self.AMDock.ligand.pdbqt_name + '_' + self.AMDock.target.dpf, '-l',
@@ -2781,6 +2812,8 @@ class Program_body(QtGui.QWidget):
                                                            self.AMDock.spacing_autodock), '-p', 'gridcenter={0},{1},'
                                                                                                 '{2}'.format(
                             *self.grid_center)]
+                    if self.AMDock.para_file:
+                        prepare_gpf4_arg = prepare_gpf4_arg + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
                     prepare_gpf4 = {'Prepare_gpf4': [self.AMDock.this_python, prepare_gpf4_arg]}
                     queue.put(prepare_gpf4)
                     autogrid4 = {'AutoGrid4': [self.AMDock.autogrid, ['-p', self.AMDock.target.gpf]]}
@@ -2788,6 +2821,9 @@ class Program_body(QtGui.QWidget):
                     prepare_dpf_arg = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
                                        self.AMDock.target.pdbqt, '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
                                        'ga_num_evals=%s' % self.AMDock.ga_num_eval, '-p', 'ga_run=%s' % self.AMDock.ga_run]
+                    if self.AMDock.para_file:
+                        prepare_dpf_arg = prepare_dpf_arg + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
+
                     prepare_dpf4 = {'Prepare_dpf4': [self.AMDock.this_python, prepare_dpf_arg]}
                     queue.put(prepare_dpf4)
                     autodock_arg = ['-p', self.AMDock.ligand.pdbqt_name + '_' + self.AMDock.target.dpf, '-l',
@@ -2816,6 +2852,8 @@ class Program_body(QtGui.QWidget):
                                                      self.AMDock.spacing_autodock), '-p', 'gridcenter={0},{1},'
                                                                                           '{2}'.format(
                                     *fill_info.center)]
+                            if self.AMDock.para_file:
+                                prepare_gpf4_argB = prepare_gpf4_argB + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
                             prepare_gpf4B = {'Prepare_gpf4 B': [self.AMDock.this_python, prepare_gpf4_argB]}
                             queue.put(prepare_gpf4B)
 
@@ -2827,6 +2865,10 @@ class Program_body(QtGui.QWidget):
                                                 '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
                                                 'ga_num_evals=%s' % self.AMDock.ga_num_eval,
                                                 '-p', 'ga_run=%s' % self.AMDock.ga_run]
+                            if self.AMDock.para_file:
+                                prepare_dpf_argB = prepare_dpf_argB + ['-p', 'parameter_file=%s' %
+                                                                       self.AMDock.para_file]
+
                             prepare_dpf4B = {'Prepare_dpf4 B': [self.AMDock.this_python, prepare_dpf_argB]}
                             queue.put(prepare_dpf4B)
 
@@ -2846,6 +2888,8 @@ class Program_body(QtGui.QWidget):
                                                  self.AMDock.spacing_autodock, self.size[2] /
                                                  self.AMDock.spacing_autodock), '-p', 'gridcenter={0},{1},'
                                                                                       '{2}'.format(*self.grid_centerB)]
+                        if self.AMDock.para_file:
+                            prepare_gpf4_argB = prepare_gpf4_argB + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
                         prepare_gpf4B = {'Prepare_gpf4 B': [self.AMDock.this_python, prepare_gpf4_argB]}
                         queue.put(prepare_gpf4B)
 
@@ -2857,6 +2901,9 @@ class Program_body(QtGui.QWidget):
                                             '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
                                             'ga_num_evals=%s' % self.AMDock.ga_num_eval,
                                             '-p', 'ga_run=%s' % self.AMDock.ga_run]
+                        if self.AMDock.para_file:
+                            prepare_dpf_argB = prepare_dpf_argB + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
+
                         prepare_dpf4B = {'Prepare_dpf4 B': [self.AMDock.this_python, prepare_dpf_argB]}
                         queue.put(prepare_dpf4B)
 
@@ -2866,7 +2913,8 @@ class Program_body(QtGui.QWidget):
                         queue.put(autodockB)
 
         elif self.AMDock.docking_program == 'AutoDockZn':
-            shutil.copy(self.AMDock.zn_ff, os.getcwd())
+            if not self.AMDock.para_file:
+                shutil.copy(self.AMDock.zn_ff, os.getcwd())
             self.AMDock.target.score = os.path.join(self.AMDock.project.results,
                                                     self.AMDock.ligand.name + '_' + self.AMDock.target.name + '_score.log')
             if self.AMDock.project.mode == 2:
@@ -2881,14 +2929,23 @@ class Program_body(QtGui.QWidget):
                                                          self.AMDock.spacing_autodock,
                                                          self.size[2] / self.AMDock.spacing_autodock), '-p',
                                       'gridcenter={0},{1},{2}'.format(*self.ligand_info.center), '-p',
-                                      'parameter_file=AD4Zn.dat']
+                                      ]
+                if self.AMDock.para_file:
+                    prepare_gpf4zn_arg = prepare_gpf4zn_arg + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
+                else:
+                    prepare_gpf4zn_arg = prepare_gpf4zn_arg + ['-p', 'parameter_file=AD4Zn.dat']
+
                 prepare_gpf4zn = {'Prepare_gpf4zn': [self.AMDock.this_python, prepare_gpf4zn_arg]}
                 queue.put(prepare_gpf4zn)
                 autogrid4 = {'AutoGrid4': [self.AMDock.autogrid, ['-p', self.AMDock.target.tzgpf]]}
                 queue.put(autogrid4)
-                prepare_dpf_arg = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
-                                   self.AMDock.target.tzpdbqt, '-p', 'parameter_file=AD4Zn.dat', '-e']
-                prepare_dpf4 = {'Prepare_dpf4': [self.AMDock.this_python, prepare_dpf_arg]}
+                prepare_dpfzn_arg = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                                   self.AMDock.target.tzpdbqt, '-e']
+                if self.AMDock.para_file:
+                    prepare_dpfzn_arg = prepare_dpfzn_arg + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
+                else:
+                    prepare_dpfzn_arg = prepare_dpfzn_arg + ['-p', 'parameter_file=AD4Zn.dat']
+                prepare_dpf4 = {'Prepare_dpf4': [self.AMDock.this_python, prepare_dpfzn_arg]}
 
                 queue.put(prepare_dpf4)
                 autodockzn_arg = ['-p', self.AMDock.ligand.pdbqt_name + '_' + self.AMDock.target.tzdpf, '-l',
@@ -2919,14 +2976,24 @@ class Program_body(QtGui.QWidget):
                                                self.size[2] / self.AMDock.spacing_autodock),
                                               '-p', 'gridcenter={0},{1},{2}'.format(*fill_info.center),
                                               '-p', 'parameter_file=AD4Zn.dat']
+                        if self.AMDock.para_file:
+                            prepare_gpf4zn_arg = prepare_gpf4zn_arg + ['-p', 'parameter_file=%s' %
+                                                                       self.AMDock.para_file]
+                        else:
+                            prepare_gpf4zn_arg = prepare_gpf4zn_arg + ['-p', 'parameter_file=AD4Zn.dat']
+
                         prepare_gpf4zn = {'Prepare_gpf4zn': [self.AMDock.this_python, prepare_gpf4zn_arg]}
                         queue.put(prepare_gpf4zn)
                         autogrid4 = {'AutoGrid4': [self.AMDock.autogrid, ['-p', self.AMDock.target.tzgpf]]}
                         queue.put(autogrid4)
-                        prepare_dpf_arg = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                        prepare_dpfzn_arg = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
                                            self.AMDock.target.tzpdbqt, '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
                                            'ga_num_evals=%s' % self.AMDock.ga_num_eval, '-p', 'ga_run=%s' % self.AMDock.ga_run]
-                        prepare_dpf4 = {'Prepare_dpf4': [self.AMDock.this_python, prepare_dpf_arg]}
+                        if self.AMDock.para_file:
+                            prepare_dpfzn_arg = prepare_dpfzn_arg + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
+                        else:
+                            prepare_dpfzn_arg = prepare_dpfzn_arg + ['-p', 'parameter_file=AD4Zn.dat']
+                        prepare_dpf4 = {'Prepare_dpf4': [self.AMDock.this_python, prepare_dpfzn_arg]}
                         queue.put(prepare_dpf4)
                         autodockzn_arg = ['-p', self.AMDock.ligand.pdbqt_name + '_' + self.AMDock.target.tzdpf, '-l',
                                           ad4_output]
@@ -2944,18 +3011,26 @@ class Program_body(QtGui.QWidget):
                                           self.AMDock.target.tzpdbqt, '-p',
                                           'spacing=%.3f' % self.AMDock.spacing_autodock, '-p',
                                           'npts=%d,%d,%d' % (self.size[0] / self.AMDock.spacing_autodock, self.size[1] /
-                                                             self.AMDock.spacing_autodock, self.size[2] /
-                                                             self.AMDock.spacing_autodock), '-p', 'gridcenter={0},{1},'
-                                                                                                  '{2}'.format(
-                            *self.grid_center), '-p', 'parameter_file=AD4Zn.dat']
+                                          self.AMDock.spacing_autodock, self.size[2] / self.AMDock.spacing_autodock),
+                                          '-p', 'gridcenter={0},{1},''{2}'.format(*self.grid_center)]
+                    if self.AMDock.para_file:
+                        prepare_gpf4zn_arg = prepare_gpf4zn_arg + ['-p', 'parameter_file=%s' %
+                                                                   self.AMDock.para_file]
+                    else:
+                        prepare_gpf4zn_arg = prepare_gpf4zn_arg + ['-p', 'parameter_file=AD4Zn.dat']
+
                     prepare_gpf4zn = {'Prepare_gpf4zn': [self.AMDock.this_python, prepare_gpf4zn_arg]}
                     queue.put(prepare_gpf4zn)
                     autogrid4 = {'AutoGrid4': [self.AMDock.autogrid, ['-p', self.AMDock.target.tzgpf]]}
                     queue.put(autogrid4)
-                    prepare_dpf_arg = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                    prepare_dpfzn_arg = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
                                        self.AMDock.target.tzpdbqt, '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
                                        'ga_num_evals=%s' % self.AMDock.ga_num_eval, '-p', 'ga_run=%s' % self.AMDock.ga_run]
-                    prepare_dpf4 = {'Prepare_dpf4': [self.AMDock.this_python, prepare_dpf_arg]}
+                    if self.AMDock.para_file:
+                        prepare_dpfzn_arg = prepare_dpfzn_arg + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
+                    else:
+                        prepare_dpfzn_arg = prepare_dpfzn_arg + ['-p', 'parameter_file=AD4Zn.dat']
+                    prepare_dpf4 = {'Prepare_dpf4': [self.AMDock.this_python, prepare_dpfzn_arg]}
                     queue.put(prepare_dpf4)
                     autodockzn_arg = ['-p', self.AMDock.ligand.pdbqt_name + '_' + self.AMDock.target.tzdpf, '-l',
                                       self.AMDock.target.ad4_output]
@@ -2984,20 +3059,30 @@ class Program_body(QtGui.QWidget):
                                                        self.size[0] / self.AMDock.spacing_autodock,
                                                        self.size[1] / self.AMDock.spacing_autodock,
                                                        self.size[2] / self.AMDock.spacing_autodock),
-                                                   '-p', 'gridcenter={0},{1},{2}'.format(*fill_info.center), '-p',
-                                                   'parameter_file=AD4Zn.dat']
+                                                   '-p', 'gridcenter={0},{1},{2}'.format(*fill_info.center)]
+                            if self.AMDock.para_file:
+                                prepare_gpf4zn_argB = prepare_gpf4zn_argB + ['-p', 'parameter_file=%s' %
+                                                                           self.AMDock.para_file]
+                            else:
+                                prepare_gpf4zn_argB = prepare_gpf4zn_argB + ['-p', 'parameter_file=AD4Zn.dat']
+
                             prepare_gpf4znB = {'Prepare_gpf4zn B': [self.AMDock.this_python, prepare_gpf4zn_argB]}
                             queue.put(prepare_gpf4znB)
 
                             autogrid4B = {'AutoGrid4 B': [self.AMDock.autogrid, ['-p', self.AMDock.offtarget.tzgpf]]}
                             queue.put(autogrid4B)
 
-                            prepare_dpf_argB = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                            prepare_dpfzn_argB = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
                                                 self.AMDock.offtarget.tzpdbqt,
                                                 '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
                                                 'ga_num_evals=%s' % self.AMDock.ga_num_eval,
                                                 '-p', 'ga_run=%s' % self.AMDock.ga_run]
-                            prepare_dpf4B = {'Prepare_dpf4 B': [self.AMDock.this_python, prepare_dpf_argB]}
+                            if self.AMDock.para_file:
+                                prepare_dpfzn_argB = prepare_dpfzn_argB + ['-p', 'parameter_file=%s' %
+                                                                           self.AMDock.para_file]
+                            else:
+                                prepare_dpfzn_argB = prepare_dpfzn_argB + ['-p', 'parameter_file=AD4Zn.dat']
+                            prepare_dpf4B = {'Prepare_dpf4 B': [self.AMDock.this_python, prepare_dpfzn_argB]}
                             queue.put(prepare_dpf4B)
 
                             autodockzn_argB = ['-p', self.AMDock.ligand.pdbqt_name + '_' + self.AMDock.offtarget.tzdpf,
@@ -3019,20 +3104,30 @@ class Program_body(QtGui.QWidget):
                                                    self.size[0] / self.AMDock.spacing_autodock, self.size[1] /
                                                    self.AMDock.spacing_autodock,
                                                    self.size[2] / self.AMDock.spacing_autodock),
-                                               '-p', 'gridcenter={0},{1},{2}'.format(*self.grid_centerB), '-p',
-                                               'parameter_file=AD4Zn.dat']
+                                               '-p', 'gridcenter={0},{1},{2}'.format(*self.grid_centerB)]
+                        if self.AMDock.para_file:
+                            prepare_gpf4zn_argB = prepare_gpf4zn_argB + ['-p', 'parameter_file=%s' %
+                                                                       self.AMDock.para_file]
+                        else:
+                            prepare_gpf4zn_argB = prepare_gpf4zn_argB + ['-p', 'parameter_file=AD4Zn.dat']
+
                         prepare_gpf4znB = {'Prepare_gpf4zn B': [self.AMDock.this_python, prepare_gpf4zn_argB]}
                         queue.put(prepare_gpf4znB)
 
                         autogrid4B = {'AutoGrid4 B': [self.AMDock.autogrid, ['-p', self.AMDock.offtarget.tzgpf]]}
                         queue.put(autogrid4B)
 
-                        prepare_dpf_argB = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
+                        prepare_dpfzn_argB = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
                                             self.AMDock.offtarget.tzpdbqt,
                                             '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
                                             'ga_num_evals=%s' % self.AMDock.ga_num_eval,
                                             '-p', 'ga_run=%s' % self.AMDock.ga_run]
-                        prepare_dpf4B = {'Prepare_dpf4 B': [self.AMDock.this_python, prepare_dpf_argB]}
+                        if self.AMDock.para_file:
+                            prepare_dpfzn_argB = prepare_dpfzn_argB + ['-p', 'parameter_file=%s' %
+                                                                       self.AMDock.para_file]
+                        else:
+                            prepare_dpfzn_argB = prepare_dpfzn_argB + ['-p', 'parameter_file=AD4Zn.dat']
+                        prepare_dpf4B = {'Prepare_dpf4 B': [self.AMDock.this_python, prepare_dpfzn_argB]}
                         queue.put(prepare_dpf4B)
 
                         autodockzn_argB = ['-p', self.AMDock.ligand.pdbqt_name + '_' + self.AMDock.offtarget.tzdpf,
