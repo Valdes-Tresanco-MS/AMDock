@@ -727,6 +727,13 @@ class Program_body(QtGui.QWidget):
         self.body_layout.addWidget(self.sc_area, 1)
         self.body_layout.addLayout(self.progress_layout)
 
+    def enableMetals(self, state):
+        if state:
+            self.ions_text.setEnabled(True)
+        else:
+            self.ions_text.setEnabled(False)
+            self.ions_text.clear()
+
     def load_file(self, _file):  # ok
         if _file.objectName() == 'create_project':
             # check if exist any process in background
