@@ -1029,6 +1029,31 @@ class Program_body(QtGui.QWidget):
         self.W.set_queue(queue)
         self.W.start_process()
 
+    def addNewParameters(self):
+        if self.AMDock.section == -1:
+            QtGui.QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
+                                                             'completed. Please do all the steps sequentially.',
+                                       QtGui.QMessageBox.Ok)
+            return
+        if self.AMDock.para_file:
+            msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'A new parameter file has already been defined. '
+                                                                    'Do you want to delete it?',
+                                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+            if msg == QtGui.QMessageBox.No:
+                return
+
+            self.new_para_text.clear()
+            self.new_para_btn.setText('+')
+            self.AMDock.para_file = None
+            self.AMDock.log_widget.textedit.append(
+                Ft('PARAMETERS_FILE: %s' % 'Default').definitions())
+            return
+
+        if self.AMDock.loader.load_parameters():
+            self.new_para_btn.setText('-')
+            self.new_para_text.setText(str(self.AMDock.para_file))
+            self.AMDock.log_widget.textedit.append(Ft('PARAMETERS_FILE: %s' % self.AMDock.para_file).definitions())
+
     def prepare_receptor(self):
 
         if self.AMDock.state == 2:
