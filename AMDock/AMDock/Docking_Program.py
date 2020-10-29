@@ -37,7 +37,7 @@ class AMDock(QtGui.QMainWindow, Variables):
         self.offtarget = BASE()
         self.ligand = BASE()
         self.log_thread = QtCore.QThreadPool()
-        self.numeric_version = [1, 5, 0]
+        self.numeric_version = [1, 5, 1]
         self.version = "{}.{}.{} For Windows and Linux".format(*self.numeric_version)
         self.spacing_autoligand = 1.0
         self.spacing_autodock = 0.375

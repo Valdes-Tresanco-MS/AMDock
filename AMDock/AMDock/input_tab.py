@@ -1213,11 +1213,10 @@ class Program_body(QtGui.QWidget):
             if self.AMDock.target.zn_atoms:
                 metals = metals + self.AMDock.target.zn_atoms
 
-            fix_pqr = {'Fix_PQR': [Fix_PQR, [self.AMDock.target.input, self.AMDock.target.pqr,
-                                             metals]]}
+            fix_pqr = {'Fix_PQR': [Fix_PQR, [self.AMDock.target.input, self.AMDock.target.pqr, metals]]}
             args = [self.AMDock.prepare_receptor4_py, '-r', self.AMDock.target.pdb, '-v', '-U',
                     'nphs_lps_waters_nonstdres_deleteAltB']
-            if metals:
+            if metals_text:
                 args = args + ['-p', metals_text]
 
             prepare_receptor4 = {'Prepare_Receptor4': [self.AMDock.this_python, args]}
@@ -1250,7 +1249,7 @@ class Program_body(QtGui.QWidget):
 
                 args = [self.AMDock.prepare_receptor4_py, '-r', self.AMDock.offtarget.pdb, '-v', '-U',
                         'nphs_lps_waters_nonstdres_deleteAltB']
-                if metals:
+                if metals_text:
                     args = args + ['-p', metals_text]
 
                 prepare_receptor4B = {'Prepare_Receptor4 B': [self.AMDock.this_python, args]}
