@@ -212,7 +212,7 @@ class PDBINFO:
                     continue
                 if res.name[:3].strip() == 'ZN':
                     self.zn_atoms.append([chain, res])
-                    self.metals.append([chain, res])
+                    # self.metals.append([chain, res])
                 elif res.name[:3].strip().lower() in ['mn', 'mg', 'ca', 'fe']:
                     self.metals.append([chain, res])
                 elif res.hetatm():
