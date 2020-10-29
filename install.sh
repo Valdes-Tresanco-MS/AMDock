@@ -102,7 +102,7 @@ if [ ! -f "$desktop_apps/AMDock.desktop" ]
           Name=AMDock\n
           Icon='"$install_directory"'/AMDock/AMDock/images/amdock_icon.png\n
           Exec="'"$install_directory"'/AMDock/AMDock.sh" %f\n
-          Comment=Program for performace a Assited Molecular Docking with AutoDock4 and AutoDock Vina\n
+          Comment=Program to Assist Molecular Docking with AutoDock4 and AutoDock Vina\n
           Categories=Science\n
           Terminal=false' >> $desktop_apps/AMDock.desktop
 
