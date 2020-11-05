@@ -1200,8 +1200,8 @@ class Program_body(QtGui.QWidget):
             pdb2pqr = {'PDB2PQR': [self.AMDock.this_python, [self.AMDock.pdb2pqr_py, '--ph-calc-method=propka',
                                                              '--verbose', '--noopt', '--drop-water', '--chain',
                                                              '--with-ph', str(self.pH_value.value()),
-                                                             '--ff=AMBER', self.AMDock.target.input,
-                                                             self.AMDock.target.pqr]]}
+                                                             '--ff=%s' % self.AMDock.forcefield,
+                                                             self.AMDock.target.input, self.AMDock.target.pqr]]}
             metals = []
             metals_text = None
             if self.keep_ions_btn.isChecked():
@@ -1230,7 +1230,7 @@ class Program_body(QtGui.QWidget):
                 pdb2pqrB = {'PDB2PQR B': [self.AMDock.this_python, [self.AMDock.pdb2pqr_py, '--ph-calc-method=propka',
                                                                     '--verbose', '--noopt', '--drop-water', '--chain',
                                                                     '--with-ph', str(self.pH_value.value()),
-                                                                    '--ff=AMBER',
+                                                                    '--ff=%s' % self.AMDock.forcefield,
                                                                     self.AMDock.offtarget.input,
                                                                     self.AMDock.offtarget.pqr]]}
                 metals = []

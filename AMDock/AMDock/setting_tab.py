@@ -18,7 +18,39 @@ class Configuration_tab(QtGui.QWidget):
         self.check_timer.timeout.connect(self.check_changes)
         self.check_timer.start(500)
 
+        self.pdb2pqr_box = QtGui.QGroupBox(self)
+        self.pdb2pqr_box.setTitle('PDB2PQR Configuration')
 
+        self.ff_label = QtGui.QLabel(self.pdb2pqr_box)
+        self.ff_label.setText('Force Field: ')
+
+        self.amber = QtGui.QRadioButton(self.pdb2pqr_box)
+        self.amber.setText('AMBER')
+
+        self.charmm = QtGui.QRadioButton(self.pdb2pqr_box)
+        self.charmm.setText('CHARMM')
+
+        self.parse = QtGui.QRadioButton(self.pdb2pqr_box)
+        self.parse.setText('PARSE')
+
+        self.tyl06 = QtGui.QRadioButton(self.pdb2pqr_box)
+        self.tyl06.setText('TYL06')
+
+        self.peoepb = QtGui.QRadioButton(self.pdb2pqr_box)
+        self.peoepb.setText('PEOEPB')
+
+        self.swanson = QtGui.QRadioButton(self.pdb2pqr_box)
+        self.swanson.setText('SWANSON')
+
+        self.ff = QtGui.QButtonGroup(self.pdb2pqr_box)
+        self.ff.addButton(self.amber, 1)
+        self.ff.addButton(self.charmm, 2)
+        self.ff.addButton(self.parse, 3)
+        self.ff.addButton(self.tyl06, 4)
+        self.ff.addButton(self.peoepb, 5)
+        self.ff.addButton(self.swanson, 6)
+
+        self.ff.buttonClicked[QtGui.QAbstractButton].connect(self.ff_sel)
 
         self.save = QtGui.QPushButton(self)
         self.save.setText('Save Configuration in File')
@@ -179,6 +211,15 @@ class Configuration_tab(QtGui.QWidget):
         self.init_button_layout.addStretch(1)
         self.init_button_layout.addWidget(self.reset)
 
+        self.pdb2pqr_box_layout = QtGui.QHBoxLayout(self.pdb2pqr_box)
+        self.pdb2pqr_box_layout.addWidget(self.ff_label)
+        self.pdb2pqr_box_layout.addWidget(self.amber)
+        self.pdb2pqr_box_layout.addWidget(self.charmm)
+        self.pdb2pqr_box_layout.addWidget(self.parse)
+        self.pdb2pqr_box_layout.addWidget(self.tyl06)
+        self.pdb2pqr_box_layout.addWidget(self.peoepb)
+        self.pdb2pqr_box_layout.addWidget(self.swanson)
+
         self.vina_slide_layout = QtGui.QHBoxLayout()
         self.vina_slide_layout.addWidget(self.low_perf)
         self.vina_slide_layout.addWidget(self.horizontalSlider)
@@ -210,7 +251,7 @@ class Configuration_tab(QtGui.QWidget):
 
         self.conf_tab_layout = QtGui.QVBoxLayout(self)
         self.conf_tab_layout.addLayout(self.init_button_layout)
-        # self.conf_tab_layout.addWidget(self.pdb2pqr_box)
+        self.conf_tab_layout.addWidget(self.pdb2pqr_box)
         self.conf_tab_layout.addWidget(self.vina_config_box)
         self.conf_tab_layout.addWidget(self.AD4_config_box)
         self.conf_tab_layout.addWidget(self.log_config)
@@ -232,6 +273,9 @@ class Configuration_tab(QtGui.QWidget):
         self.save.clicked.connect(self.configuration)
         self.reset.clicked.connect(self.set_default)
 
+    def ff_sel(self, btn):
+        self.AMDock.forcefield = btn.text()
+
     def log_control(self, state):
         if state:
             self.AMDock.log = True
@@ -241,9 +285,9 @@ class Configuration_tab(QtGui.QWidget):
             self.AMDock.log_widget.close()
 
     def conf_from_file(self):
-        # for button in self.ff.buttons():
-        #     if self.AMDock.forcefield == button.text():
-        #         button.setChecked(True)
+        for button in self.ff.buttons():
+            if self.AMDock.forcefield == button.text():
+                button.setChecked(True)
         self.cpu_label.setText("%s" % self.AMDock.ncpu + " CPU in use of %s" % self.number_cpu)
         self.horizontalSlider.setValue(self.AMDock.ncpu)
         self.exh_value.setValue(self.AMDock.exhaustiveness)
@@ -295,8 +339,8 @@ class Configuration_tab(QtGui.QWidget):
         config_file.write('################################################################################\n'
                           '#                           AMDOCK CONFIGURATION FILE                          #\n'
                           '################################################################################\n')
-        # config_file.write('[PDB2PQR]\n')
-        # config_file.write('ff %s\n' % self.forcefield)
+        config_file.write('[PDB2PQR]\n')
+        config_file.write('ff %s\n' % self.AMDock.forcefield)
         config_file.write('[VINA]\n')
         config_file.write('cpu %s\n' % self.AMDock.ncpu)
         config_file.write('exhaustiveness %s\n' % self.AMDock.exhaustiveness)
@@ -326,8 +370,8 @@ class Configuration_tab(QtGui.QWidget):
         config_file.write('################################################################################\n'
                           '#                           AMDOCK CONFIGURATION FILE                          #\n'
                           '################################################################################\n')
-        # config_file.write('[PDB2PQR]\n')
-        # config_file.write('ff AMBER\n')
+        config_file.write('[PDB2PQR]\n')
+        config_file.write('ff AMBER\n')
         config_file.write('[VINA]\n')
         config_file.write('cpu 1\n')
         config_file.write('exhaustiveness 8\n')
@@ -354,9 +398,9 @@ class Configuration_tab(QtGui.QWidget):
             if re.search('#', line) or re.search('\[', line):
                 continue
             else:
-                # if re.search('ff', line):
-                #     self.AMDock.forcefield = line.split()[1]
-                if re.search('cpu', line):
+                if re.search('ff', line):
+                    self.forcefield = self.AMDock.forcefield = line.split()[1]
+                elif re.search('cpu', line):
                     self.ncpu = self.AMDock.ncpu = int(line.split()[1])
                 elif re.search('exhaustiveness', line):
                     self.exhaustiveness = self.AMDock.exhaustiveness = int(line.split()[1])
@@ -389,7 +433,8 @@ class Configuration_tab(QtGui.QWidget):
         if (self.ncpu != self.AMDock.ncpu or self.exhaustiveness != self.AMDock.exhaustiveness or
                 self.poses_vina != self.AMDock.poses_vina or self.ga_run != self.AMDock.ga_run or
                 self.ga_num_eval != self.AMDock.ga_num_eval or self.rmsdtol != self.AMDock.rmsdtol or
-                self.log != self.AMDock.log or self.log_level != self.AMDock.log_level):
+                self.log != self.AMDock.log or self.log_level != self.AMDock.log_level or
+                self.forcefield != self.AMDock.forcefield):
             self.unsaved_config.show()
         else:
             self.unsaved_config.hide()
