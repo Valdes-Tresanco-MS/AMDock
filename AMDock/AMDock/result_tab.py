@@ -457,7 +457,7 @@ class Results(QWidget):
             self.pymol.state.connect(self.AMDock.program_body.check_state)
             self.pymol.process.readyReadStandardOutput.connect(self.pymol_output)
             self.pymol.process.readyReadStandardError.connect(self.AMDock.program_body.readStdError)
-            pymolq = Queue.Queue()
+            pymolq = Queue()
             pymolq.name = -3
             pymolq.put(pymol_command)
             self.pymol.set_queue(pymolq)

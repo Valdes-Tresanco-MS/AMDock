@@ -1025,7 +1025,7 @@ class Program_body(QWidget):
         align = {'Align': [self.AMDock.this_python, [self.AMDock.pymol, '-c', self.AMDock.aln_pymol, '--', '-t',
                                                      self.AMDock.target.input, '-o', self.AMDock.offtarget.input]]}
 
-        queue = Queue.Queue()
+        queue = Queue()
         queue.name = 5
         queue.put(align)
         self.W.set_queue(queue)
@@ -1283,7 +1283,7 @@ class Program_body(QWidget):
         else:
             self.AMDock.ligand.save_pdb(self.AMDock.ligand.input)
 
-        queue = Queue.Queue()
+        queue = Queue()
         queue.name = 1
         for process in self.list_process:
             queue.put(process)
@@ -1291,7 +1291,7 @@ class Program_body(QWidget):
         self.W.start_process()
 
     def binding_site(self):
-        queue = Queue.Queue()
+        queue = Queue()
         queue.name = 2
         if self.AMDock.state == 2:
             msg = QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
@@ -1780,7 +1780,7 @@ class Program_body(QWidget):
             self.b_pymol.process.readyReadStandardError.connect(self.readStdError)
             self.b_pymol.prog_finished.connect(self.for_finished)
             self.b_pymol.state.connect(self.check_state)
-            b_pymolq = Queue.Queue()
+            b_pymolq = Queue()
             b_pymolq.name = -1
             b_pymolq.put(self.box_pymol)
             self.b_pymol.set_queue(b_pymolq)
@@ -2516,7 +2516,7 @@ class Program_body(QWidget):
 
     def scoring(self):
         '''scoring'''
-        queue = Queue.Queue()
+        queue = Queue()
         if self.AMDock.docking_program == 'AutoDock Vina':
             pass
         elif self.AMDock.docking_program == 'AutoDock4':
@@ -2614,7 +2614,7 @@ class Program_body(QWidget):
     def start_docking_prog(self):
 
         self.need_grid = self.need_gridB = True
-        queue = Queue.Queue()
+        queue = Queue()
         if self.AMDock.state == 2:
             msg = QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
                                                                    'Please wait for these to end.',
