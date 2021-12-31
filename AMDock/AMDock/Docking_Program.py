@@ -10,20 +10,22 @@ from result_tab import Results
 from setting_tab import Configuration_tab
 from variables import Variables
 from log_window import LogWindow
-from PyQt4 import QtGui, QtCore
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
 from tools import (PROJECT, BASE)
 from warning import internal_error
 
-class EmittingStream(QtCore.QObject):
-    textWritten = QtCore.pyqtSignal(str)
+class EmittingStream(QObject):
+    textWritten = pyqtSignal(str)
 
     def write(self, text):
         self.textWritten.emit(str(text))
 
-class AMDock(QtGui.QMainWindow, Variables):
+class AMDock(QMainWindow, Variables):
     def __init__(self):
         super(AMDock, self).__init__()
-        QtGui.QMainWindow.__init__(self)
+        QMainWindow.__init__(self)
         Variables.__init__(self)
 
         # redirect stderr to log window
@@ -36,7 +38,7 @@ class AMDock(QtGui.QMainWindow, Variables):
         self.target = BASE()
         self.offtarget = BASE()
         self.ligand = BASE()
-        self.log_thread = QtCore.QThreadPool()
+        self.log_thread = QThreadPool()
         self.numeric_version = [1, 5, 2]
         self.version = "{}.{}.{} For Windows and Linux".format(*self.numeric_version)
         self.spacing_autoligand = 1.0
@@ -49,16 +51,16 @@ class AMDock(QtGui.QMainWindow, Variables):
         with open(self.style_file) as f:
             self.setStyleSheet(f.read())
 
-        self.icon = QtGui.QIcon()
-        self.icon.addPixmap(QtGui.QPixmap(self.home_icon), QtGui.QIcon.Active, QtGui.QIcon.Off)
-        self.icon.addPixmap(QtGui.QPixmap(self.home_icon), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.icon.addPixmap(QtGui.QPixmap(self.home_icon), QtGui.QIcon.Selected, QtGui.QIcon.Off)
-        self.icon.addPixmap(QtGui.QPixmap(self.home_icon), QtGui.QIcon.Disabled, QtGui.QIcon.Off)
-        self.icon.addPixmap(QtGui.QPixmap(self.home_icon_white), QtGui.QIcon.Selected, QtGui.QIcon.On)
-        self.icon.addPixmap(QtGui.QPixmap(self.home_icon_white), QtGui.QIcon.Active, QtGui.QIcon.On)
+        self.icon = QIcon()
+        self.icon.addPixmap(QPixmap(self.home_icon), QIcon.Active, QIcon.Off)
+        self.icon.addPixmap(QPixmap(self.home_icon), QIcon.Normal, QIcon.Off)
+        self.icon.addPixmap(QPixmap(self.home_icon), QIcon.Selected, QIcon.Off)
+        self.icon.addPixmap(QPixmap(self.home_icon), QIcon.Disabled, QIcon.Off)
+        self.icon.addPixmap(QPixmap(self.home_icon_white), QIcon.Selected, QIcon.On)
+        self.icon.addPixmap(QPixmap(self.home_icon_white), QIcon.Active, QIcon.On)
 
         ##--TABS
-        self.main_window = QtGui.QTabWidget(self)
+        self.main_window = QTabWidget(self)
         self.setCentralWidget(self.main_window)
 
         ##--Tabs for Docking Options
@@ -83,18 +85,18 @@ class AMDock(QtGui.QMainWindow, Variables):
 
         # ** log dockwidget
         self.log_widget = LogWindow(self)
-        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.log_widget)
+        self.addDockWidget(Qt.RightDockWidgetArea, self.log_widget)
         if self.configuration_tab.log_view.isChecked():
             self.log_widget.show()
         else:
             self.log_widget.hide()
 
-        self.statusbar = QtGui.QStatusBar(self)
+        self.statusbar = QStatusBar(self)
         self.statusbar.setObjectName("statusbar")
         self.setStatusBar(self.statusbar)
 
-        QtCore.QMetaObject.connectSlotsByName(self)
-        self.version_label = QtGui.QLabel("Version: %s" % self.version)
+        QMetaObject.connectSlotsByName(self)
+        self.version_label = QLabel("Version: %s" % self.version)
         self.statusbar.addPermanentWidget(self.version_label)
 
     def __del__(self):
@@ -106,22 +108,23 @@ class AMDock(QtGui.QMainWindow, Variables):
         # Maybe QTextEdit.append() works as well, but this is how I do it:
         # internal_error(self, text)
         print(text)
-        self.log_widget.textedit.append(Ft(text).error())
+        # self.log_widget.textedit.append(Ft(text).error())
+
         # cursor = self.log_widget.textedit.textCursor()
-        # cursor.movePosition(QtGui.QTextCursor.End)
+        # cursor.movePosition(QTextCursor.End)
         # cursor.insertText(text)
         # self.log_widget.textedit.setTextCursor(cursor)
         # self.log_widget.textedit.ensureCursorVisible()
 
     def closeEvent(self, event):
         if self.state:
-            reply = QtGui.QMessageBox.question(self, 'Message', "There are processes in the background. Are you sure "
-                                                                "to quit?", QtGui.QMessageBox.Yes,
-                                               QtGui.QMessageBox.No)
+            reply = QMessageBox.question(self, 'Message', "There are processes in the background. Are you sure "
+                                                                "to quit?", QMessageBox.Yes,
+                                               QMessageBox.No)
         else:
-            reply = QtGui.QMessageBox.question(self, 'Message', "Are you sure to quit?", QtGui.QMessageBox.Yes,
-                                           QtGui.QMessageBox.No)
-        if reply == QtGui.QMessageBox.Yes:
+            reply = QMessageBox.question(self, 'Message', "Are you sure to quit?", QMessageBox.Yes,
+                                           QMessageBox.No)
+        if reply == QMessageBox.Yes:
             #  ensures that nothing is left in the background
             try:
                 self.program_body.W.force_finished()
@@ -143,22 +146,22 @@ from splash_screen import SplashScreen
 # from variables import Objects as ob
 
 if __name__ == "__main__":
-    app = QtGui.QApplication(sys.argv)
-    app_icon = QtGui.QIcon()
+    app = QApplication(sys.argv)
+    app_icon = QIcon()
     v = Variables()
-    # dw = QtGui.QDesktopWidget()
-    app_icon.addFile(v.app_icon, QtCore.QSize(16, 20))
-    app_icon.addFile(v.app_icon, QtCore.QSize(24, 30))
-    app_icon.addFile(v.app_icon, QtCore.QSize(32, 40))
-    app_icon.addFile(v.app_icon, QtCore.QSize(48, 60))
-    app_icon.addFile(v.app_icon, QtCore.QSize(223, 283))
+    # dw = QDesktopWidget()
+    app_icon.addFile(v.app_icon, QSize(16, 20))
+    app_icon.addFile(v.app_icon, QSize(24, 30))
+    app_icon.addFile(v.app_icon, QSize(32, 40))
+    app_icon.addFile(v.app_icon, QSize(48, 60))
+    app_icon.addFile(v.app_icon, QSize(223, 283))
     # app.setStyle("cleanlooks")
     app.setWindowIcon(app_icon)
     app.setApplicationName('AMDock: Assisted Molecular Docking for AutoDock and AutoDock Vina')
-    splash = SplashScreen(QtGui.QPixmap(v.splashscreen_path), app)
+    splash = SplashScreen(QPixmap(v.splashscreen_path), app)
     main = AMDock()
     splash.finish(main)
-    main.setWindowState(QtCore.Qt.WindowMaximized)
+    main.setWindowState(Qt.WindowMaximized)
     # main.setMinimumSize(1080, 740)
     # main.resize(1200, int(dw.height() * 0.9))
     main.setWindowTitle('AMDock: Assisted Molecular Docking with AutoDock4 and AutoDock Vina')

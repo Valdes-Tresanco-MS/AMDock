@@ -1,6 +1,8 @@
-from PyQt4 import QtCore, QtGui
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
 
-class QRadialBar(QtGui.QWidget):
+class QRadialBar(QWidget):
     def __init__(self, parent=None):
         super(QRadialBar, self).__init__(parent)
 
@@ -12,27 +14,27 @@ class QRadialBar(QtGui.QWidget):
 
         self.dialwidth = 15
 
-        self._BackgroundColor = QtCore.Qt.transparent
-        self._DialColor = QtGui.QColor('white')#D1FFED')
-        self._ProgressColor = QtGui.QColor('blue')
-        self._TextColor = QtGui.QColor('black')
+        self._BackgroundColor = Qt.transparent
+        self._DialColor = QColor('white')#D1FFED')
+        self._ProgressColor = QColor('blue')
+        self._TextColor = QColor('black')
         self._SuffixText = "%"
         self._ShowText = True
-        self._PenStyle = QtCore.Qt.RoundCap
-        self._TextFont = QtGui.QFont()
+        self._PenStyle = Qt.RoundCap
+        self._TextFont = QFont()
         self._TextFont.setPointSize(14)
 
     def paintEvent(self, event):
 
         r = min(self.width(), self.height())
-        painter = QtGui.QPainter(self)
-        painter.setRenderHint(QtGui.QPainter.Antialiasing)
-        rect = QtCore.QRectF(1, 1, r - 2, r - 2)
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        rect = QRectF(1, 1, r - 2, r - 2)
 
         pen = painter.pen()
-        pen.setCapStyle(QtCore.Qt.RoundCap) # rounded border
+        pen.setCapStyle(Qt.RoundCap) # rounded border
         pen.setBrush(self.palette().shadow().color())
-        painter.setPen(QtGui.QPen(self.palette().shadow().color(), 2))
+        painter.setPen(QPen(self.palette().shadow().color(), 2))
         # painter.setBrush(self.palette().window())
         painter.drawEllipse(rect)
 
@@ -53,7 +55,7 @@ class QRadialBar(QtGui.QWidget):
         painter.setBrush(self._BackgroundColor)
         # painter.setPen(self._BackgroundColor)
         inner = offset * 2
-        painter.setPen(QtGui.QPen(self.palette().shadow().color(), 1))
+        painter.setPen(QPen(self.palette().shadow().color(), 1))
         # painter.setBrush(self.palette().window())
         painter.drawEllipse(rect.adjusted(inner, inner, -inner, -inner))
         painter.restore()
@@ -64,10 +66,10 @@ class QRadialBar(QtGui.QWidget):
         pen.setColor(self._TextColor)
         painter.setPen(pen)
         if self._ShowText:
-            painter.drawText(rect.adjusted(offset, offset, -offset, -offset), QtCore.Qt.AlignCenter,
+            painter.drawText(rect.adjusted(offset, offset, -offset, -offset), Qt.AlignCenter,
                              "{:.1f}".format(self._value) + self._SuffixText)
         else:
-            painter.drawText(rect.adjusted(offset, offset, -offset, -offset), QtCore.Qt.AlignCenter, self._SuffixText)
+            painter.drawText(rect.adjusted(offset, offset, -offset, -offset), Qt.AlignCenter, self._SuffixText)
         painter.restore()
 
         #Draw progress bar
@@ -79,7 +81,7 @@ class QRadialBar(QtGui.QWidget):
         painter.drawArc(rect.adjusted(offset, offset, -offset, -offset), startAngle * 16, valueAngle * 16)
         painter.restore()
 
-    @QtCore.pyqtSlot(float)
+    @pyqtSlot(float)
     def setValue(self, value):
         if self._value == value:
             return

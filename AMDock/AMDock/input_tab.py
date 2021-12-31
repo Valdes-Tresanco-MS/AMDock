@@ -1,10 +1,12 @@
-import Queue
 import math
 import os
 import re
 import shutil
 
-from PyQt4 import QtGui, QtCore
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from queue import Queue
 from command_runner import PROCESS, THREAD
 from result2tab import Result_Analysis
 from qradialbar import QRadialBar
@@ -14,7 +16,7 @@ from warning import (wdir2_warning, prot_warning, lig_warning, stop_warning, sma
                      reset_warning, define_wdir_loc, error_message)
 
 
-class Program_body(QtGui.QWidget):
+class Program_body(QWidget):
     def __init__(self, parent=None):
         super(Program_body, self).__init__(parent)
         self.setObjectName("program_body")
@@ -35,64 +37,64 @@ class Program_body(QtGui.QWidget):
         self.build = self.buildB = False
         self.process_list = []
 
-        self.sc_area = QtGui.QScrollArea(self)
-        self.sc_area_widget = QtGui.QWidget()
+        self.sc_area = QScrollArea(self)
+        self.sc_area_widget = QWidget()
 
         # **project_box
-        self.project_box = QtGui.QGroupBox(self.sc_area_widget)
+        self.project_box = QGroupBox(self.sc_area_widget)
         self.project_box.setObjectName("project_box")
         self.project_box.setTitle("Project")
         self.project_box.setToolTip(self.AMDock.project_tt)
 
-        self.project_label = QtGui.QLabel(self.project_box)
+        self.project_label = QLabel(self.project_box)
         self.project_label.setText("Project Name:")
 
-        self.project_text = QtGui.QLineEdit(self.project_box)
+        self.project_text = QLineEdit(self.project_box)
         self.project_text.setObjectName("project_text")
         self.project_text.setPlaceholderText(self.AMDock.project_name)
-        self.proj_name_validator = QtGui.QRegExpValidator(QtCore.QRegExp("\\S+"))
+        self.proj_name_validator = QRegExpValidator(QRegExp("\\S+"))
         self.project_text.setValidator(self.proj_name_validator)
 
-        self.wdir_button = QtGui.QPushButton(self.project_box)
+        self.wdir_button = QPushButton(self.project_box)
         self.wdir_button.setObjectName("wdir_button")
         self.wdir_button.setText("Project Folder")
         self.wdir_button.clicked.connect(lambda: self.load_file(self.wdir_button))
 
-        self.wdir_text = QtGui.QLineEdit(self.project_box)
+        self.wdir_text = QLineEdit(self.project_box)
         self.wdir_text.setReadOnly(True)
         self.wdir_text.setObjectName("wdir_text")
         self.wdir_text.setPlaceholderText("Location for the project")
 
-        self.proj_loc_label = QtGui.QLabel()
+        self.proj_loc_label = QLabel()
         self.proj_loc_label.hide()
 
-        self.project_layout = QtGui.QGridLayout()
+        self.project_layout = QGridLayout()
         self.project_layout.addWidget(self.project_label, 0, 0)
         self.project_layout.addWidget(self.project_text, 0, 1, 1, 1)
         self.project_layout.addWidget(self.wdir_button, 1, 0)
         self.project_layout.addWidget(self.wdir_text, 1, 1, 1, 1)
         self.project_layout.addWidget(self.proj_loc_label, 2, 0, 1, 3)
 
-        self.create_project = QtGui.QPushButton('Create \nProject')
+        self.create_project = QPushButton('Create \nProject')
         self.create_project.setObjectName('create_project')
         self.create_project.clicked.connect(lambda: self.load_file(self.create_project))
 
-        self.project_box_layout = QtGui.QHBoxLayout(self.project_box)
+        self.project_box_layout = QHBoxLayout(self.project_box)
         self.project_box_layout.addLayout(self.project_layout, 10)
         self.project_box_layout.addWidget(self.create_project)
 
         # **Input_box
-        self.input_box = QtGui.QGroupBox(self.sc_area_widget)
+        self.input_box = QGroupBox(self.sc_area_widget)
         self.input_box.setObjectName("input_box")
         self.input_box.setTitle("Input")
         self.input_box.setToolTip(self.AMDock.input_tt)
 
-        self.pH_label = QtGui.QLabel(self.input_box)
+        self.pH_label = QLabel(self.input_box)
         self.pH_label.setObjectName("ph_button")
         self.pH_label.setText("Set pH:")
 
-        self.pH_value = QtGui.QDoubleSpinBox(self.input_box)
-        self.pH_value.setAlignment(QtCore.Qt.AlignCenter)
+        self.pH_value = QDoubleSpinBox(self.input_box)
+        self.pH_value.setAlignment(Qt.AlignCenter)
         self.pH_value.setDecimals(1)
         self.pH_value.setMinimum(0)
         self.pH_value.setMaximum(14)
@@ -100,86 +102,86 @@ class Program_body(QtGui.QWidget):
         self.pH_value.setValue(self.AMDock.pH)
         self.pH_value.setObjectName("pH_value")
 
-        self.docking_mode = QtGui.QButtonGroup(self.input_box)
+        self.docking_mode = QButtonGroup(self.input_box)
 
-        self.simple_docking = QtGui.QRadioButton('Simple Docking', self.input_box)
+        self.simple_docking = QRadioButton('Simple Docking', self.input_box)
         self.simple_docking.setObjectName("simple_docking")
         self.simple_docking.setChecked(True)
         self.docking_mode.addButton(self.simple_docking, 1)
 
-        self.offtarget_docking = QtGui.QRadioButton('Off-Target Docking', self.input_box)
+        self.offtarget_docking = QRadioButton('Off-Target Docking', self.input_box)
         self.offtarget_docking.setObjectName("offtarget_docking")
         self.docking_mode.addButton(self.offtarget_docking, 2)
 
-        self.rescoring = QtGui.QRadioButton('Scoring', self.input_box)
+        self.rescoring = QRadioButton('Scoring', self.input_box)
         self.rescoring.setObjectName("rescoring")
         self.docking_mode.addButton(self.rescoring, 3)
 
-        self.target_button = QtGui.QPushButton(self.input_box)
+        self.target_button = QPushButton(self.input_box)
         self.target_button.setObjectName("target_button")
         self.target_button.setText("Target")
         self.target_button.clicked.connect(lambda: self.load_file(self.target_button))
 
-        self.target_text = QtGui.QLineEdit(self.input_box)
+        self.target_text = QLineEdit(self.input_box)
         self.target_text.setObjectName("target_text")
         self.target_text.setReadOnly(True)
         self.target_text.setPlaceholderText('Target protein')
 
-        self.target_label = QtGui.QLabel(self.input_box)
+        self.target_label = QLabel(self.input_box)
         self.target_label.hide()
 
-        self.offtarget_button = QtGui.QPushButton(self.input_box)
+        self.offtarget_button = QPushButton(self.input_box)
         self.offtarget_button.setObjectName("offtarget_button")
         self.offtarget_button.setText("Off-Target")
         self.offtarget_button.hide()
         self.offtarget_button.clicked.connect(lambda: self.load_file(self.offtarget_button))
 
-        self.offtarget_text = QtGui.QLineEdit(self.input_box)
+        self.offtarget_text = QLineEdit(self.input_box)
         self.offtarget_text.setObjectName("offtarget_text")
         self.offtarget_text.setReadOnly(True)
         self.offtarget_text.setPlaceholderText('off-target protein')
         self.offtarget_text.hide()
 
-        self.offtarget_label = QtGui.QLabel(self.input_box)
+        self.offtarget_label = QLabel(self.input_box)
         self.offtarget_label.hide()
 
-        self.ligand_button = QtGui.QPushButton(self.input_box)
+        self.ligand_button = QPushButton(self.input_box)
         self.ligand_button.setObjectName("ligand_button")
         self.ligand_button.setText("Ligand")
         self.ligand_button.clicked.connect(lambda: self.load_file(self.ligand_button))
 
-        self.ligand_text = QtGui.QLineEdit(self.input_box)
+        self.ligand_text = QLineEdit(self.input_box)
         self.ligand_text.setObjectName("ligand_text")
         self.ligand_text.setReadOnly(True)
         self.ligand_text.setPlaceholderText('ligand')
 
-        self.ligand_label = QtGui.QLabel(self.input_box)
+        self.ligand_label = QLabel(self.input_box)
         self.ligand_label.hide()
 
-        self.prep_rec_lig_button = QtGui.QPushButton(self.input_box)
+        self.prep_rec_lig_button = QPushButton(self.input_box)
         self.prep_rec_lig_button.setObjectName("prep_rec_lig_button")
         self.prep_rec_lig_button.setText("Prepare\nInput")
         #         # self.prep_rec_lig_button.setEnabled(False)
 
-        self.align_prot = QtGui.QPushButton(self.input_box)
+        self.align_prot = QPushButton(self.input_box)
         self.align_prot.setObjectName("align_prot")
         self.align_prot.setText("Align Proteins")
         self.align_prot.clicked.connect(self.align_proteins)
         self.align_prot.hide()
 
-        self.new_para_btn = QtGui.QPushButton('+')
+        self.new_para_btn = QPushButton('+')
         self.new_para_btn.setFixedSize(25, 25)
         self.new_para_btn.clicked.connect(self.addNewParameters)
         self.new_para_btn.hide()
-        self.new_para_text = QtGui.QLineEdit()
+        self.new_para_text = QLineEdit()
         self.new_para_text.setReadOnly(True)
         self.new_para_text.setPlaceholderText('New AD4 Parameter file')
         self.new_para_text.hide()
-        self.new_para_layout = QtGui.QHBoxLayout()
+        self.new_para_layout = QHBoxLayout()
         self.new_para_layout.addWidget(self.new_para_btn)
         self.new_para_layout.addWidget(self.new_para_text)
 
-        self.flags_layout = QtGui.QHBoxLayout()
+        self.flags_layout = QHBoxLayout()
         self.flags_layout.addWidget(self.pH_label)
         self.flags_layout.addWidget(self.pH_value)
         self.flags_layout.addWidget(self.simple_docking)
@@ -191,26 +193,26 @@ class Program_body(QtGui.QWidget):
         # self.flags_layout.addWidget(self.align_prot)
         # self.flags_layout.addStretch(1)/
 
-        self.keep_ions_btn = QtGui.QCheckBox('Keep Metals in Receptors:')
+        self.keep_ions_btn = QCheckBox('Keep Metals in Receptors:')
         self.keep_ions_btn.stateChanged.connect(self.enableMetals)
 
-        r = QtCore.QRegExp("([A-Z][a-z]{0,1}:(\+|\-){0,1}[0-9](\.[0-9]){0,1},)*")
-        v = QtGui.QRegExpValidator(r)
+        r = QRegExp("([A-Z][a-z]{0,1}:(\+|\-){0,1}[0-9](\.[0-9]){0,1},)*")
+        v = QRegExpValidator(r)
 
-        self.ions_text = QtGui.QLineEdit()
+        self.ions_text = QLineEdit()
         self.ions_text.setEnabled(False)
         self.ions_text.setPlaceholderText('Comma separated values, ie metal:charge (Fe:2, Ca:2). Default: Mg, Ca, Fe, '
                                           'Mn with charge = 0.0')
         self.ions_text.setValidator(v)
-        self.ions_layout = QtGui.QHBoxLayout()
+        self.ions_layout = QHBoxLayout()
         self.ions_layout.addWidget(self.keep_ions_btn)
         self.ions_layout.addWidget(self.ions_text)
 
-        line = QtGui.QFrame()
-        line.setFrameShape(QtGui.QFrame.HLine)
+        line = QFrame()
+        line.setFrameShape(QFrame.HLine)
 
-        self.input_layout = QtGui.QGridLayout()
-        self.input_layout.setSizeConstraint(QtGui.QLayout.SetFixedSize)
+        self.input_layout = QGridLayout()
+        self.input_layout.setSizeConstraint(QLayout.SetFixedSize)
         self.input_layout.addWidget(self.target_button, 0, 0)
         self.input_layout.addWidget(self.target_text, 0, 1)
         self.input_layout.addWidget(self.target_label, 1, 1)
@@ -222,312 +224,312 @@ class Program_body(QtGui.QWidget):
         self.input_layout.addWidget(self.ligand_text, 4, 1)
         self.input_layout.addWidget(self.ligand_label, 5, 1)
 
-        self.input_btn_layout = QtGui.QVBoxLayout()
+        self.input_btn_layout = QVBoxLayout()
         self.input_btn_layout.addWidget(self.align_prot)
         self.input_btn_layout.addStretch(1)
         self.input_btn_layout.addWidget(self.prep_rec_lig_button)
 
-        self.content_layout = QtGui.QHBoxLayout()
+        self.content_layout = QHBoxLayout()
         self.content_layout.addLayout(self.input_layout)
         self.content_layout.addLayout(self.input_btn_layout)
 
-        self.input_box_layout = QtGui.QVBoxLayout(self.input_box)
+        self.input_box_layout = QVBoxLayout(self.input_box)
         self.input_box_layout.addLayout(self.flags_layout)
         self.input_box_layout.addLayout(self.ions_layout)
         self.input_box_layout.addWidget(line)
         self.input_box_layout.addLayout(self.content_layout)
 
         # **Grid_box
-        self.grid_box = QtGui.QGroupBox(self.sc_area_widget)
+        self.grid_box = QGroupBox(self.sc_area_widget)
         self.grid_box.setObjectName("grid_box")
         self.grid_box.setTitle("Search Space")
         self.grid_box.setToolTip(self.AMDock.grid_tt)
 
-        self.target_column_label = QtGui.QLabel('Target', self.grid_box)
-        self.target_column_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.target_column_label = QLabel('Target', self.grid_box)
+        self.target_column_label.setAlignment(Qt.AlignCenter)
 
-        self.target_column_group_btnA = QtGui.QButtonGroup(self.grid_box)
+        self.target_column_group_btnA = QButtonGroup(self.grid_box)
         self.target_column_group_btnA.buttonPressed.connect(self.grid_sel_protection)
 
-        self.btnA_auto = QtGui.QRadioButton(self.grid_box)
+        self.btnA_auto = QRadioButton(self.grid_box)
         self.btnA_auto.setObjectName('btnA_auto')
         self.btnA_auto.setChecked(True)
         self.target_column_group_btnA.addButton(self.btnA_auto, 1)
         self.btnA_auto.toggled.connect(lambda: self.grid_prot(self.btnA_auto))
 
-        self.btnA_res = QtGui.QRadioButton(self.grid_box)
+        self.btnA_res = QRadioButton(self.grid_box)
         self.target_column_group_btnA.addButton(self.btnA_res, 2)
         self.btnA_res.setObjectName('btnA_res')
         self.btnA_res.toggled.connect(lambda: self.grid_prot(self.btnA_res))
 
-        self.btnA_lig = QtGui.QRadioButton(self.grid_box)
+        self.btnA_lig = QRadioButton(self.grid_box)
         self.btnA_lig.setObjectName('btnA_lig')
         self.target_column_group_btnA.addButton(self.btnA_lig, 3)
         self.btnA_lig.toggled.connect(lambda: self.grid_prot(self.btnA_lig))
 
-        self.btnA_user = QtGui.QRadioButton(self.grid_box)
+        self.btnA_user = QRadioButton(self.grid_box)
         self.target_column_group_btnA.addButton(self.btnA_user, 4)
         self.btnA_user.setObjectName('btnA_user')
         self.btnA_user.toggled.connect(lambda: self.grid_prot(self.btnA_user))
 
-        self.offtarget_column_label = QtGui.QLabel('Off-Target', self.grid_box)
+        self.offtarget_column_label = QLabel('Off-Target', self.grid_box)
         self.offtarget_column_label.hide()
-        self.offtarget_column_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.offtarget_column_label.setAlignment(Qt.AlignCenter)
 
-        self.offtarget_column_group_btnB = QtGui.QButtonGroup(self.grid_box)
+        self.offtarget_column_group_btnB = QButtonGroup(self.grid_box)
         self.offtarget_column_group_btnB.buttonPressed.connect(self.grid_sel_protection)
 
-        self.btnB_auto = QtGui.QRadioButton(self.grid_box)
+        self.btnB_auto = QRadioButton(self.grid_box)
         self.btnB_auto.setChecked(True)
         self.offtarget_column_group_btnB.addButton(self.btnB_auto, 1)
         self.btnB_auto.hide()
         self.btnB_auto.toggled.connect(lambda: self.grid_prot(self.btnB_auto))
 
-        self.btnB_res = QtGui.QRadioButton(self.grid_box)
+        self.btnB_res = QRadioButton(self.grid_box)
         self.btnB_res.toggled.connect(lambda: self.grid_prot(self.btnB_res))
 
         self.offtarget_column_group_btnB.addButton(self.btnB_res, 2)
         self.btnB_res.hide()
 
-        self.btnB_lig = QtGui.QRadioButton(self.grid_box)
+        self.btnB_lig = QRadioButton(self.grid_box)
         self.offtarget_column_group_btnB.addButton(self.btnB_lig, 3)
         self.btnB_lig.hide()
         self.btnB_lig.toggled.connect(lambda: self.grid_prot(self.btnB_lig))
 
-        self.btnB_user = QtGui.QRadioButton(self.grid_box)
+        self.btnB_user = QRadioButton(self.grid_box)
         self.offtarget_column_group_btnB.addButton(self.btnB_user, 4)
         self.btnB_user.hide()
         self.btnB_user.toggled.connect(lambda: self.grid_prot(self.btnB_user))
 
-        self.grid_auto_cr = QtGui.QLabel(self.grid_box)
+        self.grid_auto_cr = QLabel(self.grid_box)
         self.grid_auto_cr.setText("Automatic")
 
-        self.grid_predef_cr = QtGui.QLabel(self.grid_box)
+        self.grid_predef_cr = QLabel(self.grid_box)
         self.grid_predef_cr.setText("Center on Residue(s)")
 
-        regex = QtCore.QRegExp("([A-Z-a-z]:[A-Z-a-z]{3}:[0-9]{1,5}; )*")
-        validator = QtGui.QRegExpValidator(regex)
+        regex = QRegExp("([A-Z-a-z]:[A-Z-a-z]{3}:[0-9]{1,5}; )*")
+        validator = QRegExpValidator(regex)
 
-        self.grid_predef_text = QtGui.QLineEdit(self.grid_box)
+        self.grid_predef_text = QLineEdit(self.grid_box)
         self.grid_predef_text.setObjectName("grid_predef_text")
         self.grid_predef_text.setPlaceholderText('CHN:RES:NUM,...,CHN:RES:NUM (chain:residue:number of residue)')
         self.grid_predef_text.hide()
         self.grid_predef_text.textChanged.connect(lambda: self.check_res(self.grid_predef_text))
         self.grid_predef_text.setValidator(validator)
 
-        self.grid_predef_textB = QtGui.QLineEdit(self.grid_box)
+        self.grid_predef_textB = QLineEdit(self.grid_box)
         self.grid_predef_textB.setObjectName("grid_predef_textB")
         self.grid_predef_textB.setPlaceholderText('CHN:RES:NUM,...,CHN:RES:NUM (chain:residue:number of residue)')
         self.grid_predef_textB.hide()
         self.grid_predef_textB.textChanged.connect(lambda: self.check_res(self.grid_predef_textB))
         self.grid_predef_textB.setValidator(validator)
 
-        self.grid_by_lig_cr = QtGui.QLabel(self.grid_box)
+        self.grid_by_lig_cr = QLabel(self.grid_box)
         self.grid_by_lig_cr.setText("Center on Hetero")
 
-        self.lig_list = QtGui.QComboBox(self.grid_box)
+        self.lig_list = QComboBox(self.grid_box)
         self.lig_list.setObjectName("lig_list")
         self.lig_list.hide()
         self.lig_list.currentIndexChanged.connect(lambda: self.lig_select(self.lig_list))
 
-        self.lig_listB = QtGui.QComboBox(self.grid_box)
+        self.lig_listB = QComboBox(self.grid_box)
         self.lig_listB.setObjectName("lig_listB")
         self.lig_listB.hide()
         self.lig_listB.currentIndexChanged.connect(lambda: self.lig_select(self.lig_listB))
 
-        self.grid_user_cr = QtGui.QLabel(self.grid_box)
+        self.grid_user_cr = QLabel(self.grid_box)
         self.grid_user_cr.setText('Box')
 
-        self.coor_box = QtGui.QGroupBox(self.grid_box)
+        self.coor_box = QGroupBox(self.grid_box)
         self.coor_box.setTitle("Center")
-        self.coor_box.setAlignment(QtCore.Qt.AlignCenter)
+        self.coor_box.setAlignment(Qt.AlignCenter)
         self.coor_box.hide()
 
-        self.coor_x_label = QtGui.QLabel(self.coor_box)
+        self.coor_x_label = QLabel(self.coor_box)
         self.coor_x_label.setText('X:')
-        self.coor_x = QtGui.QDoubleSpinBox(self.coor_box)
+        self.coor_x = QDoubleSpinBox(self.coor_box)
         self.coor_x.setDecimals(1)
         self.coor_x.setRange(-999, 999)
         self.coor_x.setSingleStep(0.1)
         self.coor_x.setAccelerated(True)
         self.coor_x.setObjectName('coor_x')
 
-        self.coor_y_label = QtGui.QLabel(self.coor_box)
+        self.coor_y_label = QLabel(self.coor_box)
         self.coor_y_label.setText('Y:')
-        self.coor_y = QtGui.QDoubleSpinBox(self.coor_box)
+        self.coor_y = QDoubleSpinBox(self.coor_box)
         self.coor_y.setDecimals(1)
         self.coor_y.setRange(-999, 999)
         self.coor_y.setSingleStep(0.1)
         self.coor_y.setAccelerated(True)
         self.coor_y.setObjectName('coor_y')
 
-        self.coor_z_label = QtGui.QLabel(self.coor_box)
+        self.coor_z_label = QLabel(self.coor_box)
         self.coor_z_label.setText('Z:')
-        self.coor_z = QtGui.QDoubleSpinBox(self.coor_box)
+        self.coor_z = QDoubleSpinBox(self.coor_box)
         self.coor_z.setDecimals(1)
         self.coor_z.setRange(-999, 999)
         self.coor_z.setSingleStep(0.1)
         self.coor_z.setAccelerated(True)
         self.coor_z.setObjectName('coor_z')
 
-        self.size_box = QtGui.QGroupBox(self.grid_box)
+        self.size_box = QGroupBox(self.grid_box)
         self.size_box.setTitle("Size")
-        self.size_box.setAlignment(QtCore.Qt.AlignCenter)
+        self.size_box.setAlignment(Qt.AlignCenter)
         self.size_box.hide()
 
-        self.size_x_label = QtGui.QLabel(self.size_box)
+        self.size_x_label = QLabel(self.size_box)
         self.size_x_label.setText('X:')
-        self.size_x = QtGui.QSpinBox(self.coor_box)
+        self.size_x = QSpinBox(self.coor_box)
         self.size_x.setAccelerated(True)
         self.size_x.setObjectName('size_x')
 
-        self.size_y_label = QtGui.QLabel(self.size_box)
+        self.size_y_label = QLabel(self.size_box)
         self.size_y_label.setText('Y:')
-        self.size_y = QtGui.QSpinBox(self.coor_box)
+        self.size_y = QSpinBox(self.coor_box)
         self.size_y.setAccelerated(True)
         self.size_y.setObjectName('size_y')
 
-        self.size_z_label = QtGui.QLabel(self.size_box)
+        self.size_z_label = QLabel(self.size_box)
         self.size_z_label.setText('Z:')
-        self.size_z = QtGui.QSpinBox(self.coor_box)
+        self.size_z = QSpinBox(self.coor_box)
         self.size_z.setAccelerated(True)
         self.size_z.setObjectName('size_z')
 
-        self.coor_boxB = QtGui.QGroupBox(self.grid_box)
+        self.coor_boxB = QGroupBox(self.grid_box)
         self.coor_boxB.setTitle("Center")
-        self.coor_boxB.setAlignment(QtCore.Qt.AlignCenter)
+        self.coor_boxB.setAlignment(Qt.AlignCenter)
         self.coor_boxB.hide()
 
-        self.coor_x_labelB = QtGui.QLabel(self.coor_boxB)
+        self.coor_x_labelB = QLabel(self.coor_boxB)
         self.coor_x_labelB.setText('X:')
-        self.coor_xB = QtGui.QDoubleSpinBox(self.coor_boxB)
+        self.coor_xB = QDoubleSpinBox(self.coor_boxB)
         self.coor_xB.setDecimals(1)
         self.coor_xB.setRange(-999, 999)
         self.coor_xB.setSingleStep(0.1)
         self.coor_xB.setAccelerated(True)
         self.coor_xB.setObjectName('coor_xB')
 
-        self.coor_y_labelB = QtGui.QLabel(self.coor_boxB)
+        self.coor_y_labelB = QLabel(self.coor_boxB)
         self.coor_y_labelB.setText('Y:')
-        self.coor_yB = QtGui.QDoubleSpinBox(self.coor_boxB)
+        self.coor_yB = QDoubleSpinBox(self.coor_boxB)
         self.coor_yB.setDecimals(1)
         self.coor_yB.setRange(-999, 999)
         self.coor_yB.setSingleStep(0.1)
         self.coor_yB.setAccelerated(True)
         self.coor_yB.setObjectName('coor_yB')
 
-        self.coor_z_labelB = QtGui.QLabel(self.coor_boxB)
+        self.coor_z_labelB = QLabel(self.coor_boxB)
         self.coor_z_labelB.setText('Z:')
-        self.coor_zB = QtGui.QDoubleSpinBox(self.coor_boxB)
+        self.coor_zB = QDoubleSpinBox(self.coor_boxB)
         self.coor_zB.setDecimals(1)
         self.coor_zB.setRange(-999, 999)
         self.coor_zB.setSingleStep(0.1)
         self.coor_zB.setAccelerated(True)
         self.coor_zB.setObjectName('coor_zB')
 
-        self.size_boxB = QtGui.QGroupBox(self.grid_box)
+        self.size_boxB = QGroupBox(self.grid_box)
         self.size_boxB.setTitle("Size")
-        self.size_boxB.setAlignment(QtCore.Qt.AlignCenter)
+        self.size_boxB.setAlignment(Qt.AlignCenter)
         self.size_boxB.hide()
 
-        self.size_x_labelB = QtGui.QLabel(self.size_boxB)
+        self.size_x_labelB = QLabel(self.size_boxB)
         self.size_x_labelB.setText('X:')
-        self.size_xB = QtGui.QSpinBox(self.size_boxB)
+        self.size_xB = QSpinBox(self.size_boxB)
         self.size_xB.setAccelerated(True)
         self.size_xB.setObjectName('size_xB')
 
-        self.size_y_labelB = QtGui.QLabel(self.size_boxB)
+        self.size_y_labelB = QLabel(self.size_boxB)
         self.size_y_labelB.setText('Y:')
-        self.size_yB = QtGui.QSpinBox(self.size_boxB)
+        self.size_yB = QSpinBox(self.size_boxB)
         self.size_yB.setAccelerated(True)
         self.size_yB.setObjectName('size_yB')
 
-        self.size_z_labelB = QtGui.QLabel(self.size_boxB)
+        self.size_z_labelB = QLabel(self.size_boxB)
         self.size_z_labelB.setText('Z:')
-        self.size_zB = QtGui.QSpinBox(self.size_boxB)
+        self.size_zB = QSpinBox(self.size_boxB)
         self.size_zB.setAccelerated(True)
         self.size_zB.setObjectName('size_zB')
 
-        self.spacer = QtGui.QSpacerItem(20, 20, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
-        self.center_layout = QtGui.QGridLayout(self.coor_box)
-        self.center_layout.addWidget(self.coor_x_label, 0, 0, QtCore.Qt.AlignCenter)
-        self.center_layout.addWidget(self.coor_x, 1, 0, QtCore.Qt.AlignCenter)
-        self.center_layout.addWidget(self.coor_y_label, 0, 1, QtCore.Qt.AlignCenter)
-        self.center_layout.addWidget(self.coor_y, 1, 1, QtCore.Qt.AlignCenter)
-        self.center_layout.addWidget(self.coor_z_label, 0, 2, QtCore.Qt.AlignCenter)
-        self.center_layout.addWidget(self.coor_z, 1, 2, QtCore.Qt.AlignCenter)
+        self.spacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Minimum)
+        self.center_layout = QGridLayout(self.coor_box)
+        self.center_layout.addWidget(self.coor_x_label, 0, 0, Qt.AlignCenter)
+        self.center_layout.addWidget(self.coor_x, 1, 0, Qt.AlignCenter)
+        self.center_layout.addWidget(self.coor_y_label, 0, 1, Qt.AlignCenter)
+        self.center_layout.addWidget(self.coor_y, 1, 1, Qt.AlignCenter)
+        self.center_layout.addWidget(self.coor_z_label, 0, 2, Qt.AlignCenter)
+        self.center_layout.addWidget(self.coor_z, 1, 2, Qt.AlignCenter)
 
-        self.center_layoutB = QtGui.QGridLayout(self.coor_boxB)
-        self.center_layoutB.addWidget(self.coor_x_labelB, 0, 0, QtCore.Qt.AlignCenter)
-        self.center_layoutB.addWidget(self.coor_xB, 1, 0, QtCore.Qt.AlignCenter)
-        self.center_layoutB.addWidget(self.coor_y_labelB, 0, 1, QtCore.Qt.AlignCenter)
-        self.center_layoutB.addWidget(self.coor_yB, 1, 1, QtCore.Qt.AlignCenter)
-        self.center_layoutB.addWidget(self.coor_z_labelB, 0, 2, QtCore.Qt.AlignCenter)
-        self.center_layoutB.addWidget(self.coor_zB, 1, 2, QtCore.Qt.AlignCenter)
+        self.center_layoutB = QGridLayout(self.coor_boxB)
+        self.center_layoutB.addWidget(self.coor_x_labelB, 0, 0, Qt.AlignCenter)
+        self.center_layoutB.addWidget(self.coor_xB, 1, 0, Qt.AlignCenter)
+        self.center_layoutB.addWidget(self.coor_y_labelB, 0, 1, Qt.AlignCenter)
+        self.center_layoutB.addWidget(self.coor_yB, 1, 1, Qt.AlignCenter)
+        self.center_layoutB.addWidget(self.coor_z_labelB, 0, 2, Qt.AlignCenter)
+        self.center_layoutB.addWidget(self.coor_zB, 1, 2, Qt.AlignCenter)
 
-        self.size_layout = QtGui.QGridLayout(self.size_box)
-        self.size_layout.addWidget(self.size_x_label, 0, 0, QtCore.Qt.AlignCenter)
-        self.size_layout.addWidget(self.size_x, 1, 0, QtCore.Qt.AlignCenter)
-        self.size_layout.addWidget(self.size_y_label, 0, 1, QtCore.Qt.AlignCenter)
-        self.size_layout.addWidget(self.size_y, 1, 1, QtCore.Qt.AlignCenter)
-        self.size_layout.addWidget(self.size_z_label, 0, 2, QtCore.Qt.AlignCenter)
-        self.size_layout.addWidget(self.size_z, 1, 2, QtCore.Qt.AlignCenter)
+        self.size_layout = QGridLayout(self.size_box)
+        self.size_layout.addWidget(self.size_x_label, 0, 0, Qt.AlignCenter)
+        self.size_layout.addWidget(self.size_x, 1, 0, Qt.AlignCenter)
+        self.size_layout.addWidget(self.size_y_label, 0, 1, Qt.AlignCenter)
+        self.size_layout.addWidget(self.size_y, 1, 1, Qt.AlignCenter)
+        self.size_layout.addWidget(self.size_z_label, 0, 2, Qt.AlignCenter)
+        self.size_layout.addWidget(self.size_z, 1, 2, Qt.AlignCenter)
 
-        self.size_layoutB = QtGui.QGridLayout(self.size_boxB)
-        self.size_layoutB.addWidget(self.size_x_labelB, 0, 0, QtCore.Qt.AlignCenter)
-        self.size_layoutB.addWidget(self.size_xB, 1, 0, QtCore.Qt.AlignCenter)
-        self.size_layoutB.addWidget(self.size_y_labelB, 0, 1, QtCore.Qt.AlignCenter)
-        self.size_layoutB.addWidget(self.size_yB, 1, 1, QtCore.Qt.AlignCenter)
-        self.size_layoutB.addWidget(self.size_z_labelB, 0, 2, QtCore.Qt.AlignCenter)
-        self.size_layoutB.addWidget(self.size_zB, 1, 2, QtCore.Qt.AlignCenter)
+        self.size_layoutB = QGridLayout(self.size_boxB)
+        self.size_layoutB.addWidget(self.size_x_labelB, 0, 0, Qt.AlignCenter)
+        self.size_layoutB.addWidget(self.size_xB, 1, 0, Qt.AlignCenter)
+        self.size_layoutB.addWidget(self.size_y_labelB, 0, 1, Qt.AlignCenter)
+        self.size_layoutB.addWidget(self.size_yB, 1, 1, Qt.AlignCenter)
+        self.size_layoutB.addWidget(self.size_z_labelB, 0, 2, Qt.AlignCenter)
+        self.size_layoutB.addWidget(self.size_zB, 1, 2, Qt.AlignCenter)
 
-        self.bind_site_button = QtGui.QPushButton(self.grid_box)
+        self.bind_site_button = QPushButton(self.grid_box)
         self.bind_site_button.setObjectName("bind_site_button")
         self.bind_site_button.setText("Define\nSearch Space")
-        self.bind_site_button.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed))
+        self.bind_site_button.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
 
-        self.grid_pymol_button = QtGui.QPushButton(self.grid_box)
+        self.grid_pymol_button = QPushButton(self.grid_box)
         self.grid_pymol_button.setObjectName("grid_pymol_button")
         self.grid_pymol_button.setText('Show in PyMol')
         self.grid_pymol_button.clicked.connect(lambda: self.grid_actions(self.grid_pymol_button))
 
-        self.checker_icon = QtGui.QLabel(self.grid_box)
-        self.checker_icon.setPixmap(QtGui.QPixmap(self.AMDock.error_checker))
+        self.checker_icon = QLabel(self.grid_box)
+        self.checker_icon.setPixmap(QPixmap(self.AMDock.error_checker))
         self.checker_icon.hide()
 
-        self.checker_icon_ok = QtGui.QLabel(self.grid_box)
-        self.checker_icon_ok.setPixmap(QtGui.QPixmap(self.AMDock.error_checker_ok))
+        self.checker_icon_ok = QLabel(self.grid_box)
+        self.checker_icon_ok.setPixmap(QPixmap(self.AMDock.error_checker_ok))
         self.checker_icon_ok.hide()
 
-        self.run_button = QtGui.QPushButton(self)
+        self.run_button = QPushButton(self)
         self.run_button.setObjectName("run_button")
         self.run_button.setText("Run")
-        self.run_button.setSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
+        self.run_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
 
-        self.stop_button = QtGui.QPushButton(self)
+        self.stop_button = QPushButton(self)
         self.stop_button.setObjectName("stop_button")
         self.stop_button.setText("Stop")
         self.stop_button.clicked.connect(self.stop_function)
 
-        self.process_state_label = QtGui.QLabel('STATE:')
+        self.process_state_label = QLabel('STATE:')
         self.process_state_label.setStyleSheet("QLabel {font-weight: bold;}")
 
-        self.process_state = QtGui.QLabel('NOT RUNNING')
+        self.process_state = QLabel('NOT RUNNING')
         self.process_state.setStyleSheet("QLabel {font-weight: bold; color: green;}")
 
-        self.section_name = QtGui.QLabel('SECTION:')
+        self.section_name = QLabel('SECTION:')
         self.section_name.setStyleSheet("QLabel {font-weight: bold;}")
 
-        self.section_state = QtGui.QLabel('PROJECT')
+        self.section_state = QLabel('PROJECT')
         self.section_state.setStyleSheet("QLabel {font-weight: bold; color: green;}")
 
-        self.reset_button = QtGui.QPushButton(self)
+        self.reset_button = QPushButton(self)
         self.reset_button.setObjectName("reset_button")
         self.reset_button.setText("  Reset")
-        self.reset_button.setIcon(QtGui.QIcon(QtGui.QPixmap(self.AMDock.reset_icon)))
+        self.reset_button.setIcon(QIcon(QPixmap(self.AMDock.reset_icon)))
         self.reset_button.clicked.connect(self.reset_function)
 
-        self.progress_project_label = QtGui.QLabel('Project Progress')
+        self.progress_project_label = QLabel('Project Progress')
 
         self.progressBar_global = QRadialBar(self)
         self.progressBar_global.setValue(0)
@@ -535,7 +537,7 @@ class Program_body(QtGui.QWidget):
         # self.progressBar_global.setMinimumSize(120, 120)
         self.progressBar_global.setFixedSize(120, 120)
 
-        self.progress_section_label = QtGui.QLabel('Section Progress')
+        self.progress_section_label = QLabel('Section Progress')
 
         self.progressBar_section = QRadialBar(self)
         # self.progressBar_section.setAutoFillBackground(True)
@@ -543,119 +545,119 @@ class Program_body(QtGui.QWidget):
         self.progressBar_section.setObjectName("progressBar_section")
         self.progressBar_section.setMinimumSize(120, 120)
 
-        self.log_button = QtGui.QPushButton('Log:')
+        self.log_button = QPushButton('Log:')
         self.log_button.clicked.connect(self.log_toggle)
-        self.program_label = QtGui.QLabel('')
+        self.program_label = QLabel('')
 
-        self.checker_icon = QtGui.QLabel(self.grid_box)
-        self.checker_icon.setPixmap(QtGui.QPixmap(self.AMDock.error_checker))
+        self.checker_icon = QLabel(self.grid_box)
+        self.checker_icon.setPixmap(QPixmap(self.AMDock.error_checker))
         self.checker_icon.hide()
 
-        self.checker_iconB = QtGui.QLabel(self.grid_box)
-        self.checker_iconB.setPixmap(QtGui.QPixmap(self.AMDock.error_checker))
+        self.checker_iconB = QLabel(self.grid_box)
+        self.checker_iconB.setPixmap(QPixmap(self.AMDock.error_checker))
         self.checker_iconB.hide()
 
-        self.checker_icon_ok = QtGui.QLabel(self.grid_box)
-        self.checker_icon_ok.setPixmap(QtGui.QPixmap(self.AMDock.error_checker_ok))
+        self.checker_icon_ok = QLabel(self.grid_box)
+        self.checker_icon_ok.setPixmap(QPixmap(self.AMDock.error_checker_ok))
         self.checker_icon_ok.hide()
 
-        self.checker_icon_okB = QtGui.QLabel(self.grid_box)
-        self.checker_icon_okB.setPixmap(QtGui.QPixmap(self.AMDock.error_checker_ok))
+        self.checker_icon_okB = QLabel(self.grid_box)
+        self.checker_icon_okB.setPixmap(QPixmap(self.AMDock.error_checker_ok))
         self.checker_icon_okB.hide()
 
-        self.res_text = QtGui.QHBoxLayout()
+        self.res_text = QHBoxLayout()
         self.res_text.addWidget(self.grid_predef_text, 1)
         self.res_text.addWidget(self.checker_icon_ok)
         self.res_text.addWidget(self.checker_icon)
 
-        self.res_textB = QtGui.QHBoxLayout()
+        self.res_textB = QHBoxLayout()
         self.res_textB.addWidget(self.grid_predef_textB, 1)
         self.res_textB.addWidget(self.checker_icon_okB, 0)
         self.res_textB.addWidget(self.checker_iconB, 0)
 
-        self.coor_box_layout = QtGui.QHBoxLayout()
+        self.coor_box_layout = QHBoxLayout()
         self.coor_box_layout.addWidget(self.coor_box)
         self.coor_box_layout.addWidget(self.size_box)
 
-        self.coor_boxB_layout = QtGui.QHBoxLayout()
+        self.coor_boxB_layout = QHBoxLayout()
         self.coor_boxB_layout.addWidget(self.coor_boxB)
         self.coor_boxB_layout.addWidget(self.size_boxB)
 
-        self.autoligand_target = QtGui.QTableWidget()
+        self.autoligand_target = QTableWidget()
         self.autoligand_target.setObjectName('autoligand_target')
         self.autoligand_target.setColumnCount(2)
         self.autoligand_target.setHorizontalHeaderLabels(["Total Volume (A**3)", "EPV (Kcal/mol A**3)"])
         self.autoligand_target.setMinimumHeight(150)
-        self.autoligand_target.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
+        self.autoligand_target.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.autoligand_target.hide()
-        self.autoligand_target.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        self.autoligand_target.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
-        self.autoligand_target.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
+        self.autoligand_target.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.autoligand_target.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.autoligand_target.setSelectionMode(QAbstractItemView.SingleSelection)
         self.autoligand_target.itemSelectionChanged.connect(lambda: self.fill_selection(self.autoligand_target))
 
-        self.autolig_layout = QtGui.QHBoxLayout()
+        self.autolig_layout = QHBoxLayout()
         self.autolig_layout.addWidget(self.autoligand_target, 1)
 
-        self.autoligand_offtarget = QtGui.QTableWidget()
+        self.autoligand_offtarget = QTableWidget()
         self.autoligand_offtarget.setObjectName('autoligand_offtarget')
         self.autoligand_offtarget.setColumnCount(2)
         self.autoligand_offtarget.setHorizontalHeaderLabels(["Total Volume (A**3)", "EPV (Kcal/mol A**3)"])
-        self.autoligand_offtarget.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
+        self.autoligand_offtarget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.autoligand_offtarget.hide()
-        self.autoligand_offtarget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        self.autoligand_offtarget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
-        self.autoligand_offtarget.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
+        self.autoligand_offtarget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.autoligand_offtarget.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.autoligand_offtarget.setSelectionMode(QAbstractItemView.SingleSelection)
         self.autoligand_offtarget.itemSelectionChanged.connect(lambda: self.fill_selection(self.autoligand_offtarget))
 
-        self.autolig_layoutB = QtGui.QHBoxLayout()
+        self.autolig_layoutB = QHBoxLayout()
         self.autolig_layoutB.addWidget(self.autoligand_offtarget, 1)
 
-        self.all_options = QtGui.QGridLayout()
-        self.all_options.setSizeConstraint(QtGui.QLayout.SetFixedSize)
+        self.all_options = QGridLayout()
+        self.all_options.setSizeConstraint(QLayout.SetFixedSize)
 
         self.all_options.setColumnStretch(1, 1)  # make column 1 and 2 regular width
-        self.all_options.addWidget(self.target_column_label, 0, 1, 1, 1, QtCore.Qt.AlignCenter)
-        self.all_options.addWidget(self.offtarget_column_label, 0, 2, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addWidget(self.target_column_label, 0, 1, 1, 1, Qt.AlignCenter)
+        self.all_options.addWidget(self.offtarget_column_label, 0, 2, 1, 1, Qt.AlignCenter)
 
         self.all_options.addWidget(self.grid_auto_cr, 1, 0)
-        self.all_options.addWidget(self.btnA_auto, 1, 1, 1, 1, QtCore.Qt.AlignCenter)
-        self.all_options.addWidget(self.btnB_auto, 1, 2, 1, 1, QtCore.Qt.AlignCenter)
-        self.all_options.addLayout(self.autolig_layout, 2, 1, 1, 1, QtCore.Qt.AlignCenter)
-        self.all_options.addLayout(self.autolig_layoutB, 2, 2, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addWidget(self.btnA_auto, 1, 1, 1, 1, Qt.AlignCenter)
+        self.all_options.addWidget(self.btnB_auto, 1, 2, 1, 1, Qt.AlignCenter)
+        self.all_options.addLayout(self.autolig_layout, 2, 1, 1, 1, Qt.AlignCenter)
+        self.all_options.addLayout(self.autolig_layoutB, 2, 2, 1, 1, Qt.AlignCenter)
 
         self.all_options.addWidget(self.grid_predef_cr, 3, 0)
-        self.all_options.addWidget(self.btnA_res, 3, 1, 1, 1, QtCore.Qt.AlignCenter)
-        self.all_options.addLayout(self.res_text, 4, 1, 1, 1, QtCore.Qt.AlignCenter)
-        self.all_options.addWidget(self.btnB_res, 3, 2, 1, 1, QtCore.Qt.AlignCenter)
-        self.all_options.addLayout(self.res_textB, 4, 2, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addWidget(self.btnA_res, 3, 1, 1, 1, Qt.AlignCenter)
+        self.all_options.addLayout(self.res_text, 4, 1, 1, 1, Qt.AlignCenter)
+        self.all_options.addWidget(self.btnB_res, 3, 2, 1, 1, Qt.AlignCenter)
+        self.all_options.addLayout(self.res_textB, 4, 2, 1, 1, Qt.AlignCenter)
 
         self.all_options.addWidget(self.grid_by_lig_cr, 5, 0)
-        self.all_options.addWidget(self.btnA_lig, 5, 1, 1, 1, QtCore.Qt.AlignCenter)
-        self.all_options.addWidget(self.lig_list, 6, 1, 1, 1, QtCore.Qt.AlignCenter)
-        self.all_options.addWidget(self.btnB_lig, 5, 2, 1, 1, QtCore.Qt.AlignCenter)
-        self.all_options.addWidget(self.lig_listB, 6, 2, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addWidget(self.btnA_lig, 5, 1, 1, 1, Qt.AlignCenter)
+        self.all_options.addWidget(self.lig_list, 6, 1, 1, 1, Qt.AlignCenter)
+        self.all_options.addWidget(self.btnB_lig, 5, 2, 1, 1, Qt.AlignCenter)
+        self.all_options.addWidget(self.lig_listB, 6, 2, 1, 1, Qt.AlignCenter)
 
         self.all_options.addWidget(self.grid_user_cr, 7, 0)
-        self.all_options.addWidget(self.btnA_user, 7, 1, 1, 1, QtCore.Qt.AlignCenter)
-        self.all_options.addLayout(self.coor_box_layout, 8, 1, 1, 1, QtCore.Qt.AlignCenter)
-        self.all_options.addWidget(self.btnB_user, 7, 2, 1, 1, QtCore.Qt.AlignCenter)
-        self.all_options.addLayout(self.coor_boxB_layout, 8, 2, 1, 1, QtCore.Qt.AlignCenter)
+        self.all_options.addWidget(self.btnA_user, 7, 1, 1, 1, Qt.AlignCenter)
+        self.all_options.addLayout(self.coor_box_layout, 8, 1, 1, 1, Qt.AlignCenter)
+        self.all_options.addWidget(self.btnB_user, 7, 2, 1, 1, Qt.AlignCenter)
+        self.all_options.addLayout(self.coor_boxB_layout, 8, 2, 1, 1, Qt.AlignCenter)
 
-        self.pymol_button_layout = QtGui.QHBoxLayout()
+        self.pymol_button_layout = QHBoxLayout()
         self.pymol_button_layout.addStretch(50)
         self.pymol_button_layout.addWidget(self.grid_pymol_button)
         self.pymol_button_layout.addStretch(48)
 
-        self.binding_layout = QtGui.QVBoxLayout()
+        self.binding_layout = QVBoxLayout()
         self.binding_layout.addStretch(1)
         self.binding_layout.addWidget(self.bind_site_button)
         self.binding_layout.addStretch(1)
 
-        self.grid_subcontent = QtGui.QHBoxLayout()
+        self.grid_subcontent = QHBoxLayout()
         self.grid_subcontent.addLayout(self.all_options, 1)
         self.grid_subcontent.addLayout(self.binding_layout)
 
-        self.grid_content = QtGui.QVBoxLayout(self.grid_box)
+        self.grid_content = QVBoxLayout(self.grid_box)
         self.grid_content.addLayout(self.grid_subcontent, 1)
         self.grid_content.addLayout(self.pymol_button_layout)
 
@@ -677,53 +679,53 @@ class Program_body(QtGui.QWidget):
         self.bind_site_button.clicked.connect(self.binding_site)
         self.run_button.clicked.connect(self.start_docking_prog)
 
-        self.reset_button_layout = QtGui.QHBoxLayout()
+        self.reset_button_layout = QHBoxLayout()
         self.reset_button_layout.addStretch(1)
         self.reset_button_layout.addWidget(self.reset_button)
         self.reset_button_layout.addStretch(1)
 
-        self.progressbar_layout = QtGui.QGridLayout()
+        self.progressbar_layout = QGridLayout()
         self.progressbar_layout.addWidget(self.log_button, 0, 0)
         self.progressbar_layout.addWidget(self.program_label, 0, 1, 1, -1)
 
-        self.progressbar_layout.addWidget(self.progressBar_global, 1, 0, 3, 3, QtCore.Qt.AlignCenter)
-        self.progressbar_layout.addWidget(self.progress_project_label, 4, 0, 3, 3, QtCore.Qt.AlignCenter)
+        self.progressbar_layout.addWidget(self.progressBar_global, 1, 0, 3, 3, Qt.AlignCenter)
+        self.progressbar_layout.addWidget(self.progress_project_label, 4, 0, 3, 3, Qt.AlignCenter)
 
-        self.progressbar_layout.addWidget(self.section_name, 1, 3, 1, 1, QtCore.Qt.AlignCenter)
-        self.progressbar_layout.addWidget(self.section_state, 2, 3, 1, 1, QtCore.Qt.AlignCenter)
+        self.progressbar_layout.addWidget(self.section_name, 1, 3, 1, 1, Qt.AlignCenter)
+        self.progressbar_layout.addWidget(self.section_state, 2, 3, 1, 1, Qt.AlignCenter)
         self.progressbar_layout.addWidget(self.reset_button, 3, 3, 1, 1)
         self.progressbar_layout.addItem(self.spacer, 1, 4, 3, 1)
 
-        self.progressbar_layout.addWidget(self.progressBar_section, 1, 5, 3, 3, QtCore.Qt.AlignCenter)
-        self.progressbar_layout.addWidget(self.progress_section_label, 4, 5, 3, 3, QtCore.Qt.AlignCenter)
+        self.progressbar_layout.addWidget(self.progressBar_section, 1, 5, 3, 3, Qt.AlignCenter)
+        self.progressbar_layout.addWidget(self.progress_section_label, 4, 5, 3, 3, Qt.AlignCenter)
 
-        self.progressbar_layout.addWidget(self.process_state_label, 1, 8, 1, 1, QtCore.Qt.AlignCenter)
-        self.progressbar_layout.addWidget(self.process_state, 2, 8, 1, 1, QtCore.Qt.AlignCenter)
+        self.progressbar_layout.addWidget(self.process_state_label, 1, 8, 1, 1, Qt.AlignCenter)
+        self.progressbar_layout.addWidget(self.process_state, 2, 8, 1, 1, Qt.AlignCenter)
 
         self.progressbar_layout.addWidget(self.stop_button, 3, 8, 1, 1)
         self.progressbar_layout.addItem(self.spacer, 1, 9, 3, 2)
 
-        self.run_layout = QtGui.QVBoxLayout()
+        self.run_layout = QVBoxLayout()
         self.run_layout.addStretch(1)
         self.run_layout.addWidget(self.run_button, 2)
         self.run_layout.addStretch(1)
 
-        self.progress_layout = QtGui.QHBoxLayout()
+        self.progress_layout = QHBoxLayout()
         self.progress_layout.addLayout(self.progressbar_layout, 1)
         self.progress_layout.addLayout(self.run_layout)
 
-        self.sc_area_widget_layout = QtGui.QVBoxLayout(self.sc_area_widget)
+        self.sc_area_widget_layout = QVBoxLayout(self.sc_area_widget)
         self.sc_area_widget_layout.addWidget(self.project_box)
         self.sc_area_widget_layout.addWidget(self.input_box)
         self.sc_area_widget_layout.addWidget(self.grid_box)
         self.sc_area_widget_layout.addStretch(1)
 
-        self.sc_area_layout = QtGui.QHBoxLayout(self.sc_area)
+        self.sc_area_layout = QHBoxLayout(self.sc_area)
         self.sc_area_layout.addWidget(self.sc_area_widget)
         self.sc_area.setWidgetResizable(True)
         self.sc_area.setWidget(self.sc_area_widget)
 
-        self.body_layout = QtGui.QVBoxLayout(self)
+        self.body_layout = QVBoxLayout(self)
         self.body_layout.addWidget(self.sc_area, 1)
         self.body_layout.addLayout(self.progress_layout)
 
@@ -738,19 +740,19 @@ class Program_body(QtGui.QWidget):
         if _file.objectName() == 'create_project':
             # check if exist any process in background
             if self.AMDock.state == 2:
-                QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
+                QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
                                                                  'Please wait for these to end.',
-                                           QtGui.QMessageBox.Ok)
+                                           QMessageBox.Ok)
                 return
             elif self.AMDock.section in [1, 2, 3]:
-                msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed '
+                msg = QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed '
                                                                         'previously. Do you want to repeat it?\n Keep '
                                                                         'in mind that this will eliminate all the '
                                                                         'information contained in this project !!!',
-                                                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-                if msg == QtGui.QMessageBox.No:
+                                                QMessageBox.Yes | QMessageBox.No)
+                if msg == QMessageBox.No:
                     return
-                elif msg == QtGui.QMessageBox.Yes:
+                elif msg == QMessageBox.Yes:
                     self.reset_sections(0)
 
             if not self.AMDock.project.location:
@@ -759,15 +761,15 @@ class Program_body(QtGui.QWidget):
 
             if self.AMDock.project.WDIR:
                 options = wdir2_warning(self)
-                if options == QtGui.QMessageBox.Yes:
+                if options == QMessageBox.Yes:
                     self.AMDock.output2file.conclude()
                     os.chdir(self.AMDock.project.location)
                     try:
                         shutil.rmtree(self.AMDock.project.WDIR)
                     except:
-                        QtGui.QMessageBox.critical(self.AMDock, 'Error',
+                        QMessageBox.critical(self.AMDock, 'Error',
                                                    'The previous project directory could not be removed. Please '
-                                                   'remove it manually.', QtGui.QMessageBox.Ok)
+                                                   'remove it manually.', QMessageBox.Ok)
                     if not self.AMDock.loader.create_project_function():
                         self.AMDock.project.WDIR = None
                         self.project_text.clear()
@@ -802,30 +804,30 @@ class Program_body(QtGui.QWidget):
 
         if _file.objectName() == "target_button":
             if self.AMDock.state == 2:
-                QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
+                QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
                                                                        'Please wait for these to end.',
-                                                 QtGui.QMessageBox.Ok)
+                                                 QMessageBox.Ok)
                 return
             elif self.AMDock.section == -1:
-                QtGui.QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
+                QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
                                                                        'completed. Please do all the steps sequentially.',
-                                                 QtGui.QMessageBox.Ok)
+                                                 QMessageBox.Ok)
                 return
             elif self.AMDock.section in [1, 2, 3]:
-                msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning',
+                msg = QMessageBox.warning(self.AMDock, 'Warning',
                                                 'This step was successfully completed previously.'
                                                 ' Do you want to repeat it?',
-                                                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-                if msg == QtGui.QMessageBox.No:
+                                                QMessageBox.Yes | QMessageBox.No)
+                if msg == QMessageBox.No:
                     return
-                elif msg == QtGui.QMessageBox.Yes:
+                elif msg == QMessageBox.Yes:
                     self.reset_sections(1)
 
             if self.AMDock.target.input is None:
                 self.AMDock.loader.load_protein()
             else:
                 prot_opt = prot_warning(self)
-                if prot_opt == QtGui.QMessageBox.Yes:
+                if prot_opt == QMessageBox.Yes:
                     os.remove(self.AMDock.target.input)
                     self.AMDock.target = BASE()
                     self.target_label.clear()
@@ -837,20 +839,20 @@ class Program_body(QtGui.QWidget):
 
         if _file.objectName() == "offtarget_button":
             if self.AMDock.state == 2:
-                msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
+                msg = QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
                                                                        'Please wait for these to end.',
-                                                 QtGui.QMessageBox.Ok)
+                                                 QMessageBox.Ok)
                 return
             elif self.AMDock.section == -1:
-                msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
+                msg = QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
                                                                        'completed. Please do all the steps sequentially.',
-                                                 QtGui.QMessageBox.Ok)
+                                                 QMessageBox.Ok)
                 return
             if self.AMDock.offtarget.input is None:
                 self.AMDock.loader.load_proteinB()
             else:
                 prot_opt = prot_warning(self)
-                if prot_opt == QtGui.QMessageBox.Yes:
+                if prot_opt == QMessageBox.Yes:
                     os.remove(self.AMDock.offtarget.input)
                     self.AMDock.offtarget = BASE()
                     self.offtarget_label.clear()
@@ -862,20 +864,20 @@ class Program_body(QtGui.QWidget):
 
         if _file.objectName() == "ligand_button":
             if self.AMDock.state == 2:
-                msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
+                msg = QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
                                                                        'Please wait for these to end.',
-                                                 QtGui.QMessageBox.Ok)
+                                                 QMessageBox.Ok)
                 return
             elif self.AMDock.section == -1:
-                msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
+                msg = QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
                                                                        'completed. Please do all the steps sequentially.',
-                                                 QtGui.QMessageBox.Ok)
+                                                 QMessageBox.Ok)
                 return
             if self.AMDock.ligand.input is None:
                 self.AMDock.loader.load_ligand()
             else:
                 self.lig_opt = lig_warning(self)
-                if self.lig_opt == QtGui.QMessageBox.Yes:
+                if self.lig_opt == QMessageBox.Yes:
                     os.remove(self.AMDock.ligand.input)
                     self.AMDock.ligand = BASE()
                     self.ligand_text.clear()
@@ -891,10 +893,10 @@ class Program_body(QtGui.QWidget):
         else:
             if not reset:
                 if self.AMDock.target.input or self.AMDock.offtarget.input or self.AMDock.ligand.input:
-                    msg = QtGui.QMessageBox.warning(self, 'Warning', "All data in this section and in Search Space will "
+                    msg = QMessageBox.warning(self, 'Warning', "All data in this section and in Search Space will "
                                                                      "be lost. Do you want to continue? ",
-                                                    QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-                    if msg == QtGui.QMessageBox.No:
+                                                    QMessageBox.Yes | QMessageBox.No)
+                    if msg == QMessageBox.No:
                         return
         btn.setChecked(True)
         target = offtarget = ligand = 0
@@ -914,10 +916,10 @@ class Program_body(QtGui.QWidget):
             except:
                 ligand = 1
         if target or offtarget or ligand:
-            msg = QtGui.QMessageBox.warning(self, 'Warning', "Some files could not be eliminated, this could generate "
+            msg = QMessageBox.warning(self, 'Warning', "Some files could not be eliminated, this could generate "
                                                              "future problems. Please check that you have  writing "
                                                              "rights in the project directory. You can continue the "
-                                                             "process without worrying.", QtGui.QMessageBox.Ok)
+                                                             "process without worrying.", QMessageBox.Ok)
         self.AMDock.target = BASE()
         self.AMDock.offtarget = BASE()
         self.AMDock.ligand = BASE()
@@ -976,37 +978,37 @@ class Program_body(QtGui.QWidget):
 
     def align_proteins(self):
         if self.AMDock.state == 2:
-            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
+            msg = QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
                                                                    'Please wait for these to end.',
-                                             QtGui.QMessageBox.Ok)
+                                             QMessageBox.Ok)
             return
         elif self.AMDock.section == -1:
-            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
+            msg = QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
                                                                    'completed. Please do all the steps sequentially.',
-                                             QtGui.QMessageBox.Ok)
+                                             QMessageBox.Ok)
             return
         elif self.AMDock.state in [1, 2, 3]:
-            msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed previously.'
+            msg = QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed previously.'
                                                                     ' Do you want to repeat it?',
-                                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-            if msg == QtGui.QMessageBox.No:
+                                            QMessageBox.Yes | QMessageBox.No)
+            if msg == QMessageBox.No:
                 return
         os.chdir(self.AMDock.project.input)
         # check if target, (offtarget) and ligand are defined
         if not self.AMDock.target.input or not self.AMDock.ligand.input or not self.AMDock.offtarget.input:
-            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Target, Ligand and Off-Target (if Off-target '
+            msg = QMessageBox.critical(self.AMDock, 'Error', 'Target, Ligand and Off-Target (if Off-target '
                                                                    'Docking is selected) most be defined',
-                                             QtGui.QMessageBox.Ok)
+                                             QMessageBox.Ok)
             return
         # Align proteins
         if self.AMDock.target.ext == 'pdbqt' or self.AMDock.offtarget.ext == 'pdbqt':
-            msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'Some of the proteins are PDBQT format, '
+            msg = QMessageBox.warning(self.AMDock, 'Warning', 'Some of the proteins are PDBQT format, '
                                                                     'which means that to align them, it will be '
                                                                     'converted to PDB format and then again to PDBQT. '
                                                                     'This can introduce unexpected errors. Do you wish'
                                                                     ' to continue?',
-                                             QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-            if msg == QtGui.QMessageBox.Yes:
+                                             QMessageBox.Yes, QMessageBox.No)
+            if msg == QMessageBox.Yes:
                 if self.AMDock.target.ext == 'pdbqt':
                     conv = Convert(self.AMDock.target.input)
                     if conv.get_path():
@@ -1031,15 +1033,15 @@ class Program_body(QtGui.QWidget):
 
     def addNewParameters(self):
         if self.AMDock.section == -1:
-            QtGui.QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
+            QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
                                                              'completed. Please do all the steps sequentially.',
-                                       QtGui.QMessageBox.Ok)
+                                       QMessageBox.Ok)
             return
         if self.AMDock.para_file:
-            msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'A new parameter file has already been defined. '
+            msg = QMessageBox.warning(self.AMDock, 'Warning', 'A new parameter file has already been defined. '
                                                                     'Do you want to delete it?',
-                                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-            if msg == QtGui.QMessageBox.No:
+                                            QMessageBox.Yes | QMessageBox.No)
+            if msg == QMessageBox.No:
                 return
 
             self.new_para_text.clear()
@@ -1057,33 +1059,33 @@ class Program_body(QtGui.QWidget):
     def prepare_receptor(self):
 
         if self.AMDock.state == 2:
-            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
+            msg = QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
                                                                    'Please wait for these to end.',
-                                             QtGui.QMessageBox.Ok)
+                                             QMessageBox.Ok)
             return
         elif self.AMDock.section == -1:
-            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
+            msg = QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
                                                                    'completed. Please do all the steps sequentially.',
-                                             QtGui.QMessageBox.Ok)
+                                             QMessageBox.Ok)
             return
         elif self.AMDock.section in [1, 2, 3]:
-            msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed previously.'
+            msg = QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed previously.'
                                                                     ' Do you want to repeat it?',
-                                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-            if msg == QtGui.QMessageBox.No:
+                                            QMessageBox.Yes | QMessageBox.No)
+            if msg == QMessageBox.No:
                 return
         os.chdir(self.AMDock.project.input)
         # check if target, (offtarget) and ligand are defined
         if not self.AMDock.target.input or not self.AMDock.ligand.input:
-            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Target, Ligand and Off-Target (if Off-target '
+            msg = QMessageBox.critical(self.AMDock, 'Error', 'Target, Ligand and Off-Target (if Off-target '
                                                                    'Docking is selected) most be defined',
-                                             QtGui.QMessageBox.Ok)
+                                             QMessageBox.Ok)
             return
         elif self.AMDock.project.mode == 1:
             if not self.AMDock.offtarget.input:
-                msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Target, Ligand and Off-Target (if Off-target '
+                msg = QMessageBox.critical(self.AMDock, 'Error', 'Target, Ligand and Off-Target (if Off-target '
                                                                        'Docking is selected) most be defined',
-                                                 QtGui.QMessageBox.Ok)
+                                                 QMessageBox.Ok)
                 return
         self.list_process = []
 
@@ -1103,10 +1105,10 @@ class Program_body(QtGui.QWidget):
         self.sizeB = [self.lig_size, self.lig_size, self.lig_size]  # this avoid bug in pymol visualization
 
         if self.AMDock.ligand.ha > 100:
-            wlig = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'The input ligand has more than 100 heavy.\n Do '
+            wlig = QMessageBox.warning(self.AMDock, 'Warning', 'The input ligand has more than 100 heavy.\n Do '
                                                                      'you want to continue?',
-                                             QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-            if wlig == QtGui.QMessageBox.No:
+                                             QMessageBox.Yes | QMessageBox.No)
+            if wlig == QMessageBox.No:
                 self.reset_ligand()
                 self.AMDock.project.mode = 0
                 return
@@ -1114,7 +1116,7 @@ class Program_body(QtGui.QWidget):
             if self.AMDock.project.mode == 1:
                 self.check_opt, pt1, pt2 = self.AMDock.checker.autodockzn_check(self.AMDock.target,
                                                                                 self.AMDock.offtarget)
-                if self.check_opt == QtGui.QMessageBox.Ok:
+                if self.check_opt == QMessageBox.Ok:
                     self.AMDock.main_window.setCurrentIndex(0)
                     self.AMDock.main_window.setTabEnabled(1, False)
                     self.AMDock.main_window.setTabEnabled(0, True)
@@ -1139,12 +1141,12 @@ class Program_body(QtGui.QWidget):
                     return
             else:
                 self.check_opt = self.AMDock.checker.autodockzn_check(self.AMDock.target)
-                if self.check_opt == QtGui.QMessageBox.Ok:
+                if self.check_opt == QMessageBox.Ok:
                     self.AMDock.main_window.setCurrentIndex(0)
                     self.AMDock.main_window.setTabEnabled(1, False)
                     self.AMDock.main_window.setTabEnabled(0, True)
                     return
-                elif self.check_opt == QtGui.QMessageBox.Cancel:
+                elif self.check_opt == QMessageBox.Cancel:
                     os.remove(self.AMDock.target.input)
                     self.target_text.clear()
                     self.target_label.clear()
@@ -1155,18 +1157,18 @@ class Program_body(QtGui.QWidget):
             if self.AMDock.project.mode == 1:
                 self.check_opt, pt1, pt2 = self.AMDock.checker.check_correct_prog(self.AMDock.target,
                                                                                   self.AMDock.offtarget)
-                if self.check_opt == QtGui.QMessageBox.Yes:
+                if self.check_opt == QMessageBox.Yes:
                     self.AMDock.docking_program = "AutoDockZn"
                     self.AMDock.log_widget.textedit.append(Ft('DOCKING_PROGRAM: %s' %
                                                               self.AMDock.docking_program).definitions())
             else:
                 self.check_opt = self.AMDock.checker.check_correct_prog(self.AMDock.target)
-                if self.check_opt == QtGui.QMessageBox.Yes:
+                if self.check_opt == QMessageBox.Yes:
                     self.AMDock.docking_program = "AutoDockZn"
                     self.AMDock.log_widget.textedit.append(Ft('DOCKING_PROGRAM: %s' %
                                                               self.AMDock.docking_program).definitions())
             self.AMDock.statusbar.removeWidget(self.AMDock.mess)
-            self.AMDock.mess = QtGui.QLabel(self.AMDock.docking_program + " is selected")
+            self.AMDock.mess = QLabel(self.AMDock.docking_program + " is selected")
             self.AMDock.statusbar.addWidget(self.AMDock.mess)
         # added ligands (if exist) to list in binding site box
         if self.target_info.get_het():
@@ -1292,20 +1294,20 @@ class Program_body(QtGui.QWidget):
         queue = Queue.Queue()
         queue.name = 2
         if self.AMDock.state == 2:
-            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
+            msg = QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
                                                                    'Please wait for these to end.',
-                                             QtGui.QMessageBox.Ok)
+                                             QMessageBox.Ok)
             return
         elif self.AMDock.section in [-1, 0]:
-            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
+            msg = QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
                                                                    'completed. Please do all the steps sequentially.',
-                                             QtGui.QMessageBox.Ok)
+                                             QMessageBox.Ok)
             return
         elif self.AMDock.section in [2, 3]:
-            msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed previously.'
+            msg = QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed previously.'
                                                                     ' Do you want to repeat it?',
-                                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-            if msg == QtGui.QMessageBox.No:
+                                            QMessageBox.Yes | QMessageBox.No)
+            if msg == QMessageBox.No:
                 return
 
         if self.AMDock.project.bsd_mode_target == 0:
@@ -1360,7 +1362,7 @@ class Program_body(QtGui.QWidget):
                                                                            'y': self.size_y.value(),
                                                                            'z': self.size_z.value()}, self.lig_size,
                                                                     self.AMDock.target.name)
-                    if self.grid_opt == QtGui.QMessageBox.Yes:
+                    if self.grid_opt == QMessageBox.Yes:
                         if 'x' in self.dim_list:
                             self.size_x.setValue(self.lig_size)
                         if 'y' in self.dim_list:
@@ -1431,7 +1433,7 @@ class Program_body(QtGui.QWidget):
                                                                                  'y': self.size_y.value(),
                                                                                  'z': self.size_z.value()},
                                                                           self.lig_size, self.AMDock.offtarget.name)
-                        if self.grid_optB == QtGui.QMessageBox.Yes:
+                        if self.grid_optB == QMessageBox.Yes:
                             if 'x' in self.dim_listB:
                                 self.size_xB.setValue(self.lig_size)
                             if 'y' in self.dim_listB:
@@ -1505,9 +1507,9 @@ class Program_body(QtGui.QWidget):
 
     def reset_sections(self, section):
         if self.AMDock.state == 2:
-            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
+            msg = QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
                                                                    'Please wait for these to end.',
-                                             QtGui.QMessageBox.Ok)
+                                             QMessageBox.Ok)
             return
         self.AMDock.section = section - 1
         self.highlight()
@@ -1538,9 +1540,9 @@ class Program_body(QtGui.QWidget):
 
     def reset_function(self):
         if self.AMDock.state == 2:
-            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
+            msg = QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
                                                                    'Please wait for these to end.',
-                                             QtGui.QMessageBox.Ok)
+                                             QMessageBox.Ok)
             return
 
         if self.AMDock.section == -1:
@@ -1555,7 +1557,7 @@ class Program_body(QtGui.QWidget):
             # return
         else:
             reset_opt = reset_warning(self)
-            if reset_opt == QtGui.QMessageBox.Yes:
+            if reset_opt == QMessageBox.Yes:
                 self.AMDock.section = -1
                 self.AMDock.statusbar.removeWidget(self.AMDock.mess)
                 self.program_label.setText('Resetting...Done.')
@@ -1582,19 +1584,19 @@ class Program_body(QtGui.QWidget):
                 # self.simple_docking.setChecked(True)
                 self.simulation_form(self.simple_docking, True)
                 if self.AMDock.project.WDIR:
-                    rm_folder = QtGui.QMessageBox.warning(self, 'Warning',
+                    rm_folder = QMessageBox.warning(self, 'Warning',
                                                           "Do you wish to delete the previous project's folder?.",
-                                                          QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-                    if rm_folder == QtGui.QMessageBox.Yes:
+                                                          QMessageBox.Yes | QMessageBox.No)
+                    if rm_folder == QMessageBox.Yes:
                         try:
                             self.AMDock.output2file.conclude()
                             os.chdir(self.AMDock.project.location)
                             shutil.rmtree(self.AMDock.project.WDIR)
                         except:
-                            QtGui.QMessageBox.warning(self, 'Error',
+                            QMessageBox.warning(self, 'Error',
                                                       "The directory cannot be deleted. Probably is being used by "
                                                       "another program. Please check this and delete it ",
-                                                      QtGui.QMessageBox.Ok)
+                                                      QMessageBox.Ok)
                 self.AMDock.configuration_tab.initial_config()
                 self.AMDock.log_widget.textedit.append(Ft('\nRESETTING... Done.').resetting())
                 self.AMDock.log_widget.textedit.append(Ft(80 * '-' + '\n\n').separator())
@@ -1631,22 +1633,22 @@ class Program_body(QtGui.QWidget):
 
     def grid_sel_protection(self, id):
         if self.AMDock.state == 2:
-            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
+            msg = QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
                                                                    'Please wait for these to end.',
-                                             QtGui.QMessageBox.Ok)
+                                             QMessageBox.Ok)
             return
         elif self.AMDock.section in [-1, 0]:
-            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
+            msg = QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
                                                                    'completed. Please do all the steps sequentially.',
-                                             QtGui.QMessageBox.Ok)
+                                             QMessageBox.Ok)
             return
         elif self.AMDock.section in [2, 3]:
-            msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed previously.'
+            msg = QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed previously.'
                                                                     ' Do you want to repeat it?',
-                                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-            if msg == QtGui.QMessageBox.No:
+                                            QMessageBox.Yes | QMessageBox.No)
+            if msg == QMessageBox.No:
                 return
-            elif msg == QtGui.QMessageBox.Yes:
+            elif msg == QMessageBox.Yes:
                 self.reset_sections(2)
         self.AMDock.section = 1
         id.setChecked(True)
@@ -1665,8 +1667,8 @@ class Program_body(QtGui.QWidget):
             self.AMDock.project.bsd_mode_target = 1
         elif self.target_column_group_btnA.id(b) == 3:
             if not self.lig_list.count():
-                msg = QtGui.QMessageBox.warning(self, 'Error', "There is no hetero to select this option",
-                                                QtGui.QMessageBox.Ok)
+                msg = QMessageBox.warning(self, 'Error', "There is no hetero to select this option",
+                                                QMessageBox.Ok)
                 self.btnA_auto.setChecked(True)
                 return
             self.hide_all('A')
@@ -1699,20 +1701,20 @@ class Program_body(QtGui.QWidget):
 
     def grid_actions(self, btn):
         if self.AMDock.state == 2:
-            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
+            msg = QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
                                                                    'Please wait for these to end.',
-                                             QtGui.QMessageBox.Ok)
+                                             QMessageBox.Ok)
             return
         elif self.AMDock.section in [-1, 0, 1]:
-            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
+            msg = QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
                                                                    'completed. Please do all the steps sequentially.',
-                                             QtGui.QMessageBox.Ok)
+                                             QMessageBox.Ok)
             return
         elif self.AMDock.section in [3]:
-            msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed previously.'
+            msg = QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed previously.'
                                                                     ' Do you want to repeat it?',
-                                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-            if msg == QtGui.QMessageBox.No:
+                                            QMessageBox.Yes | QMessageBox.No)
+            if msg == QMessageBox.No:
                 return
         visual_arg = [self.AMDock.pymol, self.AMDock.grid_pymol, '--', '--f_prot',
                       os.path.join(self.AMDock.project.input, self.AMDock.target.pdb), '--f_prot_type', 'Target',
@@ -1736,7 +1738,7 @@ class Program_body(QtGui.QWidget):
                 self.AMDock.target.selected = 1
                 selection_model = self.autoligand_target.selectionModel()
                 selection_model.select(self.autoligand_target.model().index(0, 0),
-                                       QtGui.QItemSelectionModel.ClearAndSelect)
+                                       QItemSelectionModel.ClearAndSelect)
             visual_arg.extend(['--f_rep_type', '0', '--f_ligands'])
             for fill in self.AMDock.target.fill_list:
                 visual_arg.append('%s' % os.path.join(self.AMDock.project.input, "FILL_%s_%sout%02d.pdb" % (
@@ -1766,7 +1768,7 @@ class Program_body(QtGui.QWidget):
                     self.AMDock.offtarget.selected = 1
                     selection_model = self.autoligand_offtarget.selectionModel()
                     selection_model.select(self.autoligand_offtarget.model().index(0, 0),
-                                           QtGui.QItemSelectionModel.ClearAndSelect)
+                                           QItemSelectionModel.ClearAndSelect)
                 visual_arg.extend(['--s_rep_type', '0', '--s_ligands'])
                 for fill in self.AMDock.offtarget.fill_list:
                     visual_arg.append('%s' % os.path.join(self.AMDock.project.input, "FILL_%s_%sout%02d.pdb" % (
@@ -1791,8 +1793,8 @@ class Program_body(QtGui.QWidget):
             line = line.strip('\n')
             fill_info = PDBINFO('FILL_{}_{}out{:02d}.pdb'.format(mol.pdbqt_name, self.AMDock.ligand.ha * 6, fill))
             if not fill_info.center:
-                msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'This FILL no exist or is not possible to open '
-                                                                        'pdb file', QtGui.QMessageBox.Ok)
+                msg = QMessageBox.warning(self.AMDock, 'Warning', 'This FILL no exist or is not possible to open '
+                                                                        'pdb file', QMessageBox.Ok)
                 continue
             mol.fill_list[fill] = [int(float(line.split()[6].strip(','))), float(line.split()[13]), fill_info.center]
             fill += 1
@@ -1806,11 +1808,11 @@ class Program_body(QtGui.QWidget):
             if fill_info.center:
                 self.grid_center = [str(x) for x in fill_info.center]
             else:
-                msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'This FILL no exist or is not possible to open '
+                msg = QMessageBox.critical(self.AMDock, 'Error', 'This FILL no exist or is not possible to open '
                                                                        'pdb file. Please, select a new FILL',
-                                                 QtGui.QMessageBox.Ok)
+                                                 QMessageBox.Ok)
                 for item in items:
-                    item.setFlags(QtCore.Qt.NoItemFlags)
+                    item.setFlags(Qt.NoItemFlags)
                 return
         else:
             items = self.autoligand_offtarget.selectedItems()
@@ -1820,11 +1822,11 @@ class Program_body(QtGui.QWidget):
             if fill_info.center:
                 self.grid_centerB = [str(x) for x in fill_info.center]
             else:
-                msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'This FILL no exist or is not possible to open '
+                msg = QMessageBox.critical(self.AMDock, 'Error', 'This FILL no exist or is not possible to open '
                                                                        'pdb file. Please, select a new FILL',
-                                                 QtGui.QMessageBox.Ok)
+                                                 QMessageBox.Ok)
                 for item in items:
-                    item.setFlags(QtCore.Qt.NoItemFlags)
+                    item.setFlags(Qt.NoItemFlags)
                 return
 
     def for_finished(self, info):
@@ -1843,9 +1845,9 @@ class Program_body(QtGui.QWidget):
                     c = 0
                     for ele in self.AMDock.target.fill_list[fill][:2]:
                         ele = str(ele)
-                        self.autoligand_target.setItem(f, c, QtGui.QTableWidgetItem(ele))
+                        self.autoligand_target.setItem(f, c, QTableWidgetItem(ele))
                         self.autoligand_target.item(f, c).setTextAlignment(
-                            QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+                            Qt.AlignHCenter | Qt.AlignVCenter)
                         c += 1
                     f += 1
                 self.autoligand_target.selectRow(0)
@@ -1864,9 +1866,9 @@ class Program_body(QtGui.QWidget):
                     c = 0
                     for ele in fill:
                         ele = str(ele)
-                        self.autoligand_offtarget.setItem(f, c, QtGui.QTableWidgetItem(ele))
+                        self.autoligand_offtarget.setItem(f, c, QTableWidgetItem(ele))
                         self.autoligand_offtarget.item(f, c).setTextAlignment(
-                            QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+                            Qt.AlignHCenter | Qt.AlignVCenter)
                         c += 1
                     f += 1
                 self.autoligand_offtarget.selectRow(0)
@@ -2036,7 +2038,7 @@ class Program_body(QtGui.QWidget):
             self.progressBar_section.setValue(self.progressBar_section.value() + value)
 
     def readStdOutput(self):
-        self.codec = QtCore.QTextCodec.codecForName('UTF-8')
+        self.codec = QTextCodec.codecForName('UTF-8')
         self.output = self.codec.toUnicode(self.W.process.readAllStandardOutput())
         # self.output = str(self.output)
         if not self.AMDock.project.prog in ['AutoLigand', 'AutoLigand B']:
@@ -2096,12 +2098,12 @@ class Program_body(QtGui.QWidget):
                 self.AMDock.project.part = float(self.output.split()[1]) * 0.4
 
     def readStdError(self):
-        self.error = QtCore.QString(self.worker.readAllStandardError())
+        self.error = str(self.worker.readAllStandardError())
 
     def pymol_readStdOutput(self):
         pymol_output = None
         if hasattr(self, 'b_pymol'):
-            pymol_output = QtCore.QString(self.b_pymol.process.readAllStandardOutput())
+            pymol_output = str(self.b_pymol.process.readAllStandardOutput())
         if pymol_output:
             self.pymol_out = str(pymol_output)
         else:
@@ -2218,26 +2220,26 @@ class Program_body(QtGui.QWidget):
                                ('%s' % x[2]).center(14) + '|' + ('%s' % x[3]).center(15) + '|' + \
                                ('%s' % x[4]).center(14) + '|\n'
             for item in x:
-                item_table = QtGui.QTableWidgetItem(str(item))
-                item_table.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled)
+                item_table = QTableWidgetItem(str(item))
+                item_table.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                 self.AMDock.result_tab.result_table.setItem(f, c, item_table)
                 self.AMDock.result_tab.result_table.item(f, c).setTextAlignment(
-                    QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+                    Qt.AlignHCenter | Qt.AlignVCenter)
                 if c == 4:
                     item_v = float(item)
                     if item_v <= -0.3:
                         self.AMDock.result_tab.result_table.item(f, c).setBackgroundColor(
-                            QtGui.QColor(0, 255, 128, 200))
+                            QColor(0, 255, 128, 200))
                 c += 1
             f += 1
         self.AMDock.result_tab.value1 = float(self.AMDock.result_tab.result_table.item(0, 1).text())
-        self.AMDock.result_tab.result_table.item(0, 1).setBackgroundColor(QtGui.QColor('darkGray'))
+        self.AMDock.result_tab.result_table.item(0, 1).setBackgroundColor(QColor('darkGray'))
         selection_model = self.AMDock.result_tab.result_table.selectionModel()
         selection_model.select(self.AMDock.result_tab.result_table.model().index(0, 0),
-                               QtGui.QItemSelectionModel.ClearAndSelect)
+                               QItemSelectionModel.ClearAndSelect)
         if self.AMDock.project.bsd_mode_target == 0:
             self.AMDock.result_tab.result_table.setHorizontalHeaderLabels(
-                QtCore.QString("Binding Site;Affinity(kcal/mol);Estimated Ki;Ki Units;Ligand Efficiency").split(";"))
+                str("Binding Site;Affinity(kcal/mol);Estimated Ki;Ki Units;Ligand Efficiency").split(";"))
 
         if self.AMDock.project.mode == 1:
             self.AMDock.result_tab.result_tableB.show()
@@ -2262,24 +2264,24 @@ class Program_body(QtGui.QWidget):
                                     ('%s' % x[2]).center(14) + '|' + ('%s' % x[3]).center(15) + '|' + \
                                     ('%s' % x[4]).center(14) + '|\n'
                 for item in x:
-                    item_table = QtGui.QTableWidgetItem(str(item))
-                    item_table.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled)
+                    item_table = QTableWidgetItem(str(item))
+                    item_table.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                     self.AMDock.result_tab.result_tableB.setItem(f, c, item_table)
                     self.AMDock.result_tab.result_tableB.item(f, c).setTextAlignment(
-                        QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+                        Qt.AlignHCenter | Qt.AlignVCenter)
                     if c == 4:
                         item_v = float(item)
                         if item_v <= -0.3:
                             self.AMDock.result_tab.result_tableB.item(f, c).setBackgroundColor(
-                                QtGui.QColor(0, 255, 128, 200))
+                                QColor(0, 255, 128, 200))
                     c += 1
                 f += 1
             self.AMDock.result_tab.value2 = float(self.AMDock.result_tab.result_tableB.item(0, 1).text())
 
-            self.AMDock.result_tab.result_tableB.item(0, 1).setBackgroundColor(QtGui.QColor('darkGray'))
+            self.AMDock.result_tab.result_tableB.item(0, 1).setBackgroundColor(QColor('darkGray'))
             selection_model = self.AMDock.result_tab.result_tableB.selectionModel()
             selection_model.select(self.AMDock.result_tab.result_tableB.model().index(0, 0),
-                                   QtGui.QItemSelectionModel.ClearAndSelect)
+                                   QItemSelectionModel.ClearAndSelect)
 
             self.AMDock.result_tab.selectivity_value = math.exp((self.AMDock.result_tab.value2 -
                                                                  self.AMDock.result_tab.value1) /(0.001987207 * 298))
@@ -2287,7 +2289,7 @@ class Program_body(QtGui.QWidget):
                 '%.01f' % self.AMDock.result_tab.selectivity_value)
             if self.AMDock.project.bsd_mode_offtarget == 0:
                 self.AMDock.result_tab.result_tableB.setHorizontalHeaderLabels(
-                    QtCore.QString("Binding Site;Affinity(kcal/mol);Estimated Ki;Ki Units;Ligand Efficiency").split(
+                    str("Binding Site;Affinity(kcal/mol);Estimated Ki;Ki Units;Ligand Efficiency").split(
                         ";"))
         else:
             self.AMDock.result_tab.result_tableB.hide()
@@ -2490,21 +2492,21 @@ class Program_body(QtGui.QWidget):
                                ('%s' % x[2]).center(14) + '|' + ('%s' % x[3]).center(15) + '|' + \
                                ('%s' % x[4]).center(14) + '|\n'
             for item in x:
-                item_table = QtGui.QTableWidgetItem(str(item))
-                item_table.setFlags(QtCore.Qt.ItemIsSelectable | QtCore.Qt.ItemIsEnabled)
+                item_table = QTableWidgetItem(str(item))
+                item_table.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
                 self.AMDock.result_tab.result_table.setItem(f, c, item_table)
                 self.AMDock.result_tab.result_table.item(f, c).setTextAlignment(
-                    QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+                    Qt.AlignHCenter | Qt.AlignVCenter)
                 if c == 4:
                     item_v = float(item)
                     if item_v <= -0.3:
                         self.AMDock.result_tab.result_table.item(f, c).setBackgroundColor(
-                            QtGui.QColor(0, 255, 128, 200))
+                            QColor(0, 255, 128, 200))
                 c += 1
             f += 1
         selection_model = self.AMDock.result_tab.result_table.selectionModel()
         selection_model.select(self.AMDock.result_tab.result_table.model().index(0, 0),
-                               QtGui.QItemSelectionModel.ClearAndSelect)
+                               QItemSelectionModel.ClearAndSelect)
         self.amdock_output_file()
         amdock_file = open(self.AMDock.project.output)
         for line in amdock_file:
@@ -2595,7 +2597,7 @@ class Program_body(QtGui.QWidget):
     def stop_function(self):
         if self.AMDock.state:
             self.stop_opt = stop_warning(self)
-            if self.stop_opt == QtGui.QMessageBox.Yes:
+            if self.stop_opt == QMessageBox.Yes:
                 self.W.force_finished()
 
     def process_stoped(self, state, queue):
@@ -2614,23 +2616,23 @@ class Program_body(QtGui.QWidget):
         self.need_grid = self.need_gridB = True
         queue = Queue.Queue()
         if self.AMDock.state == 2:
-            msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
+            msg = QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
                                                                    'Please wait for these to end.',
-                                             QtGui.QMessageBox.Ok)
+                                             QMessageBox.Ok)
             return
         elif self.AMDock.section in [-1, 0, 1]:
             if self.AMDock.project.mode == 2:
                 pass
             else:
-                msg = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
+                msg = QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
                                                                        'completed. Please do all the steps sequentially.',
-                                                 QtGui.QMessageBox.Ok)
+                                                 QMessageBox.Ok)
                 return
         elif self.AMDock.section in [3]:
-            msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed previously.'
+            msg = QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed previously.'
                                                                     ' Do you want to repeat it?',
-                                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-            if msg == QtGui.QMessageBox.No:
+                                            QMessageBox.Yes | QMessageBox.No)
+            if msg == QMessageBox.No:
                 return
 
         if self.AMDock.docking_program == 'AutoDock Vina':
@@ -2650,9 +2652,9 @@ class Program_body(QtGui.QWidget):
                         fill_info = PDBINFO('FILL_{}_{}out{:02d}.pdb'.format(self.AMDock.target.pdbqt_name,
                                                                              self.AMDock.ligand.ha * 6, nfill + 1))
                         if not fill_info.center:
-                            msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning',
+                            msg = QMessageBox.warning(self.AMDock, 'Warning',
                                                             'This FILL no exist or is not possible to open '
-                                                            'pdb file', QtGui.QMessageBox.Ok)
+                                                            'pdb file', QMessageBox.Ok)
 
                         vina_output = os.path.join(self.AMDock.project.results, self.AMDock.ligand.pdbqt_name + '_' +
                                                    self.AMDock.target.name + '_out{:02d}.pdbqt'.format(
@@ -2693,9 +2695,9 @@ class Program_body(QtGui.QWidget):
                             fill_info = PDBINFO('FILL_{}_{}out{:02d}.pdb'.format(self.AMDock.offtarget.pdbqt_name,
                                                                                  self.AMDock.ligand.ha * 6, nfill + 1))
                             if not fill_info.center:
-                                msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning',
+                                msg = QMessageBox.warning(self.AMDock, 'Warning',
                                                                 'This FILL no exist or is not possible to open '
-                                                                'pdb file', QtGui.QMessageBox.Ok)
+                                                                'pdb file', QMessageBox.Ok)
                             vina_output = os.path.join(self.AMDock.project.results,
                                                        self.AMDock.ligand.pdbqt_name + '_' +
                                                        self.AMDock.offtarget.name +
@@ -2767,9 +2769,9 @@ class Program_body(QtGui.QWidget):
                         fill_info = PDBINFO('FILL_{}_{}out{:02d}.pdb'.format(self.AMDock.target.pdbqt_name,
                                                                              self.AMDock.ligand.ha * 6, nfill + 1))
                         if not fill_info.center:
-                            msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'This FILL no exist or is not '
+                            msg = QMessageBox.warning(self.AMDock, 'Warning', 'This FILL no exist or is not '
                                                                                     'possible to open pdb file',
-                                                            QtGui.QMessageBox.Ok)
+                                                            QMessageBox.Ok)
                         ad4_output = os.path.join(self.AMDock.project.results, self.AMDock.ligand.pdbqt_name + '_' +
                                                   self.AMDock.target.name + '_{:02d}.dlg'.format(
                             nfill + 1))
@@ -2836,9 +2838,9 @@ class Program_body(QtGui.QWidget):
                             fill_info = PDBINFO('FILL_{}_{}out{:02d}.pdb'.format(self.AMDock.offtarget.pdbqt_name,
                                                                                  self.AMDock.ligand.ha * 6, nfill + 1))
                             if not fill_info.center:
-                                msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning',
+                                msg = QMessageBox.warning(self.AMDock, 'Warning',
                                                                 'This FILL no exist or is not possible to open '
-                                                                'pdb file', QtGui.QMessageBox.Ok)
+                                                                'pdb file', QMessageBox.Ok)
                             ad4_output = os.path.join(self.AMDock.project.results, self.AMDock.ligand.pdbqt_name + '_' +
                                                       self.AMDock.offtarget.name +
                                                       '_out{:02d}.dlg'.format(nfill + 1))
@@ -2958,9 +2960,9 @@ class Program_body(QtGui.QWidget):
                         fill_info = PDBINFO('FILL_{}_{}out{:02d}.pdb'.format(self.AMDock.target.pdbqt_name,
                                                                              self.AMDock.ligand.ha * 6, nfill + 1))
                         if not fill_info.center:
-                            msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning', 'This FILL no exist or is not '
+                            msg = QMessageBox.warning(self.AMDock, 'Warning', 'This FILL no exist or is not '
                                                                                     'possible to open pdb file',
-                                                            QtGui.QMessageBox.Ok)
+                                                            QMessageBox.Ok)
                         ad4_output = os.path.join(self.AMDock.project.results, self.AMDock.ligand.pdbqt_name + '_' +
                                                   self.AMDock.target.name + '_{:02d}.dlg'.format(
                             nfill + 1))
@@ -3042,9 +3044,9 @@ class Program_body(QtGui.QWidget):
                             fill_info = PDBINFO('FILL_{}_{}out{:02d}.pdb'.format(self.AMDock.offtarget.pdbqt_name,
                                                                                  self.AMDock.ligand.ha * 6, nfill + 1))
                             if not fill_info.center:
-                                msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning',
+                                msg = QMessageBox.warning(self.AMDock, 'Warning',
                                                                 'This FILL no exist or is not possible to open '
-                                                                'pdb file', QtGui.QMessageBox.Ok)
+                                                                'pdb file', QMessageBox.Ok)
                             ad4_output = os.path.join(self.AMDock.project.results, self.AMDock.ligand.pdbqt_name + '_' +
                                                       self.AMDock.offtarget.name +
                                                       '_out{:02d}.dlg'.format(nfill + 1))
@@ -3297,7 +3299,7 @@ class Program_body(QtGui.QWidget):
                     self.AMDock.log_widget.textedit.append(Ft('Running {} for Target...'.format(prog)).process())
                     self.AMDock.log_widget.textedit.append('\n')
             if prog in ['AutoDock4', 'AutoDock4 B', 'AutoDock4ZN', 'AutoDock4ZN B']:
-                self.timerAD = QtCore.QTimer()
+                self.timerAD = QTimer()
                 self.timerAD.timeout.connect(self.autodock_output)
                 self.timerAD.start(200)
                 self.ad4_line = 0  # for check line number in autodock output

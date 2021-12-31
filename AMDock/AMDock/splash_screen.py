@@ -1,8 +1,8 @@
 import time
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
 
 class SplashScreen(QSplashScreen):
     """
@@ -22,7 +22,7 @@ class SplashScreen(QSplashScreen):
         text.setText('Loading modules...')
         self.show()
         self.setMask(image.mask())
-        modules = ['AutoDockTools', 'MolKit', 'PyBabel', 'AMDock', 'mglutil', 'Support', 'numpy', 'PyQt4']
+        modules = ['AutoDockTools', 'MolKit', 'PyBabel', 'AMDock', 'mglutil', 'numpy', 'PyQt5']
         ml = 0
         self.non_loaded = []
         for i in modules:
@@ -36,7 +36,8 @@ class SplashScreen(QSplashScreen):
             ml += 12.5
             progress_bar.setValue(ml)
             app.processEvents()
-        if len(self.non_loaded) is not 0:
+        print(self.non_loaded)
+        if len(self.non_loaded) != 0:
             text.setText('Some modules have not been loaded... Please check that program is not corrupted')
             time.sleep(5)
             app.processEvents()
@@ -46,7 +47,7 @@ class SplashScreen(QSplashScreen):
             time.sleep(2)
 
     def import_error(self):
-        if len(self.non_loaded) is 0:
+        if len(self.non_loaded) == 0:
             return True
         else:
             return False

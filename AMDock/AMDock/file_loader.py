@@ -2,7 +2,7 @@ import os
 import re
 import shutil
 import time
-from PyQt4 import QtGui
+from PyQt5.QtWidgets import *
 from tools import FormatedText as Ft
 from warning import wdir_warning, same_protein, wdir3_warning
 
@@ -16,11 +16,11 @@ class Loader:
             shutil.copy('%s' % self.AMDock.target.path, self.t_input)
             self.AMDock.target.input = self.t_input
         except:
-            nowdir = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'The working directory was not found or '
+            nowdir = QMessageBox.critical(self.AMDock, 'Error', 'The working directory was not found or '
                                                                       'it does not have permission for writing.'
                                                                       '\nPlease reset the program.',
-                                                QtGui.QMessageBox.Retry | QtGui.QMessageBox.Cancel)
-            if nowdir == QtGui.QMessageBox.Retry:
+                                                QMessageBox.Retry | QMessageBox.Cancel)
+            if nowdir == QMessageBox.Retry:
                 self.copy_target()
             else:
                 return False
@@ -31,11 +31,11 @@ class Loader:
             shutil.copy('%s' % self.AMDock.offtarget.path, self.o_input)
             self.AMDock.offtarget.input = self.o_input
         except:
-            nowdir = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'The working directory was not found or '
+            nowdir = QMessageBox.critical(self.AMDock, 'Error', 'The working directory was not found or '
                                                                       'it does not have permission for writing.'
                                                                       '\nPlease reset the program.',
-                                                QtGui.QMessageBox.Retry | QtGui.QMessageBox.Cancel)
-            if nowdir == QtGui.QMessageBox.Retry:
+                                                QMessageBox.Retry | QMessageBox.Cancel)
+            if nowdir == QMessageBox.Retry:
                 self.copy_offtarget()
             else:
                 return False
@@ -46,11 +46,11 @@ class Loader:
             shutil.copy('%s' % self.AMDock.ligand.path, self.l_input)
             self.AMDock.ligand.input = self.l_input
         except:
-            nowdir = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'The working directory was not found or '
+            nowdir = QMessageBox.critical(self.AMDock, 'Error', 'The working directory was not found or '
                                                                       'it does not have permission for writing.'
                                                                       '\nPlease reset the program.',
-                                                QtGui.QMessageBox.Retry | QtGui.QMessageBox.Cancel)
-            if nowdir == QtGui.QMessageBox.Retry:
+                                                QMessageBox.Retry | QMessageBox.Cancel)
+            if nowdir == QMessageBox.Retry:
                 self.copy_ligand()
             else:
                 return False
@@ -65,7 +65,7 @@ class Loader:
             return
         if os.path.exists(self.AMDock.project.name):
             rt = wdir3_warning(self.AMDock)
-            if rt == QtGui.QMessageBox.Yes:
+            if rt == QMessageBox.Yes:
                 try:
                     new_name = self.AMDock.project.name + '_old_{:04d}{:02d}{:02d}_{:02d}{:02d}{:02d}'.format(
                         *time.localtime(os.path.getmtime(self.AMDock.project.name))[0:6])
@@ -81,9 +81,9 @@ class Loader:
                                 new_file.write(line)
                         new_file.close()
                 except:
-                    msg = QtGui.QMessageBox.critical(self.AMDock, 'Error',
+                    msg = QMessageBox.critical(self.AMDock, 'Error',
                                                      'The directory could not be renamed. Please check that you have '
-                                                     'writing rights.', QtGui.QMessageBox.Ok)
+                                                     'writing rights.', QMessageBox.Ok)
                     return
             else:
                 return
@@ -100,33 +100,33 @@ class Loader:
             return
 
     def project_location(self):
-        data_file = QtGui.QFileDialog()
-        data_file.setFileMode(QtGui.QFileDialog.DirectoryOnly)
+        data_file = QFileDialog()
+        data_file.setFileMode(QFileDialog.DirectoryOnly)
         if data_file.exec_():
             filenames = data_file.selectedFiles()
             return filenames
 
     def load_parameters(self):
-        data_file = QtGui.QFileDialog()
-        data_file.setFileMode(QtGui.QFileDialog.AnyFile)
+        data_file = QFileDialog()
+        data_file.setFileMode(QFileDialog.AnyFile)
         data_file.setFilter("AD4 parameter file (*.dat)")
         if data_file.exec_():
             openfile = data_file.selectedFiles()[0]
-            print str(openfile)
+            print(str(openfile))
             filename = os.path.split(str(openfile))[1]
             try:
                 shutil.copy(str(openfile), self.AMDock.project.input)
                 self.AMDock.para_file = filename
-            except IOError, e:
-                nowdir = QtGui.QMessageBox.critical(self.AMDock, 'Error', 'Error: %s' % e,
-                                                    QtGui.QMessageBox.Ok)
+            except IOError as e:
+                nowdir = QMessageBox.critical(self.AMDock, 'Error', 'Error: %s' % e,
+                                                    QMessageBox.Ok)
                 return False
             return True
         return
 
     def load_protein(self):
-        data_file = QtGui.QFileDialog()
-        data_file.setFileMode(QtGui.QFileDialog.AnyFile)
+        data_file = QFileDialog()
+        data_file.setFileMode(QFileDialog.AnyFile)
         data_file.setFilter("Protein Data Bank (*.pdb *.ent *.pdbqt)")
         if data_file.exec_():
             filenames = data_file.selectedFiles()
@@ -134,12 +134,12 @@ class Loader:
             if self.AMDock.target.name == self.AMDock.offtarget.name:
                 self.AMDock.program_body.reset_target()
                 self.same = same_protein(self, 'Target Protein', self.AMDock.target.name, 'Off-Target Protein')
-                if self.same == QtGui.QMessageBox.Ok:
+                if self.same == QMessageBox.Ok:
                     self.load_protein()
             elif self.AMDock.target.name == self.AMDock.ligand.name:
                 self.AMDock.program_body.reset_target()
                 self.same = same_protein(self, 'Target Protein', self.AMDock.target.name, 'Ligand')
-                if self.same == QtGui.QMessageBox.Ok:
+                if self.same == QMessageBox.Ok:
                     self.load_protein()
             else:
                 self.AMDock.program_body.target_label.setText(
@@ -156,8 +156,8 @@ class Loader:
                     return self.AMDock.target
 
     def load_proteinB(self):
-        data_file = QtGui.QFileDialog()
-        data_file.setFileMode(QtGui.QFileDialog.AnyFile)
+        data_file = QFileDialog()
+        data_file.setFileMode(QFileDialog.AnyFile)
         data_file.setFilter("Protein Data Bank (*.pdb *.ent *.pdbqt)")
         if data_file.exec_():
             filenames = data_file.selectedFiles()
@@ -166,12 +166,12 @@ class Loader:
             if self.AMDock.offtarget.name == self.AMDock.target.name:
                 self.AMDock.program_body.reset_offtarget()
                 self.same = same_protein(self, 'Off-Target Protein', self.AMDock.offtarget.name, 'Target Protein')
-                if self.same == QtGui.QMessageBox.Ok:
+                if self.same == QMessageBox.Ok:
                     self.load_proteinB()
             elif self.AMDock.offtarget.name == self.AMDock.ligand.name:
                 self.AMDock.program_body.reset_offtarget()
                 self.same = same_protein(self, 'Off-Target Protein', self.AMDock.offtarget.name, 'Ligand')
-                if self.same == QtGui.QMessageBox.Ok:
+                if self.same == QMessageBox.Ok:
                     self.load_proteinB()
             else:
                 self.AMDock.program_body.offtarget_label.setText('Loaded Off-Target from: %s' %
@@ -186,8 +186,8 @@ class Loader:
                     self.load_proteinB()
 
     def load_ligand(self):
-        data_file = QtGui.QFileDialog()
-        data_file.setFileMode(QtGui.QFileDialog.AnyFile)
+        data_file = QFileDialog()
+        data_file.setFileMode(QFileDialog.AnyFile)
         data_file.setFilter("Ligand (*.pdb *.mol2 *.pdbqt)")
 
         if data_file.exec_():
@@ -197,12 +197,12 @@ class Loader:
             if self.AMDock.ligand.name == self.AMDock.target.name:
                 self.AMDock.program_body.reset_ligand()
                 self.same = same_protein(self, 'Ligand', self.AMDock.ligand.name, 'Target Protein', 'ligand')
-                if self.same == QtGui.QMessageBox.Ok:
+                if self.same == QMessageBox.Ok:
                     self.load_ligand()
             elif self.AMDock.ligand.name == self.AMDock.offtarget.name:
                 self.AMDock.program_body.reset_ligand()
                 self.same = same_protein(self, 'Ligand', self.AMDock.ligand.name, 'Off-Target Protein', 'ligand')
-                if self.same == QtGui.QMessageBox.Ok:
+                if self.same == QMessageBox.Ok:
                     self.load_ligand()
             else:
                 self.AMDock.program_body.ligand_label.setText("Loaded Ligand from: %s" % self.AMDock.ligand.path)
@@ -216,8 +216,8 @@ class Loader:
                     self.load_ligand()
 
     def load_amdock_file(self):
-        data_file = QtGui.QFileDialog()
-        data_file.setFileMode(QtGui.QFileDialog.AnyFile)
+        data_file = QFileDialog()
+        data_file.setFileMode(QFileDialog.AnyFile)
         data_file.setFilter("AMDock File (*.amdock)")
         if data_file.exec_():
             filenames = data_file.selectedFiles()
@@ -237,7 +237,7 @@ class Loader:
                     continue
                 if line[:23] == 'AMDOCK: DOCKING_PROGRAM':
                     self.AMDock.docking_program = (line[24:]).strip()
-                    self.AMDock.mess = QtGui.QLabel(self.AMDock.docking_program + " is selected")
+                    self.AMDock.mess = QLabel(self.AMDock.docking_program + " is selected")
                     self.AMDock.statusbar.addWidget(self.AMDock.mess)
                 if line[:20] == 'AMDOCK: PROJECT_NAME':
                     self.AMDock.project.name = (line.split()[2]).strip()

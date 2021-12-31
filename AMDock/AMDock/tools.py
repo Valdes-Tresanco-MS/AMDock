@@ -511,7 +511,7 @@ class Fix_PQR:
             met_atoms = self.ori_pdb.allAtoms.get(lambda x: x.element.lower() in uniq_list)
             for atm in met_atoms:
                 atm.charge = uniq_list[atm.element.lower()]
-                print 'atoms charge', atm.element, uniq_list[atm.element.lower()]
+                print('atoms charge', atm.element, uniq_list[atm.element.lower()])
             for met_atm in met_atoms:
                 close_atoms = self.pqr.closerThan(met_atm.coords, self.pqr.allAtoms, 2.8)
             for a in close_atoms:

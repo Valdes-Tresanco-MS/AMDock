@@ -1,6 +1,8 @@
-import Queue
 import os
-from PyQt4 import QtGui, QtCore
+from queue import Queue
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
 from command_runner import PROCESS
 from rfile_show import Result_File
 from tools import FormatedText as Ft
@@ -9,7 +11,7 @@ from warning import amdock_file_warning
 import math
 
 
-class Results(QtGui.QWidget):
+class Results(QWidget):
     def __init__(self, parent=None):
         super(Results, self).__init__(parent)
         self.AMDock = parent
@@ -18,82 +20,82 @@ class Results(QtGui.QWidget):
         self.rfile_show = Result_File(self.AMDock)
         self.rfile_show.close()
 
-        self.import_box = QtGui.QGroupBox(self)
-        self.import_box.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+        self.import_box = QGroupBox(self)
+        self.import_box.setAlignment(Qt.AlignLeading | Qt.AlignLeft | Qt.AlignVCenter)
         self.import_box.setObjectName("import_box")
         self.import_box.setTitle("Import")
         self.import_box.setToolTip(self.AMDock.result_tt)
 
-        self.load_button = QtGui.QPushButton(self.import_box)
+        self.load_button = QPushButton(self.import_box)
         self.load_button.setObjectName("load_button")
         self.load_button.setText("Load Data")
 
-        self.import_text = QtGui.QLineEdit(self.import_box)
+        self.import_text = QLineEdit(self.import_box)
         self.import_text.setReadOnly(True)
         self.import_text.setObjectName("import_text")
         self.import_text.setPlaceholderText('*.amdock')
 
-        self.show_rfile = QtGui.QPushButton(self.import_box)
+        self.show_rfile = QPushButton(self.import_box)
         self.show_rfile.setObjectName("show_rfile")
         self.show_rfile.setText("Results File")
 
-        self.import_layout = QtGui.QHBoxLayout(self.import_box)
+        self.import_layout = QHBoxLayout(self.import_box)
         self.import_layout.addWidget(self.load_button)
         self.import_layout.addWidget(self.import_text, 1)
         self.import_layout.addWidget(self.show_rfile)
 
-        self.data_box = QtGui.QGroupBox(self)
-        self.data_box.setAlignment(QtCore.Qt.AlignCenter)
+        self.data_box = QGroupBox(self)
+        self.data_box.setAlignment(Qt.AlignCenter)
         self.data_box.setObjectName("data_box")
         self.data_box.setTitle("Data Result")
-        self.prot_label = QtGui.QLabel('Target: ', self.data_box)
-        self.prot_labelB = QtGui.QLabel('Off-Target: ', self.data_box)
+        self.prot_label = QLabel('Target: ', self.data_box)
+        self.prot_labelB = QLabel('Off-Target: ', self.data_box)
         self.prot_labelB.hide()
-        self.prot_label_sel = QtGui.QLabel(self)
-        self.prot_label_sel.setAlignment(QtCore.Qt.AlignCenter)
+        self.prot_label_sel = QLabel(self)
+        self.prot_label_sel.setAlignment(Qt.AlignCenter)
         self.prot_label_sel.hide()
 
-        self.prot_label_selB = QtGui.QLabel(self)
-        self.prot_label_selB.setAlignment(QtCore.Qt.AlignCenter)
+        self.prot_label_selB = QLabel(self)
+        self.prot_label_selB.setAlignment(Qt.AlignCenter)
         self.prot_label_selB.hide()
 
-        self.div = QtGui.QLabel(self)
+        self.div = QLabel(self)
         self.div.setText(':')
-        font = QtGui.QFont()
+        font = QFont()
         font.setPointSize(14)
         font.setBold(True)
         self.div.setFont(font)
         self.div.hide()
 
-        self.equal = QtGui.QLabel(self)
+        self.equal = QLabel(self)
         self.equal.setText('=')
-        font = QtGui.QFont()
+        font = QFont()
         font.setPointSize(14)
         font.setBold(True)
         self.equal.setFont(font)
         self.equal.hide()
 
-        self.selectivity = QtGui.QLabel(self)
+        self.selectivity = QLabel(self)
         self.selectivity.setText('Selectivity: ')
-        font = QtGui.QFont()
+        font = QFont()
         font.setPointSize(12)
         font.setBold(True)
         self.selectivity.setFont(font)
         self.selectivity.hide()
 
-        self.selectivity_value_text = QtGui.QLabel(self)
-        font = QtGui.QFont()
+        self.selectivity_value_text = QLabel(self)
+        font = QFont()
         font.setPointSize(12)
         font.setBold(True)
         self.selectivity_value_text.setFont(font)
         self.selectivity_value_text.hide()
 
-        self.sele1 = QtGui.QSpinBox(self)
+        self.sele1 = QSpinBox(self)
         self.sele1.setRange(1, 10)
         self.sele1.setObjectName('sele1')
         self.sele1.hide()
 
-        self.sele2 = QtGui.QSpinBox(self)
+        self.sele2 = QSpinBox(self)
         self.sele2.setRange(1, 10)
         self.sele2.setObjectName('sele2')
         self.sele2.hide()
@@ -101,61 +103,61 @@ class Results(QtGui.QWidget):
         self.sele1.valueChanged.connect(lambda: self.select_row(self.sele1))
         self.sele2.valueChanged.connect(lambda: self.select_row(self.sele2))
 
-        self.result_table = QtGui.QTableWidget(self.data_box)
+        self.result_table = QTableWidget(self.data_box)
         self.result_table.setObjectName("result_table")
         self.result_table.setColumnCount(5)
         self.result_table.setHorizontalHeaderLabels(
-            QtCore.QString("Pose;Affinity(kcal/mol);Estimated Ki;Ki Units;Ligand Efficiency").split(";"))
-        self.result_table.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
+            str("Pose;Affinity(kcal/mol);Estimated Ki;Ki Units;Ligand Efficiency").split(";"))
+        self.result_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.result_table.verticalHeader().setVisible(False)
-        self.result_table.sortItems(0, QtCore.Qt.AscendingOrder)
+        self.result_table.sortItems(0, Qt.AscendingOrder)
 
-        self.result_tableB = QtGui.QTableWidget(self.data_box)
+        self.result_tableB = QTableWidget(self.data_box)
         self.result_tableB.setObjectName("result_tableB")
         self.result_tableB.setColumnCount(5)
         self.result_tableB.setHorizontalHeaderLabels(
-            QtCore.QString("Pose;Affinity(kcal/mol);Estimated Ki;Ki Units;Ligand Efficiency").split(";"))
-        self.result_tableB.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
+            str("Pose;Affinity(kcal/mol);Estimated Ki;Ki Units;Ligand Efficiency").split(";"))
+        self.result_tableB.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.result_tableB.verticalHeader().setVisible(False)
-        self.result_tableB.sortItems(0, QtCore.Qt.AscendingOrder)
+        self.result_tableB.sortItems(0, Qt.AscendingOrder)
         self.result_tableB.hide()
 
-        self.showinpymol = QtGui.QPushButton(self)
+        self.showinpymol = QPushButton(self)
         self.showinpymol.setObjectName("showinpymol")
         self.showinpymol.setText("Show in PyMol")
 
-        self.new_button = QtGui.QPushButton(self)
+        self.new_button = QPushButton(self)
         self.new_button.setObjectName("new_button")
         self.new_button.setText("New Project")
-        self.new_button.setIcon(QtGui.QIcon(QtGui.QPixmap(self.AMDock.new_icon)))
+        self.new_button.setIcon(QIcon(QPixmap(self.AMDock.new_icon)))
 
         self.current_pose = self.sele1.value()
         self.current_poseB = self.sele2.value()
 
-        self.data_box_layout = QtGui.QVBoxLayout(self.data_box)
+        self.data_box_layout = QVBoxLayout(self.data_box)
         self.data_box_layout.addWidget(self.prot_label)
         self.data_box_layout.addWidget(self.result_table)
         self.data_box_layout.addWidget(self.prot_labelB)
         self.data_box_layout.addWidget(self.result_tableB)
 
-        self.spacer = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
-        self.rest_layout = QtGui.QGridLayout()
+        self.spacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Minimum)
+        self.rest_layout = QGridLayout()
 
         self.rest_layout.addWidget(self.prot_label_sel, 0, 1)
         self.rest_layout.addWidget(self.prot_label_selB, 0, 3)
         self.rest_layout.addWidget(self.selectivity, 1, 0)
         self.rest_layout.addWidget(self.sele1, 1, 1)
-        self.rest_layout.addWidget(self.div, 1, 2, QtCore.Qt.AlignCenter)
+        self.rest_layout.addWidget(self.div, 1, 2, Qt.AlignCenter)
         self.rest_layout.addWidget(self.sele2, 1, 3)
-        self.rest_layout.addWidget(self.equal, 1, 4, QtCore.Qt.AlignCenter)
-        self.rest_layout.addWidget(self.selectivity_value_text, 1, 5, QtCore.Qt.AlignCenter)
+        self.rest_layout.addWidget(self.equal, 1, 4, Qt.AlignCenter)
+        self.rest_layout.addWidget(self.selectivity_value_text, 1, 5, Qt.AlignCenter)
 
-        self.buttons_layout = QtGui.QHBoxLayout()
+        self.buttons_layout = QHBoxLayout()
         self.buttons_layout.addWidget(self.showinpymol)
         self.buttons_layout.addStretch(10)
         self.buttons_layout.addWidget(self.new_button)
 
-        self.tab_layout = QtGui.QVBoxLayout(self)
+        self.tab_layout = QVBoxLayout(self)
         self.tab_layout.addWidget(self.import_box)
         self.tab_layout.addWidget(self.data_box, 4)
         self.tab_layout.addLayout(self.rest_layout)
@@ -169,7 +171,7 @@ class Results(QtGui.QWidget):
     def load_file(self):
         if self.AMDock.project.output:
             self.prot_opt = amdock_file_warning(self)
-            if self.prot_opt == QtGui.QMessageBox.Yes:
+            if self.prot_opt == QMessageBox.Yes:
                 self.clear_result_tab()
             else:
                 return
@@ -201,7 +203,7 @@ class Results(QtGui.QWidget):
                     if self.complete[index] == '1':
                         errlist += '\n-%s' % elements[index]
                 if len(errlist) != 0:
-                    QtGui.QMessageBox.critical(self, 'Error', 'Some files defined in .amdock file were not found or '
+                    QMessageBox.critical(self, 'Error', 'Some files defined in .amdock file were not found or '
                                                               'they are inaccessible.\nMissing elements:%s' % errlist)
                     self.import_text.clear()
                     Variables.__init__(self.AMDock)
@@ -217,28 +219,28 @@ class Results(QtGui.QWidget):
                         c = 0
                         for item in x:
                             item = str(item)
-                            self.result_table.setItem(f, c, QtGui.QTableWidgetItem(item))
+                            self.result_table.setItem(f, c, QTableWidgetItem(item))
                             self.result_table.item(f, c).setTextAlignment(
-                                QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+                                Qt.AlignHCenter | Qt.AlignVCenter)
                             if c == 4:
                                 item_v = float(item)
                                 if item_v <= -0.3:
                                     self.result_table.item(f, c).setBackgroundColor(
-                                        QtGui.QColor(0, 255, 128, 200))
+                                        QColor(0, 255, 128, 200))
                             c += 1
                         f += 1
                     self.value1 = float(self.result_table.item(0, 1).text())
-                    self.result_table.item(0, 1).setBackgroundColor(QtGui.QColor('darkGray'))
+                    self.result_table.item(0, 1).setBackgroundColor(QColor('darkGray'))
                     selection_model = self.result_table.selectionModel()
                     selection_model.select(self.result_table.model().index(0, 0),
-                                           QtGui.QItemSelectionModel.ClearAndSelect)
+                                           QItemSelectionModel.ClearAndSelect)
                     if self.AMDock.project.bsd_mode_target == 0:
                         self.result_table.setHorizontalHeaderLabels(
-                            QtCore.QString(
+                            str(
                                 "Binding Site;Affinity(kcal/mol);Estimated Ki;Ki Units;Ligand Efficiency").split(";"))
                     else:
                         self.result_table.setHorizontalHeaderLabels(
-                            QtCore.QString(
+                            str(
                                 "Pose;Affinity(kcal/mol);Estimated Ki;Ki Units;Ligand Efficiency").split(";"))
 
                     if self.AMDock.project.mode == 1:
@@ -262,30 +264,30 @@ class Results(QtGui.QWidget):
                             c = 0
                             for item in x:
                                 item = str(item)
-                                self.result_tableB.setItem(f, c, QtGui.QTableWidgetItem(item))
+                                self.result_tableB.setItem(f, c, QTableWidgetItem(item))
                                 self.result_tableB.item(f, c).setTextAlignment(
-                                    QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+                                    Qt.AlignHCenter | Qt.AlignVCenter)
                                 if c == 4:
                                     item_v = float(item)
                                     if item_v <= -0.3:
                                         self.result_tableB.item(f, c).setBackgroundColor(
-                                            QtGui.QColor(0, 255, 128, 200))
+                                            QColor(0, 255, 128, 200))
                                 c += 1
                             f += 1
                             self.value2 = float(
                                 self.result_tableB.item(0, 1).text())
-                        self.result_tableB.item(0, 1).setBackgroundColor(QtGui.QColor('darkGray'))
+                        self.result_tableB.item(0, 1).setBackgroundColor(QColor('darkGray'))
                         selection_model = self.result_tableB.selectionModel()
                         selection_model.select(self.result_tableB.model().index(0, 0),
-                                               QtGui.QItemSelectionModel.ClearAndSelect)
+                                               QItemSelectionModel.ClearAndSelect)
                         if self.AMDock.project.bsd_mode_offtarget == 0:
                             self.result_tableB.setHorizontalHeaderLabels(
-                                QtCore.QString(
+                                str(
                                     "Binding Site;Affinity(kcal/mol);Estimated Ki;Ki Units;Ligand Efficiency").split(
                                     ";"))
                         else:
                             self.result_tableB.setHorizontalHeaderLabels(
-                                QtCore.QString(
+                                str(
                                     "Pose;Affinity(kcal/mol);Estimated Ki;Ki Units;Ligand Efficiency").split(
                                     ";"))
                         self.selectivity_value = math.exp((self.value2 - self.value1)/(0.001987207 * 298))
@@ -297,7 +299,7 @@ class Results(QtGui.QWidget):
                         errlist += '\n-%s' % elements_score[index]
                         errlist2.append(index)
                 if len(errlist) != 0:
-                    QtGui.QMessageBox.critical(self, 'Error', 'Some files defined in .amdock file were not found or '
+                    QMessageBox.critical(self, 'Error', 'Some files defined in .amdock file were not found or '
                                                               'they are inaccessible.\nMissing elements:%s' % errlist)
                     self.import_text.clear()
                     Variables.__init__(self.AMDock)
@@ -312,30 +314,30 @@ class Results(QtGui.QWidget):
                         c = 0
                         for item in x:
                             item = str(item)
-                            self.result_table.setItem(f, c, QtGui.QTableWidgetItem(item))
+                            self.result_table.setItem(f, c, QTableWidgetItem(item))
                             self.result_table.item(f, c).setTextAlignment(
-                                QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+                                Qt.AlignHCenter | Qt.AlignVCenter)
                             if c == 4:
                                 item_v = float(item)
                                 if item_v <= -0.3:
                                     self.result_table.item(f, c).setBackgroundColor(
-                                        QtGui.QColor(0, 255, 128, 200))
+                                        QColor(0, 255, 128, 200))
                             c += 1
                         f += 1
-                    self.result_table.item(0, 1).setBackgroundColor(QtGui.QColor('darkGray'))
+                    self.result_table.item(0, 1).setBackgroundColor(QColor('darkGray'))
                     selection_model = self.result_table.selectionModel()
                     selection_model.select(self.result_table.model().index(0, 0),
-                                           QtGui.QItemSelectionModel.ClearAndSelect)
+                                           QItemSelectionModel.ClearAndSelect)
             # open log if exit
             if os.path.exists(os.path.join(self.AMDock.project.WDIR, self.AMDock.project.name + '.log')):
                 self.AMDock.project.log = os.path.join(self.AMDock.project.WDIR, self.AMDock.project.name + '.log')
             if not self.AMDock.project.log:
                 return
             if os.path.exists(self.AMDock.project.log):
-                msg = QtGui.QMessageBox.information(self.AMDock, 'Information', 'This project has a log file.'
-                                                ' Do you want to open it?', QtGui.QMessageBox.Yes |
-                                                    QtGui.QMessageBox.No)
-                if msg == QtGui.QMessageBox.Yes:
+                msg = QMessageBox.information(self.AMDock, 'Information', 'This project has a log file.'
+                                                ' Do you want to open it?', QMessageBox.Yes |
+                                                    QMessageBox.No)
+                if msg == QMessageBox.Yes:
                     self.AMDock.log_widget.textedit.append(Ft('Opening AMDock Log File...').process())
                     ofile = open(self.AMDock.project.log)
                     for line in ofile:
@@ -346,18 +348,18 @@ class Results(QtGui.QWidget):
 
     def show_result_file(self):
         if self.AMDock.project.output:
-            self.rfile_show.textedit.moveCursor(QtGui.QTextCursor.Start)
+            self.rfile_show.textedit.moveCursor(QTextCursor.Start)
             self.rfile_show.textedit.ensureCursorVisible()
             self.rfile_show.show()
 
     def new_project(self):
         if self.AMDock.state:
-            msg = QtGui.QMessageBox.warning(self.AMDock, 'Warning',
+            msg = QMessageBox.warning(self.AMDock, 'Warning',
                                             'There are processes in the background. Do you want to close them?',
-                                            QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-            if msg == QtGui.QMessageBox.No:
+                                            QMessageBox.Yes | QMessageBox.No)
+            if msg == QMessageBox.No:
                 return
-            elif msg == QtGui.QMessageBox.Yes:
+            elif msg == QMessageBox.Yes:
                 try:
                     self.pymol.force_finished()
                 except:
@@ -413,7 +415,7 @@ class Results(QtGui.QWidget):
             if not len(self.result_table.selectedItems() + self.result_tableB.selectedItems()):
                 poses['target'] = [self.result_table.item(0, 0)]
                 selection_model = self.result_table.selectionModel()
-                selection_model.select(self.result_table.model().index(0, 0), QtGui.QItemSelectionModel.ClearAndSelect)
+                selection_model.select(self.result_table.model().index(0, 0), QItemSelectionModel.ClearAndSelect)
 
             visual_arg = [self.AMDock.pymol, self.AMDock.lig_site_pymol, '--']
 
@@ -464,7 +466,7 @@ class Results(QtGui.QWidget):
     def pymol_output(self):
         pymol_output = None
         if hasattr(self, 'pymol'):
-            pymol_output = QtCore.QString(self.pymol.process.readAllStandardOutput())
+            pymol_output = str(self.pymol.process.readAllStandardOutput())
         if pymol_output:
             self.pymol_out = str(pymol_output)
         else:
@@ -473,14 +475,14 @@ class Results(QtGui.QWidget):
 
     def select_row(self, sele):
         if sele.objectName() == 'sele1':
-            self.result_table.item(self.current_pose - 1, 1).setBackgroundColor(QtGui.QColor('white'))
+            self.result_table.item(self.current_pose - 1, 1).setBackgroundColor(QColor('white'))
             self.current_pose = sele.value()
-            self.result_table.item(self.current_pose - 1, 1).setBackgroundColor(QtGui.QColor('darkGray'))
+            self.result_table.item(self.current_pose - 1, 1).setBackgroundColor(QColor('darkGray'))
             self.value1 = float(self.result_table.item(self.current_pose - 1, 1).text())
         else:
-            self.result_tableB.item(self.current_poseB - 1, 1).setBackgroundColor(QtGui.QColor('white'))
+            self.result_tableB.item(self.current_poseB - 1, 1).setBackgroundColor(QColor('white'))
             self.current_poseB = sele.value()
-            self.result_tableB.item(self.current_poseB - 1, 1).setBackgroundColor(QtGui.QColor('darkGray'))
+            self.result_tableB.item(self.current_poseB - 1, 1).setBackgroundColor(QColor('darkGray'))
             self.value2 = float(self.result_tableB.item(self.current_poseB - 1, 1).text())
         self.selectivity_value = math.exp((self.value2 - self.value1)/(0.001987207 * 298))
         self.selectivity_value_text.setText('%.01f' % self.selectivity_value)

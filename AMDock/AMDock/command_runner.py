@@ -1,5 +1,6 @@
-from PyQt4.QtCore import QProcess, pyqtSignal, pyqtSlot, QObject, QRunnable, QThreadPool, QThread
-import sys, Queue, traceback
+from PyQt5.QtCore import QProcess, pyqtSignal, pyqtSlot, QObject, QRunnable, QThreadPool, QThread
+from queue import Queue
+import sys, traceback
 
 class WorkerSignals(QObject):
     """

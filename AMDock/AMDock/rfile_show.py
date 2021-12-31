@@ -1,6 +1,6 @@
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
-
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
 
 class Result_File(QDialog):
     def __init__(self, parent=None):

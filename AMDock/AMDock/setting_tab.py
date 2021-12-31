@@ -3,10 +3,11 @@ import os
 import re
 import time
 
-from PyQt4 import QtGui, QtCore
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
 
-
-class Configuration_tab(QtGui.QWidget):
+class Configuration_tab(QWidget):
     def __init__(self, parent=None):
         super(Configuration_tab, self).__init__(parent)
         self.setObjectName("configuration_tab")
@@ -14,35 +15,35 @@ class Configuration_tab(QtGui.QWidget):
         path = os.path.split(__file__)[0]
         self.config = os.path.join(path, 'configuration.ini')
 
-        self.check_timer = QtCore.QTimer()
+        self.check_timer = QTimer()
         self.check_timer.timeout.connect(self.check_changes)
         self.check_timer.start(500)
 
-        self.pdb2pqr_box = QtGui.QGroupBox(self)
+        self.pdb2pqr_box = QGroupBox(self)
         self.pdb2pqr_box.setTitle('PDB2PQR Configuration')
 
-        self.ff_label = QtGui.QLabel(self.pdb2pqr_box)
+        self.ff_label = QLabel(self.pdb2pqr_box)
         self.ff_label.setText('Force Field: ')
 
-        self.amber = QtGui.QRadioButton(self.pdb2pqr_box)
+        self.amber = QRadioButton(self.pdb2pqr_box)
         self.amber.setText('AMBER')
 
-        self.charmm = QtGui.QRadioButton(self.pdb2pqr_box)
+        self.charmm = QRadioButton(self.pdb2pqr_box)
         self.charmm.setText('CHARMM')
 
-        self.parse = QtGui.QRadioButton(self.pdb2pqr_box)
+        self.parse = QRadioButton(self.pdb2pqr_box)
         self.parse.setText('PARSE')
 
-        self.tyl06 = QtGui.QRadioButton(self.pdb2pqr_box)
+        self.tyl06 = QRadioButton(self.pdb2pqr_box)
         self.tyl06.setText('TYL06')
 
-        self.peoepb = QtGui.QRadioButton(self.pdb2pqr_box)
+        self.peoepb = QRadioButton(self.pdb2pqr_box)
         self.peoepb.setText('PEOEPB')
 
-        self.swanson = QtGui.QRadioButton(self.pdb2pqr_box)
+        self.swanson = QRadioButton(self.pdb2pqr_box)
         self.swanson.setText('SWANSON')
 
-        self.ff = QtGui.QButtonGroup(self.pdb2pqr_box)
+        self.ff = QButtonGroup(self.pdb2pqr_box)
         self.ff.addButton(self.amber, 1)
         self.ff.addButton(self.charmm, 2)
         self.ff.addButton(self.parse, 3)
@@ -50,168 +51,168 @@ class Configuration_tab(QtGui.QWidget):
         self.ff.addButton(self.peoepb, 5)
         self.ff.addButton(self.swanson, 6)
 
-        self.ff.buttonClicked[QtGui.QAbstractButton].connect(self.ff_sel)
+        self.ff.buttonClicked[QAbstractButton].connect(self.ff_sel)
 
-        self.save = QtGui.QPushButton(self)
+        self.save = QPushButton(self)
         self.save.setText('Save Configuration in File')
 
-        self.reset = QtGui.QPushButton(self)
+        self.reset = QPushButton(self)
         self.reset.setText('Set Default Configuration')
 
-        self.vina_config_box = QtGui.QGroupBox(self)
-        self.vina_config_box.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+        self.vina_config_box = QGroupBox(self)
+        self.vina_config_box.setAlignment(Qt.AlignLeading | Qt.AlignLeft | Qt.AlignVCenter)
         self.vina_config_box.setObjectName("vina_config_box")
         self.vina_config_box.setTitle("Vina Configuration")
 
-        self.cpu_perf = QtGui.QLabel(self.vina_config_box)
+        self.cpu_perf = QLabel(self.vina_config_box)
         self.cpu_perf.setObjectName("cpu_perf")
         self.cpu_perf.setText("CPU Performance")
         self.number_cpu = multiprocessing.cpu_count()
 
-        self.horizontalSlider = QtGui.QSlider(self.vina_config_box)
+        self.horizontalSlider = QSlider(self.vina_config_box)
         self.horizontalSlider.setMinimum(1)
         self.horizontalSlider.setMaximum(self.number_cpu)
-        self.horizontalSlider.setOrientation(QtCore.Qt.Horizontal)
+        self.horizontalSlider.setOrientation(Qt.Horizontal)
         self.horizontalSlider.setTickInterval(5)
         self.horizontalSlider.setObjectName("horizontalSlider")
 
-        self.cpu_label = QtGui.QLabel(self.vina_config_box)
+        self.cpu_label = QLabel(self.vina_config_box)
         self.cpu_label.setObjectName("cpu_label")
 
-        self.low_perf = QtGui.QLabel(self.vina_config_box)
+        self.low_perf = QLabel(self.vina_config_box)
         self.low_perf.setObjectName("low_perf")
         self.low_perf.setText("Low")
 
-        self.high_perf = QtGui.QLabel(self.vina_config_box)
+        self.high_perf = QLabel(self.vina_config_box)
         self.high_perf.setObjectName("high_perf")
         self.high_perf.setText("High")
 
-        self.exh = QtGui.QLabel(self.vina_config_box)
+        self.exh = QLabel(self.vina_config_box)
         self.exh.setObjectName("exh")
         self.exh.setText("Exhaustiveness")
 
-        self.exh_value = QtGui.QSpinBox(self.vina_config_box)
+        self.exh_value = QSpinBox(self.vina_config_box)
         self.exh_value.setObjectName("exh_value")
-        self.exh_value.setAlignment(QtCore.Qt.AlignCenter)
+        self.exh_value.setAlignment(Qt.AlignCenter)
         self.exh_value.setMinimum(8)
         self.exh_value.setMaximum(56)
         self.exh_value.setSingleStep(8)
 
-        self.nposes = QtGui.QLabel(self.vina_config_box)
+        self.nposes = QLabel(self.vina_config_box)
         self.nposes.setObjectName("nposes")
         self.nposes.setText("Number of Poses")
 
-        self.nposes_value = QtGui.QSpinBox(self.vina_config_box)
-        self.nposes_value.setAlignment(QtCore.Qt.AlignCenter)
+        self.nposes_value = QSpinBox(self.vina_config_box)
+        self.nposes_value.setAlignment(Qt.AlignCenter)
         self.nposes_value.setMinimum(1.0)
         self.nposes_value.setMaximum(20.0)
         self.nposes_value.setSingleStep(1.0)
         self.nposes_value.setObjectName("nposes_value")
 
-        self.AD4_config_box = QtGui.QGroupBox(self)
-        self.AD4_config_box.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+        self.AD4_config_box = QGroupBox(self)
+        self.AD4_config_box.setAlignment(Qt.AlignLeading | Qt.AlignLeft | Qt.AlignVCenter)
         self.AD4_config_box.setObjectName("AD4_config_box")
         self.AD4_config_box.setTitle("AutoDock4 Configuration")
 
-        self.neval = QtGui.QLabel(self.AD4_config_box)
+        self.neval = QLabel(self.AD4_config_box)
         self.neval.setObjectName("neval")
         self.neval.setText("Energy Evaluations")
 
-        self.neval_value = QtGui.QSpinBox(self.AD4_config_box)
-        self.neval_value.setAlignment(QtCore.Qt.AlignCenter)
+        self.neval_value = QSpinBox(self.AD4_config_box)
+        self.neval_value.setAlignment(Qt.AlignCenter)
         self.neval_value.setMinimum(200000)
         self.neval_value.setMaximum(10000000)
         self.neval_value.setSingleStep(100000)
         self.neval_value.setObjectName("neval_value")
 
-        self.nruns = QtGui.QLabel(self.AD4_config_box)
+        self.nruns = QLabel(self.AD4_config_box)
         self.nruns.setObjectName("nruns")
         self.nruns.setText("Number of Runs")
 
-        self.nruns_value = QtGui.QSpinBox(self.AD4_config_box)
-        self.nruns_value.setAlignment(QtCore.Qt.AlignCenter)
+        self.nruns_value = QSpinBox(self.AD4_config_box)
+        self.nruns_value.setAlignment(Qt.AlignCenter)
         self.nruns_value.setMinimum(1)
         self.nruns_value.setMaximum(1000)
         self.nruns_value.setSingleStep(1)
         self.nruns_value.setObjectName("nruns_value")
 
-        self.rmstol_label = QtGui.QLabel(self.AD4_config_box)
+        self.rmstol_label = QLabel(self.AD4_config_box)
         self.rmstol_label.setObjectName("rmstol")
         self.rmstol_label.setText("Cluster Tolerance")
 
-        self.rmstol_value = QtGui.QDoubleSpinBox(self.AD4_config_box)
-        self.rmstol_value.setAlignment(QtCore.Qt.AlignCenter)
+        self.rmstol_value = QDoubleSpinBox(self.AD4_config_box)
+        self.rmstol_value.setAlignment(Qt.AlignCenter)
         self.rmstol_value.setDecimals(1)
         self.rmstol_value.setMinimum(0.5)
         self.rmstol_value.setMaximum(3.0)
         self.rmstol_value.setSingleStep(0.5)
         self.rmstol_value.setObjectName("rmstol_value")
 
-        self.log_config = QtGui.QGroupBox('Log')
+        self.log_config = QGroupBox('Log')
 
-        self.log_view = QtGui.QCheckBox(self)
+        self.log_view = QCheckBox(self)
         self.log_view.setObjectName("log_view")
         self.log_view.setText("View Log Window")
         self.log_view.setFixedWidth(200)
 
-        self.log_min = QtGui.QRadioButton('Only actions')
-        self.log_max = QtGui.QRadioButton('All output')
+        self.log_min = QRadioButton('Only actions')
+        self.log_max = QRadioButton('All output')
         self.log_max.setChecked(True)
-        self.log_output_group = QtGui.QGroupBox('Output')
+        self.log_output_group = QGroupBox('Output')
 
-        self.log_group = QtGui.QButtonGroup()
+        self.log_group = QButtonGroup()
         self.log_group.addButton(self.log_min, 1)
         self.log_group.addButton(self.log_max, 2)
         self.log_group.buttonClicked.connect(self.log_level_sel)
-        self.log_output_layout = QtGui.QHBoxLayout(self.log_output_group)
+        self.log_output_layout = QHBoxLayout(self.log_output_group)
         self.log_output_layout.addWidget(self.log_min)
         self.log_output_layout.addWidget(self.log_max)
 
-        self.log_layout = QtGui.QHBoxLayout(self.log_config)
+        self.log_layout = QHBoxLayout(self.log_config)
         self.log_layout.addWidget(self.log_view)
         self.log_layout.addWidget(self.log_output_group)
 
-        self.protonation_config = QtGui.QGroupBox('Protonation')
+        self.protonation_config = QGroupBox('Protonation')
 
-        self.protonation_view = QtGui.QCheckBox(self)
+        self.protonation_view = QCheckBox(self)
         self.protonation_view.setObjectName("protonation")
         self.protonation_view.setText("Ligand Protonation")
         self.protonation_view.setFixedWidth(200)
 
-        self.openbabel = QtGui.QRadioButton('OpenBabel')
+        self.openbabel = QRadioButton('OpenBabel')
         self.openbabel.setChecked(True)
-        self.adtools = QtGui.QRadioButton('AutoDockTools')
-        self.program_group = QtGui.QGroupBox('Program')
+        self.adtools = QRadioButton('AutoDockTools')
+        self.program_group = QGroupBox('Program')
 
-        self.prog_group = QtGui.QButtonGroup()
+        self.prog_group = QButtonGroup()
         self.prog_group.addButton(self.openbabel, 1)
         self.prog_group.addButton(self.adtools, 2)
         self.prog_group.buttonClicked.connect(self.prot_prog_sel)
-        self.prot_prog_layout = QtGui.QHBoxLayout(self.program_group)
+        self.prot_prog_layout = QHBoxLayout(self.program_group)
         self.prot_prog_layout.addWidget(self.openbabel)
         self.prot_prog_layout.addWidget(self.adtools)
 
-        self.prto_layout = QtGui.QHBoxLayout(self.protonation_config)
+        self.prto_layout = QHBoxLayout(self.protonation_config)
         self.prto_layout.addWidget(self.protonation_view)
         self.prto_layout.addWidget(self.program_group)
 
-        self.unsaved_config = QtGui.QLabel(self)
+        self.unsaved_config = QLabel(self)
         self.unsaved_config.setText('Some parameters were modified!\n'
                                     'If you want you can save these settings permanently.')
-        font10 = QtGui.QFont()
+        font10 = QFont()
         font10.setPointSize(16)
         font10.setWeight(200)
         self.unsaved_config.setFont(font10)
         self.unsaved_config.setStyleSheet('background-color : white; color : red; ')
-        self.unsaved_config.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignCenter)
+        self.unsaved_config.setAlignment(Qt.AlignVCenter | Qt.AlignCenter)
         self.unsaved_config.hide()
 
-        self.init_button_layout = QtGui.QHBoxLayout()
+        self.init_button_layout = QHBoxLayout()
         self.init_button_layout.addWidget(self.save)
         self.init_button_layout.addStretch(1)
         self.init_button_layout.addWidget(self.reset)
 
-        self.pdb2pqr_box_layout = QtGui.QHBoxLayout(self.pdb2pqr_box)
+        self.pdb2pqr_box_layout = QHBoxLayout(self.pdb2pqr_box)
         self.pdb2pqr_box_layout.addWidget(self.ff_label)
         self.pdb2pqr_box_layout.addWidget(self.amber)
         self.pdb2pqr_box_layout.addWidget(self.charmm)
@@ -220,16 +221,16 @@ class Configuration_tab(QtGui.QWidget):
         self.pdb2pqr_box_layout.addWidget(self.peoepb)
         self.pdb2pqr_box_layout.addWidget(self.swanson)
 
-        self.vina_slide_layout = QtGui.QHBoxLayout()
+        self.vina_slide_layout = QHBoxLayout()
         self.vina_slide_layout.addWidget(self.low_perf)
         self.vina_slide_layout.addWidget(self.horizontalSlider)
         self.vina_slide_layout.addWidget(self.high_perf)
 
-        self.vina_proc_layout = QtGui.QVBoxLayout()
+        self.vina_proc_layout = QVBoxLayout()
         self.vina_proc_layout.addLayout(self.vina_slide_layout)
         self.vina_proc_layout.addWidget(self.cpu_label)
 
-        self.vina_config_box_layout = QtGui.QHBoxLayout(self.vina_config_box)
+        self.vina_config_box_layout = QHBoxLayout(self.vina_config_box)
         self.vina_config_box_layout.addWidget(self.cpu_perf)
         self.vina_config_box_layout.addLayout(self.vina_proc_layout)
         self.vina_config_box_layout.addStretch(1)
@@ -239,7 +240,7 @@ class Configuration_tab(QtGui.QWidget):
         self.vina_config_box_layout.addWidget(self.nposes)
         self.vina_config_box_layout.addWidget(self.nposes_value)
 
-        self.ad4_layout = QtGui.QHBoxLayout(self.AD4_config_box)
+        self.ad4_layout = QHBoxLayout(self.AD4_config_box)
         self.ad4_layout.addWidget(self.neval)
         self.ad4_layout.addWidget(self.neval_value)
         self.ad4_layout.addStretch(1)
@@ -249,7 +250,7 @@ class Configuration_tab(QtGui.QWidget):
         self.ad4_layout.addWidget(self.rmstol_label)
         self.ad4_layout.addWidget(self.rmstol_value)
 
-        self.conf_tab_layout = QtGui.QVBoxLayout(self)
+        self.conf_tab_layout = QVBoxLayout(self)
         self.conf_tab_layout.addLayout(self.init_button_layout)
         self.conf_tab_layout.addWidget(self.pdb2pqr_box)
         self.conf_tab_layout.addWidget(self.vina_config_box)
