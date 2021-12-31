@@ -741,15 +741,15 @@ class Program_body(QWidget):
             # check if exist any process in background
             if self.AMDock.state == 2:
                 QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
-                                                                 'Please wait for these to end.',
-                                           QMessageBox.Ok)
+                                                           'Please wait for these to end.',
+                                     QMessageBox.Ok)
                 return
             elif self.AMDock.section in [1, 2, 3]:
                 msg = QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed '
-                                                                        'previously. Do you want to repeat it?\n Keep '
-                                                                        'in mind that this will eliminate all the '
-                                                                        'information contained in this project !!!',
-                                                QMessageBox.Yes | QMessageBox.No)
+                                                                  'previously. Do you want to repeat it?\n Keep '
+                                                                  'in mind that this will eliminate all the '
+                                                                  'information contained in this project !!!',
+                                          QMessageBox.Yes | QMessageBox.No)
                 if msg == QMessageBox.No:
                     return
                 elif msg == QMessageBox.Yes:
@@ -768,8 +768,8 @@ class Program_body(QWidget):
                         shutil.rmtree(self.AMDock.project.WDIR)
                     except:
                         QMessageBox.critical(self.AMDock, 'Error',
-                                                   'The previous project directory could not be removed. Please '
-                                                   'remove it manually.', QMessageBox.Ok)
+                                             'The previous project directory could not be removed. Please '
+                                             'remove it manually.', QMessageBox.Ok)
                     if not self.AMDock.loader.create_project_function():
                         self.AMDock.project.WDIR = None
                         self.project_text.clear()
@@ -805,19 +805,19 @@ class Program_body(QWidget):
         if _file.objectName() == "target_button":
             if self.AMDock.state == 2:
                 QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
-                                                                       'Please wait for these to end.',
-                                                 QMessageBox.Ok)
+                                                           'Please wait for these to end.',
+                                     QMessageBox.Ok)
                 return
             elif self.AMDock.section == -1:
                 QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
-                                                                       'completed. Please do all the steps sequentially.',
-                                                 QMessageBox.Ok)
+                                                           'completed. Please do all the steps sequentially.',
+                                     QMessageBox.Ok)
                 return
             elif self.AMDock.section in [1, 2, 3]:
                 msg = QMessageBox.warning(self.AMDock, 'Warning',
-                                                'This step was successfully completed previously.'
-                                                ' Do you want to repeat it?',
-                                                QMessageBox.Yes | QMessageBox.No)
+                                          'This step was successfully completed previously.'
+                                          ' Do you want to repeat it?',
+                                          QMessageBox.Yes | QMessageBox.No)
                 if msg == QMessageBox.No:
                     return
                 elif msg == QMessageBox.Yes:
@@ -840,13 +840,13 @@ class Program_body(QWidget):
         if _file.objectName() == "offtarget_button":
             if self.AMDock.state == 2:
                 msg = QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
-                                                                       'Please wait for these to end.',
-                                                 QMessageBox.Ok)
+                                                                 'Please wait for these to end.',
+                                           QMessageBox.Ok)
                 return
             elif self.AMDock.section == -1:
                 msg = QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
-                                                                       'completed. Please do all the steps sequentially.',
-                                                 QMessageBox.Ok)
+                                                                 'completed. Please do all the steps sequentially.',
+                                           QMessageBox.Ok)
                 return
             if self.AMDock.offtarget.input is None:
                 self.AMDock.loader.load_proteinB()
@@ -865,13 +865,13 @@ class Program_body(QWidget):
         if _file.objectName() == "ligand_button":
             if self.AMDock.state == 2:
                 msg = QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
-                                                                       'Please wait for these to end.',
-                                                 QMessageBox.Ok)
+                                                                 'Please wait for these to end.',
+                                           QMessageBox.Ok)
                 return
             elif self.AMDock.section == -1:
                 msg = QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
-                                                                       'completed. Please do all the steps sequentially.',
-                                                 QMessageBox.Ok)
+                                                                 'completed. Please do all the steps sequentially.',
+                                           QMessageBox.Ok)
                 return
             if self.AMDock.ligand.input is None:
                 self.AMDock.loader.load_ligand()
@@ -894,8 +894,8 @@ class Program_body(QWidget):
             if not reset:
                 if self.AMDock.target.input or self.AMDock.offtarget.input or self.AMDock.ligand.input:
                     msg = QMessageBox.warning(self, 'Warning', "All data in this section and in Search Space will "
-                                                                     "be lost. Do you want to continue? ",
-                                                    QMessageBox.Yes | QMessageBox.No)
+                                                               "be lost. Do you want to continue? ",
+                                              QMessageBox.Yes | QMessageBox.No)
                     if msg == QMessageBox.No:
                         return
         btn.setChecked(True)
@@ -917,9 +917,9 @@ class Program_body(QWidget):
                 ligand = 1
         if target or offtarget or ligand:
             msg = QMessageBox.warning(self, 'Warning', "Some files could not be eliminated, this could generate "
-                                                             "future problems. Please check that you have  writing "
-                                                             "rights in the project directory. You can continue the "
-                                                             "process without worrying.", QMessageBox.Ok)
+                                                       "future problems. Please check that you have  writing "
+                                                       "rights in the project directory. You can continue the "
+                                                       "process without worrying.", QMessageBox.Ok)
         self.AMDock.target = BASE()
         self.AMDock.offtarget = BASE()
         self.AMDock.ligand = BASE()
@@ -979,35 +979,35 @@ class Program_body(QWidget):
     def align_proteins(self):
         if self.AMDock.state == 2:
             msg = QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
-                                                                   'Please wait for these to end.',
-                                             QMessageBox.Ok)
+                                                             'Please wait for these to end.',
+                                       QMessageBox.Ok)
             return
         elif self.AMDock.section == -1:
             msg = QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
-                                                                   'completed. Please do all the steps sequentially.',
-                                             QMessageBox.Ok)
+                                                             'completed. Please do all the steps sequentially.',
+                                       QMessageBox.Ok)
             return
         elif self.AMDock.state in [1, 2, 3]:
             msg = QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed previously.'
-                                                                    ' Do you want to repeat it?',
-                                            QMessageBox.Yes | QMessageBox.No)
+                                                              ' Do you want to repeat it?',
+                                      QMessageBox.Yes | QMessageBox.No)
             if msg == QMessageBox.No:
                 return
         os.chdir(self.AMDock.project.input)
         # check if target, (offtarget) and ligand are defined
         if not self.AMDock.target.input or not self.AMDock.ligand.input or not self.AMDock.offtarget.input:
             msg = QMessageBox.critical(self.AMDock, 'Error', 'Target, Ligand and Off-Target (if Off-target '
-                                                                   'Docking is selected) most be defined',
-                                             QMessageBox.Ok)
+                                                             'Docking is selected) most be defined',
+                                       QMessageBox.Ok)
             return
         # Align proteins
         if self.AMDock.target.ext == 'pdbqt' or self.AMDock.offtarget.ext == 'pdbqt':
             msg = QMessageBox.warning(self.AMDock, 'Warning', 'Some of the proteins are PDBQT format, '
-                                                                    'which means that to align them, it will be '
-                                                                    'converted to PDB format and then again to PDBQT. '
-                                                                    'This can introduce unexpected errors. Do you wish'
-                                                                    ' to continue?',
-                                             QMessageBox.Yes, QMessageBox.No)
+                                                              'which means that to align them, it will be '
+                                                              'converted to PDB format and then again to PDBQT. '
+                                                              'This can introduce unexpected errors. Do you wish'
+                                                              ' to continue?',
+                                      QMessageBox.Yes, QMessageBox.No)
             if msg == QMessageBox.Yes:
                 if self.AMDock.target.ext == 'pdbqt':
                     conv = Convert(self.AMDock.target.input)
@@ -1034,13 +1034,13 @@ class Program_body(QWidget):
     def addNewParameters(self):
         if self.AMDock.section == -1:
             QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
-                                                             'completed. Please do all the steps sequentially.',
-                                       QMessageBox.Ok)
+                                                       'completed. Please do all the steps sequentially.',
+                                 QMessageBox.Ok)
             return
         if self.AMDock.para_file:
             msg = QMessageBox.warning(self.AMDock, 'Warning', 'A new parameter file has already been defined. '
-                                                                    'Do you want to delete it?',
-                                            QMessageBox.Yes | QMessageBox.No)
+                                                              'Do you want to delete it?',
+                                      QMessageBox.Yes | QMessageBox.No)
             if msg == QMessageBox.No:
                 return
 
@@ -1060,35 +1060,34 @@ class Program_body(QWidget):
 
         if self.AMDock.state == 2:
             msg = QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
-                                                                   'Please wait for these to end.',
-                                             QMessageBox.Ok)
+                                                             'Please wait for these to end.',
+                                       QMessageBox.Ok)
             return
         elif self.AMDock.section == -1:
             msg = QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
-                                                                   'completed. Please do all the steps sequentially.',
-                                             QMessageBox.Ok)
+                                                             'completed. Please do all the steps sequentially.',
+                                       QMessageBox.Ok)
             return
         elif self.AMDock.section in [1, 2, 3]:
             msg = QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed previously.'
-                                                                    ' Do you want to repeat it?',
-                                            QMessageBox.Yes | QMessageBox.No)
+                                                              ' Do you want to repeat it?',
+                                      QMessageBox.Yes | QMessageBox.No)
             if msg == QMessageBox.No:
                 return
         os.chdir(self.AMDock.project.input)
         # check if target, (offtarget) and ligand are defined
         if not self.AMDock.target.input or not self.AMDock.ligand.input:
             msg = QMessageBox.critical(self.AMDock, 'Error', 'Target, Ligand and Off-Target (if Off-target '
-                                                                   'Docking is selected) most be defined',
-                                             QMessageBox.Ok)
+                                                             'Docking is selected) most be defined',
+                                       QMessageBox.Ok)
             return
         elif self.AMDock.project.mode == 1:
             if not self.AMDock.offtarget.input:
                 msg = QMessageBox.critical(self.AMDock, 'Error', 'Target, Ligand and Off-Target (if Off-target '
-                                                                       'Docking is selected) most be defined',
-                                                 QMessageBox.Ok)
+                                                                 'Docking is selected) most be defined',
+                                           QMessageBox.Ok)
                 return
         self.list_process = []
-
 
         self.target_info = PDBINFO(self.AMDock.target.input)
         self.AMDock.target.zn_atoms = self.target_info.get_zn()
@@ -1106,8 +1105,8 @@ class Program_body(QWidget):
 
         if self.AMDock.ligand.ha > 100:
             wlig = QMessageBox.warning(self.AMDock, 'Warning', 'The input ligand has more than 100 heavy.\n Do '
-                                                                     'you want to continue?',
-                                             QMessageBox.Yes | QMessageBox.No)
+                                                               'you want to continue?',
+                                       QMessageBox.Yes | QMessageBox.No)
             if wlig == QMessageBox.No:
                 self.reset_ligand()
                 self.AMDock.project.mode = 0
@@ -1265,9 +1264,10 @@ class Program_body(QWidget):
             if self.AMDock.protonation:
                 if self.AMDock.protonation_program == 'obabel':
                     protonate_ligand = {'Protonate Ligand': [self.AMDock.openbabel, ['-i', 'pdb',
-                                                             self.AMDock.ligand.input, '-opdb', '-O',
-                                                             self.AMDock.ligand.pdb, '-h', '-p',
-                                                             str(self.pH_value.value())]
+                                                                                     self.AMDock.ligand.input, '-opdb',
+                                                                                     '-O',
+                                                                                     self.AMDock.ligand.pdb, '-h', '-p',
+                                                                                     str(self.pH_value.value())]
                                                              ]}
                     prepare_lig_arg += [self.AMDock.ligand.pdb, '-v']
                     self.list_process.append(protonate_ligand)
@@ -1295,18 +1295,18 @@ class Program_body(QWidget):
         queue.name = 2
         if self.AMDock.state == 2:
             msg = QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
-                                                                   'Please wait for these to end.',
-                                             QMessageBox.Ok)
+                                                             'Please wait for these to end.',
+                                       QMessageBox.Ok)
             return
         elif self.AMDock.section in [-1, 0]:
             msg = QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
-                                                                   'completed. Please do all the steps sequentially.',
-                                             QMessageBox.Ok)
+                                                             'completed. Please do all the steps sequentially.',
+                                       QMessageBox.Ok)
             return
         elif self.AMDock.section in [2, 3]:
             msg = QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed previously.'
-                                                                    ' Do you want to repeat it?',
-                                            QMessageBox.Yes | QMessageBox.No)
+                                                              ' Do you want to repeat it?',
+                                      QMessageBox.Yes | QMessageBox.No)
             if msg == QMessageBox.No:
                 return
 
@@ -1370,7 +1370,6 @@ class Program_body(QWidget):
                         if 'z' in self.dim_list:
                             self.size_z.setValue(self.lig_size)
                 self.size = [int(self.size_x.value()), int(self.size_y.value()), int(self.size_z.value())]
-
 
         if self.AMDock.project.mode == 1:
             if self.AMDock.project.bsd_mode_offtarget == 0:
@@ -1508,8 +1507,8 @@ class Program_body(QWidget):
     def reset_sections(self, section):
         if self.AMDock.state == 2:
             msg = QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
-                                                                   'Please wait for these to end.',
-                                             QMessageBox.Ok)
+                                                             'Please wait for these to end.',
+                                       QMessageBox.Ok)
             return
         self.AMDock.section = section - 1
         self.highlight()
@@ -1541,8 +1540,8 @@ class Program_body(QWidget):
     def reset_function(self):
         if self.AMDock.state == 2:
             msg = QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
-                                                                   'Please wait for these to end.',
-                                             QMessageBox.Ok)
+                                                             'Please wait for these to end.',
+                                       QMessageBox.Ok)
             return
 
         if self.AMDock.section == -1:
@@ -1585,8 +1584,8 @@ class Program_body(QWidget):
                 self.simulation_form(self.simple_docking, True)
                 if self.AMDock.project.WDIR:
                     rm_folder = QMessageBox.warning(self, 'Warning',
-                                                          "Do you wish to delete the previous project's folder?.",
-                                                          QMessageBox.Yes | QMessageBox.No)
+                                                    "Do you wish to delete the previous project's folder?.",
+                                                    QMessageBox.Yes | QMessageBox.No)
                     if rm_folder == QMessageBox.Yes:
                         try:
                             self.AMDock.output2file.conclude()
@@ -1594,9 +1593,9 @@ class Program_body(QWidget):
                             shutil.rmtree(self.AMDock.project.WDIR)
                         except:
                             QMessageBox.warning(self, 'Error',
-                                                      "The directory cannot be deleted. Probably is being used by "
-                                                      "another program. Please check this and delete it ",
-                                                      QMessageBox.Ok)
+                                                "The directory cannot be deleted. Probably is being used by "
+                                                "another program. Please check this and delete it ",
+                                                QMessageBox.Ok)
                 self.AMDock.configuration_tab.initial_config()
                 self.AMDock.log_widget.textedit.append(Ft('\nRESETTING... Done.').resetting())
                 self.AMDock.log_widget.textedit.append(Ft(80 * '-' + '\n\n').separator())
@@ -1634,18 +1633,18 @@ class Program_body(QWidget):
     def grid_sel_protection(self, id):
         if self.AMDock.state == 2:
             msg = QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
-                                                                   'Please wait for these to end.',
-                                             QMessageBox.Ok)
+                                                             'Please wait for these to end.',
+                                       QMessageBox.Ok)
             return
         elif self.AMDock.section in [-1, 0]:
             msg = QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
-                                                                   'completed. Please do all the steps sequentially.',
-                                             QMessageBox.Ok)
+                                                             'completed. Please do all the steps sequentially.',
+                                       QMessageBox.Ok)
             return
         elif self.AMDock.section in [2, 3]:
             msg = QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed previously.'
-                                                                    ' Do you want to repeat it?',
-                                            QMessageBox.Yes | QMessageBox.No)
+                                                              ' Do you want to repeat it?',
+                                      QMessageBox.Yes | QMessageBox.No)
             if msg == QMessageBox.No:
                 return
             elif msg == QMessageBox.Yes:
@@ -1668,7 +1667,7 @@ class Program_body(QWidget):
         elif self.target_column_group_btnA.id(b) == 3:
             if not self.lig_list.count():
                 msg = QMessageBox.warning(self, 'Error', "There is no hetero to select this option",
-                                                QMessageBox.Ok)
+                                          QMessageBox.Ok)
                 self.btnA_auto.setChecked(True)
                 return
             self.hide_all('A')
@@ -1702,18 +1701,18 @@ class Program_body(QWidget):
     def grid_actions(self, btn):
         if self.AMDock.state == 2:
             msg = QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
-                                                                   'Please wait for these to end.',
-                                             QMessageBox.Ok)
+                                                             'Please wait for these to end.',
+                                       QMessageBox.Ok)
             return
         elif self.AMDock.section in [-1, 0, 1]:
             msg = QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
-                                                                   'completed. Please do all the steps sequentially.',
-                                             QMessageBox.Ok)
+                                                             'completed. Please do all the steps sequentially.',
+                                       QMessageBox.Ok)
             return
         elif self.AMDock.section in [3]:
             msg = QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed previously.'
-                                                                    ' Do you want to repeat it?',
-                                            QMessageBox.Yes | QMessageBox.No)
+                                                              ' Do you want to repeat it?',
+                                      QMessageBox.Yes | QMessageBox.No)
             if msg == QMessageBox.No:
                 return
         visual_arg = [self.AMDock.pymol, self.AMDock.grid_pymol, '--', '--f_prot',
@@ -1794,7 +1793,7 @@ class Program_body(QWidget):
             fill_info = PDBINFO('FILL_{}_{}out{:02d}.pdb'.format(mol.pdbqt_name, self.AMDock.ligand.ha * 6, fill))
             if not fill_info.center:
                 msg = QMessageBox.warning(self.AMDock, 'Warning', 'This FILL no exist or is not possible to open '
-                                                                        'pdb file', QMessageBox.Ok)
+                                                                  'pdb file', QMessageBox.Ok)
                 continue
             mol.fill_list[fill] = [int(float(line.split()[6].strip(','))), float(line.split()[13]), fill_info.center]
             fill += 1
@@ -1809,8 +1808,8 @@ class Program_body(QWidget):
                 self.grid_center = [str(x) for x in fill_info.center]
             else:
                 msg = QMessageBox.critical(self.AMDock, 'Error', 'This FILL no exist or is not possible to open '
-                                                                       'pdb file. Please, select a new FILL',
-                                                 QMessageBox.Ok)
+                                                                 'pdb file. Please, select a new FILL',
+                                           QMessageBox.Ok)
                 for item in items:
                     item.setFlags(Qt.NoItemFlags)
                 return
@@ -1823,8 +1822,8 @@ class Program_body(QWidget):
                 self.grid_centerB = [str(x) for x in fill_info.center]
             else:
                 msg = QMessageBox.critical(self.AMDock, 'Error', 'This FILL no exist or is not possible to open '
-                                                                       'pdb file. Please, select a new FILL',
-                                                 QMessageBox.Ok)
+                                                                 'pdb file. Please, select a new FILL',
+                                           QMessageBox.Ok)
                 for item in items:
                     item.setFlags(Qt.NoItemFlags)
                 return
@@ -2042,7 +2041,7 @@ class Program_body(QWidget):
         self.output = self.codec.toUnicode(self.W.process.readAllStandardOutput())
         # self.output = str(self.output)
         if not self.AMDock.project.prog in ['AutoLigand', 'AutoLigand B']:
-            if self.AMDock.log_level ==2:
+            if self.AMDock.log_level == 2:
                 self.AMDock.log_widget.textedit.insertPlainText(self.output)
         # thread = THREAD(self.AMDock, self.output)
         # thread.run()
@@ -2124,7 +2123,7 @@ class Program_body(QWidget):
                                          str(self.coor_zB.value())]
                     self.sizeB = [self.size_xB.value(), self.size_yB.value(), self.size_zB.value()]
             else:
-                a, i, prot, cx, cy, cz, sx, sy, sz  = self.pymol_out.split()
+                a, i, prot, cx, cy, cz, sx, sy, sz = self.pymol_out.split()
 
             if prot == 'target':
                 self.btnA_user.setChecked(True)
@@ -2617,21 +2616,21 @@ class Program_body(QWidget):
         queue = Queue()
         if self.AMDock.state == 2:
             msg = QMessageBox.critical(self.AMDock, 'Error', 'Other processes are running in the background. '
-                                                                   'Please wait for these to end.',
-                                             QMessageBox.Ok)
+                                                             'Please wait for these to end.',
+                                       QMessageBox.Ok)
             return
         elif self.AMDock.section in [-1, 0, 1]:
             if self.AMDock.project.mode == 2:
                 pass
             else:
                 msg = QMessageBox.critical(self.AMDock, 'Error', 'It seems that not all previous steps have been '
-                                                                       'completed. Please do all the steps sequentially.',
-                                                 QMessageBox.Ok)
+                                                                 'completed. Please do all the steps sequentially.',
+                                           QMessageBox.Ok)
                 return
         elif self.AMDock.section in [3]:
             msg = QMessageBox.warning(self.AMDock, 'Warning', 'This step was successfully completed previously.'
-                                                                    ' Do you want to repeat it?',
-                                            QMessageBox.Yes | QMessageBox.No)
+                                                              ' Do you want to repeat it?',
+                                      QMessageBox.Yes | QMessageBox.No)
             if msg == QMessageBox.No:
                 return
 
@@ -2653,8 +2652,8 @@ class Program_body(QWidget):
                                                                              self.AMDock.ligand.ha * 6, nfill + 1))
                         if not fill_info.center:
                             msg = QMessageBox.warning(self.AMDock, 'Warning',
-                                                            'This FILL no exist or is not possible to open '
-                                                            'pdb file', QMessageBox.Ok)
+                                                      'This FILL no exist or is not possible to open '
+                                                      'pdb file', QMessageBox.Ok)
 
                         vina_output = os.path.join(self.AMDock.project.results, self.AMDock.ligand.pdbqt_name + '_' +
                                                    self.AMDock.target.name + '_out{:02d}.pdbqt'.format(
@@ -2696,8 +2695,8 @@ class Program_body(QWidget):
                                                                                  self.AMDock.ligand.ha * 6, nfill + 1))
                             if not fill_info.center:
                                 msg = QMessageBox.warning(self.AMDock, 'Warning',
-                                                                'This FILL no exist or is not possible to open '
-                                                                'pdb file', QMessageBox.Ok)
+                                                          'This FILL no exist or is not possible to open '
+                                                          'pdb file', QMessageBox.Ok)
                             vina_output = os.path.join(self.AMDock.project.results,
                                                        self.AMDock.ligand.pdbqt_name + '_' +
                                                        self.AMDock.offtarget.name +
@@ -2770,8 +2769,8 @@ class Program_body(QWidget):
                                                                              self.AMDock.ligand.ha * 6, nfill + 1))
                         if not fill_info.center:
                             msg = QMessageBox.warning(self.AMDock, 'Warning', 'This FILL no exist or is not '
-                                                                                    'possible to open pdb file',
-                                                            QMessageBox.Ok)
+                                                                              'possible to open pdb file',
+                                                      QMessageBox.Ok)
                         ad4_output = os.path.join(self.AMDock.project.results, self.AMDock.ligand.pdbqt_name + '_' +
                                                   self.AMDock.target.name + '_{:02d}.dlg'.format(
                             nfill + 1))
@@ -2790,7 +2789,8 @@ class Program_body(QWidget):
                         queue.put(autogrid4)
                         prepare_dpf_arg = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
                                            self.AMDock.target.pdbqt, '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
-                                           'ga_num_evals=%s' % self.AMDock.ga_num_eval, '-p', 'ga_run=%s' % self.AMDock.ga_run]
+                                           'ga_num_evals=%s' % self.AMDock.ga_num_eval, '-p',
+                                           'ga_run=%s' % self.AMDock.ga_run]
                         if self.AMDock.para_file:
                             prepare_dpf_arg = prepare_dpf_arg + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
 
@@ -2821,7 +2821,8 @@ class Program_body(QWidget):
                     queue.put(autogrid4)
                     prepare_dpf_arg = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
                                        self.AMDock.target.pdbqt, '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
-                                       'ga_num_evals=%s' % self.AMDock.ga_num_eval, '-p', 'ga_run=%s' % self.AMDock.ga_run]
+                                       'ga_num_evals=%s' % self.AMDock.ga_num_eval, '-p',
+                                       'ga_run=%s' % self.AMDock.ga_run]
                     if self.AMDock.para_file:
                         prepare_dpf_arg = prepare_dpf_arg + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
 
@@ -2839,8 +2840,8 @@ class Program_body(QWidget):
                                                                                  self.AMDock.ligand.ha * 6, nfill + 1))
                             if not fill_info.center:
                                 msg = QMessageBox.warning(self.AMDock, 'Warning',
-                                                                'This FILL no exist or is not possible to open '
-                                                                'pdb file', QMessageBox.Ok)
+                                                          'This FILL no exist or is not possible to open '
+                                                          'pdb file', QMessageBox.Ok)
                             ad4_output = os.path.join(self.AMDock.project.results, self.AMDock.ligand.pdbqt_name + '_' +
                                                       self.AMDock.offtarget.name +
                                                       '_out{:02d}.dlg'.format(nfill + 1))
@@ -2854,7 +2855,8 @@ class Program_body(QWidget):
                                                                                           '{2}'.format(
                                     *fill_info.center)]
                             if self.AMDock.para_file:
-                                prepare_gpf4_argB = prepare_gpf4_argB + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
+                                prepare_gpf4_argB = prepare_gpf4_argB + ['-p',
+                                                                         'parameter_file=%s' % self.AMDock.para_file]
                             prepare_gpf4B = {'Prepare_gpf4 B': [self.AMDock.this_python, prepare_gpf4_argB]}
                             queue.put(prepare_gpf4B)
 
@@ -2941,7 +2943,7 @@ class Program_body(QWidget):
                 autogrid4 = {'AutoGrid4': [self.AMDock.autogrid, ['-p', self.AMDock.target.tzgpf]]}
                 queue.put(autogrid4)
                 prepare_dpfzn_arg = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
-                                   self.AMDock.target.tzpdbqt, '-e']
+                                     self.AMDock.target.tzpdbqt, '-e']
                 if self.AMDock.para_file:
                     prepare_dpfzn_arg = prepare_dpfzn_arg + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
                 else:
@@ -2961,8 +2963,8 @@ class Program_body(QWidget):
                                                                              self.AMDock.ligand.ha * 6, nfill + 1))
                         if not fill_info.center:
                             msg = QMessageBox.warning(self.AMDock, 'Warning', 'This FILL no exist or is not '
-                                                                                    'possible to open pdb file',
-                                                            QMessageBox.Ok)
+                                                                              'possible to open pdb file',
+                                                      QMessageBox.Ok)
                         ad4_output = os.path.join(self.AMDock.project.results, self.AMDock.ligand.pdbqt_name + '_' +
                                                   self.AMDock.target.name + '_{:02d}.dlg'.format(
                             nfill + 1))
@@ -2988,8 +2990,9 @@ class Program_body(QWidget):
                         autogrid4 = {'AutoGrid4': [self.AMDock.autogrid, ['-p', self.AMDock.target.tzgpf]]}
                         queue.put(autogrid4)
                         prepare_dpfzn_arg = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
-                                           self.AMDock.target.tzpdbqt, '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
-                                           'ga_num_evals=%s' % self.AMDock.ga_num_eval, '-p', 'ga_run=%s' % self.AMDock.ga_run]
+                                             self.AMDock.target.tzpdbqt, '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
+                                             'ga_num_evals=%s' % self.AMDock.ga_num_eval, '-p',
+                                             'ga_run=%s' % self.AMDock.ga_run]
                         if self.AMDock.para_file:
                             prepare_dpfzn_arg = prepare_dpfzn_arg + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
                         else:
@@ -3012,7 +3015,8 @@ class Program_body(QWidget):
                                           self.AMDock.target.tzpdbqt, '-p',
                                           'spacing=%.3f' % self.AMDock.spacing_autodock, '-p',
                                           'npts=%d,%d,%d' % (self.size[0] / self.AMDock.spacing_autodock, self.size[1] /
-                                          self.AMDock.spacing_autodock, self.size[2] / self.AMDock.spacing_autodock),
+                                                             self.AMDock.spacing_autodock,
+                                                             self.size[2] / self.AMDock.spacing_autodock),
                                           '-p', 'gridcenter={0},{1},''{2}'.format(*self.grid_center)]
                     if self.AMDock.para_file:
                         prepare_gpf4zn_arg = prepare_gpf4zn_arg + ['-p', 'parameter_file=%s' %
@@ -3025,8 +3029,9 @@ class Program_body(QWidget):
                     autogrid4 = {'AutoGrid4': [self.AMDock.autogrid, ['-p', self.AMDock.target.tzgpf]]}
                     queue.put(autogrid4)
                     prepare_dpfzn_arg = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
-                                       self.AMDock.target.tzpdbqt, '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
-                                       'ga_num_evals=%s' % self.AMDock.ga_num_eval, '-p', 'ga_run=%s' % self.AMDock.ga_run]
+                                         self.AMDock.target.tzpdbqt, '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
+                                         'ga_num_evals=%s' % self.AMDock.ga_num_eval, '-p',
+                                         'ga_run=%s' % self.AMDock.ga_run]
                     if self.AMDock.para_file:
                         prepare_dpfzn_arg = prepare_dpfzn_arg + ['-p', 'parameter_file=%s' % self.AMDock.para_file]
                     else:
@@ -3045,8 +3050,8 @@ class Program_body(QWidget):
                                                                                  self.AMDock.ligand.ha * 6, nfill + 1))
                             if not fill_info.center:
                                 msg = QMessageBox.warning(self.AMDock, 'Warning',
-                                                                'This FILL no exist or is not possible to open '
-                                                                'pdb file', QMessageBox.Ok)
+                                                          'This FILL no exist or is not possible to open '
+                                                          'pdb file', QMessageBox.Ok)
                             ad4_output = os.path.join(self.AMDock.project.results, self.AMDock.ligand.pdbqt_name + '_' +
                                                       self.AMDock.offtarget.name +
                                                       '_out{:02d}.dlg'.format(nfill + 1))
@@ -3063,7 +3068,7 @@ class Program_body(QWidget):
                                                    '-p', 'gridcenter={0},{1},{2}'.format(*fill_info.center)]
                             if self.AMDock.para_file:
                                 prepare_gpf4zn_argB = prepare_gpf4zn_argB + ['-p', 'parameter_file=%s' %
-                                                                           self.AMDock.para_file]
+                                                                             self.AMDock.para_file]
                             else:
                                 prepare_gpf4zn_argB = prepare_gpf4zn_argB + ['-p', 'parameter_file=AD4Zn.dat']
 
@@ -3074,10 +3079,10 @@ class Program_body(QWidget):
                             queue.put(autogrid4B)
 
                             prepare_dpfzn_argB = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
-                                                self.AMDock.offtarget.tzpdbqt,
-                                                '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
-                                                'ga_num_evals=%s' % self.AMDock.ga_num_eval,
-                                                '-p', 'ga_run=%s' % self.AMDock.ga_run]
+                                                  self.AMDock.offtarget.tzpdbqt,
+                                                  '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
+                                                  'ga_num_evals=%s' % self.AMDock.ga_num_eval,
+                                                  '-p', 'ga_run=%s' % self.AMDock.ga_run]
                             if self.AMDock.para_file:
                                 prepare_dpfzn_argB = prepare_dpfzn_argB + ['-p', 'parameter_file=%s' %
                                                                            self.AMDock.para_file]
@@ -3108,7 +3113,7 @@ class Program_body(QWidget):
                                                '-p', 'gridcenter={0},{1},{2}'.format(*self.grid_centerB)]
                         if self.AMDock.para_file:
                             prepare_gpf4zn_argB = prepare_gpf4zn_argB + ['-p', 'parameter_file=%s' %
-                                                                       self.AMDock.para_file]
+                                                                         self.AMDock.para_file]
                         else:
                             prepare_gpf4zn_argB = prepare_gpf4zn_argB + ['-p', 'parameter_file=AD4Zn.dat']
 
@@ -3119,10 +3124,10 @@ class Program_body(QWidget):
                         queue.put(autogrid4B)
 
                         prepare_dpfzn_argB = [self.AMDock.prepare_dpf_py, '-l', self.AMDock.ligand.pdbqt, '-r',
-                                            self.AMDock.offtarget.tzpdbqt,
-                                            '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
-                                            'ga_num_evals=%s' % self.AMDock.ga_num_eval,
-                                            '-p', 'ga_run=%s' % self.AMDock.ga_run]
+                                              self.AMDock.offtarget.tzpdbqt,
+                                              '-p', 'rmstol=%s' % self.AMDock.rmsdtol, '-p',
+                                              'ga_num_evals=%s' % self.AMDock.ga_num_eval,
+                                              '-p', 'ga_run=%s' % self.AMDock.ga_run]
                         if self.AMDock.para_file:
                             prepare_dpfzn_argB = prepare_dpfzn_argB + ['-p', 'parameter_file=%s' %
                                                                        self.AMDock.para_file]
