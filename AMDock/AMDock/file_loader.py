@@ -109,7 +109,7 @@ class Loader:
     def load_parameters(self):
         data_file = QFileDialog()
         data_file.setFileMode(QFileDialog.AnyFile)
-        data_file.setFilter("AD4 parameter file (*.dat)")
+        data_file.setNameFilter("AD4 parameter file (*.dat)")
         if data_file.exec_():
             openfile = data_file.selectedFiles()[0]
             print(str(openfile))
@@ -127,7 +127,7 @@ class Loader:
     def load_protein(self):
         data_file = QFileDialog()
         data_file.setFileMode(QFileDialog.AnyFile)
-        data_file.setFilter("Protein Data Bank (*.pdb *.ent *.pdbqt)")
+        data_file.setNameFilter("Protein Data Bank (*.pdb *.ent *.pdbqt)")
         if data_file.exec_():
             filenames = data_file.selectedFiles()
             self.AMDock.target.get_data(filenames)
@@ -158,7 +158,7 @@ class Loader:
     def load_proteinB(self):
         data_file = QFileDialog()
         data_file.setFileMode(QFileDialog.AnyFile)
-        data_file.setFilter("Protein Data Bank (*.pdb *.ent *.pdbqt)")
+        data_file.setNameFilter("Protein Data Bank (*.pdb *.ent *.pdbqt)")
         if data_file.exec_():
             filenames = data_file.selectedFiles()
             self.AMDock.offtarget.get_data(filenames)
@@ -188,7 +188,7 @@ class Loader:
     def load_ligand(self):
         data_file = QFileDialog()
         data_file.setFileMode(QFileDialog.AnyFile)
-        data_file.setFilter("Ligand (*.pdb *.mol2 *.pdbqt)")
+        data_file.setNameFilter("Ligand (*.pdb *.mol2 *.pdbqt)")
 
         if data_file.exec_():
             filenames = data_file.selectedFiles()
@@ -218,7 +218,7 @@ class Loader:
     def load_amdock_file(self):
         data_file = QFileDialog()
         data_file.setFileMode(QFileDialog.AnyFile)
-        data_file.setFilter("AMDock File (*.amdock)")
+        data_file.setNameFilter("AMDock File (*.amdock)")
         if data_file.exec_():
             filenames = data_file.selectedFiles()
             self.AMDock.project.output = str(filenames[0])
