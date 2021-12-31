@@ -504,7 +504,7 @@ class Fix_PQR:
         if self.metals:
             for met in self.metals:
                 ele = met[1][:3].strip().lower()
-                if ele not in uniq_list.keys():
+                if ele not in list(uniq_list.keys()):
                     uniq_list[ele] = met[2]
                 else:
                     continue

@@ -104,17 +104,17 @@ class PROCESS(QObject):
     def start_process(self):
         try:
             obj = self.queue.get(False)
-            self.prog_name = obj.keys()[0]
-            if callable(obj.values()[0][0]):
+            self.prog_name = list(obj.keys())[0]
+            if callable(list(obj.values())[0][0]):
                 self.process_type = 1
-                funct = obj.values()[0][0]
-                args = obj.values()[0][1]
+                funct = list(obj.values())[0][0]
+                args = list(obj.values())[0][1]
                 self.worker.insert_function(funct, args, self.prog_name)
                 self.threadpool.start(self.worker)
             else:
                 self.process_type = 0
-                self.process.start(obj.values()[0][0],obj.values()[0][1])
-        except Queue.Empty:
+                self.process.start(list(obj.values())[0][0],list(obj.values())[0][1])
+        except Empty:
             self.queue_finished.emit(self.queue.name)
 
     def force_finished(self):

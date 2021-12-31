@@ -176,7 +176,7 @@ def prot_with_metal_warning(parent, text):
                                                                                    text['Off-Target'].name))
     else:
         msg.setText("This protein contains at least one atom of Zn:                                                   "
-                    "        \n %s (%s)" % (text[text.keys()[0]].name, text.keys()[0]))
+                    "        \n %s (%s)" % (text[list(text.keys())[0]].name, list(text.keys())[0]))
     msg.setInformativeText('AutoDock4Zn is recommendable in this case. However, the current docking program is %s. '
                            'Do you wish to change to AutoDock4Zn?' % parent.docking_program)
     msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
@@ -212,7 +212,8 @@ def metal_no_ADzn_od_warning(parent, text):
                                                                                    text['Off-Target'].name))
     else:
         msg.setText("AutoDock4Zn is selected, but the following protein do not contain Zn atoms:                    "
-                    "                                  \n %s (%s)" % (text[text.keys()[0]].name, text.keys()[0]))
+                    "                                  \n %s (%s)" % (text[list(text.keys())[0]].name,
+                                                                      list(text.keys())[0]))
     msg.setInformativeText('Please, make sure that proteins contains Zn atoms. Press "OK" if you want to change the '
                            'program docking or "Cancel" if you want to select a new protein.')
     msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
