@@ -1199,7 +1199,7 @@ class Program_body(QWidget):
         self.AMDock.log_widget.textedit.append(Ft('Defining Initial Parameters... Done\n').section())
         self.AMDock.log_widget.textedit.append(Ft('Prepare Initial Files...').section())
         if self.AMDock.target.prepare:
-            pdb2pqr = {'PDB2PQR': [self.AMDock.this_python, [self.AMDock.pdb2pqr_py, '--ph-calc-method=propka',
+            pdb2pqr = {'PDB2PQR': [self.AMDock.pdb2pqr_py, ['--ph-calc-method=propka',
                                                              '--verbose', '--noopt', '--drop-water', '--chain',
                                                              '--with-ph', str(self.pH_value.value()),
                                                              '--ff=%s' % self.AMDock.forcefield,
@@ -1229,7 +1229,7 @@ class Program_body(QWidget):
             self.AMDock.target.save_pdb(self.AMDock.target.input)
         if self.AMDock.project.mode == 1:
             if self.AMDock.offtarget.prepare:
-                pdb2pqrB = {'PDB2PQR B': [self.AMDock.this_python, [self.AMDock.pdb2pqr_py, '--ph-calc-method=propka',
+                pdb2pqrB = {'PDB2PQR B': [self.AMDock.pdb2pqr_py, ['--ph-calc-method=propka',
                                                                     '--verbose', '--noopt', '--drop-water', '--chain',
                                                                     '--with-ph', str(self.pH_value.value()),
                                                                     '--ff=%s' % self.AMDock.forcefield,

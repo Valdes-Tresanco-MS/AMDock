@@ -14,7 +14,7 @@ class Variables:
         self.extprg_path = os.path.join(self.amdock_dir, 'programs')
         self.adt = os.path.dirname(AutoDockTools.__file__)
         self.doc_path = os.path.join(os.path.join(self.amdock_dir, os.pardir, 'Doc'))
-        self.pdb2pqr_py = str(os.path.join(self.extprg_path, 'pdb2pqr', 'pdb2pqr.py'))
+        self.pdb2pqr_py = 'pdb2pqr30'
         self.prepare_gpf4_py = str(os.path.join(self.adt, 'Utilities24', 'prepare_gpf4.py'))
         self.prepare_gpf4zn_py = str(os.path.join(self.extprg_path, 'prepare_gpf4zn.py'))
         self.prepare_dpf_py = str(os.path.join(self.adt, 'Utilities24', 'prepare_dpf42.py'))
