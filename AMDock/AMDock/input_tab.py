@@ -1198,11 +1198,11 @@ class Program_body(QWidget):
         self.AMDock.log_widget.textedit.append(Ft('Defining Initial Parameters... Done\n').section())
         self.AMDock.log_widget.textedit.append(Ft('Prepare Initial Files...').section())
         if self.AMDock.target.prepare:
-            pdb2pqr = {'PDB2PQR': [self.AMDock.pdb2pqr_py, ['--ph-calc-method=propka',
-                                                             '--verbose', '--noopt', '--drop-water', '--chain',
-                                                             '--with-ph', str(self.pH_value.value()),
-                                                             '--ff=%s' % self.AMDock.forcefield,
-                                                             self.AMDock.target.input, self.AMDock.target.pqr]]}
+            pdb2pqr = {'PDB2PQR': [self.AMDock.pdb2pqr_py, ['--titration-state-method=propka', '--noopt',
+                                                            '--drop-water', '--keep-chain',
+                                                            '--with-ph', str(self.pH_value.value()),
+                                                            '--ff=%s' % self.AMDock.forcefield,
+                                                            self.AMDock.target.input, self.AMDock.target.pqr]]}
             metals = []
             metals_text = None
             if self.keep_ions_btn.isChecked():
@@ -1228,12 +1228,12 @@ class Program_body(QWidget):
             self.AMDock.target.save_pdb(self.AMDock.target.input)
         if self.AMDock.project.mode == 1:
             if self.AMDock.offtarget.prepare:
-                pdb2pqrB = {'PDB2PQR B': [self.AMDock.pdb2pqr_py, ['--ph-calc-method=propka',
-                                                                    '--verbose', '--noopt', '--drop-water', '--chain',
-                                                                    '--with-ph', str(self.pH_value.value()),
-                                                                    '--ff=%s' % self.AMDock.forcefield,
-                                                                    self.AMDock.offtarget.input,
-                                                                    self.AMDock.offtarget.pqr]]}
+                pdb2pqrB = {'PDB2PQR B': [self.AMDock.pdb2pqr_py, ['--titration-state-method=propka', '--noopt',
+                                                                   '--drop-water', '--keep-chain',
+                                                                   '--with-ph', str(self.pH_value.value()),
+                                                                   '--ff=%s' % self.AMDock.forcefield,
+                                                                   self.AMDock.offtarget.input,
+                                                                   self.AMDock.offtarget.pqr]]}
                 metals = []
                 metals_text = None
                 if self.keep_ions_btn.isChecked():
