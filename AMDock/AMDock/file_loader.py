@@ -327,7 +327,7 @@ class Loader:
             f = 0
             table1 = []
             for c in alltable:
-                if mode1 is not 0 and f > mode1 + 2:
+                if mode1 and f > mode1 + 2:
                     if '__' in c:
                         break
                     else:
@@ -337,7 +337,7 @@ class Loader:
                 ff = 0
                 table2 = []
                 for c in alltable:
-                    if mode2 is not 0 and ff > mode2 + 2:
+                    if mode2 and ff > mode2 + 2:
                         if '__' in c:
                             break
                         else:
