@@ -2227,12 +2227,12 @@ class Program_body(QWidget):
                 if c == 4:
                     item_v = float(item)
                     if item_v <= -0.3:
-                        self.AMDock.result_tab.result_table.item(f, c).setBackgroundColor(
+                        self.AMDock.result_tab.result_table.item(f, c).setBackground(
                             QColor(0, 255, 128, 200))
                 c += 1
             f += 1
         self.AMDock.result_tab.value1 = float(self.AMDock.result_tab.result_table.item(0, 1).text())
-        self.AMDock.result_tab.result_table.item(0, 1).setBackgroundColor(QColor('darkGray'))
+        self.AMDock.result_tab.result_table.item(0, 1).setBackground(QColor('darkGray'))
         selection_model = self.AMDock.result_tab.result_table.selectionModel()
         selection_model.select(self.AMDock.result_tab.result_table.model().index(0, 0),
                                QItemSelectionModel.ClearAndSelect)
@@ -2271,19 +2271,19 @@ class Program_body(QWidget):
                     if c == 4:
                         item_v = float(item)
                         if item_v <= -0.3:
-                            self.AMDock.result_tab.result_tableB.item(f, c).setBackgroundColor(
+                            self.AMDock.result_tab.result_tableB.item(f, c).setBackground(
                                 QColor(0, 255, 128, 200))
                     c += 1
                 f += 1
             self.AMDock.result_tab.value2 = float(self.AMDock.result_tab.result_tableB.item(0, 1).text())
 
-            self.AMDock.result_tab.result_tableB.item(0, 1).setBackgroundColor(QColor('darkGray'))
+            self.AMDock.result_tab.result_tableB.item(0, 1).setBackground(QColor('darkGray'))
             selection_model = self.AMDock.result_tab.result_tableB.selectionModel()
             selection_model.select(self.AMDock.result_tab.result_tableB.model().index(0, 0),
                                    QItemSelectionModel.ClearAndSelect)
 
             self.AMDock.result_tab.selectivity_value = math.exp((self.AMDock.result_tab.value2 -
-                                                                 self.AMDock.result_tab.value1) /(0.001987207 * 298))
+                                                                 self.AMDock.result_tab.value1) / (0.001987207 * 298))
             self.AMDock.result_tab.selectivity_value_text.setText(
                 '%.01f' % self.AMDock.result_tab.selectivity_value)
             if self.AMDock.project.bsd_mode_offtarget == 0:
@@ -2499,7 +2499,7 @@ class Program_body(QWidget):
                 if c == 4:
                     item_v = float(item)
                     if item_v <= -0.3:
-                        self.AMDock.result_tab.result_table.item(f, c).setBackgroundColor(
+                        self.AMDock.result_tab.result_table.item(f, c).setBackground(
                             QColor(0, 255, 128, 200))
                 c += 1
             f += 1

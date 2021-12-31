@@ -225,12 +225,12 @@ class Results(QWidget):
                             if c == 4:
                                 item_v = float(item)
                                 if item_v <= -0.3:
-                                    self.result_table.item(f, c).setBackgroundColor(
+                                    self.result_table.item(f, c).setBackground(
                                         QColor(0, 255, 128, 200))
                             c += 1
                         f += 1
                     self.value1 = float(self.result_table.item(0, 1).text())
-                    self.result_table.item(0, 1).setBackgroundColor(QColor('darkGray'))
+                    self.result_table.item(0, 1).setBackground(QColor('darkGray'))
                     selection_model = self.result_table.selectionModel()
                     selection_model.select(self.result_table.model().index(0, 0),
                                            QItemSelectionModel.ClearAndSelect)
@@ -270,13 +270,13 @@ class Results(QWidget):
                                 if c == 4:
                                     item_v = float(item)
                                     if item_v <= -0.3:
-                                        self.result_tableB.item(f, c).setBackgroundColor(
+                                        self.result_tableB.item(f, c).setBackground(
                                             QColor(0, 255, 128, 200))
                                 c += 1
                             f += 1
                             self.value2 = float(
                                 self.result_tableB.item(0, 1).text())
-                        self.result_tableB.item(0, 1).setBackgroundColor(QColor('darkGray'))
+                        self.result_tableB.item(0, 1).setBackground(QColor('darkGray'))
                         selection_model = self.result_tableB.selectionModel()
                         selection_model.select(self.result_tableB.model().index(0, 0),
                                                QItemSelectionModel.ClearAndSelect)
@@ -320,11 +320,11 @@ class Results(QWidget):
                             if c == 4:
                                 item_v = float(item)
                                 if item_v <= -0.3:
-                                    self.result_table.item(f, c).setBackgroundColor(
+                                    self.result_table.item(f, c).setBackground(
                                         QColor(0, 255, 128, 200))
                             c += 1
                         f += 1
-                    self.result_table.item(0, 1).setBackgroundColor(QColor('darkGray'))
+                    self.result_table.item(0, 1).setBackground(QColor('darkGray'))
                     selection_model = self.result_table.selectionModel()
                     selection_model.select(self.result_table.model().index(0, 0),
                                            QItemSelectionModel.ClearAndSelect)
@@ -475,14 +475,14 @@ class Results(QWidget):
 
     def select_row(self, sele):
         if sele.objectName() == 'sele1':
-            self.result_table.item(self.current_pose - 1, 1).setBackgroundColor(QColor('white'))
+            self.result_table.item(self.current_pose - 1, 1).setBackground(QColor('white'))
             self.current_pose = sele.value()
-            self.result_table.item(self.current_pose - 1, 1).setBackgroundColor(QColor('darkGray'))
+            self.result_table.item(self.current_pose - 1, 1).setBackground(QColor('darkGray'))
             self.value1 = float(self.result_table.item(self.current_pose - 1, 1).text())
         else:
-            self.result_tableB.item(self.current_poseB - 1, 1).setBackgroundColor(QColor('white'))
+            self.result_tableB.item(self.current_poseB - 1, 1).setBackground(QColor('white'))
             self.current_poseB = sele.value()
-            self.result_tableB.item(self.current_poseB - 1, 1).setBackgroundColor(QColor('darkGray'))
+            self.result_tableB.item(self.current_poseB - 1, 1).setBackground(QColor('darkGray'))
             self.value2 = float(self.result_tableB.item(self.current_poseB - 1, 1).text())
         self.selectivity_value = math.exp((self.value2 - self.value1)/(0.001987207 * 298))
         self.selectivity_value_text.setText('%.01f' % self.selectivity_value)
