@@ -1,8 +1,3 @@
-/*buttons*/
-QFrame#tab_lobby {
-    background-image: url("images/presentation.png");
-}
-
 #adock_button, #dock_vina_button, #results_button, #adockZn_button {
     font-size: 25px;
     font-family: "Times New Roman";

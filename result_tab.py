@@ -129,7 +129,7 @@ class Results(QWidget):
         self.new_button = QPushButton(self)
         self.new_button.setObjectName("new_button")
         self.new_button.setText("New Project")
-        self.new_button.setIcon(QIcon(QPixmap(self.AMDock.new_icon)))
+        self.new_button.setIcon(QIcon(self.AMDock.new_icon))
 
         self.current_pose = self.sele1.value()
         self.current_poseB = self.sele2.value()

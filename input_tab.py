@@ -526,7 +526,7 @@ class Program_body(QWidget):
         self.reset_button = QPushButton(self)
         self.reset_button.setObjectName("reset_button")
         self.reset_button.setText("  Reset")
-        self.reset_button.setIcon(QIcon(QPixmap(self.AMDock.reset_icon)))
+        self.reset_button.setIcon(QIcon(self.AMDock.reset_icon))
         self.reset_button.clicked.connect(self.reset_function)
 
         self.progress_project_label = QLabel('Project Progress')

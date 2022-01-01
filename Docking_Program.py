@@ -15,6 +15,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from tools import (PROJECT, BASE)
 from warning import internal_error
+import resource
+
 
 class EmittingStream(QObject):
     textWritten = pyqtSignal(str)
@@ -52,12 +54,12 @@ class AMDock(QMainWindow, Variables):
             self.setStyleSheet(f.read())
 
         self.icon = QIcon()
-        self.icon.addPixmap(QPixmap(self.home_icon), QIcon.Active, QIcon.Off)
-        self.icon.addPixmap(QPixmap(self.home_icon), QIcon.Normal, QIcon.Off)
-        self.icon.addPixmap(QPixmap(self.home_icon), QIcon.Selected, QIcon.Off)
-        self.icon.addPixmap(QPixmap(self.home_icon), QIcon.Disabled, QIcon.Off)
-        self.icon.addPixmap(QPixmap(self.home_icon_white), QIcon.Selected, QIcon.On)
-        self.icon.addPixmap(QPixmap(self.home_icon_white), QIcon.Active, QIcon.On)
+        self.icon.addPixmap(QPixmap(self.home_icon_white), QIcon.Active, QIcon.Off)
+        self.icon.addPixmap(QPixmap(self.home_icon_white), QIcon.Normal, QIcon.Off)
+        self.icon.addPixmap(QPixmap(self.home_icon_white), QIcon.Selected, QIcon.Off)
+        self.icon.addPixmap(QPixmap(self.home_icon_white), QIcon.Disabled, QIcon.Off)
+        self.icon.addPixmap(QPixmap(self.home_icon), QIcon.Selected, QIcon.On)
+        self.icon.addPixmap(QPixmap(self.home_icon), QIcon.Active, QIcon.On)
 
         ##--TABS
         self.main_window = QTabWidget(self)
@@ -145,7 +147,7 @@ class AMDock(QMainWindow, Variables):
 from splash_screen import SplashScreen
 # from variables import Objects as ob
 
-if __name__ == "__main__":
+def run():
     app = QApplication(sys.argv)
     app_icon = QIcon()
     v = Variables()
@@ -158,6 +160,7 @@ if __name__ == "__main__":
     # app.setStyle("cleanlooks")
     app.setWindowIcon(app_icon)
     app.setApplicationName('AMDock: Assisted Molecular Docking for AutoDock and AutoDock Vina')
+    print(v.splashscreen_path)
     splash = SplashScreen(QPixmap(v.splashscreen_path), app)
     main = AMDock()
     splash.finish(main)
@@ -171,3 +174,7 @@ if __name__ == "__main__":
         sys.exit(app.exec_())
     else:
         sys.exit(app.exit(1))
+
+
+if __name__ == "__main__":
+    run()

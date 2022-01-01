@@ -3,19 +3,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from tools import FormatedText as Ft
 
-
-class FRAME(QFrame):
-    def __init__(self, parent=None):
-        super(FRAME, self).__init__(parent)
-        QFrame.__init__(self, parent=parent)
-        self.parent = parent
-
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        painter.drawPixmap(self.rect(), QPixmap(self.parent.presentation))
-        QFrame.paintEvent(self, event)
-
-
 class Lobby(QFrame):
     def __init__(self, parent=None):
         super(Lobby, self).__init__(parent)

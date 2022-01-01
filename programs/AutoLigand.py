@@ -9,48 +9,47 @@
 # $Header: /opt/cvs/python/packages/share1.5/AutoDockTools/AutoLigand.py,v 1.10 2009/10/01 17:12:27 sargis Exp $
 #
 # $Id: AutoLigand.py,v 1.10 2009/10/01 17:12:27 sargis Exp $
-import sys, string, re
-import getopt
-
-try:
-    from Numeric import zeros
-except:
-    from numpy.oldnumeric import zeros
-from math import sqrt
 import copy
+import getopt
+import re
+import sys
 import time
+from math import sqrt
+
+import numpy as np
+from numpy import zeros
 
 begin = time.time()
 progress = 1
 
 
 def usage():
-    "Print helpful usage statement to stdout."
-    print "Usage:  python AutoLigand.py -r FileBaseName -p #_of_pts"
-    print
-    print "    Description of command..."
-    print "       -r FileBaseName = just the name part from receptor map files (i.e., FileBaseName.C.map)"
-    print "       -p #_of_pts = number of fill points to use (int)"
-    print "              Note: can be omitted if -a option used."
-    print "    Optional parameters:"
-    print "       [-a #] = number of heavy atom for ligand (#_of_pts will be set to 6x atoms)"
-    print "       [-x # -y # -z #] = optional x,y,z co-ords for starting fill (float)"
-    print "              when starting point is input, only one fill will be run"
-    print "       [-i # -j # -k #] = optional x,y,z co-ords for second point (float)"
-    print "              when second point is input, the fill will connect both points"
-    print "              NOTE: the connection path has not been optimized - use with discretion"
-    print "       [-f #] = number of fills to generate - default is 10"
-    print "       [-e] = use the extra atom types NA, N, SA, and A"
-    print "              NOTE: these results can be problematic - use with discretion"
-    print "       [-m] = make a movie of output fill progress"
-    print "       [-h] = file for optional x,y,z co-ords for starting fill"
+    """Print helpful usage statement to stdout."""
+    print("Usage:  python AutoLigand.py -r FileBaseName -p #_of_pts")
+    print()
+    print("    Description of command...")
+    print("       -r FileBaseName = just the name part from receptor map files (i.e., FileBaseName.C.map)")
+    print("       -p #_of_pts = number of fill points to use (int)")
+    print("              Note: can be omitted if -a option used.")
+    print("    Optional parameters:")
+    print("       [-a #] = number of heavy atom for ligand (#_of_pts will be set to 6x atoms)")
+    print("       [-x # -y # -z #] = optional x,y,z co-ords for starting fill (float)")
+    print("              when starting point is input, only one fill will be run")
+    print("       [-i # -j # -k #] = optional x,y,z co-ords for second point (float)")
+    print("              when second point is input, the fill will connect both points")
+    print("              NOTE: the connection path has not been optimized - use with discretion")
+    print("       [-f #] = number of fills to generate - default is 10")
+    print("       [-e] = use the extra atom types NA, N, SA, and A")
+    print("              NOTE: these results can be problematic - use with discretion")
+    print("       [-m] = make a movie of output fill progress")
+    print("       [-h] = file for optional x,y,z co-ords for starting fill")
 
 
 # process command arguments
 try:
     opt_list, args = getopt.getopt(sys.argv[1:], 'r:p:a:x:y:z:i:j:k:f:em:h:')
-except getopt.GetoptError, msg:
-    print 'AutoLigand.py: %s' % msg
+except getopt.GetoptError as msg:
+    print('AutoLigand.py: %s' % msg)
     usage()
     sys.exit(2)
 # initialize parameters
@@ -125,7 +124,7 @@ if x_flag and y_flag and z_flag and i_flag and j_flag and k_flag:
     start_point_flag = 2
 # GUI
 if movie:
-    import cPickle
+    import pickle
 
     output = open(FileBaseName + '_flood.pkl', 'wb')
 prev_flood = []
@@ -140,7 +139,7 @@ def save_flood(flood):
         else:
             add_set.append(item)
     if prev_flood or add_set:
-        cPickle.dump([prev_flood, add_set], output, -1)
+        pickle.dump([prev_flood, add_set], output, -1)
     prev_flood = copy.copy(flood)
 
 
@@ -200,26 +199,33 @@ if more_atom_types:
 for i in range(6):
     linee = emap.readline()
     lined = dmap.readline()
-    if Aflag == 1: lineA = Amap.readline()
-    if Cflag == 1: lineC = Cmap.readline()
-    if Hflag == 1: lineH = Hmap.readline()
-    if Nflag == 1: lineN = Nmap.readline()
-    if NAflag == 1: lineNA = NAmap.readline()
-    if Oflag == 1: lineO = Omap.readline()
-    if Sflag == 1: lineS = Smap.readline()
+    if Aflag == 1:
+        lineA = Amap.readline()
+    if Cflag == 1:
+        lineC = Cmap.readline()
+    if Hflag == 1:
+        lineH = Hmap.readline()
+    if Nflag == 1:
+        lineN = Nmap.readline()
+    if NAflag == 1:
+        lineNA = NAmap.readline()
+    if Oflag == 1:
+        lineO = Omap.readline()
+    if Sflag == 1:
+        lineS = Smap.readline()
     if i == 3:
-        word = string.split(linee)
-        spacing = string.atof(word[1])
+        word = linee.split()
+        spacing = float(word[1])
     if i == 4:
-        word = string.split(linee)
-        nelementsx = string.atoi(word[1])
-        nelementsy = string.atoi(word[2])
-        nelementsz = string.atoi(word[3])
+        word = linee.split()
+        nelementsx = int(word[1])
+        nelementsy = int(word[2])
+        nelementsz = int(word[3])
     if i == 5:
-        word = string.split(linee)
-        centerx = string.atof(word[1])
-        centery = string.atof(word[2])
-        centerz = string.atof(word[3])
+        word = linee.split()
+        centerx = float(word[1])
+        centery = float(word[2])
+        centerz = float(word[3])
 
 Alist = []
 Clist = []
@@ -243,28 +249,28 @@ ny = nelementsy + 1
 nz = nelementsz + 1
 total_points = nx * ny * nz
 i = 0
-print 'total grid points = ', total_points
+print('total grid points = ', total_points)
 
 # GUI
 if movie:
-    print "output progress file = data.pkl"
+    print("output progress file = data.pkl")
     data = [int(nx / 2), int(ny / 2), int(nz / 2),
             centerx, centery, centerz,
             spacing]
-    cPickle.dump(data, output, -1)
+    pickle.dump(data, output, -1)
 
 while i < total_points:
     linee = emap.readline()
-    worde = string.split(linee)
-    eMapVal = string.atof(worde[0])
+    worde = linee.split()
+    eMapVal = float(worde[0])
     lined = dmap.readline()
-    wordd = string.split(lined)
-    dMapVal = string.atof(wordd[0])
+    wordd = lined.split()
+    dMapVal = float(wordd[0])
     if Aflag == 1:
         lineA = Amap.readline()
-        word = string.split(lineA)
-        rawdatum = string.atof(word[0])
-        # datum = string.atof(word[0])
+        word = lineA.split()
+        rawdatum = float(word[0])
+        # datum = float(word[0])
         # datum = rawdatum + (qA * eMapVal) + (abs(qA) * dMapVal)
         datum = rawdatum + (abs(qA) * dMapVal)
         Alist.append(datum)
@@ -272,9 +278,9 @@ while i < total_points:
         Alist.append(1000000.)
     if Cflag == 1:
         lineC = Cmap.readline()
-        word = string.split(lineC)
-        rawdatum = string.atof(word[0])
-        # datum = string.atof(word[0])
+        word = lineC.split()
+        rawdatum = float(word[0])
+        # datum = float(word[0])
         # datum = rawdatum + (qC * eMapVal) + (abs(qC) * dMapVal)
         datum = rawdatum + (abs(qC) * dMapVal)
         Clist.append(datum)
@@ -283,9 +289,9 @@ while i < total_points:
     # the Clist is set lower than the others as a default
     if Hflag == 1:
         lineH = Hmap.readline()
-        word = string.split(lineH)
-        rawdatum = string.atof(word[0])
-        # datum = string.atof(word[0])
+        word = lineH.split()
+        rawdatum = float(word[0])
+        # datum = float(word[0])
         # datum = rawdatum + (qH * eMapVal) + (abs(qH) * dMapVal)
         datum = rawdatum + (abs(qH) * dMapVal)
         Hlist.append(datum)
@@ -293,9 +299,9 @@ while i < total_points:
         Hlist.append(1000000.)
     if Nflag == 1:
         lineN = Nmap.readline()
-        word = string.split(lineN)
-        rawdatum = string.atof(word[0])
-        # datum = string.atof(word[0])
+        word = lineN.split()
+        rawdatum = float(word[0])
+        # datum = float(word[0])
         # datum = rawdatum + (qN * eMapVal) + (abs(qN) * dMapVal)
         datum = rawdatum + (abs(qN) * dMapVal)
         Nlist.append(datum)
@@ -303,9 +309,9 @@ while i < total_points:
         Nlist.append(1000000.)
     if NAflag == 1:
         lineNA = NAmap.readline()
-        word = string.split(lineNA)
-        rawdatum = string.atof(word[0])
-        # datum = string.atof(word[0])
+        word = lineNA.split()
+        rawdatum = float(word[0])
+        # datum = float(word[0])
         # datum = rawdatum + (qNA * eMapVal) + (abs(qNA) * dMapVal)
         datum = rawdatum + (abs(qNA) * dMapVal)
         NAlist.append(datum)
@@ -313,9 +319,9 @@ while i < total_points:
         NAlist.append(1000000.)
     if Oflag == 1:
         lineO = Omap.readline()
-        word = string.split(lineO)
-        rawdatum = string.atof(word[0])
-        # datum = string.atof(word[0])
+        word = lineO.split()
+        rawdatum = float(word[0])
+        # datum = float(word[0])
         # datum = rawdatum + (qO * eMapVal) + (abs(qO) * dMapVal)
         datum = rawdatum + (abs(qO) * dMapVal)
         Olist.append(datum)
@@ -323,9 +329,9 @@ while i < total_points:
         Olist.append(1000000.)
     if Sflag == 1:
         lineS = Smap.readline()
-        word = string.split(lineS)
-        rawdatum = string.atof(word[0])
-        # datum = string.atof(word[0])
+        word = lineS.split()
+        rawdatum = float(word[0])
+        # datum = stringfloat(word[0])
         # datum = rawdatum + (qS * eMapVal) + (abs(qS) * dMapVal)
         datum = rawdatum + (abs(qS) * dMapVal)
         Slist.append(datum)
@@ -353,8 +359,8 @@ while i < total_points:
     i = i + 1
 # now load up a 3D array with zeros and fill with best affinity values
 # load a second array with the best atom type
-bestmap = zeros((nx, ny, nz), 'float')
-bestatom = zeros((nx, ny, nz), 'int')
+bestmap = zeros((nx, ny, nz), np.float64)
+bestatom = zeros((nx, ny, nz), np.int64)
 listinc = 0
 for k in range(nz):
     for j in range(ny):
@@ -371,7 +377,7 @@ def nborfinder(x, nx, y, ny, z, nz, bestmap, bestatom, nbor, flood):
         node = [bestmap[x + 1, y, z], x + 1, y, z, bestatom[x + 1, y, z]]
         if node not in nbor and node not in flood:
             nbor.append(node)
-    if x - 1 >= 0:
+    if x >= 1:
         node = [bestmap[x - 1, y, z], x - 1, y, z, bestatom[x - 1, y, z]]
         if node not in nbor and node not in flood:
             nbor.append(node)
@@ -379,7 +385,7 @@ def nborfinder(x, nx, y, ny, z, nz, bestmap, bestatom, nbor, flood):
         node = [bestmap[x, y + 1, z], x, y + 1, z, bestatom[x, y + 1, z]]
         if node not in nbor and node not in flood:
             nbor.append(node)
-    if y - 1 >= 0:
+    if y >= 1:
         node = [bestmap[x, y - 1, z], x, y - 1, z, bestatom[x, y - 1, z]]
         if node not in nbor and node not in flood:
             nbor.append(node)
@@ -387,7 +393,7 @@ def nborfinder(x, nx, y, ny, z, nz, bestmap, bestatom, nbor, flood):
         node = [bestmap[x, y, z + 1], x, y, z + 1, bestatom[x, y, z + 1]]
         if node not in nbor and node not in flood:
             nbor.append(node)
-    if z - 1 >= 0:
+    if z >= 1:
         node = [bestmap[x, y, z - 1], x, y, z - 1, bestatom[x, y, z - 1]]
         if node not in nbor and node not in flood:
             nbor.append(node)
@@ -395,42 +401,36 @@ def nborfinder(x, nx, y, ny, z, nz, bestmap, bestatom, nbor, flood):
 
 # define second function for finding neighbors with no steric hindrence
 def nborfinder2(x, nx, y, ny, z, nz, bestmap, bestatom, nbor, flood):
-    "This funtion finds orthogonal neighbor points with values <= 0"
+    """This funtion finds orthogonal neighbor points with values <= 0"""
     if x + 1 <= nx - 1:
         node = [bestmap[x + 1, y, z], x + 1, y, z, bestatom[x + 1, y, z]]
-        if node[0] <= 0.0:
-            if node not in nbor and node not in flood:
-                nbor.append(node)
-    if x - 1 >= 0:
+        if node[0] <= 0.0 and node not in nbor and node not in flood:
+            nbor.append(node)
+    if x >= 1:
         node = [bestmap[x - 1, y, z], x - 1, y, z, bestatom[x - 1, y, z]]
-        if node[0] <= 0.0:
-            if node not in nbor and node not in flood:
-                nbor.append(node)
+        if node[0] <= 0.0 and node not in nbor and node not in flood:
+            nbor.append(node)
     if y + 1 <= ny - 1:
         node = [bestmap[x, y + 1, z], x, y + 1, z, bestatom[x, y + 1, z]]
-        if node[0] <= 0.0:
-            if node not in nbor and node not in flood:
-                nbor.append(node)
-    if y - 1 >= 0:
+        if node[0] <= 0.0 and node not in nbor and node not in flood:
+            nbor.append(node)
+    if y >= 1:
         node = [bestmap[x, y - 1, z], x, y - 1, z, bestatom[x, y - 1, z]]
-        if node[0] <= 0.0:
-            if node not in nbor and node not in flood:
-                nbor.append(node)
+        if node[0] <= 0.0 and node not in nbor and node not in flood:
+            nbor.append(node)
     if z + 1 <= nz - 1:
         node = [bestmap[x, y, z + 1], x, y, z + 1, bestatom[x, y, z + 1]]
-        if node[0] <= 0.0:
-            if node not in nbor and node not in flood:
-                nbor.append(node)
-    if z - 1 >= 0:
+        if node[0] <= 0.0 and node not in nbor and node not in flood:
+            nbor.append(node)
+    if z >= 1:
         node = [bestmap[x, y, z - 1], x, y, z - 1, bestatom[x, y, z - 1]]
-        if node[0] <= 0.0:
-            if node not in nbor and node not in flood:
-                nbor.append(node)
+        if node[0] <= 0.0 and node not in nbor and node not in flood:
+            nbor.append(node)
 
 
 # define function to set state for contiguous
 def setstate(worstpoint, flood):
-    "This function determines if a point is removable or not"
+    """This function determines if a point is removable or not"""
     # return a value for contig, 0 for removable and 1 for non-removable
     # create a dictionary of coords in flood and assign value to 1
     floodcoords = {}
@@ -446,104 +446,104 @@ def setstate(worstpoint, flood):
     y = worstpoint[2]
     z = worstpoint[3]
     # check for orthogonal neighbors and set F to 1 if there
-    if floodcoords.has_key((x + 1, y, z)):
+    if (x + 1, y, z) in floodcoords:
         F[0] = 1
-        neighbors = neighbors + 1
+        neighbors += 1
         nborcoords.append((x + 1, y, z))
-    if floodcoords.has_key((x - 1, y, z)):
+    if (x - 1, y, z) in floodcoords:
         F[3] = 1
-        neighbors = neighbors + 1
+        neighbors += 1
         nborcoords.append((x - 1, y, z))
-    if floodcoords.has_key((x, y + 1, z)):
+    if (x, y + 1, z) in floodcoords:
         F[1] = 1
-        neighbors = neighbors + 1
+        neighbors += 1
         nborcoords.append((x, y + 1, z))
-    if floodcoords.has_key((x, y - 1, z)):
+    if (x, y - 1, z) in floodcoords:
         F[4] = 1
-        neighbors = neighbors + 1
+        neighbors += 1
         nborcoords.append((x, y - 1, z))
-    if floodcoords.has_key((x, y, z + 1)):
+    if (x, y, z + 1) in floodcoords:
         F[2] = 1
-        neighbors = neighbors + 1
+        neighbors += 1
         nborcoords.append((x, y, z + 1))
-    if floodcoords.has_key((x, y, z - 1)):
+    if (x, y, z - 1) in floodcoords:
         F[5] = 1
-        neighbors = neighbors + 1
+        neighbors += 1
         nborcoords.append((x, y, z - 1))
     # check for planes, planes must tag each neighbor or point non-removable
-    if floodcoords.has_key((x, y - 1, z + 1)) and F[4] == 1 and F[2] == 1:
-        planes = planes + 1
+    if (x, y - 1, z + 1) in floodcoords and F[4] == 1 and F[2] == 1:
+        planes += 1
         tag[4] = 1
         tag[2] = 1
-    if floodcoords.has_key((x, y + 1, z + 1)) and F[1] == 1 and F[2] == 1:
-        planes = planes + 1
+    if (x, y + 1, z + 1) in floodcoords and F[1] == 1 and F[2] == 1:
+        planes += 1
         tag[1] = 1
         tag[2] = 1
-    if floodcoords.has_key((x, y - 1, z - 1)) and F[4] == 1 and F[5] == 1:
-        planes = planes + 1
+    if (x, y - 1, z - 1) in floodcoords and F[4] == 1 and F[5] == 1:
+        planes += 1
         tag[4] = 1
         tag[5] = 1
-    if floodcoords.has_key((x, y + 1, z - 1)) and F[1] == 1 and F[5] == 1:
-        planes = planes + 1
+    if (x, y + 1, z - 1) in floodcoords and F[1] == 1 and F[5] == 1:
+        planes += 1
         tag[1] = 1
         tag[5] = 1
-    if floodcoords.has_key((x + 1, y, z + 1)) and F[2] == 1 and F[0] == 1:
-        planes = planes + 1
+    if (x + 1, y, z + 1) in floodcoords and F[2] == 1 and F[0] == 1:
+        planes += 1
         tag[2] = 1
         tag[0] = 1
-    if floodcoords.has_key((x - 1, y, z + 1)) and F[2] == 1 and F[3] == 1:
-        planes = planes + 1
+    if (x - 1, y, z + 1) in floodcoords and F[2] == 1 and F[3] == 1:
+        planes += 1
         tag[2] = 1
         tag[3] = 1
-    if floodcoords.has_key((x + 1, y, z - 1)) and F[0] == 1 and F[5] == 1:
-        planes = planes + 1
+    if (x + 1, y, z - 1) in floodcoords and F[0] == 1 and F[5] == 1:
+        planes += 1
         tag[0] = 1
         tag[5] = 1
-    if floodcoords.has_key((x - 1, y, z - 1)) and F[3] == 1 and F[5] == 1:
-        planes = planes + 1
+    if (x - 1, y, z - 1) in floodcoords and F[3] == 1 and F[5] == 1:
+        planes += 1
         tag[3] = 1
         tag[5] = 1
-    if floodcoords.has_key((x + 1, y - 1, z)) and F[0] == 1 and F[4] == 1:
-        planes = planes + 1
+    if (x + 1, y - 1, z) in floodcoords and F[0] == 1 and F[4] == 1:
+        planes += 1
         tag[0] = 1
         tag[4] = 1
-    if floodcoords.has_key((x + 1, y + 1, z)) and F[0] == 1 and F[1] == 1:
-        planes = planes + 1
+    if (x + 1, y + 1, z) in floodcoords and F[0] == 1 and F[1] == 1:
+        planes += 1
         tag[0] = 1
         tag[1] = 1
-    if floodcoords.has_key((x - 1, y - 1, z)) and F[3] == 1 and F[4] == 1:
-        planes = planes + 1
+    if (x - 1, y - 1, z) in floodcoords and F[3] == 1 and F[4] == 1:
+        planes += 1
         tag[3] = 1
         tag[4] = 1
-    if floodcoords.has_key((x - 1, y + 1, z)) and F[1] == 1 and F[3] == 1:
-        planes = planes + 1
+    if (x - 1, y + 1, z) in floodcoords and F[1] == 1 and F[3] == 1:
+        planes += 1
         tag[1] = 1
         tag[3] = 1
     # now check for removable point and set state flag
     tagtotal = tag[0] + tag[1] + tag[2] + tag[3] + tag[4] + tag[5]
     if neighbors == 1:
         contig = 0  # state is set to removable
-    if neighbors == 2:
+    elif neighbors == 2:
         if planes >= 1 and tagtotal == 2:
             contig = 0
         else:
             contig = 1
-    if neighbors == 3:
+    elif neighbors == 3:
         if planes >= 2 and tagtotal == 3:
             contig = 0
         else:
             contig = 1
-    if neighbors == 4:
+    elif neighbors == 4:
         if planes >= 3 and tagtotal == 4:
             contig = 0
         else:
             contig = 1
-    if neighbors == 5:
+    elif neighbors == 5:
         if planes >= 4 and tagtotal == 5:
             contig = 0
         else:
             contig = 1
-    if neighbors == 6:
+    elif neighbors == 6:
         if planes >= 5 and tagtotal == 6:
             contig = 0
         else:
@@ -563,28 +563,28 @@ def setstate(worstpoint, flood):
         apx = coord[0]
         apy = coord[1]
         apz = coord[2]
-        if testfloodcoords.has_key((apx + 1, apy, apz)):
+        if (apx + 1, apy, apz) in testfloodcoords:
             d = sqrt(((x - (apx + 1)) ** 2) + ((y - apy) ** 2) + ((z - apz) ** 2))
             Q.append((d, apx + 1, apy, apz))
-        if testfloodcoords.has_key((apx - 1, apy, apz)):
+        if (apx - 1, apy, apz) in testfloodcoords:
             d = sqrt(((x - (apx - 1)) ** 2) + ((y - apy) ** 2) + ((z - apz) ** 2))
             Q.append((d, apx - 1, apy, apz))
-        if testfloodcoords.has_key((apx, apy + 1, apz)):
+        if (apx, apy + 1, apz) in testfloodcoords:
             d = sqrt(((x - apx) ** 2) + ((y - (apy + 1)) ** 2) + ((z - apz) ** 2))
             Q.append((d, apx, apy + 1, apz))
-        if testfloodcoords.has_key((apx, apy - 1, apz)):
+        if (apx, apy - 1, apz) in testfloodcoords:
             d = sqrt(((x - apx) ** 2) + ((y - (apy - 1)) ** 2) + ((z - apz) ** 2))
             Q.append((d, apx, apy - 1, apz))
-        if testfloodcoords.has_key((apx, apy, apz + 1)):
+        if (apx, apy, apz + 1) in testfloodcoords:
             d = sqrt(((x - apx) ** 2) + ((y - apy) ** 2) + ((z - (apz + 1)) ** 2))
             Q.append((d, apx, apy, apz + 1))
-        if testfloodcoords.has_key((apx, apy, apz - 1)):
+        if (apx, apy, apz - 1) in testfloodcoords:
             d = sqrt(((x - apx) ** 2) + ((y - apy) ** 2) + ((z - (apz - 1)) ** 2))
             Q.append((d, apx, apy, apz - 1))
         del testfloodcoords[(apx, apy, apz)]  # delete the active point
         # now traverse the que and check for nborcoords, remove points as you go
         while 1:
-            if len(Q) == 0:
+            if not Q:
                 break
             Q.sort()
             qcoord = Q.pop(0)
@@ -595,30 +595,30 @@ def setstate(worstpoint, flood):
             # check to see if this point is the last untouched neighbor point
             if nborcoords.count((apx, apy, apz)) == 1:
                 nborcoords.remove((apx, apy, apz))
-            if len(nborcoords) == 0:
+            if not nborcoords:
                 contig = 0  # all neighbor points still conected, so removable
                 break
-            if testfloodcoords.has_key((apx + 1, apy, apz)):
+            if (apx + 1, apy, apz) in testfloodcoords:
                 d = sqrt(((x - (apx + 1)) ** 2) + ((y - apy) ** 2) + ((z - apz) ** 2))
                 if Q.count((d, apx + 1, apy, apz)) == 0:
                     Q.append((d, apx + 1, apy, apz))
-            if testfloodcoords.has_key((apx - 1, apy, apz)):
+            if (apx - 1, apy, apz) in testfloodcoords:
                 d = sqrt(((x - (apx - 1)) ** 2) + ((y - apy) ** 2) + ((z - apz) ** 2))
                 if Q.count((d, apx - 1, apy, apz)) == 0:
                     Q.append((d, apx - 1, apy, apz))
-            if testfloodcoords.has_key((apx, apy + 1, apz)):
+            if (apx, apy + 1, apz) in testfloodcoords:
                 d = sqrt(((x - apx) ** 2) + ((y - (apy + 1)) ** 2) + ((z - apz) ** 2))
                 if Q.count((d, apx, apy + 1, apz)) == 0:
                     Q.append((d, apx, apy + 1, apz))
-            if testfloodcoords.has_key((apx, apy - 1, apz)):
+            if (apx, apy - 1, apz) in testfloodcoords:
                 d = sqrt(((x - apx) ** 2) + ((y - (apy - 1)) ** 2) + ((z - apz) ** 2))
                 if Q.count((d, apx, apy - 1, apz)) == 0:
                     Q.append((d, apx, apy - 1, apz))
-            if testfloodcoords.has_key((apx, apy, apz + 1)):
+            if (apx, apy, apz + 1) in testfloodcoords:
                 d = sqrt(((x - apx) ** 2) + ((y - apy) ** 2) + ((z - (apz + 1)) ** 2))
                 if Q.count((d, apx, apy, apz + 1)) == 0:
                     Q.append((d, apx, apy, apz + 1))
-            if testfloodcoords.has_key((apx, apy, apz - 1)):
+            if (apx, apy, apz - 1) in testfloodcoords:
                 d = sqrt(((x - apx) ** 2) + ((y - apy) ** 2) + ((z - (apz - 1)) ** 2))
                 if Q.count((d, apx, apy, apz - 1)) == 0:
                     Q.append((d, apx, apy, apz - 1))
@@ -630,11 +630,11 @@ xcent = int(nx / 2)
 ycent = int(ny / 2)
 zcent = int(nz / 2)
 if start_point_flag == 0:
-    print 'done loading affinity maps, now track through all points and find (ten) best start points'
+    print('done loading affinity maps, now track through all points and find (ten) best start points')
 # print 'Progress: {}\r'.format(progress),
 # sys.stdout.flush()
 if start_point_flag == 2:
-    print 'done loading affinity maps, now generate fill that contains both input points'
+    print('done loading affinity maps, now generate fill that contains both input points')
 # first, outside mesh loop, set up a coord mods list to find 1A sphere around flood points for vol calc
 CoordModsList = []
 cpr = 1.0 / spacing  # cpr = coord point radii
@@ -678,7 +678,7 @@ if start_point_flag == 0:
     count = 0
     for fg in fullgrid:
         progress = 1 + (float(count) / len(fullgrid)) * 19
-        print 'Progress: {}\r'.format(progress),
+        print('Progress: {}\r'.format(progress))
         count += 1
         Shell = []
         for SPML in StartPointModList:
@@ -753,7 +753,7 @@ if start_point_flag == 0:
     e = 0
     for fm in tempmesh:
         progress = 20 + (float(count) / len(tempmesh)) * 75
-        print 'Progress: {}\r'.format(progress),
+        print('Progress: {}\r'.format(progress), )
         count += 1
         fp = fm[4]
         overlapcount = 0
@@ -783,7 +783,7 @@ if start_point_flag == 1:
         try:
             file_center = open(center_file, 'r')
         except:
-            print "ERROR"
+            print("ERROR")
         for line in file_center:
             line = line.strip('\n')
             if re.search('center_x', line[0:8]):
@@ -822,7 +822,7 @@ if start_point_flag == 1:
         testmesh.append(fillpoint)
     testmesh.sort()
     if len(testmesh) == 0:
-        print 'no good starting points within 4A of your chosen point'
+        print('no good starting points within 4A of your chosen point')
         sys.exit(2)
     goodfillpoint = testmesh[0]
     mesh.append(goodfillpoint)
@@ -867,12 +867,12 @@ for meshpoint in mesh:
             testmesh.append(fillpoint)
         testmesh.sort()
         if len(testmesh) == 0:
-            print 'no good starting points within 4A of 1st input point'
+            print('no good starting points within 4A of 1st input point')
             sys.exit(2)
         gpf1 = testmesh[0]  # good fill point coords
         loadpoint1 = [bestmap[gpf1[1], gpf1[2], gpf1[3]], gpf1[1], gpf1[2], gpf1[3],
                       bestatom[gpf1[1], gpf1[2], gpf1[3]]]
-        print 'first user point loaded'
+        print('first user point loaded')
         # generate the second startpoint from the input xyz
         testmesh = []
         xpt = xcent + int((x2_input - centerx) / spacing)
@@ -891,12 +891,12 @@ for meshpoint in mesh:
             testmesh.append(fillpoint)
         testmesh.sort()
         if len(testmesh) == 0:
-            print 'no good starting points within 4A of 2nd input point'
+            print('no good starting points within 4A of 2nd input point')
             sys.exit(2)
         gpf2 = testmesh[0]  # good fill point coords
         loadpoint2 = [bestmap[gpf2[1], gpf2[2], gpf2[3]], gpf2[1], gpf2[2], gpf2[3],
                       bestatom[gpf2[1], gpf2[2], gpf2[3]]]
-        print 'second user point loaded'
+        print('second user point loaded')
         # exclude steric overlap points (use only 0 and negative affinity)
         # add points from first to second along legal pathways - then bring fill up to input volume
         spx = loadpoint1[1]
@@ -1235,7 +1235,7 @@ for meshpoint in mesh:
             continue
         # only let the psuedo pods run 100 times
         if PPcount > 100:
-            print "Psuedo Pod over 100 - continuing..."
+            print("Psuedo Pod over 100 - continuing...")
             continue
         PPcount = PPcount + 1
         # first, add up energy of 10 worst points
@@ -1491,9 +1491,9 @@ resultName = FileBaseName + '_' + str(volume) + 'Results.txt'
 results_out = open(resultName, 'w')
 i = 0
 if start_point_flag == 0:
-    print '10 Unique Results:  (note, some starting points converge to same answer, so may be less than 10)'
+    print('10 Unique Results:  (note, some starting points converge to same answer, so may be less than 10)')
 for OP in newOUTlist:
-    print 'Output #', i + 1, ' Total Volume = ', OP[1], ' Total Energy per Vol, EPV = ', OP[0], ' (Kcal/mol A**3)'
+    print('Output #', i + 1, ' Total Volume = ', OP[1], ' Total Energy per Vol, EPV = ', OP[0], ' (Kcal/mol A**3)')
     results_out.write('Output #%3i, Total Volume = %7.2f, Total Energy per Vol, EPV = %15.8f\n'
                       % (i + 1, OP[1], OP[0]))
     # point loops
@@ -1506,14 +1506,21 @@ for OP in newOUTlist:
     i = i + 1
 # clean house
 results_out.close()
-if Sflag == 1: Smap.close()
-if Aflag == 1: Amap.close()
-if Cflag == 1: Cmap.close()
-if Hflag == 1: Hmap.close()
-if Nflag == 1: Nmap.close()
-if NAflag == 1: NAmap.close()
-if Oflag == 1: Omap.close()
+if Sflag == 1:
+    Smap.close()
+if Aflag == 1:
+    Amap.close()
+if Cflag == 1:
+    Cmap.close()
+if Hflag == 1:
+    Hmap.close()
+if Nflag == 1:
+    Nmap.close()
+if NAflag == 1:
+    NAmap.close()
+if Oflag == 1:
+    Omap.close()
 emap.close()
 dmap.close()
 t13 = time.time() - begin
-print "tiempo pasado13", t13
+print("tiempo pasado13", t13)

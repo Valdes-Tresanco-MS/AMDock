@@ -8,7 +8,7 @@ def m_filter(s, rg):
 
 def smallbox_warning(self, dicc, rg, prot):
     self.msg = QMessageBox()
-    self.msg.setWindowIcon(QIcon(QPixmap("amdock_icon.png")))
+    self.msg.setWindowIcon(QIcon("amdock_icon.png"))
     self.msg.setIcon(QMessageBox.Critical)
     self.msg.setWindowTitle("Warning")
     list_ = ''
