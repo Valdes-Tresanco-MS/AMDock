@@ -1,9 +1,9 @@
 # This file is sa modification of AutoDock/AutoDock Vina plugin for pymol
 # Autodock/Vina plugin is Copyright (C) 2009 by Daniel Seeliger (See the footer of the document )
 # ================================================================
-import Tkinter, Pmw
-from Tkinter import *
-import tkMessageBox
+import tkinter, Pmw
+from tkinter import *
+from tkinter import messagebox
 from pymol import cmd
 from pymol.cgo import *
 from pymol import stored
@@ -91,7 +91,7 @@ class AMDockPlugin:
 
         # the title
 
-        self.title_label = Tkinter.Label(self.main_window.interior(),
+        self.title_label = tkinter.Label(self.main_window.interior(),
                                          text='PyMOL AMDock Plugin\n [ Assisted Molecular Docking For AutoDock4 and '
                                               'Autodock Vina ]\nFeel free to write us for any suggestions or errors '
                                               'you find\nhttps://groups.google.com/forum/#!forum/amdock\nThis '
@@ -120,7 +120,7 @@ class AMDockPlugin:
         self.offtarget_grid_group.pack(fill='both', expand=0, padx=10, pady=5)
 
         # n grid points entries target
-        self.target_size_x_frame = Tkinter.Frame(self.target_grid_group.interior())
+        self.target_size_x_frame = tkinter.Frame(self.target_grid_group.interior())
         self.target_size_x_label = Label(self.target_size_x_frame, text='X:')
         self.target_size_x_location = Entry(self.target_size_x_frame, textvariable=self.target_grid_size[0],
                                             bg='black', fg='yellow', width=7)
@@ -128,7 +128,7 @@ class AMDockPlugin:
                                                  command=self.target_size_x_changed)
         self.target_size_x_scrollbar.set('0.5', '0.51')
 
-        self.target_size_y_frame = Tkinter.Frame(self.target_grid_group.interior())
+        self.target_size_y_frame = tkinter.Frame(self.target_grid_group.interior())
         self.target_size_y_label = Label(self.target_size_y_frame, text='Y:')
         self.target_size_y_location = Entry(self.target_size_y_frame, textvariable=self.target_grid_size[1], bg='black',
                                             fg='yellow', width=7)
@@ -136,7 +136,7 @@ class AMDockPlugin:
                                                  command=self.target_size_y_changed)
         self.target_size_y_scrollbar.set('0.5', '0.51')
 
-        self.target_size_z_frame = Tkinter.Frame(self.target_grid_group.interior())
+        self.target_size_z_frame = tkinter.Frame(self.target_grid_group.interior())
         self.target_size_z_label = Label(self.target_size_z_frame, text='Z:')
         self.target_size_z_location = Entry(self.target_size_z_frame, textvariable=self.target_grid_size[2],
                                             bg='black', fg='yellow', width=7)
@@ -169,7 +169,7 @@ class AMDockPlugin:
                          self.target_size_z_location
                          ])
         # n grid points entries off-target
-        self.offtarget_size_x_frame = Tkinter.Frame(self.offtarget_grid_group.interior())
+        self.offtarget_size_x_frame = tkinter.Frame(self.offtarget_grid_group.interior())
         self.offtarget_size_x_label = Label(self.offtarget_size_x_frame, text='X:')
         self.offtarget_size_x_location = Entry(self.offtarget_size_x_frame, textvariable=self.offtarget_grid_size[0],
                                                bg='black', fg='yellow', width=7)
@@ -177,7 +177,7 @@ class AMDockPlugin:
                                                     command=self.offtarget_size_x_changed)
         self.offtarget_size_x_scrollbar.set('0.5', '0.51')
 
-        self.offtarget_size_y_frame = Tkinter.Frame(self.offtarget_grid_group.interior())
+        self.offtarget_size_y_frame = tkinter.Frame(self.offtarget_grid_group.interior())
         self.offtarget_size_y_label = Label(self.offtarget_size_y_frame, text='Y:')
         self.offtarget_size_y_location = Entry(self.offtarget_size_y_frame, textvariable=self.offtarget_grid_size[1],
                                                bg='black', fg='yellow', width=7)
@@ -185,7 +185,7 @@ class AMDockPlugin:
                                                     command=self.offtarget_size_y_changed)
         self.offtarget_size_y_scrollbar.set('0.5', '0.51')
 
-        self.offtarget_size_z_frame = Tkinter.Frame(self.offtarget_grid_group.interior())
+        self.offtarget_size_z_frame = tkinter.Frame(self.offtarget_grid_group.interior())
         self.offtarget_size_z_label = Label(self.offtarget_size_z_frame, text='Z:')
         self.offtarget_size_z_location = Entry(self.offtarget_size_z_frame, textvariable=self.offtarget_grid_size[2],
                                                bg='black', fg='yellow', width=7)
@@ -236,9 +236,9 @@ class AMDockPlugin:
         self.target_grid_center_radiogroups = []
         self.offtarget_grid_center_radiogroups = []
 
-        self.target_grid_center_radioframe = Tkinter.Frame(self.target_group.interior())
+        self.target_grid_center_radioframe = tkinter.Frame(self.target_group.interior())
         self.target_grid_center_pymol_selection = Pmw.Group(self.target_grid_center_radioframe,
-                                                            tag_pyclass=Tkinter.Radiobutton,
+                                                            tag_pyclass=tkinter.Radiobutton,
                                                             tag_text='Calculate Grid Center by Selection',
                                                             tag_value=GRID_CENTER_FROM_SELECTION,
                                                             tag_variable=self.target_grid_center_selection_mode
@@ -257,7 +257,7 @@ class AMDockPlugin:
         self.target_grid_center_selection_user.pack(fill='x', padx=4, pady=1, expand=0)
 
         self.target_grid_center_coordinates = Pmw.Group(self.target_grid_center_radioframe,
-                                                        tag_pyclass=Tkinter.Radiobutton,
+                                                        tag_pyclass=tkinter.Radiobutton,
                                                         tag_text='Grid Center Coordinates',
                                                         tag_value=GRID_CENTER_FROM_COORDINATES,
                                                         tag_variable=self.target_grid_center_selection_mode
@@ -269,9 +269,9 @@ class AMDockPlugin:
         self.target_grid_center_radioframe.pack(padx=6, pady=6, expand='yes', fill='both')
         Pmw.aligngrouptags(self.target_grid_center_radiogroups)
 
-        self.offtarget_grid_center_radioframe = Tkinter.Frame(self.offtarget_group.interior())
+        self.offtarget_grid_center_radioframe = tkinter.Frame(self.offtarget_group.interior())
         self.offtarget_grid_center_pymol_selection = Pmw.Group(self.offtarget_grid_center_radioframe,
-                                                               tag_pyclass=Tkinter.Radiobutton,
+                                                               tag_pyclass=tkinter.Radiobutton,
                                                                tag_text='Calculate Grid Center by Selection',
                                                                tag_value=GRID_CENTER_FROM_SELECTION_B,
                                                                tag_variable=self.offtarget_grid_center_selection_mode
@@ -291,7 +291,7 @@ class AMDockPlugin:
         self.offtarget_grid_center_selection_user.pack(fill='x', padx=4, pady=1, expand=0)
 
         self.offtarget_grid_center_coordinates = Pmw.Group(self.offtarget_grid_center_radioframe,
-                                                           tag_pyclass=Tkinter.Radiobutton,
+                                                           tag_pyclass=tkinter.Radiobutton,
                                                            tag_text='Grid Center Coordinates',
                                                            tag_value=GRID_CENTER_FROM_COORDINATES_B,
                                                            tag_variable=self.offtarget_grid_center_selection_mode
@@ -303,7 +303,7 @@ class AMDockPlugin:
         self.offtarget_grid_center_radioframe.pack(padx=6, pady=6, expand='yes', fill='both')
         Pmw.aligngrouptags(self.offtarget_grid_center_radiogroups)
 
-        self.target_center_x_frame = Tkinter.Frame(self.target_grid_center_coordinates.interior())
+        self.target_center_x_frame = tkinter.Frame(self.target_grid_center_coordinates.interior())
         self.target_center_x_label = Label(self.target_center_x_frame, text='X:')
         self.target_center_x_location = Entry(self.target_center_x_frame, textvariable=self.target_grid_center[0],
                                               bg='black', fg='yellow', width=10)
@@ -311,7 +311,7 @@ class AMDockPlugin:
                                                    command=self.target_center_x_changed)
         self.target_center_x_scrollbar.set('0.5', '0.51')
 
-        self.target_center_y_frame = Tkinter.Frame(self.target_grid_center_coordinates.interior())
+        self.target_center_y_frame = tkinter.Frame(self.target_grid_center_coordinates.interior())
         self.target_center_y_label = Label(self.target_center_y_frame, text='Y:')
         self.target_center_y_location = Entry(self.target_center_y_frame, textvariable=self.target_grid_center[1], bg='black',
                                               fg='yellow', width=10)
@@ -319,7 +319,7 @@ class AMDockPlugin:
                                                    command=self.target_center_y_changed)
         self.target_center_y_scrollbar.set('0.5', '0.51')
 
-        self.target_center_z_frame = Tkinter.Frame(self.target_grid_center_coordinates.interior())
+        self.target_center_z_frame = tkinter.Frame(self.target_grid_center_coordinates.interior())
         self.target_center_z_label = Label(self.target_center_z_frame, text='Z:')
         self.target_center_z_location = Entry(self.target_center_z_frame, textvariable=self.target_grid_center[2], bg='black',
                                               fg='yellow', width=10)
@@ -342,7 +342,7 @@ class AMDockPlugin:
         self.target_center_z_scrollbar.pack(side=LEFT)
         self.target_center_z_frame.pack(side=LEFT, padx=4, pady=1)
 
-        self.offtarget_center_x_frame = Tkinter.Frame(self.offtarget_grid_center_coordinates.interior())
+        self.offtarget_center_x_frame = tkinter.Frame(self.offtarget_grid_center_coordinates.interior())
         self.offtarget_center_x_label = Label(self.offtarget_center_x_frame, text='X:')
         self.offtarget_center_x_location = Entry(self.offtarget_center_x_frame,
                                                  textvariable=self.offtarget_grid_center[0],
@@ -351,7 +351,7 @@ class AMDockPlugin:
                                                       command=self.offtarget_center_x_changed)
         self.offtarget_center_x_scrollbar.set('0.5', '0.51')
 
-        self.offtarget_center_y_frame = Tkinter.Frame(self.offtarget_grid_center_coordinates.interior())
+        self.offtarget_center_y_frame = tkinter.Frame(self.offtarget_grid_center_coordinates.interior())
         self.offtarget_center_y_label = Label(self.offtarget_center_y_frame, text='Y:')
         self.offtarget_center_y_location = Entry(self.offtarget_center_y_frame,
                                                  textvariable=self.offtarget_grid_center[1],
@@ -360,7 +360,7 @@ class AMDockPlugin:
                                                       command=self.offtarget_center_y_changed)
         self.offtarget_center_y_scrollbar.set('0.5', '0.51')
 
-        self.offtarget_center_z_frame = Tkinter.Frame(self.offtarget_grid_center_coordinates.interior())
+        self.offtarget_center_z_frame = tkinter.Frame(self.offtarget_grid_center_coordinates.interior())
         self.offtarget_center_z_label = Label(self.offtarget_center_z_frame, text='Z:')
         self.offtarget_center_z_location = Entry(self.offtarget_center_z_frame,
                                                  textvariable=self.offtarget_grid_center[2],
@@ -491,7 +491,7 @@ class AMDockPlugin:
                 [x.get() for x in self.target_grid_center] != [float(x) for x in self.target_data[1:4]] or \
                 [x.get() for x in self.offtarget_grid_size] != [int(x) for x in self.offtarget_data[4:]] or \
                 [x.get() for x in self.offtarget_grid_center] != [float(x) for x in self.offtarget_data[1:4]]:
-                res = tkMessageBox.askyesno('Warning', "Some changes have not been saved. Do you want to save "
+                res = messagebox.askyesno('Warning', "Some changes have not been saved. Do you want to save "
                                                              "them before exit?")
                 if res == YES:
                     self.save_info()
@@ -503,7 +503,7 @@ class AMDockPlugin:
                     return
 
             else:
-                exit = tkMessageBox.askokcancel('Warning', 'Do really you wish to quit?')
+                exit = messagebox.askokcancel('Warning', 'Do really you wish to quit?')
                 if exit:
                     self.main_window.withdraw()
             cmd.delete("Target_box")
