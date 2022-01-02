@@ -18,13 +18,24 @@
 
 from setuptools import setup, find_packages
 import versioneer
-import sys
+from pathlib import Path
+import shutil
+
+## check that AMDock files not exits in destiny
+home = Path('~').expanduser()
+pymol_conf = home.joinpath('.pymol')
+pymol_startup = pymol_conf.joinpath('startup')
+grid_amdock = pymol_startup.joinpath('grid_amdock.py')
+if not pymol_conf.exists():
+    pymol_conf.mkdir()
+    pymol_startup.mkdir()
+if not pymol_startup.exists():
+    pymol_startup.mkdir()
+if not grid_amdock.exists():
+    shutil.copy('grid_amdock.py', grid_amdock)
 
 with open("README.md", "r") as f:
     LONG_DESCRIPTION = f.read()
-
-if sys.version_info[:2] < (3, 8):
-    raise RuntimeError("seaborn requires python >= 3.8.")
 
 setup(
     name='AMDock',
