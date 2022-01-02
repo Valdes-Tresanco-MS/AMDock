@@ -161,25 +161,24 @@ def load_pdbqt(filename):
     max_id = 0
     num_tz = 0
     non_atom_text = {}
-    f = open(filename)
-    counter = 0
-    for line in f:
-        if line.startswith('ATOM  ') or line.startswith('HETATM'):
-            atom = PDBQT(line)
-            if atom.atype == 'TZ':
-                num_tz += 1
+    with open(filename) as f:
+        counter = 0
+        for line in f:
+            if line.startswith('ATOM  ') or line.startswith('HETATM'):
+                atom = PDBQT(line)
+                if atom.atype == 'TZ':
+                    num_tz += 1
+                else:
+                    counter += 1
+                    if atom.atype.upper() == 'ZN':
+                        # set zinc charge to zero
+                        atom.charge = 0.0
+                    atoms_list.append(atom)
+                    max_id = max(max_id, atom.serial)
             else:
-                counter += 1
-                if atom.atype.upper() == 'ZN':
-                    # set zinc charge to zero
-                    atom.charge = 0.0
-                atoms_list.append(atom)
-                max_id = max(max_id, atom.serial)
-        else:
-            if counter not in non_atom_text:
-                non_atom_text[counter] = []
-            non_atom_text[counter].append(line)
-    f.close()
+                if counter not in non_atom_text:
+                    non_atom_text[counter] = []
+                non_atom_text[counter].append(line)
     if counter in non_atom_text: # text after all atoms
         non_atom_text['last'] = non_atom_text.pop(counter)
     return atoms_list, num_tz, max_id, non_atom_text
@@ -197,9 +196,7 @@ def bruteNearbyAtoms(atomsList, atype = 'ZN', cutOff = 4.5):
                 bht_dist.append(atom.dist(metal))
         idx = [i[0] for i in sorted(enumerate(bht_dist),
                  key = lambda x:x[1])]
-        nearbyAtoms = []
-        for i in idx:
-            nearbyAtoms.append(atomsList[bht_indx[i]])
+        nearbyAtoms = [atomsList[bht_indx[i]] for i in idx]
         allNearbyLists.append(nearbyAtoms)
     return allNearbyLists
 
@@ -336,13 +333,13 @@ class znShell():
             with a dist based approach. This will be used to calculate the
             angle between the carboxylate and other coordinating atoms"""
         d1 = dist(o1,zn)
-        d2 = dist(o2,zn) 
+        d2 = dist(o2,zn)
         oo = dist(o1,o2)
         ratio = ((d2-d1)/oo)**self.e # 0 to 1, 1 beign o2 more distant from zn
         weight = (1-ratio)/2 # if ratio==0 w12 should be half way between 01-o2
         v12 = rawVec(o1,o2)
         w12 = [v12[i]*weight for i in range(3)]
-        return tuple([o1[i]+w12[i] for i in range(3)])
+        return tuple(o1[i]+w12[i] for i in range(3))
 
     def _build13(self, connect):
         # Build 1-3 indx pairs
@@ -389,10 +386,7 @@ class znShell():
 
     def _rm_too_far(self, atoms):
         # Wrap me  ------ remove far away...
-        too_far = []
-        for i,a in enumerate(atoms):    
-            if a.dist(self.zn) > self.c:
-                too_far.append(i)
+        too_far = [i for i,a in enumerate(atoms) if a.dist(self.zn) > self.c]
         too_far.reverse()
         for i in too_far:
             atoms.pop(i)
@@ -418,10 +412,8 @@ class znShell():
                 remove.append(i) 
             elif not_removed and connected: 
                 [remove.append(j) for j in reach3[i] if j not in remove]
-        # new atoms list with leftovers form remove
-        binderAtoms = [atom for i,atom in enumerate(nearAtoms) 
-                            if i not in remove] 
-        return binderAtoms
+        return [atom for i,atom in enumerate(nearAtoms)
+                            if i not in remove]
 
     def tetrahedral_pseudo(self, d = 2.0):
         n = len(self.rec)
@@ -470,7 +462,7 @@ class znShell():
 
     def ligTZrmsd(self, d = 2):
         tz = self.tetrahedral_pseudo(d)
-        if tz == None:
+        if tz is None:
             return tz
         devs = [(a.dist(tz))**2 for a in self.lig]
         return math.sqrt( float(sum(devs)) / len(devs))
@@ -503,9 +495,9 @@ def main():
     try:
         opts, args = getopt.gnu_getopt(sys.argv[1:], 'r:o:ah', ['help'])
     except getopt.GetoptError as err:
-        print(str(err)) # will print something like "option -a not recognized"
+        print(err)
         usage()
-        sys.exit(2) 
+        sys.exit(2)
 
     # Parse arguments
     for o, a in opts:
@@ -515,17 +507,17 @@ def main():
         if o == '-a':
             about()
             sys.exit()
-        if o == '-r':
-            input_name = a
         if o == '-o':
             output_name = a
 
-    if not 'input_name' in locals():
+        elif o == '-r':
+            input_name = a
+    if 'input_name' not in locals():
         usage()
         sys.stderr.write('Error:\n    missing input receptor\n')
         sys.exit(2)
 
-    if not 'output_name' in locals():
+    if 'output_name' not in locals():
         (stem_name, extension) = splitext(input_name)
         output_name = stem_name + '_TZ' + extension
 
@@ -534,8 +526,8 @@ def main():
     carboxy = 0.5   # carboxylate averaging parameter (Supp. Info of paper)
     cutoff = 2.5    # to consider receptor atoms as zinc-coordinated
 
-    # Load molecules 
-    r, num_tz, lastserial, non_atom_text = load_pdbqt(input_name) 
+    # Load molecules
+    r, num_tz, lastserial, non_atom_text = load_pdbqt(input_name)
     if num_tz:
         sys.stderr.write(
             'WARNING: ignoring TZ pseudo-atoms in %s\n' % input_name)
@@ -548,7 +540,7 @@ def main():
     tz_list = []
     for alist in atoms_by_zn: # for each list of atoms nearby a zn atom
         zn = alist[0]
-        znobj = znShell(zn, cutoff, carboxy) 
+        znobj = znShell(zn, cutoff, carboxy)
         znobj.proc_rec(alist[1:]) # alist[0] is zn
         znobjs.append(znobj)
         tz_list.append(znobj.tetrahedral_pseudo(distance))
@@ -561,14 +553,12 @@ def main():
         r.append(tz)
     print('Wrote %d TZ atoms on %s.' % (len(tz_list), output_name))
 
-    # write file
-    recfile = open(output_name, 'w')
-    for (counter, atom) in enumerate(r):
-        if counter in non_atom_text:
-            for line in non_atom_text[counter]:
-                recfile.write(line)
-        recfile.write(atom.getline())
-    recfile.close()
+    with open(output_name, 'w') as recfile:
+        for (counter, atom) in enumerate(r):
+            if counter in non_atom_text:
+                for line in non_atom_text[counter]:
+                    recfile.write(line)
+            recfile.write(atom.getline())
 
 main()
 

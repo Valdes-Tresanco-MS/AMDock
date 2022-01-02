@@ -50,17 +50,14 @@ def calculate_box(x, y, z, xpts, ypts, zpts, prot):
     cmd.delete('%s_ref_center' % prot[0].upper())
     display_box(box_coords, cylinder_size, prot)
     crisscross(x, y, z, 0.5, '%s_ref_center' % prot[0].upper())
-    cmd.zoom('%s_ref_box'  % prot[0].upper(), 15) # zoom to box
+    cmd.zoom('%s_ref_box' % prot[0].upper(), 15)  # zoom to box
 
 
 def display_box(box, cylinder_size, prot):
     view = cmd.get_view()
     name = "%s_ref_box" % prot[0].upper()
     obj = []
-    # build cgo object
-    color = [1.05, 0.15, 1.5]
-    if prot != 'Target':
-        color = [1.00, 0.80, 0.80]
+    color = [1.00, 0.80, 0.80] if prot != 'Target' else [1.05, 0.15, 1.5]
     for i in range(2):
         for k in range(2):
             for j in range(2):
@@ -139,15 +136,13 @@ def load_rep(prot):
     cmd.color(prot['colors'][0], prot['prot_type'])  # color
     if prot['rep_type'] == 0:
         pymol_sel = '%s or ' % prot['prot_type']
-        lign = 1
         prot['ligands'].sort()
-        for lig in prot['ligands']:
+        for lign, lig in enumerate(prot['ligands'], start=1):
             cmd.load(lig, '%s_FILL_%s' % (prot['prot_type'][0], lign))  # load ligand
             if lign < len(prot['ligands']):
                 pymol_sel += '%s_FILL_%s or ' % (prot['prot_type'][0], lign)
             else:
                 pymol_sel += '%s_FILL_%s' % (prot['prot_type'][0], lign)
-            lign += 1
         ligand_sites_trans(pymol_sel)
         cmd.hide("sticks", prot['prot_type'])
         cmd.hide("ribbon", prot['prot_type'])
@@ -156,7 +151,7 @@ def load_rep(prot):
         cmd.color(prot['colors'][0], prot['prot_type'])  # redundant? is needed because ligand_sites_trans
         for lign in range(len(prot['ligands'])):
             cmd.color(prot['colors'][lign + 1], '%s_FILL_%s' % (prot['prot_type'][0], lign + 1))
-        # cmd.zoom('%s_ref_center'  % prot['prot_type'][0].upper(), 15, animate=1) # zoom to selected fill
+            # cmd.zoom('%s_ref_center'  % prot['prot_type'][0].upper(), 15, animate=1) # zoom to selected fill
 
     elif prot['rep_type'] == 1:
         cmd.load(prot['ligands'][0], '%s_FILL' % prot['prot_type'][0])  # load ligand
@@ -166,7 +161,7 @@ def load_rep(prot):
         res_list = []
         for x in prot['residues'].split(';'):
             x = str(x).strip()
-            if x and not x in res_list:
+            if x and x not in res_list:
                 res_list.append(x)
         for res in res_list:
             chain, resi, num = res.split(':')
@@ -175,7 +170,7 @@ def load_rep(prot):
                 util.cbag('chain %s and resi %s' % (chain, num))
             else:
                 util.cbam('chain %s and resi %s' % (chain, num))
-        # cmd.zoom('%s_FILL' % prot['prot_type'][0], 15, animate=1)
+            # cmd.zoom('%s_FILL' % prot['prot_type'][0], 15, animate=1)
 
     elif prot['rep_type'] == 2:
         cmd.load(prot['ligands'][0], '%s_ligand' % prot['prot_type'][0])
@@ -194,11 +189,12 @@ pymol_data = open('pymol_data.txt', 'w')
 if firts_prot['prot_pdb']:
     load_rep(firts_prot)
     pymol_data.write('%s %s %s %s %s %s %s\n' % (firts_prot['prot_type'].lower(), firts_prot['center'][0],
-                                               firts_prot['center'][1], firts_prot['center'][2], firts_prot['size'][0],
-                                               firts_prot['size'][1], firts_prot['size'][2]))
+                                                 firts_prot['center'][1], firts_prot['center'][2],
+                                                 firts_prot['size'][0],
+                                                 firts_prot['size'][1], firts_prot['size'][2]))
 if sec_prot['prot_pdb']:
     load_rep(sec_prot)
     pymol_data.write('%s %s %s %s %s %s %s\n' % (sec_prot['prot_type'].lower(), sec_prot['center'][0],
-                                               sec_prot['center'][1], sec_prot['center'][2], sec_prot['size'][0],
-                                               sec_prot['size'][1], sec_prot['size'][2]))
+                                                 sec_prot['center'][1], sec_prot['center'][2], sec_prot['size'][0],
+                                                 sec_prot['size'][1], sec_prot['size'][2]))
 pymol_data.close()
