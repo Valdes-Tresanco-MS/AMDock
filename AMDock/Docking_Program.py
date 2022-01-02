@@ -1,20 +1,20 @@
 #!/bin/python
 import sys
 from AMDock.checker import Checker
-from file_loader import *
-from info_tab import Help
-from input_tab import Program_body
-from lobby_tab import Lobby
-from output_file import OutputFile
-from result_tab import Results
-from setting_tab import Configuration_tab
-from variables import Variables
-from log_window import LogWindow
+from AMDock.file_loader import *
+from AMDock.info_tab import Help
+from AMDock.input_tab import Program_body
+from AMDock.lobby_tab import Lobby
+from AMDock.output_file import OutputFile
+from AMDock.result_tab import Results
+from AMDock.setting_tab import Configuration_tab
+from AMDock.variables import Variables
+from AMDock.log_window import LogWindow
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-from tools import (PROJECT, BASE)
-
+from AMDock.tools import (PROJECT, BASE)
+from AMDock import __version__
 
 class EmittingStream(QObject):
     textWritten = pyqtSignal(str)
@@ -39,8 +39,7 @@ class AMDock(QMainWindow, Variables):
         self.offtarget = BASE()
         self.ligand = BASE()
         self.log_thread = QThreadPool()
-        self.numeric_version = [1, 5, 2]
-        self.version = "{}.{}.{} For Windows and Linux".format(*self.numeric_version)
+        self.version = "{} For Windows and Linux".format(__version__)
         self.spacing_autoligand = 1.0
         self.spacing_autodock = 0.375
         self.pH = 7.40
@@ -142,7 +141,7 @@ class AMDock(QMainWindow, Variables):
         else:
             event.ignore()
 
-from splash_screen import SplashScreen
+from AMDock.splash_screen import SplashScreen
 # from variables import Objects as ob
 
 def run():
@@ -158,7 +157,6 @@ def run():
     # app.setStyle("cleanlooks")
     app.setWindowIcon(app_icon)
     app.setApplicationName('AMDock: Assisted Molecular Docking for AutoDock and AutoDock Vina')
-    print(v.splashscreen_path)
     splash = SplashScreen(QPixmap(v.splashscreen_path), app)
     main = AMDock()
     splash.finish(main)

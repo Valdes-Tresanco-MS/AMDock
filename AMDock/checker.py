@@ -1,4 +1,4 @@
-from warning import (prot_with_metal_warning, metal_no_ADzn_warning1,
+from AMDock.warning import (prot_with_metal_warning, metal_no_ADzn_warning1,
                      prot_with_metal_warning1, metal_no_ADzn_od_warning)
 
 

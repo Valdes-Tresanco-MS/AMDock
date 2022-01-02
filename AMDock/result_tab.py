@@ -3,11 +3,11 @@ from queue import Queue
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-from command_runner import PROCESS
-from rfile_show import Result_File
-from tools import FormatedText as Ft
-from variables import Variables
-from warning import amdock_file_warning
+from AMDock.command_runner import PROCESS
+from AMDock.rfile_show import Result_File
+from AMDock.tools import FormatedText as Ft
+from AMDock.variables import Variables
+from AMDock.warning import amdock_file_warning
 import math
 
 

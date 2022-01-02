@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-from tools import FormatedText as Ft
+from AMDock.tools import FormatedText as Ft
 
 class Lobby(QFrame):
     def __init__(self, parent=None):

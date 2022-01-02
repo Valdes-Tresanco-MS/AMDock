@@ -3,8 +3,8 @@ import re
 import shutil
 import time
 from PyQt5.QtWidgets import *
-from tools import FormatedText as Ft
-from warning import wdir_warning, same_protein, wdir3_warning
+from AMDock.tools import FormatedText as Ft
+from AMDock.warning import wdir_warning, same_protein, wdir3_warning
 
 
 class Loader:

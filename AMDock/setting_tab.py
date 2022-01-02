@@ -12,8 +12,8 @@ class Configuration_tab(QWidget):
         super(Configuration_tab, self).__init__(parent)
         self.setObjectName("configuration_tab")
         self.AMDock = parent
-        path = os.path.split(__file__)[0]
-        self.config = os.path.join(path, 'configuration.ini')
+
+        self.config = self.AMDock.config_file
 
         self.check_timer = QTimer()
         self.check_timer.timeout.connect(self.check_changes)
@@ -331,8 +331,7 @@ class Configuration_tab(QWidget):
             self.AMDock.log_widget.show()
 
     def configuration(self):
-        path = os.path.split(__file__)[0]
-        config = os.path.join(path, 'configuration.ini')
+        config = self.AMDock.config_file
         msg = self.AMDock.statusbar.currentMessage()
         self.AMDock.statusbar.clearMessage()
         self.AMDock.statusbar.showMessage('Wrote configuration file', 3000)

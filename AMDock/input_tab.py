@@ -7,12 +7,11 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from queue import Queue
-from command_runner import PROCESS, THREAD
-from result2tab import Result_Analysis
-from qradialbar import QRadialBar
-from tools import Fix_PQR, PDBINFO, BASE, PROJECT, Convert
-from tools import FormatedText as Ft
-from warning import (wdir2_warning, prot_warning, lig_warning, stop_warning, smallbox_warning,
+from AMDock.command_runner import PROCESS, THREAD
+from AMDock.result2tab import Result_Analysis
+from AMDock.qradialbar import QRadialBar
+from AMDock.tools import Fix_PQR, PDBINFO, BASE, PROJECT, Convert, FormatedText as Ft
+from AMDock.warning import (wdir2_warning, prot_warning, lig_warning, stop_warning, smallbox_warning,
                      reset_warning, define_wdir_loc, error_message)
 
 

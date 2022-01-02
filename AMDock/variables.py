@@ -2,6 +2,7 @@
 import multiprocessing
 import os
 import sys
+from pathlib import Path
 import AutoDockTools, pymol
 
 class Variables:
@@ -10,34 +11,37 @@ class Variables:
         self.docking_program = None
 
         self.this_python = sys.executable
-        self.amdock_dir = os.path.dirname(__file__)
+        self.amdock_dir = Path(__file__).parent
+        self.data_dir = self.amdock_dir.joinpath('data')
+
         self.extprg_path = os.path.join(self.amdock_dir, 'programs')
-        self.adt = os.path.dirname(AutoDockTools.__file__)
+        self.adt = Path(AutoDockTools.__file__).parent
         self.doc_path = os.path.join(os.path.join(self.amdock_dir, os.pardir, 'Doc'))
+        print(self.doc_path)
         self.pdb2pqr_py = 'pdb2pqr30'
-        self.prepare_gpf4_py = str(os.path.join(self.adt, 'Utilities24', 'prepare_gpf4.py'))
-        self.prepare_gpf4zn_py = str(os.path.join(self.extprg_path, 'prepare_gpf4zn.py'))
-        self.prepare_dpf_py = str(os.path.join(self.adt, 'Utilities24', 'prepare_dpf42.py'))
-        self.prepare_receptor4_py = str(os.path.join(self.adt, 'Utilities24', 'prepare_receptor4.py'))
-        self.prepare_ligand4_py = str(os.path.join(self.adt, 'Utilities24', 'prepare_ligand4.py'))
-        self.zinc_pseudo_py = os.path.join(self.extprg_path, 'zinc_pseudo.py')
-        self.zn_ff = os.path.join(self.extprg_path, 'AD4Zn.dat')
-        self.grid_pymol = os.path.join(self.extprg_path, 'grid_values.py')
-        self.vina_exec = os.path.join(self.extprg_path, 'vina')
-        self.autogrid = os.path.join(self.extprg_path, 'autogrid4')
-        self.autodock = os.path.join(self.extprg_path, 'autodock4')
-        self.autoligand_py = os.path.join(self.extprg_path, 'AutoLigand.py')
-        self.pymol = os.path.join(os.path.dirname(pymol.__file__), '__init__.py')
-        self.aln_pymol = os.path.join(self.extprg_path, 'protein_align_pymol.py')
+        self.prepare_gpf4_py = self.adt.joinpath('Utilities24', 'prepare_gpf4.py').as_posix()
+        self.prepare_gpf4zn_py = self.data_dir.joinpath('prepare_gpf4zn.py').as_posix()
+        self.prepare_dpf_py = self.adt.joinpath('Utilities24', 'prepare_dpf42.py').as_posix()
+        self.prepare_receptor4_py = self.adt.joinpath('Utilities24', 'prepare_receptor4.py').as_posix()
+        self.prepare_ligand4_py = self.adt.joinpath('Utilities24', 'prepare_ligand4.py').as_posix()
+        self.zinc_pseudo_py = self.data_dir.joinpath('zinc_pseudo.py').as_posix()
+        self.zn_ff = self.data_dir.joinpath('AD4Zn.dat').as_posix()
+        self.grid_pymol = self.data_dir.joinpath('grid_values.py').as_posix()
+        self.vina_exec = self.data_dir.joinpath('vina').as_posix()
+        self.autogrid = self.data_dir.joinpath('autogrid4').as_posix()
+        self.autodock = self.data_dir.joinpath('autodock4').as_posix()
+        self.autoligand_py = self.data_dir.joinpath('AutoLigand.py').as_posix()
+        self.pymol = Path(pymol.__file__).as_posix()
+        print(self.pymol)
+        self.aln_pymol = self.data_dir.joinpath('protein_align_pymol.py').as_posix()
         self.openbabel = 'obabel'
-        self.lig_site_pymol = os.path.join(self.extprg_path, 'ligand_site_pymol.py')
+        self.lig_site_pymol = self.data_dir.joinpath('ligand_site_pymol.py').as_posix()
         self.manual = os.path.join(self.doc_path, 'AMDock_Manual.pdf')
 
         self.prog_title = '<html><head/><body style="font-family:times;color:#000000;text-decoration: ' \
                           'underline;"><p><span style="font-size:24pt; font-weight:600;">AMDock</span><span ' \
                           'style="font-size:16pt;font-weight:500"> Assisted Molecular Docking with AutoDock4 and ' \
                           'AutoDock Vina</span></p></body></html> '
-
         self.project_tt = '<html><head/><body style="font-family: Times New Roman; font-size:10pt; color: ' \
                           'blue;"><p><span style="font-weight:600;">Defining the working directory. ' \
                           '</span></p><p><span style=" font-style:italic; text-decoration: underline;">Project ' \
@@ -47,7 +51,6 @@ class Variables:
                           'style="font-style:italic; text-decoration: underline;">Location for Project</span><span>: ' \
                           'Define the project´s location. </span><span style=" text-decoration: underline; ' \
                           'color:#ff0000;">This parameter is mandatory!!!</span></p></body></html> '
-
         self.input_tt = '<html><head/><body style="color: blue; font-family:Times New Roman; ' \
                         'font-size:10pt;"><p><span style="font-weight:600;">Defining the input files. ' \
                         '</span></p><p><span style="font-style:italic; text-decoration: underline;">Set ' \
@@ -175,14 +178,16 @@ class Variables:
                          "style='font-family:Times New Roman,serif; font-size:10pt;'>DeLano, W. L. (2002) The PyMOL " \
                          "Molecular Graphics System.</span></p></body></html> "
 
-        self.style_file = os.path.join(os.path.dirname(__file__), 'style.css')
-        self.iconsPath = os.path.join(os.path.dirname(__file__), 'images')
-        self.splashscreen_path = os.path.join(self.iconsPath, 'splashscreen.png')
-        self.app_icon = os.path.join(self.iconsPath, 'amdock_icon.png')
-        self.reset_icon = os.path.join(self.iconsPath, 'reset.png')
-        self.home_icon_white = os.path.join(self.iconsPath, 'home_icon_white.png')
-        self.home_icon = os.path.join(self.iconsPath, 'home_icon.png')
-        self.presentation = os.path.join(self.iconsPath, 'presentation.png').replace('\\', '/')
-        self.error_checker = os.path.join(self.iconsPath, 'error_checker.png')
-        self.error_checker_ok = os.path.join(self.iconsPath, 'error_checker_ok.png')
-        self.new_icon = os.path.join(self.iconsPath, 'new_icon.png')
+        self.style_file = self.data_dir.joinpath('style.css').as_posix()
+        self.config_file = self.data_dir.joinpath('configration.ini').as_posix()
+        self.splashscreen_path = self.data_dir.joinpath('splashscreen.png').as_posix()
+        self.app_icon = self.data_dir.joinpath('amdock_icon.png').as_posix()
+        self.reset_icon = self.data_dir.joinpath('reset.png').as_posix()
+        self.home_icon_white = self.data_dir.joinpath('home_icon_white.png').as_posix()
+        self.home_icon = self.data_dir.joinpath('home_icon.png').as_posix()
+        self.presentation = self.data_dir.joinpath('presentation.png').as_posix()
+        self.error_checker = self.data_dir.joinpath('error_checker.png').as_posix()
+        self.error_checker_ok = self.data_dir.joinpath('error_checker_ok.png').as_posix()
+        self.new_icon = self.data_dir.joinpath('new_icon.png').as_posix()
+
+Variables()
