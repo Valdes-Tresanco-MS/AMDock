@@ -29,7 +29,7 @@ class OutputFile:
                          '#                                                                              #\n'
                          '################################################################################\n'
                          '                 ____________________________________________                   \n'
-                         '                |'  + ('AMDock v.{:d}.{:d}.{:d}'.format(*self.AMDock.numeric_version)
+                         '                |'  + ('AMDock {}'.format(*self.AMDock.version.split()[0])
                                                  ).center(44) + '|                  \n'
                          '                |         Assisted Molecular Docking         |                  \n'
                          '                |      with AutoDock4 and AutoDock Vina      |                  \n'
