@@ -3,7 +3,9 @@
 
 name: Upload Python Package
 
-on: push
+on: 
+  release:
+    types: [created]
   
 jobs:
   deploy:
@@ -19,10 +21,9 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install setuptools wheel twine
-    - name: Build and publish
-      env:
-        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-      run: |
-        python setup.py sdist bdist_wheel
-        twine upload dist/*
+    - name: Publish package
+      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+      uses: pypa/gh-action-pypi-publish@v1.4.2
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_API_TOKEN }}
