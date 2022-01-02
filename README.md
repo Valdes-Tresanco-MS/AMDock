@@ -3,7 +3,7 @@ AMDock (Assisted Molecular Docking) is a user-friendly graphical tool to assist 
 complexes using Autodock-Vina or AutoDock4. This tool integrates several external programs for processing docking input 
 files, define the search space (box) and perform docking under user’s supervision.
 
-**Version 1.5.x for Linux** (**Build 1.5.0**)
+**Version 1.6.x for Linux** (**Build 1.6.1-beta**)
 
 **DOCUMENTATION**
 
@@ -61,6 +61,11 @@ PyMOL should automatically have:
 `~/.pymol/startup or /home/user_name/.pymol/startup` if not, please select the previous address<br>
 
 after this you must restart PyMol
+
+
+To open AMDock, type in the terminal:
+    
+    AMDock
 
 To view the update history, please check Changes_History file
 
