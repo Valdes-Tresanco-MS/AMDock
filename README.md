@@ -52,15 +52,12 @@ and finally:
     python3 -m pip install git+https://github.com/Valdes-Tresanco-MS/AutoDockTools_py3
     python3 -m pip install AMDock
     
-Before using AMDock, check that PyMOL has the AMDock plugin in taskbar.<br>
-If it does not appear please follow the instructions:<br>
-- Download the 
--open PyMOL > Plugins > Manager Plugins > Settings > Add new directory<br>
-PyMOL should automatically have:
+Before using AMDock, you most install the PyMOL plugin (grid_amdock.py).
 
-`~/.pymol/startup or /home/user_name/.pymol/startup` if not, please select the previous address<br>
-
-after this you must restart PyMol
+If it does not appear please follow the instructions:
+- Download the grid_amdock.py file
+- Open PyMOL > Plugins > Manager Plugins > Install New Plugin > Choose File and select the grid_amdock.py file
+- Restart PyMOL
 
 
 To open AMDock, type in the terminal:
