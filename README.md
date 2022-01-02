@@ -17,8 +17,14 @@ Valdes-Tresanco, M.S., Valdes-Tresanco, M.E., Valiente, P.A. and Moreno E. AMDoc
  <a href="https://www.scimagojr.com/journalsearch.php?q=5800173376&amp;tip=sid&amp;exact=no" title="SCImago Journal &amp; Country Rank"><img border="0" src="https://www.scimagojr.com/journal_img.php?id=5800173376" alt="SCImago Journal &amp; Country Rank"  /></a>
 
 **INSTALL**
+
 Installation can be carried out in two ways
-1. Using a conda environment. To do this, proceed as follows:
+1. (For Linux only) Using a conda environment. 
+
+Note: macOS users can use this procedure, however, PyMOL must be compiled using this environment's Python interpreter, 
+since there is no working version of PyMOL for mac in the anaconda repositories. 
+
+To do this, proceed as follows:
 
 If you don't have conda installed, please visit the [Miniconda download page](https://docs.conda.io/en/latest/miniconda.html).
 
@@ -63,6 +69,9 @@ If it does not appear please follow the instructions:
 To open AMDock, type in the terminal:
     
     AMDock
+
+For macOS users, 
+
 
 To view the update history, please check Changes_History file
 
