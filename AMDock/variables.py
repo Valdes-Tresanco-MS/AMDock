@@ -4,6 +4,8 @@ import os
 import sys
 from pathlib import Path
 import AutoDockTools, pymol
+import platform
+
 
 class Variables:
     def __init__(self):
@@ -14,10 +16,8 @@ class Variables:
         self.amdock_dir = Path(__file__).parent
         self.data_dir = self.amdock_dir.joinpath('data')
 
-        self.extprg_path = os.path.join(self.amdock_dir, 'programs')
         self.adt = Path(AutoDockTools.__file__).parent
         self.doc_path = os.path.join(os.path.join(self.amdock_dir, os.pardir, 'Doc'))
-        print(self.doc_path)
         self.pdb2pqr_py = 'pdb2pqr30'
         self.prepare_gpf4_py = self.adt.joinpath('Utilities24', 'prepare_gpf4.py').as_posix()
         self.prepare_gpf4zn_py = self.data_dir.joinpath('prepare_gpf4zn.py').as_posix()
@@ -27,12 +27,16 @@ class Variables:
         self.zinc_pseudo_py = self.data_dir.joinpath('zinc_pseudo.py').as_posix()
         self.zn_ff = self.data_dir.joinpath('AD4Zn.dat').as_posix()
         self.grid_pymol = self.data_dir.joinpath('grid_values.py').as_posix()
-        self.vina_exec = self.data_dir.joinpath('vina').as_posix()
-        self.autogrid = self.data_dir.joinpath('autogrid4').as_posix()
-        self.autodock = self.data_dir.joinpath('autodock4').as_posix()
+        if platform.system() == 'Darwin':
+            self.vina_exec = self.data_dir.joinpath('vina_mac').as_posix()
+            self.autogrid = self.data_dir.joinpath('autogrid4_mac').as_posix()
+            self.autodock = self.data_dir.joinpath('autodock4_mac').as_posix()
+        else:
+            self.vina_exec = self.data_dir.joinpath('vina').as_posix()
+            self.autogrid = self.data_dir.joinpath('autogrid4').as_posix()
+            self.autodock = self.data_dir.joinpath('autodock4').as_posix()
         self.autoligand_py = self.data_dir.joinpath('AutoLigand.py').as_posix()
         self.pymol = Path(pymol.__file__).as_posix()
-        print(self.pymol)
         self.aln_pymol = self.data_dir.joinpath('protein_align_pymol.py').as_posix()
         self.openbabel = 'obabel'
         self.lig_site_pymol = self.data_dir.joinpath('ligand_site_pymol.py').as_posix()
