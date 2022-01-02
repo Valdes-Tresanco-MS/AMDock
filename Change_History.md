@@ -1,4 +1,6 @@
 # Changes History
+## Version 1.6.1-beta
+Python3 translation
 ##Version 1.5.x
 - Added keep metals option (Experimental)
 - User-define metal charge (Experimental)
