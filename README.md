@@ -1,3 +1,7 @@
+[![pypi](https://img.shields.io/pypi/v/AMDock)](https://pypi.org/project/AMDock/)
+[![support](https://img.shields.io/badge/support-JetBrains-brightgreen)](https://www.jetbrains.com/?from=gmx_MMPBSA)
+[![python](https://img.shields.io/badge/python-v3.x-blue)]()
+[![DOI](https://img.shields.io/badge/DOI-10.1186%2Fs13062--020--00267--2-blue)](https://doi.org/10.1186/s13062-020-00267-2)
 # AMDock: **A***ssisted* **M***olecular* **Dock***ing with Autodock4 and Autodock Vina*
 AMDock (Assisted Molecular Docking) is a user-friendly graphical tool to assist in the docking of protein-ligand 
 complexes using Autodock-Vina or AutoDock4. This tool integrates several external programs for processing docking input 
