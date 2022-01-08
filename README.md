@@ -74,6 +74,10 @@ To open AMDock, type in the terminal:
     
     AMDock
 
+Note: You can add this line to the .bashrc file to activate de AMDock conda environment and execute AMDock directly
+
+    alias amdock="conda activate AMDock; AMDock"
+
 For macOS users, 
 
 
