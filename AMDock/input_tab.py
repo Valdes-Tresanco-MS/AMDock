@@ -2101,9 +2101,9 @@ class Program_body(QWidget):
     def pymol_readStdOutput(self):
         pymol_output = None
         if hasattr(self, 'b_pymol'):
-            pymol_output = str(self.b_pymol.process.readAllStandardOutput())
+            pymol_output = str(self.b_pymol.process.readAllStandardOutput(), "utf-8")
         if pymol_output:
-            self.pymol_out = str(pymol_output)
+            self.pymol_out = pymol_output.strip('\n')
         else:
             return
         print(self.pymol_out)

@@ -519,9 +519,9 @@ class AMDockPlugin:
             if sel:
                 stored.xyz_target = []
                 cmd.iterate_state(1, sel, "stored.xyz_target.append([x,y,z])")
-                xx = average(map(lambda a: a[0], stored.xyz_target))
-                yy = average(map(lambda a: a[1], stored.xyz_target))
-                zz = average(map(lambda a: a[2], stored.xyz_target))
+                xx = average([a[0] for a in stored.xyz_target])
+                yy = average([a[1] for a in stored.xyz_target])
+                zz = average([a[2] for a in stored.xyz_target])
                 self.target_grid_center[0].set(round(xx, 2))
                 self.target_grid_center[1].set(round(yy, 2))
                 self.target_grid_center[2].set(round(zz, 2))
@@ -534,9 +534,9 @@ class AMDockPlugin:
             if sel:
                 stored.xyz_offtarget = []
                 cmd.iterate_state(1, sel, "stored.xyz_offtarget.append([x,y,z])")
-                xx = average(map(lambda a: a[0], stored.xyz_offtarget))
-                yy = average(map(lambda a: a[1], stored.xyz_offtarget))
-                zz = average(map(lambda a: a[2], stored.xyz_offtarget))
+                xx = average([a[0] for a in stored.xyz_target])
+                yy = average([a[1] for a in stored.xyz_target])
+                zz = average([a[2] for a in stored.xyz_target])
                 self.offtarget_grid_center[0].set(round(xx, 2))
                 self.offtarget_grid_center[1].set(round(yy, 2))
                 self.offtarget_grid_center[2].set(round(zz, 2))
