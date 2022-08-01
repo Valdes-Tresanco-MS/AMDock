@@ -35,7 +35,7 @@ class Lobby(QFrame):
         self.results_button.setMinimumSize(180, 70)
         self.results_button.setMaximumSize(180, 70)
         self.results_button.setObjectName("results_button")
-        self.results_button.setText("Analize Results")
+        self.results_button.setText("Analyze Results")
         self.results_button.clicked.connect(self.result_select)
         self.results_button.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
