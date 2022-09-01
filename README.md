@@ -35,7 +35,7 @@ If you don't have conda installed, please visit the [Miniconda download page](ht
 Those with an existing conda installation may wish to create a new conda "environment" to avoid conflicts with what 
 you already have installed. To do this:
 
-    conda create --name AMDock
+    conda create --name AMDock python=3.9
     conda activate AMDock
 
 (Note that you would need to perform the "conda activate" step every time you wish to use AMDock in a new terminal; 
@@ -48,7 +48,7 @@ Once this is done, type:
 
 and finally: 
 
-    python -m pip install git+https://github.com/Valdes-Tresanco-MS/AutoDockTools_py3
+    python -m pip install git+https://github.com/Valdes-Tresanco-MS/AutoDockTools_py3 PyQt5
     python -m pip install AMDock
 
 2. Using the OS Python 3 environment. To do this, proceed as follows:
@@ -58,7 +58,7 @@ and finally:
 
 (Note that this version of AMDock works with openbabel 3.x)
 
-    python3 -m pip install pdb2pqr
+    python3 -m pip install pdb2pqr PyQt5
     python3 -m pip install git+https://github.com/Valdes-Tresanco-MS/AutoDockTools_py3
     python3 -m pip install AMDock
     
