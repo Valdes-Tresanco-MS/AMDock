@@ -34,7 +34,7 @@ class SplashScreen(QSplashScreen):
                 text.setText('Error... Cann\'t be loaded Module: %s' % i)
             time.sleep(0.2)
             ml += 12.5
-            progress_bar.setValue(ml)
+            progress_bar.setValue(int(ml))
             app.processEvents()
         print(self.non_loaded)
         if len(self.non_loaded) != 0:

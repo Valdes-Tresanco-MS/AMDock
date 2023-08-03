@@ -92,6 +92,15 @@ class LogWindow(QDockWidget):
         # self.setWidget(self.textedit)
         self.setWidget(self.container)
 
+    def jump(self):
+        self.textedit.verticalScrollBar().setValue(int(self.textedit.verticalScrollBar().maximum()))
+
+    def ch_state(self, st):
+        if st.isChecked() is False:
+            self.close()
+        else:
+            self.show()
+
     def file_save(self):
         if self.AMDock.project.log:
             wfile = open(self.AMDock.project.log, 'w')
@@ -113,12 +122,3 @@ class LogWindow(QDockWidget):
         if msg == QMessageBox.Yes:
             self.textedit.clear()
             self.textedit.append('Welcome to AMDock\nVersion %s\n' % self.AMDock.version)
-
-    def jump(self):
-        self.textedit.verticalScrollBar().setValue(self.textedit.verticalScrollBar().maximum())
-
-    def ch_state(self, st):
-        if st.isChecked() is False:
-            self.close()
-        else:
-            self.show()

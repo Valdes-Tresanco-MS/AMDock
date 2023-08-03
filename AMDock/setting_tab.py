@@ -104,9 +104,9 @@ class Configuration_tab(QWidget):
 
         self.nposes_value = QSpinBox(self.vina_config_box)
         self.nposes_value.setAlignment(Qt.AlignCenter)
-        self.nposes_value.setMinimum(1.0)
-        self.nposes_value.setMaximum(20.0)
-        self.nposes_value.setSingleStep(1.0)
+        self.nposes_value.setMinimum(1)
+        self.nposes_value.setMaximum(20)
+        self.nposes_value.setSingleStep(1)
         self.nposes_value.setObjectName("nposes_value")
 
         self.AD4_config_box = QGroupBox(self)
@@ -290,7 +290,6 @@ class Configuration_tab(QWidget):
             if self.AMDock.forcefield == button.text():
                 button.setChecked(True)
         self.cpu_label.setText("%s" % self.AMDock.ncpu + " CPU in use of %s" % self.number_cpu)
-        self.horizontalSlider.setValue(self.AMDock.ncpu)
         self.exh_value.setValue(self.AMDock.exhaustiveness)
         self.nposes_value.setValue(self.AMDock.poses_vina)
         self.neval_value.setValue(self.AMDock.ga_num_eval)

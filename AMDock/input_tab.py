@@ -1433,11 +1433,11 @@ class Program_body(QWidget):
                                                                           self.lig_size, self.AMDock.offtarget.name)
                         if self.grid_optB == QMessageBox.Yes:
                             if 'x' in self.dim_listB:
-                                self.size_xB.setValue(self.lig_size)
+                                self.size_xB.setValue(int(self.lig_size))
                             if 'y' in self.dim_listB:
-                                self.size_yB.setValue(self.lig_size)
+                                self.size_yB.setValue(int(self.lig_size))
                             if 'z' in self.dim_listB:
-                                self.size_zB.setValue(self.lig_size)
+                                self.size_zB.setValue(int(self.lig_size))
                         self.sizeB = [int(self.size_xB.value()), int(self.size_yB.value()), int(self.size_zB.value())]
 
         self.W.set_queue(queue)  # , 'Prepare Input Files')
@@ -3165,12 +3165,12 @@ class Program_body(QWidget):
             self.progressBar_global.setValue(50)
             self.progressBar_section.setValue(0)
             self.program_label.setText('Processing Input Files...Done.')
-            self.size_x.setValue(self.lig_size)
-            self.size_y.setValue(self.lig_size)
-            self.size_z.setValue(self.lig_size)
-            self.size_xB.setValue(self.lig_size)
-            self.size_yB.setValue(self.lig_size)
-            self.size_zB.setValue(self.lig_size)
+            self.size_x.setValue(int(self.lig_size))
+            self.size_y.setValue(int(self.lig_size))
+            self.size_z.setValue(int(self.lig_size))
+            self.size_xB.setValue(int(self.lig_size))
+            self.size_yB.setValue(int(self.lig_size))
+            self.size_zB.setValue(int(self.lig_size))
             self.AMDock.log_widget.textedit.append(Ft('Prepare Initial Files...Done.\n').section())
         elif self.AMDock.section == 2:
             self.progressBar_global.setValue(75)
